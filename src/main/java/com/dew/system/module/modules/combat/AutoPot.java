@@ -1,0 +1,129 @@
+package com.dew.system.module.modules.combat;
+
+import com.dew.DewCommon;
+import com.dew.system.event.events.*;
+import com.dew.system.module.Module;
+import com.dew.system.module.ModuleCategory;
+import com.dew.system.module.modules.player.Scaffold;
+import com.dew.system.settingsvalue.NumberValue;
+import com.dew.utils.MovementUtil;
+import net.minecraft.block.*;
+import net.minecraft.client.gui.inventory.GuiChest;
+import net.minecraft.init.Items;
+import net.minecraft.item.ItemPotion;
+import net.minecraft.item.ItemStack;
+import net.minecraft.potion.Potion;
+import net.minecraft.potion.PotionEffect;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.MovingObjectPosition;
+import org.lwjgl.input.Keyboard;
+
+public class AutoPot extends Module {
+
+    public AutoPot() {
+        super("Auto Pot", ModuleCategory.COMBAT, Keyboard.KEY_NONE, false, true, true);
+    }
+
+    private static final NumberValue throwDelay = new NumberValue("Throw Delay", 15.0, 0.0, 10.0, 0.1);
+
+    private int tickDelayCounter = 0;
+    private int stage = 0;
+    private int prevSlot = -1;
+    private int targetSlot = -1;
+
+    public boolean isThrowing() {
+        return stage != 0;
+    }
+
+    @Override
+    public void onDisable() {
+        this.resetState();
+    }
+
+    @Override
+    public void onWorld(WorldEvent event) {
+        this.resetState();
+    }
+
+    private void resetState() {
+        tickDelayCounter = 0;
+        stage = 0;
+        prevSlot = -1;
+        targetSlot = -1;
+    }
+
+    @Override
+    public void onPreUpdate(PreUpdateEvent event) {
+        MovingObjectPosition mop = mc.objectMouseOver;
+        if (mop != null && mop.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {
+            BlockPos pos = mop.getBlockPos();
+            Block block = mc.theWorld.getBlockState(pos).getBlock();
+
+            if (block instanceof BlockChest || block instanceof BlockEnderChest || block instanceof BlockWorkbench || block instanceof BlockFurnace || block instanceof BlockAnvil || block instanceof BlockFenceGate || block instanceof BlockTrapDoor || block instanceof BlockDoor) {
+                tickDelayCounter = 0;
+                return;
+            }
+        }
+
+        if (mc.thePlayer == null || mc.theWorld == null || mc.thePlayer.isUsingItem() || mc.currentScreen != null || !DewCommon.handleEvents.canRotation() || stage == 0 && !MovementUtil.isBlockUnderPlayer(mc.thePlayer, 2, 0.2, false) || DewCommon.moduleManager.getModule(Scaffold.class).isEnabled()) {
+            tickDelayCounter = 0;
+            return;
+        }
+
+        if (tickDelayCounter > 0) {
+            tickDelayCounter--;
+            return;
+        }
+
+        switch (stage) {
+            case 0:
+                for (int i = 0; i < 9; i++) {
+                    ItemStack stack = mc.thePlayer.inventory.getStackInSlot(i);
+                    if (stack != null && stack.getItem() == Items.potionitem && ItemPotion.isSplash(stack.getMetadata())) {
+                        ItemPotion potion = (ItemPotion) stack.getItem();
+                        for (PotionEffect o : potion.getEffects(stack)) {
+                            Potion potionType = Potion.potionTypes[o.getPotionID()];
+                            if (potionType != null && !potionType.isBadEffect() && !mc.thePlayer.isPotionActive(potionType) && (!potionType.isInstant() || mc.thePlayer.getHealth() < 10f) && (potionType.getId() != Potion.regeneration.getId() || mc.thePlayer.getHealth() < 15f)) {
+                                targetSlot = i;
+                                break;
+                            }
+                        }
+                    }
+                    if (targetSlot != -1) break;
+                }
+
+                if (targetSlot != -1) {
+                    prevSlot = mc.thePlayer.inventory.currentItem;
+                    mc.thePlayer.inventory.currentItem = targetSlot;
+                    mc.playerController.updateController();
+
+                    DewCommon.rotationManager.setRotations(mc.thePlayer.rotationYaw, 90f);
+                    stage = 1;
+                    tickDelayCounter = 1;
+                }
+
+                break;
+
+            case 1:
+                DewCommon.rotationManager.setRotations(mc.thePlayer.rotationYaw, 90f);
+                stage = 2;
+                break;
+
+            case 2:
+                DewCommon.rotationManager.setRotations(mc.thePlayer.rotationYaw, 90f);
+                mc.rightClickMouse();
+                stage = 3;
+                break;
+
+            case 3:
+                if (prevSlot != -1) {
+                    mc.thePlayer.inventory.currentItem = prevSlot;
+                    mc.playerController.updateController();
+                }
+
+                this.resetState();
+                tickDelayCounter = (int) Math.max(1, throwDelay.get());
+                break;
+        }
+    }
+}

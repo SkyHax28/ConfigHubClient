@@ -1,0 +1,96 @@
+package com.dew.system.module.modules.player;
+
+import com.dew.DewCommon;
+import com.dew.system.event.events.PreUpdateEvent;
+import com.dew.system.event.events.WorldEvent;
+import com.dew.system.module.Module;
+import com.dew.system.module.ModuleCategory;
+import com.dew.system.settingsvalue.NumberValue;
+import net.minecraft.client.gui.inventory.GuiChest;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.item.ItemStack;
+import org.lwjgl.input.Keyboard;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+public class ChestStealer extends Module {
+
+    public ChestStealer() {
+        super("Chest Stealer", ModuleCategory.PLAYER, Keyboard.KEY_NONE, false, true, true);
+    }
+
+    private static final NumberValue stealDelay = new NumberValue("Steal Delay", 2.0, 0.0, 10.0, 0.1);
+    private static final NumberValue closeDelay = new NumberValue("Close Delay", 1.5, 0.0, 10.0, 0.1);
+
+    private int tickDelayCounter = 0;
+    private int closeTickCounter = 0;
+
+    @Override
+    public void onDisable() {
+        this.resetState();
+    }
+
+    @Override
+    public void onWorld(WorldEvent event) {
+        this.setState(false);
+    }
+
+    private void resetState() {
+        tickDelayCounter = 0;
+        closeTickCounter = 0;
+    }
+
+    @Override
+    public void onPreUpdate(PreUpdateEvent event) {
+        if (mc.thePlayer == null || !(mc.currentScreen instanceof GuiChest)) {
+            this.resetState();
+            return;
+        }
+
+        if (tickDelayCounter > 0) {
+            tickDelayCounter--;
+            return;
+        }
+
+        GuiChest chestGui = (GuiChest) mc.currentScreen;
+        IInventory chestInventory = chestGui.lowerChestInventory;
+
+        List<Integer> slotIndices = new ArrayList<>();
+        for (int i = 0; i < chestInventory.getSizeInventory(); i++) {
+            slotIndices.add(i);
+        }
+        Collections.shuffle(slotIndices);
+
+        for (int i : slotIndices) {
+            ItemStack stack = chestInventory.getStackInSlot(i);
+            if (stack != null && !DewCommon.moduleManager.getModule(InvManager.class).isTrash(stack)) {
+                mc.playerController.windowClick(mc.thePlayer.openContainer.windowId, i, 0, 1, mc.thePlayer);
+                tickDelayCounter = (int) Math.max(1, stealDelay.get());
+                closeTickCounter = 0;
+                return;
+            }
+        }
+
+        boolean chestEmpty = true;
+        for (int i = 0; i < chestInventory.getSizeInventory(); i++) {
+            ItemStack stack = chestInventory.getStackInSlot(i);
+            if (DewCommon.moduleManager.getModule(InvManager.class).isTrash(stack)) continue;
+            if (chestInventory.getStackInSlot(i) != null) {
+                chestEmpty = false;
+                break;
+            }
+        }
+
+        if (chestEmpty) {
+            closeTickCounter++;
+            if (closeTickCounter >= closeDelay.get()) {
+                mc.thePlayer.closeScreen();
+                closeTickCounter = 0;
+            }
+        } else {
+            closeTickCounter = 0;
+        }
+    }
+}

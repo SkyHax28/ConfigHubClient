@@ -1,0 +1,41 @@
+package com.dew.system.module.modules.movement;
+
+import com.dew.system.module.Module;
+import com.dew.system.module.ModuleCategory;
+import com.dew.system.settingsvalue.SelectionValue;
+import org.lwjgl.input.Keyboard;
+
+public class NoSlow extends Module {
+
+    public NoSlow() {
+        super("No Slow", ModuleCategory.MOVEMENT, Keyboard.KEY_NONE, false, true, true);
+    }
+
+    private static final SelectionValue mode = new SelectionValue("Mode", "Vanilla", "Vanilla", "Hypixel");
+
+    private boolean hypJumped = false;
+
+    @Override
+    public String tag() {
+        return mode.get();
+    }
+
+    public boolean canNoSlow() {
+        if (!this.isEnabled()) return false;
+        switch (mode.get().toLowerCase()) {
+            case "vanilla":
+                return true;
+
+            case "hypixel":
+                return hypJumped;
+
+            default:
+                return false;
+        }
+    }
+
+    @Override
+    public void onDisable() {
+        hypJumped = false;
+    }
+}
