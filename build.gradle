@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
 }
 
 group = 'com.dew'
@@ -55,3 +56,11 @@ dependencies {
 
     implementation fileTree(dir: 'libraries', include: ['*.jar'])
 }
+
+shadowJar {
+    archiveBaseName.set('Dew')
+    archiveVersion.set('')
+    archiveClassifier.set('')
+}
+
+build.dependsOn shadowJar
