@@ -42,7 +42,8 @@ public class HypixelPredictionFlight implements FlightMode {
 
         mc.thePlayer.capabilities.isFlying = true;
         mc.thePlayer.motionY = 0f;
-        TimerUtil.setTimerSpeed(0.7f);
+        MovementUtil.strafe(0.3f);
+        TimerUtil.setTimerSpeed(0.3f);
     }
 
     @Override
