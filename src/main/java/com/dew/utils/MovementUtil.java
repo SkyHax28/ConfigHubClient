@@ -210,8 +210,8 @@ public class MovementUtil {
                 f = 1.0F;
             }
             f = friction / f;
-            float f1 = MathHelper.sin(yaw * (float)Math.PI / 180.0F);
-            float f2 = MathHelper.cos(yaw * (float)Math.PI / 180.0F);
+            float f1 = MathHelper.sin(yaw * (float) Math.PI / 180.0F);
+            float f2 = MathHelper.cos(yaw * (float) Math.PI / 180.0F);
             mc.thePlayer.motionX += (calcStrafe *= f) * f2 - (calcForward *= f) * f1;
             mc.thePlayer.motionZ += calcForward * f2 + calcStrafe * f1;
         }

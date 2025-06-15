@@ -20,7 +20,7 @@ public class BindCommand extends Command {
     @Override
     public void execute(String[] args) {
         if (args.length < 2) {
-            LogUtil.printChat("§cUsage: .bind <module> <key>");
+            LogUtil.printChat("§cUsage: .bind <module> <key> nega");
             return;
         }
 

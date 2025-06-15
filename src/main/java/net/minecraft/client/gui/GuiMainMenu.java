@@ -1,6 +1,7 @@
 package net.minecraft.client.gui;
 
 import com.dew.system.gui.AltManagerGuiScreen;
+import com.dew.system.screens.TokenLoginScreen;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import java.io.BufferedReader;
@@ -296,6 +297,10 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
                 GuiYesNo guiyesno = GuiSelectWorld.makeDeleteWorldYesNo(this, worldinfo.getWorldName(), 12);
                 this.mc.displayGuiScreen(guiyesno);
             }
+        }
+        if (button.id == 14){
+            mc.displayGuiScreen(new TokenLoginScreen());
+
         }
     }
 

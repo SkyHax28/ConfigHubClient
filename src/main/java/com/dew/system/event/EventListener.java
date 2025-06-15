@@ -44,4 +44,5 @@ public interface EventListener {
 
     default void onStrafe(StrafeEvent event) {
     }
+
 }

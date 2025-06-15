@@ -9,6 +9,7 @@ import com.dew.system.event.EventManager;
 import com.dew.system.module.HandleEvents;
 import com.dew.system.module.ModuleManager;
 import com.dew.system.rotation.RotationManager;
+import com.dew.system.screens.utils.SessionChanger;
 import com.dew.utils.LogUtil;
 import com.dew.utils.WingsManager;
 import com.dew.utils.fonts.CustomFontRenderer;
@@ -18,6 +19,8 @@ import net.minecraft.util.ResourceLocation;
 import java.awt.*;
 import java.io.File;
 import java.io.InputStream;
+
+import static com.dew.IMinecraft.mc;
 
 public class DewCommon {
 
@@ -36,7 +39,7 @@ public class DewCommon {
     public static RotationManager rotationManager;
     public static WingsManager wingsManager;
 
-    public static final File BASE_CFG_DIR = new File(IMinecraft.mc.mcDataDir, "dew");
+    public static final File BASE_CFG_DIR = new File(mc.mcDataDir, "dew");
 
     public static void preInitClient() {
         LogUtil.infoLog("(PRE) Initializing " + clientName + " Client...");
@@ -50,7 +53,9 @@ public class DewCommon {
         }
 
         initViaMCP();
-
+        // Setting session
+        SessionChanger.previousSession = mc.session;
+        // Client initialization
         eventManager = new EventManager();
         moduleConfigManager = new ModuleConfigManager();
         bindConfigManager = new BindConfigManager();
@@ -62,7 +67,7 @@ public class DewCommon {
 
         Font font;
         try {
-            InputStream is = IMinecraft.mc.getResourceManager()
+            InputStream is = mc.getResourceManager()
                     .getResource(new ResourceLocation("minecraft", "dew/rubik.ttf"))
                     .getInputStream();
 

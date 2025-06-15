@@ -11,7 +11,7 @@ import net.minecraft.util.*;
 public class RotationManager {
     private final Minecraft mc = IMinecraft.mc;
 
-    private float clientYaw, clientPitch;
+    private static float clientYaw, clientPitch;
     private float prevClientYaw, prevClientPitch;
 
     private long lastRotationUpdate = 0L;

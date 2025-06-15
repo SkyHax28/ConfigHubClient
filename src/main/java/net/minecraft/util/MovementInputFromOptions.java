@@ -1,5 +1,4 @@
 package net.minecraft.util;
-
 import net.minecraft.client.settings.GameSettings;
 
 public class MovementInputFromOptions extends MovementInput
@@ -35,10 +34,8 @@ public class MovementInputFromOptions extends MovementInput
         {
             --this.moveStrafe;
         }
-
         this.jump = this.gameSettings.keyBindJump.isKeyDown();
         this.sneak = this.gameSettings.keyBindSneak.isKeyDown();
-
         if (this.sneak)
         {
             this.moveStrafe = (float)((double)this.moveStrafe * 0.3D);
