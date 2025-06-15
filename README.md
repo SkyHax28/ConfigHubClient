@@ -1,5 +1,6 @@
 # Dew
-Please do not share the source code/build of this client
+Please do not share the source code/build of this client.
+Discord https://discord.gg/hxGDhxAHYj
 
 # How to setup
 Clone the repository into whatever folder you want (Mine is in my coding folder), open the project in Intellij IDEA then make a new run configuration (Application)
