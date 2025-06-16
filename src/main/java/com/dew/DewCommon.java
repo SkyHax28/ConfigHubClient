@@ -25,7 +25,6 @@ import static com.dew.IMinecraft.mc;
 public class DewCommon {
 
     public static String clientName = "Dew";
-    public static String clientVersion = "0.0.1";
 
     public static EventManager eventManager;
     public static ModuleManager moduleManager;
