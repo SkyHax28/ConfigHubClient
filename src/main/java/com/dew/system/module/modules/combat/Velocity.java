@@ -9,6 +9,7 @@ import com.dew.system.module.ModuleCategory;
 import com.dew.system.module.modules.movement.speed.SpeedModule;
 import com.dew.system.settingsvalue.SelectionValue;
 import com.dew.utils.BlinkUtil;
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S12PacketEntityVelocity;
 import org.lwjgl.input.Keyboard;
@@ -19,7 +20,7 @@ public class Velocity extends Module {
         super("Velocity", ModuleCategory.COMBAT, Keyboard.KEY_NONE, false, true, true);
     }
 
-    private static final SelectionValue mode = new SelectionValue("Mode", "Normal", "Normal", "Hypixel");
+    private static final SelectionValue mode = new SelectionValue("Mode", "Normal", "Normal", "Hypixel", "Jump");
 
     private int hypTick = 0;
 
@@ -62,6 +63,26 @@ public class Velocity extends Module {
                     }
                     event.cancel();
                     break;
+                case "jump":
+                    EntityPlayerSP player = mc.thePlayer;
+                    if (player == null) return;
+
+                    if (event.packet instanceof S12PacketEntityVelocity) {
+                        S12PacketEntityVelocity packet1 = (S12PacketEntityVelocity) packet;
+                        if (packet1.getEntityID() == player.getEntityId()) {
+                            if (player.onGround && player.isSprinting()) {
+                                int motionX = packet1.getMotionX();
+                                int motionZ = packet1.getMotionZ();
+
+                                double horizontal = motionX * motionX + motionZ * motionZ;
+                                double horizontalStrength = Math.sqrt(horizontal);
+
+                                if (horizontalStrength <= 1000) return;
+
+                                mc.thePlayer.jump();
+                            }
+                        }
+                    }
             }
         }
     }
