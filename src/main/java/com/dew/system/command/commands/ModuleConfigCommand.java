@@ -8,23 +8,27 @@ import com.dew.utils.LogUtil;
 public class ModuleConfigCommand extends Command {
 
     public ModuleConfigCommand() {
-        super("m");
+        super("c");
     }
 
     @Override
     public String getUsage() {
-        return "m <load/save/list> <name> - Customize module configuration through ConfigManager";
+        return "c <load/save/list> <name> - Customize module configuration through ConfigManager";
     }
 
     @Override
     public void execute(String[] args) {
         if (args.length < 1) {
-            LogUtil.printChat("§cUsage: .m <load/save/list> <name>");
+            LogUtil.printChat("§cUsage: .c <load/save/list> <name>");
             return;
         }
 
         switch (args[0].toLowerCase()) {
             case "load":
+                if (args.length < 2) {
+                    LogUtil.printChat("§cUsage: .c load <name>");
+                    return;
+                }
                 if (DewCommon.moduleConfigManager.load(args[1], DewCommon.moduleManager.getModules())) {
                     LogUtil.printChat("Loaded module config: " + args[1]);
                 } else {
@@ -33,6 +37,10 @@ public class ModuleConfigCommand extends Command {
                 break;
 
             case "save":
+                if (args.length < 2) {
+                    LogUtil.printChat("§cUsage: .c save <name>");
+                    return;
+                }
                 DewCommon.moduleConfigManager.save(args[1], DewCommon.moduleManager.getModules());
                 LogUtil.printChat("Saved module config: " + args[1]);
                 break;
@@ -45,7 +53,7 @@ public class ModuleConfigCommand extends Command {
                 break;
 
             default:
-                LogUtil.printChat("§cUsage: .m <load/save/create> <name>");
+                LogUtil.printChat("§cUsage: .c <load/save/create> <name>");
                 break;
         }
     }

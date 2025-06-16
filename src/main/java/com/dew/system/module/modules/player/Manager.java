@@ -21,10 +21,10 @@ import org.lwjgl.input.Keyboard;
 
 import java.util.*;
 
-public class InvManager extends Module {
+public class Manager extends Module {
 
-    public InvManager() {
-        super("Inv Manager", ModuleCategory.PLAYER, Keyboard.KEY_NONE, false, true, true);
+    public Manager() {
+        super("Manager", ModuleCategory.PLAYER, Keyboard.KEY_NONE, false, true, true);
     }
 
     private static final NumberValue delay = new NumberValue("Delay", 4.0, 0.0, 10.0, 0.1);

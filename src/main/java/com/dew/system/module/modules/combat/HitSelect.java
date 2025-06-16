@@ -20,7 +20,7 @@ public class HitSelect extends Module {
     private boolean currentShouldAttack = false;
 
     public HitSelect() {
-        super("HitSelect", ModuleCategory.COMBAT, Keyboard.KEY_NONE, false, true, true);
+        super("Hit Select", ModuleCategory.COMBAT, Keyboard.KEY_NONE, false, true, true);
     }
     public boolean canAttack() {
         boolean canAttack = currentShouldAttack;

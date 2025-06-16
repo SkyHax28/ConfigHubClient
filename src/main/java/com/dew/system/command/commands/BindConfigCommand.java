@@ -24,6 +24,10 @@ public class BindConfigCommand extends Command {
 
         switch (args[0].toLowerCase()) {
             case "load":
+                if (args.length < 2) {
+                    LogUtil.printChat("§cUsage: .b load <name>");
+                    return;
+                }
                 if (DewCommon.bindConfigManager.load(args[1], DewCommon.moduleManager.getModules())) {
                     LogUtil.printChat("Loaded bind config: " + args[1]);
                 } else {
@@ -32,6 +36,10 @@ public class BindConfigCommand extends Command {
                 break;
 
             case "save":
+                if (args.length < 2) {
+                    LogUtil.printChat("§cUsage: .b save <name>");
+                    return;
+                }
                 DewCommon.bindConfigManager.save(args[1], DewCommon.moduleManager.getModules());
                 LogUtil.printChat("Saved bind config: " + args[1]);
                 break;

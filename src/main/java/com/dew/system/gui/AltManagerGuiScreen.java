@@ -3,6 +3,7 @@ package com.dew.system.gui;
 import com.dew.DewCommon;
 import com.dew.system.altmanager.Alt;
 import com.dew.system.altmanager.login.MicrosoftAuth;
+import com.dew.system.screens.TokenLoginScreen;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiMainMenu;
 import net.minecraft.client.gui.GuiScreen;
@@ -24,10 +25,11 @@ public class AltManagerGuiScreen extends GuiScreen {
     public void initGui() {
         DewCommon.altManager.readAlts();
         this.buttonList.clear();
-        this.buttonList.add(new GuiButton(0, width / 2 - 40 + 135, height - 60, 80, 20, "Cancel"));
-        this.buttonList.add(new GuiButton(1, width / 2 - 40 + 45, height - 60, 80, 20, "Cracked"));
-        this.buttonList.add(new GuiButton(2, width / 2 - 40 - 45, height - 60, 80, 20, "Use Microsoft"));
-        this.buttonList.add(new GuiButton(3, width / 2 - 40 - 135, height - 60, 80, 20, "Use Selected"));
+        this.buttonList.add(new GuiButton(0, width / 2 - 40 + 200, 85, 80, 20, "Cancel"));
+        this.buttonList.add(new GuiButton(1, width / 2 - 40 + 200, 60, 80, 20, "Cracked"));
+        this.buttonList.add(new GuiButton(2, width / 2 - 40 - 200, 85, 80, 20, "Use Microsoft"));
+        this.buttonList.add(new GuiButton(3, width / 2 - 40 - 200, 60, 80, 20, "Use Selected"));
+        this.buttonList.add(new GuiButton(4, width / 2 - 40 - 200, 110, 80, 20, "Token Login"));
         super.initGui();
     }
 
@@ -126,6 +128,9 @@ public class AltManagerGuiScreen extends GuiScreen {
                 if (selectedAlt != null && MicrosoftAuth.replyServer == null) {
                     new Thread(() -> DewCommon.altManager.login(selectedAlt, false)).start();
                 }
+                break;
+            case 4:
+                mc.displayGuiScreen(new TokenLoginScreen());
                 break;
         }
     }

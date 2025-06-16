@@ -15,10 +15,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class ChestStealer extends Module {
+public class Stealer extends Module {
 
-    public ChestStealer() {
-        super("Chest Stealer", ModuleCategory.PLAYER, Keyboard.KEY_NONE, false, true, true);
+    public Stealer() {
+        super("Stealer", ModuleCategory.PLAYER, Keyboard.KEY_NONE, false, true, true);
     }
 
     private static final NumberValue stealDelay = new NumberValue("Steal Delay", 2.0, 0.0, 10.0, 0.1);
@@ -65,7 +65,7 @@ public class ChestStealer extends Module {
 
         for (int i : slotIndices) {
             ItemStack stack = chestInventory.getStackInSlot(i);
-            if (stack != null && !DewCommon.moduleManager.getModule(InvManager.class).isTrash(stack)) {
+            if (stack != null && !DewCommon.moduleManager.getModule(Manager.class).isTrash(stack)) {
                 mc.playerController.windowClick(mc.thePlayer.openContainer.windowId, i, 0, 1, mc.thePlayer);
                 tickDelayCounter = (int) Math.max(1, stealDelay.get());
                 closeTickCounter = 0;
@@ -76,7 +76,7 @@ public class ChestStealer extends Module {
         boolean chestEmpty = true;
         for (int i = 0; i < chestInventory.getSizeInventory(); i++) {
             ItemStack stack = chestInventory.getStackInSlot(i);
-            if (DewCommon.moduleManager.getModule(InvManager.class).isTrash(stack)) continue;
+            if (DewCommon.moduleManager.getModule(Manager.class).isTrash(stack)) continue;
             if (chestInventory.getStackInSlot(i) != null) {
                 chestEmpty = false;
                 break;

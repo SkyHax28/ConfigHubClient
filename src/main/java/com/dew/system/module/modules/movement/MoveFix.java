@@ -10,7 +10,7 @@ import org.lwjgl.input.Keyboard;
 
 public class MoveFix extends Module {
     public MoveFix() {
-        super("Movement Adjusting", ModuleCategory.MOVEMENT, Keyboard.KEY_NONE, false, true, true);
+        super("Move Fix", ModuleCategory.MOVEMENT, Keyboard.KEY_NONE, false, true, true);
     }
     @Override
     public void onStrafe(StrafeEvent event) {

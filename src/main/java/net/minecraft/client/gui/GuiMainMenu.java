@@ -298,10 +298,6 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
                 this.mc.displayGuiScreen(guiyesno);
             }
         }
-        if (button.id == 14){
-            mc.displayGuiScreen(new TokenLoginScreen());
-
-        }
     }
 
     public void confirmClicked(boolean result, int id)

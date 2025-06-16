@@ -1,5 +1,6 @@
 package com.dew.system.screens;
 
+import com.dew.system.gui.AltManagerGuiScreen;
 import com.dew.system.screens.utils.APIUtils;
 import net.minecraft.client.gui.*;
 import org.lwjgl.input.Keyboard;
@@ -52,6 +53,10 @@ public class TokenLoginScreen extends GuiScreen {
     }
     @Override
     protected void keyTyped(char typedChar, int keyCode) throws IOException {
+        if (keyCode == Keyboard.KEY_ESCAPE) {
+            mc.displayGuiScreen(new AltManagerGuiScreen());
+            return;
+        }
         this.tokenField.textboxKeyTyped(typedChar, keyCode);
         super.keyTyped(typedChar, keyCode);
     }
