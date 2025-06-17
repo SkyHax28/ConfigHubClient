@@ -55,12 +55,16 @@ public class AutoPot extends Module {
     @Override
     public void onPreUpdate(PreUpdateEvent event) {
         MovingObjectPosition mop = mc.objectMouseOver;
-        if (mop != null && mop.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {
-            BlockPos pos = mop.getBlockPos();
-            Block block = mc.theWorld.getBlockState(pos).getBlock();
+        if (mop != null) {
+            if (mop.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {
+                BlockPos pos = mop.getBlockPos();
+                Block block = mc.theWorld.getBlockState(pos).getBlock();
 
-            if (block instanceof BlockChest || block instanceof BlockEnderChest || block instanceof BlockWorkbench || block instanceof BlockFurnace || block instanceof BlockAnvil || block instanceof BlockFenceGate || block instanceof BlockTrapDoor || block instanceof BlockDoor) {
-                tickDelayCounter = 0;
+                if (block instanceof BlockChest || block instanceof BlockEnderChest || block instanceof BlockWorkbench || block instanceof BlockFurnace || block instanceof BlockAnvil || block instanceof BlockFenceGate || block instanceof BlockTrapDoor || block instanceof BlockDoor) {
+                    tickDelayCounter = 0;
+                    return;
+                }
+            } else if (mop.typeOfHit == MovingObjectPosition.MovingObjectType.ENTITY) {
                 return;
             }
         }

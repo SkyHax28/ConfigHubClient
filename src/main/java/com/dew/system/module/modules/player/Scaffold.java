@@ -113,27 +113,16 @@ public class Scaffold extends Module {
     public void onRender2D(Render2DEvent event) {
         if (mc.thePlayer == null || mc.theWorld == null) return;
 
-        ItemStack stack = mc.thePlayer.inventory.getStackInSlot(mc.thePlayer.inventory.currentItem);
-        if (stack == null || !holdingBlock) stack = new ItemStack(Blocks.barrier);
+        int totalBlocks = getTotalValidBlocksInHotbar();
+        String display = totalBlocks + " blocks";
 
         ScaledResolution sr = new ScaledResolution(mc);
-        int width = sr.getScaledWidth();
-        int height = sr.getScaledHeight();
-        int x = width / 2 - 8;
-        int y = height / 2 + 20;
+        int x = sr.getScaledWidth() / 2;
+        int y = sr.getScaledHeight() / 2 + 20;
 
         GlStateManager.pushMatrix();
-
-        RenderHelper.enableGUIStandardItemLighting();
-        GlStateManager.enableDepth();
-
-        mc.getRenderItem().renderItemAndEffectIntoGUI(stack, x, y);
-        mc.getRenderItem().renderItemOverlays(mc.fontRendererObj, stack, x, y);
-
-        GlStateManager.disableDepth();
         RenderHelper.disableStandardItemLighting();
-        GlStateManager.disableLighting();
-
+        mc.bitFontRendererObj.drawStringWithShadow(display, x, y, 0xFFFFFF);
         GlStateManager.popMatrix();
     }
 
@@ -371,6 +360,32 @@ public class Scaffold extends Module {
             }
         }
         return false;
+    }
+
+    private int getTotalValidBlocksInHotbar() {
+        int total = 0;
+        for (int i = 0; i < 9; i++) {
+            ItemStack stack = mc.thePlayer.inventory.getStackInSlot(i);
+            if (stack == null || !(stack.getItem() instanceof ItemBlock) || stack.stackSize == 0) continue;
+
+            Item item = stack.getItem();
+            Block block = ((ItemBlock) item).getBlock();
+
+            if (item == Item.getItemFromBlock(Blocks.chest) ||
+                    item == Item.getItemFromBlock(Blocks.ender_chest) ||
+                    item == Item.getItemFromBlock(Blocks.trapped_chest) ||
+                    block.getMaterial().isReplaceable()) {
+                continue;
+            }
+
+            if (block instanceof BlockFalling) {
+                BlockPos belowBelow = new BlockPos(mc.thePlayer.posX, mc.thePlayer.posY - 2, mc.thePlayer.posZ);
+                if (mc.theWorld.isAirBlock(belowBelow)) continue;
+            }
+
+            total += stack.stackSize;
+        }
+        return total;
     }
 
     private int getValidBlockSlot(BlockPos below) {

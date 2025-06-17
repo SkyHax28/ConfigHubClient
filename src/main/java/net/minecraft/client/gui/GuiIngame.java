@@ -493,6 +493,10 @@ public class GuiIngame extends Gui
 
     protected boolean showCrosshair()
     {
+        if (this.mc.gameSettings.thirdPersonView != 0) {
+            return false;
+        }
+
         if (this.mc.gameSettings.showDebugInfo && !this.mc.thePlayer.hasReducedDebug() && !this.mc.gameSettings.reducedDebugInfo)
         {
             return false;

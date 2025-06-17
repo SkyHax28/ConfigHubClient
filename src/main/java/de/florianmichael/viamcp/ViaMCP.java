@@ -18,6 +18,7 @@
 
 package de.florianmichael.viamcp;
 
+import com.dew.system.viapatcher.PacketPatcher;
 import com.viaversion.viabackwards.protocol.v1_17to1_16_4.Protocol1_17To1_16_4;
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.protocols.v1_16_1to1_16_2.packet.ClientboundPackets1_16_2;
@@ -47,6 +48,7 @@ public class ViaMCP {
         }).build();
 
         fixTransactions();
+        PacketPatcher.applyNibblesPatches();
     }
 
     private void fixTransactions() {

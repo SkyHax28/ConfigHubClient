@@ -227,6 +227,7 @@ public class Minecraft implements IThreadListener, IPlayerUsage
     public Session session;
     private boolean isGamePaused;
     public FontRenderer fontRendererObj;
+    public FontRenderer bitFontRendererObj;
     public FontRenderer standardGalacticFontRenderer;
     public GuiScreen currentScreen;
     public LoadingScreenRenderer loadingScreen;
@@ -432,15 +433,19 @@ public class Minecraft implements IThreadListener, IPlayerUsage
         this.mcResourceManager.registerReloadListener(this.mcSoundHandler);
         this.mcMusicTicker = new MusicTicker(this);
         this.fontRendererObj = new FontRenderer(this.gameSettings, new ResourceLocation("textures/font/ascii.png"), this.renderEngine, false);
+        this.bitFontRendererObj = new FontRenderer(this.gameSettings, new ResourceLocation("minecraft", "dew/bitfont.png"), this.renderEngine, false);
 
         if (this.gameSettings.language != null)
         {
             this.fontRendererObj.setUnicodeFlag(this.isUnicode());
             this.fontRendererObj.setBidiFlag(this.mcLanguageManager.isCurrentLanguageBidirectional());
+            this.bitFontRendererObj.setUnicodeFlag(this.isUnicode());
+            this.bitFontRendererObj.setBidiFlag(this.mcLanguageManager.isCurrentLanguageBidirectional());
         }
 
         this.standardGalacticFontRenderer = new FontRenderer(this.gameSettings, new ResourceLocation("textures/font/ascii_sga.png"), this.renderEngine, false);
         this.mcResourceManager.registerReloadListener(this.fontRendererObj);
+        this.mcResourceManager.registerReloadListener(this.bitFontRendererObj);
         this.mcResourceManager.registerReloadListener(this.standardGalacticFontRenderer);
         this.mcResourceManager.registerReloadListener(new GrassColorReloadListener());
         this.mcResourceManager.registerReloadListener(new FoliageColorReloadListener());

@@ -385,7 +385,12 @@ public class ItemRenderer
                     this.doBlockTransformations();
                     break;
 
-                case "1.7":
+                case "legacy":
+                    this.transformFirstPersonItem(f, f1);
+                    this.doBlockTransformations();
+                    break;
+
+                case "crazy":
                     GlStateManager.translate(0.0F, 0.08F, 0.0F);
                     this.transformFirstPersonItem(0.0F, f1);
                     this.doBlockTransformations();
@@ -400,8 +405,17 @@ public class ItemRenderer
                     this.doBlockTransformations();
                     break;
 
+                case "dash":
+                    this.transformFirstPersonItem(f / 1.7F, 0.0F);
+
+                    GlStateManager.rotate(-var9 * 22.0F, var9 / 2, 0.0F, 9.0F);
+                    GlStateManager.rotate(-var9 * 50.0F, 0.8F, var9 / 2, 0F);
+
+                    this.doBlockTransformations();
+                    break;
+
                 case "exhibition swang":
-                    this.transformFirstPersonItem(f / 1.6F, 0.0F);
+                    this.transformFirstPersonItem(f / 1.7F, 0.0F);
 
                     GlStateManager.rotate(-var9 * 74.0F / 2.0F, var9 / 2.0F, 1.0F, 4.0F);
                     GlStateManager.rotate(-var9 * 52.0F, 1.0F, var9 / 3.0F, -0.0F);
@@ -412,8 +426,8 @@ public class ItemRenderer
                 case "exhibition swonk":
                     this.transformFirstPersonItem(f / 1.6F, 0.0F);
 
-                    GL11.glRotated(-var9 * -30.0F / 2.0F, var9 / 2.0F, 1.0F, 4.0F);
-                    GL11.glRotated(-var9 * 7.5F, 1.0F, var9 / 3.0F, -0.0F);
+                    GlStateManager.rotate(-var9 * -30.0F / 2.0F, var9 / 2.0F, 1.0F, 4.0F);
+                    GlStateManager.rotate(-var9 * 7.5F, 1.0F, var9 / 3.0F, -0.0F);
 
                     this.doBlockTransformations();
                     break;
