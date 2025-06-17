@@ -312,4 +312,23 @@ public class MovementUtil {
             return baseYaw + (direction == 1 ? 85f : -85f);
         }
     }
+    public static void setSpeed(double moveSpeed, float yaw, double strafe, double forward) {
+        if (forward != 0.0D) {
+            yaw += (strafe > 0.0D) ? (forward > 0.0D ? -45 : 45) : (strafe < 0.0D) ? (forward > 0.0D ? 45 : -45) : 0;
+            strafe = 0.0D; // Reset strafe after adjusting yaw
+            forward = (forward > 0.0D) ? 1.0D : -1.0D;
+        }
+        if (strafe != 0.0D) {
+            strafe = (strafe > 0.0D) ? 1.0D : -1.0D;
+        }
+        double radianYaw = Math.toRadians(yaw + 90.0F);
+        double cosYaw = Math.cos(radianYaw);
+        double sinYaw = Math.sin(radianYaw);
+        mc.thePlayer.motionX = forward * moveSpeed * cosYaw + strafe * moveSpeed * sinYaw;
+        mc.thePlayer.motionZ = forward * moveSpeed * sinYaw - strafe * moveSpeed * cosYaw;
+    }
+
+    public static void setSpeed(double moveSpeed) {
+        setSpeed(moveSpeed, mc.thePlayer.rotationYaw, mc.thePlayer.movementInput.moveStrafe, mc.thePlayer.movementInput.moveForward);
+    }
 }

@@ -5,6 +5,7 @@ import com.dew.system.event.EventListener;
 import com.dew.system.module.modules.combat.*;
 import com.dew.system.module.modules.exploit.Disabler;
 import com.dew.system.module.modules.movement.InvMove;
+import com.dew.system.module.modules.movement.LongJump;
 import com.dew.system.module.modules.movement.MoveFix;
 import com.dew.system.module.modules.movement.NoSlow;
 import com.dew.system.module.modules.movement.flight.FlightModule;
@@ -31,7 +32,7 @@ public class ModuleManager implements EventListener {
                 new Manager(), new Stealer(), new Backtrack(), new AutoPot(),
                 new ESP(), new NoHurtCam(), new NoFireOverlay(), new Wings(),
                 new MoveFix(), new TargetStrafe(), new AutoBlock(), new FastBow(),
-                new FastUse(), new Teams(), new HitSelect()
+                new FastUse(), new Teams(), new HitSelect(), new LongJump()
         ));
 
         DewCommon.eventManager.register(this);

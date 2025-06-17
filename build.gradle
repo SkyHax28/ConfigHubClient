@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id 'com.github.johnrengelman.shadow' version '8.1.1'
+
 }
 
 group = 'com.dew'
@@ -62,5 +63,11 @@ shadowJar {
     archiveVersion.set('')
     archiveClassifier.set('')
 }
-
+task copyDependencies(type: Copy) {
+    from configurations.runtimeClasspath
+    into "$buildDir/dependencies"
+}
+tasks.withType(Copy).configureEach {
+    exclude 'xyz/wagyourtail/jvmdg/**'
+}
 build.dependsOn shadowJar

@@ -1,7 +1,6 @@
 package com.dew.system.module.modules.combat;
 
 import com.dew.DewCommon;
-import com.dew.system.event.events.PreUpdateEvent;
 import com.dew.system.event.events.TickEvent;
 import com.dew.system.event.events.WorldEvent;
 import com.dew.system.module.Module;
@@ -9,14 +8,9 @@ import com.dew.system.module.ModuleCategory;
 import com.dew.system.module.modules.player.Breaker;
 import com.dew.system.module.modules.player.Scaffold;
 import com.dew.system.module.modules.render.Animations;
-import com.dew.system.rotation.RotationManager;
 import com.dew.system.settingsvalue.BooleanValue;
 import com.dew.system.settingsvalue.MultiSelectionValue;
 import com.dew.system.settingsvalue.NumberValue;
-import com.dew.system.settingsvalue.SelectionValue;
-import com.dew.utils.BlinkUtil;
-import com.dew.utils.LogUtil;
-import com.dew.utils.PacketUtil;
 import de.florianmichael.viamcp.fixes.AttackOrder;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.Entity;
@@ -25,9 +19,6 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemSword;
-import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement;
-import net.minecraft.util.BlockPos;
 import org.lwjgl.input.Keyboard;
 
 import java.util.Arrays;
