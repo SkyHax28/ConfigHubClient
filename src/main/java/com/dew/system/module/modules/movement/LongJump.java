@@ -8,6 +8,7 @@ import com.dew.system.module.ModuleCategory;
 import com.dew.system.settingsvalue.NumberValue;
 import com.dew.utils.LogUtil;
 import com.dew.utils.MovementUtil;
+import com.dew.utils.PacketUtil;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.init.Items;
@@ -23,7 +24,7 @@ public class LongJump extends Module {
     private boolean boost, sent;
 
     public LongJump() {
-        super("LongJump", ModuleCategory.MOVEMENT,  Keyboard.KEY_NONE, false, true, true);
+        super("Long Jump", ModuleCategory.MOVEMENT,  Keyboard.KEY_NONE, false, true, true);
     }
 
     @Override
@@ -38,7 +39,7 @@ public class LongJump extends Module {
     public void onEnable() {
         lastSlot = mc.thePlayer.inventory.currentItem;
         if (getBall() == -1 && this.isEnabled()) {
-            LogUtil.infoLog("No fireball are found in the hotbar.");
+            LogUtil.printChat("No fireball are found in the hotbar.");
             this.toggleState();
             this.onDisable();
         }
@@ -52,20 +53,20 @@ public class LongJump extends Module {
             int ballSlot = getBall();
             if (ballSlot != -1) {
                 player.inventory.currentItem = ballSlot;
-                mc.thePlayer.sendQueue.addToSendQueue(new C09PacketHeldItemChange(ballSlot));
+                PacketUtil.sendPacket(new C09PacketHeldItemChange(ballSlot));
             }
             DewCommon.rotationManager.setRotations(mc.thePlayer.rotationYaw, 90f);// Look straight down
             tick++;
         } else if (tick == 1) {
             DewCommon.rotationManager.setRotations(mc.thePlayer.rotationYaw, 90f);
-            mc.thePlayer.sendQueue.addToSendQueue(
+            PacketUtil.sendPacket(
                     new C08PacketPlayerBlockPlacement(player.inventory.getCurrentItem())
             );
             sent = true;
             tick++;
         } else if (tick == 2) {
             player.inventory.currentItem = lastSlot;
-            mc.thePlayer.sendQueue.addToSendQueue(new C09PacketHeldItemChange(lastSlot));
+            PacketUtil.sendPacket(new C09PacketHeldItemChange(lastSlot));
             tick++;
         }
 
@@ -97,7 +98,7 @@ public class LongJump extends Module {
         if (event.packet instanceof S12PacketEntityVelocity) {
             S12PacketEntityVelocity packet = (S12PacketEntityVelocity) event.packet;
             if (packet.getEntityID() == mc.thePlayer.getEntityId() && sent) {
-                LogUtil.infoLog("Boosting");
+                LogUtil.printChat("Boosting");
                 boost = true;
                 sent = false;
             }
