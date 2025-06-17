@@ -67,7 +67,11 @@ public class Hud extends Module {
                     if (module.showOnArray && module.isEnabled()) {
                         String moduleName = module.name;
                         String tag = module.tag();
-                        mc.bitFontRendererObj.drawString(moduleName, rightEdgeX - mc.bitFontRendererObj.getStringWidth(moduleName) - (!tag.isEmpty() ? mc.bitFontRendererObj.getStringWidth(" " + tag) : 0) - 4, 4 + (index * 11), Color.RED.darker().getRGB(), true);
+                        float speed = 3000f;
+                        float hueOffset = (float) index / moduleList.size();
+                        float hue = ((System.currentTimeMillis() % (int) speed) / speed + hueOffset) % 1.0f;
+                        Color rainbowColor = Color.getHSBColor(hue, 0.8f, 0.9f);
+                        mc.bitFontRendererObj.drawString(moduleName, rightEdgeX - mc.bitFontRendererObj.getStringWidth(moduleName) - (!tag.isEmpty() ? mc.bitFontRendererObj.getStringWidth(" " + tag) : 0) - 4, 4 + (index * 11), rainbowColor.getRGB(), true);
                         if (!tag.isEmpty())
                             mc.bitFontRendererObj.drawString(" " + tag, rightEdgeX - mc.bitFontRendererObj.getStringWidth(" " + tag) - 4, 4 + (index * 11), Color.GRAY.getRGB(), true);
                         index++;

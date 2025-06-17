@@ -117,8 +117,8 @@ public class Scaffold extends Module {
         String display = totalBlocks + " blocks";
 
         ScaledResolution sr = new ScaledResolution(mc);
-        int x = sr.getScaledWidth() / 2;
-        int y = sr.getScaledHeight() / 2 + 20;
+        int x = sr.getScaledWidth() / 2 + 20;
+        int y = sr.getScaledHeight() / 2;
 
         GlStateManager.pushMatrix();
         RenderHelper.disableStandardItemLighting();
