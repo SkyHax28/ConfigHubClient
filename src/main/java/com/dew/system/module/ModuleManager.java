@@ -23,7 +23,7 @@ public class ModuleManager implements EventListener {
 
     public ModuleManager() {
         this.modules.addAll(Arrays.asList(
-                new Sprint(), new Animations(), new ClickGui(), new KillAura(),
+                new MoveFix(), new Animations(), new ClickGui(), new KillAura(),
                 new FlightModule(), new Disabler(), new Hud(), new SpeedModule(),
                 new Cape(), new NoFall(), new Rotations(), new InvMove(), new NoSlow(),
                 new Scaffold(), new KeepSprint(), new NameTags(), new Chams(),
@@ -31,7 +31,7 @@ public class ModuleManager implements EventListener {
                 new CaveFinder(), new Fullbright(), new Xray(), new NoBreakDelay(),
                 new Manager(), new Stealer(), new Backtrack(), new AutoPot(),
                 new ESP(), new NoHurtCam(), new NoFireOverlay(), new Wings(),
-                new MoveFix(), new TargetStrafe(), new AutoBlock(), new FastBow(),
+                new Sprint(), new TargetStrafe(), new AutoBlock(), new FastBow(),
                 new FastUse(), new Teams(), new HitSelect(), new LongJump()
         ));
 

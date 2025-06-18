@@ -182,8 +182,6 @@ public class EntityPlayerSP extends AbstractClientPlayer
 
         if (this.isCurrentViewEntity())
         {
-            rotationManager.tick();
-
             double d0 = preMotionEvent.x - this.lastReportedPosX;
             double d1 = preMotionEvent.y - this.lastReportedPosY;
             double d2 = preMotionEvent.z - this.lastReportedPosZ;
@@ -232,6 +230,8 @@ public class EntityPlayerSP extends AbstractClientPlayer
                 this.lastReportedYaw = yaw;
                 this.lastReportedPitch = pitch;
             }
+
+            rotationManager.tick();
         }
 
         PostMotionEvent postMotionEvent = new PostMotionEvent(this.posX, this.getEntityBoundingBox().minY, this.posZ, yaw, pitch, this.onGround);

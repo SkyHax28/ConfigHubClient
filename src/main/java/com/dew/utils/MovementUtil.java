@@ -17,6 +17,7 @@ import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
+import org.lwjgl.input.Keyboard;
 
 public class MovementUtil {
 
@@ -133,88 +134,169 @@ public class MovementUtil {
     }
 
     public static void silentRotationStrafe(final StrafeEvent event, final float yaw) {
-        final int dif = (int) ((MathHelper.wrapAngleTo180_float(mc.thePlayer.rotationYaw - yaw - 23.5F - 135.0F) + 180.0F) / 45.0F);
-        float strafe = event.strafe;
-        float forward = event.forward;
-        final float friction = event.friction;
-        float calcForward = 0.0F;
-        float calcStrafe = 0.0F;
-        switch (dif) {
-            case 0: {
-                calcForward = forward;
-                calcStrafe = strafe;
-                break;
+        if (areTwoOrMoreKeysPressed(mc.gameSettings.keyBindForward.getKeyCode(), mc.gameSettings.keyBindBack.getKeyCode(), mc.gameSettings.keyBindLeft.getKeyCode(), mc.gameSettings.keyBindRight.getKeyCode())) {
+            final int dif = (int) ((MathHelper.wrapAngleTo180_float(mc.thePlayer.rotationYaw - yaw - 23.5F - 135.0F) + 180.0F) / 45.0F);
+            float strafe = event.strafe;
+            float forward = event.forward;
+            final float friction = event.friction;
+            float calcForward = 0.0F;
+            float calcStrafe = 0.0F;
+            switch (dif) {
+                case 0: {
+                    calcForward = forward;
+                    calcStrafe = strafe;
+                    break;
+                }
+
+                case 1: {
+                    calcForward += forward;
+                    calcStrafe -= forward;
+                    calcForward += strafe;
+                    calcStrafe += strafe;
+                    break;
+                }
+
+                case 2: {
+                    calcForward = strafe;
+                    calcStrafe = -forward;
+                    break;
+                }
+
+                case 3: {
+                    calcForward -= forward;
+                    calcStrafe -= forward;
+                    calcForward += strafe;
+                    calcStrafe -= strafe;
+                    break;
+                }
+
+                case 4: {
+                    calcForward = -forward;
+                    calcStrafe = -strafe;
+                    break;
+                }
+
+                case 5: {
+                    calcForward -= forward;
+                    calcStrafe += forward;
+                    calcForward -= strafe;
+                    calcStrafe -= strafe;
+                    break;
+                }
+
+                case 6: {
+                    calcForward = -strafe;
+                    calcStrafe = forward;
+                    break;
+                }
+
+                case 7: {
+                    calcForward += forward;
+                    calcStrafe += forward;
+                    calcForward -= strafe;
+                    calcStrafe += strafe;
+                    break;
+                }
             }
 
-            case 1: {
-                calcForward += forward;
-                calcStrafe -= forward;
-                calcForward += strafe;
-                calcStrafe += strafe;
-                break;
+            if (calcForward > 1.0F || (calcForward < 0.9F && calcForward > 0.3F) || calcForward < -1.0F || (calcForward > -0.9F && calcForward < -0.3F))
+                calcForward *= 0.5F;
+
+            if (calcStrafe > 1.0F || (calcStrafe < 0.9F && calcStrafe > 0.3F) || calcStrafe < -1.0F || (calcStrafe > -0.9F && calcStrafe < -0.3F))
+                calcStrafe *= 0.5F;
+
+            float f = calcStrafe * calcStrafe + calcForward * calcForward;
+
+            if (f >= 1.0E-4F) {
+                if ((f = MathHelper.sqrt_float(f)) < 1.0F) {
+                    f = 1.0F;
+                }
+                f = friction / f;
+                float f1 = MathHelper.sin(yaw * (float)Math.PI / 180.0F);
+                float f2 = MathHelper.cos(yaw * (float)Math.PI / 180.0F);
+                mc.thePlayer.motionX += (calcStrafe *= f) * f2 - (calcForward *= f) * f1;
+                mc.thePlayer.motionZ += calcForward * f2 + calcStrafe * f1;
+            }
+        } else {
+            final float playerYaw = mc.thePlayer.rotationYaw;
+            final float angleDiff = MathHelper.wrapAngleTo180_float(playerYaw - yaw);
+            final int dif = Math.floorMod((int) ((angleDiff + 180.0F) / 45.0F), 8);
+
+            float strafe = -event.strafe;
+            float forward = -event.forward;
+            final float friction = event.friction;
+
+            float calcForward = 0.0F;
+            float calcStrafe = 0.0F;
+
+            switch (dif) {
+                case 0:
+                    calcForward = forward;
+                    calcStrafe = strafe;
+                    break;
+
+                case 1:
+                    calcForward = forward + strafe;
+                    calcStrafe = -forward + strafe;
+                    break;
+
+                case 2:
+                    calcForward = strafe;
+                    calcStrafe = -forward;
+                    break;
+
+                case 3:
+                    calcForward = -forward + strafe;
+                    calcStrafe = -forward - strafe;
+                    break;
+
+                case 4:
+                    calcForward = -forward;
+                    calcStrafe = -strafe;
+                    break;
+
+                case 5:
+                    calcForward = -forward - strafe;
+                    calcStrafe = forward - strafe;
+                    break;
+
+                case 6:
+                    calcForward = -strafe;
+                    calcStrafe = forward;
+                    break;
+
+                case 7:
+                    calcForward = forward - strafe;
+                    calcStrafe = forward + strafe;
+                    break;
             }
 
-            case 2: {
-                calcForward = strafe;
-                calcStrafe = -forward;
-                break;
+            float magnitude = MathHelper.sqrt_float(calcForward * calcForward + calcStrafe * calcStrafe);
+            if (magnitude > 1.0) {
+                calcForward /= magnitude;
+                calcStrafe /= magnitude;
             }
 
-            case 3: {
-                calcForward -= forward;
-                calcStrafe -= forward;
-                calcForward += strafe;
-                calcStrafe -= strafe;
-                break;
-            }
+            float rad = yaw * (float) Math.PI / 180.0F;
+            float sin = MathHelper.sin(rad);
+            float cos = MathHelper.cos(rad);
 
-            case 4: {
-                calcForward = -forward;
-                calcStrafe = -strafe;
-                break;
-            }
+            mc.thePlayer.motionX += calcStrafe * friction * cos - calcForward * friction * sin;
+            mc.thePlayer.motionZ += calcForward * friction * cos + calcStrafe * friction * sin;
+        }
+    }
 
-            case 5: {
-                calcForward -= forward;
-                calcStrafe += forward;
-                calcForward -= strafe;
-                calcStrafe -= strafe;
-                break;
-            }
-
-            case 6: {
-                calcForward = -strafe;
-                calcStrafe = forward;
-                break;
-            }
-
-            case 7: {
-                calcForward += forward;
-                calcStrafe += forward;
-                calcForward -= strafe;
-                calcStrafe += strafe;
-                break;
+    public static boolean areTwoOrMoreKeysPressed(int... keyCodes) {
+        int count = 0;
+        for (int keyCode : keyCodes) {
+            if (Keyboard.isKeyDown(keyCode)) {
+                count++;
+                if (count >= 2) {
+                    return true;
+                }
             }
         }
-
-        if (calcForward > 1.0F || (calcForward < 0.9F && calcForward > 0.3F) || calcForward < -1.0F || (calcForward > -0.9F && calcForward < -0.3F))
-            calcForward *= 0.5F;
-
-        if (calcStrafe > 1.0F || (calcStrafe < 0.9F && calcStrafe > 0.3F) || calcStrafe < -1.0F || (calcStrafe > -0.9F && calcStrafe < -0.3F))
-            calcStrafe *= 0.5F;
-
-        float f = calcStrafe * calcStrafe + calcForward * calcForward;
-
-        if (f >= 1.0E-4F) {
-            if ((f = MathHelper.sqrt_float(f)) < 1.0F) {
-                f = 1.0F;
-            }
-            f = friction / f;
-            float f1 = MathHelper.sin(yaw * (float) Math.PI / 180.0F);
-            float f2 = MathHelper.cos(yaw * (float) Math.PI / 180.0F);
-            mc.thePlayer.motionX += (calcStrafe *= f) * f2 - (calcForward *= f) * f1;
-            mc.thePlayer.motionZ += calcForward * f2 + calcStrafe * f1;
-        }
+        return false;
     }
 
     public static void stopMovingQuickly() {

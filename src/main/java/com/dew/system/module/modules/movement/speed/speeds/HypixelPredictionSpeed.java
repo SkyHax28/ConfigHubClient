@@ -29,7 +29,8 @@ public class HypixelPredictionSpeed implements SpeedMode {
     public void onPreUpdate(PreUpdateEvent event) {
         if (mc.thePlayer == null || mc.thePlayer.isInWater()) return;
 
-        //MovementUtil.mcJumpNoBoost = true;
-
+        if (mc.thePlayer.onGround && mc.thePlayer.posY > 0.0D) {
+            mc.thePlayer.jump();
+        }
     }
 }

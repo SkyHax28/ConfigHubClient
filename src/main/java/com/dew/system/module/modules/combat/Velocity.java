@@ -70,7 +70,7 @@ public class Velocity extends Module {
                     if (event.packet instanceof S12PacketEntityVelocity) {
                         S12PacketEntityVelocity packet1 = (S12PacketEntityVelocity) packet;
                         if (packet1.getEntityID() == player.getEntityId()) {
-                            if (player.onGround && player.isSprinting()) {
+                            if (player.onGround && player.isSprinting() && player.posY > 0.0D) {
                                 int motionX = packet1.getMotionX();
                                 int motionZ = packet1.getMotionZ();
 

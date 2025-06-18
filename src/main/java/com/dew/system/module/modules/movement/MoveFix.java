@@ -22,6 +22,4 @@ public class MoveFix extends Module {
             MovementUtil.silentRotationStrafe(event, rotationManager.getClientYaw());
         }
     }
-
-
 }

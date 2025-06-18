@@ -13,6 +13,7 @@ import com.dew.utils.MovementUtil;
 import com.dew.utils.PacketUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockFalling;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
@@ -22,15 +23,10 @@ import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.client.C0APacketAnimation;
 import net.minecraft.potion.Potion;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.MathHelper;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.*;
 import org.lwjgl.input.Keyboard;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class Scaffold extends Module {
 
@@ -135,7 +131,7 @@ public class Scaffold extends Module {
     }
 
     @Override
-    public void onPreUpdate(PreUpdateEvent event) {
+    public void onTick(TickEvent event) {
         if (mc.thePlayer == null || mc.theWorld == null) return;
 
         jumpTicks = mc.thePlayer.onGround ? 0 : jumpTicks + 1;
@@ -163,7 +159,7 @@ public class Scaffold extends Module {
             case "hypixel":
                 MovementUtil.mcJumpNoBoost = true;
                 if (mc.thePlayer.onGround && MovementUtil.isMoving()) {
-                    if (mc.thePlayer.onGround && !DewCommon.moduleManager.getModule(SpeedModule.class).isEnabled()) {
+                    if (mc.thePlayer.onGround && mc.thePlayer.posY > 0.0D && !DewCommon.moduleManager.getModule(SpeedModule.class).isEnabled()) {
                         mc.thePlayer.jump();
                         this.strafeWithCorrectHypPotMath(0.472f);
                     }
@@ -185,11 +181,11 @@ public class Scaffold extends Module {
         }
 
         if (mode.get().equals("Telly") && !towered && !Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode())) {
-            if (jumpTicks <= 1 || this.isBlockVeryCloseUnderPlayer()) {
+            if (jumpTicks <= 2 || this.isBlockVeryCloseUnderPlayer()) {
                 DewCommon.rotationManager.resetRotationsInstantly();
-                mc.gameSettings.keyBindJump.setKeyDown(false);
-                if (mc.thePlayer.onGround) {
+                if (mc.thePlayer.onGround && mc.thePlayer.posY > 0.0D) {
                     mc.thePlayer.jump();
+                    keepY = mc.thePlayer.posY;
                 }
                 return;
             }
@@ -276,8 +272,11 @@ public class Scaffold extends Module {
 
         if (!mode.get().equals("Hypixel") || !mc.thePlayer.onGround) {
             placed = placeBlockScaffold(below);
+
             if (!placed) {
-                for (EnumFacing dir : EnumFacing.values()) {
+                EnumFacing[] facings = getFullPrioritizedFacings(mc.thePlayer.motionY > 0, mc.thePlayer.isSprinting());
+
+                for (EnumFacing dir : facings) {
                     BlockPos neighbor = below.offset(dir);
                     if (placeBlockScaffold(neighbor)) {
                         placed = true;
@@ -286,21 +285,53 @@ public class Scaffold extends Module {
                 }
             }
 
+            Set<BlockPos> visited = new HashSet<>();
+
             if (!placed && clutchRange.get() > 1) {
-                outer:
-                for (int dist = 2; dist <= clutchRange.get(); dist++) {
-                    for (int dx = -dist; dx <= dist; dx++) {
-                        for (int dy = 0; dy <= dist; dy++) {
-                            for (int dz = -dist; dz <= dist; dz++) {
-                                if (Math.abs(dx) + Math.abs(dy) + Math.abs(dz) != dist) continue;
-                                BlockPos neighbor = below.add(dx, dy, dz);
-                                if (!mc.theWorld.getBlockState(neighbor).getBlock().isReplaceable(mc.theWorld, neighbor)) continue;
-                                if (placeBlockScaffold(neighbor)) {
-                                    placed = true;
-                                    break outer;
-                                }
+                List<BlockPos> searchOrder = new ArrayList<>();
+
+                int range = clutchRange.get().intValue();
+
+                for (int x = -range; x <= range; x++) {
+                    for (int y = 0; y >= -range; y--) {
+                        for (int z = -range; z <= range; z++) {
+                            BlockPos pos = below.add(x, y, z);
+                            if (mc.thePlayer.getDistanceSqToCenter(pos) <= range * range) {
+                                searchOrder.add(pos);
                             }
                         }
+                    }
+                }
+
+                searchOrder.sort(Comparator.comparingDouble(pos -> mc.thePlayer.getDistanceSqToCenter(pos)));
+
+                for (BlockPos target : searchOrder) {
+                    if (visited.contains(target)) continue;
+                    visited.add(target);
+
+                    if (!mc.theWorld.getBlockState(target).getBlock().isReplaceable(mc.theWorld, target)) continue;
+                    AxisAlignedBB targetBB = new AxisAlignedBB(
+                            target.getX(), target.getY(), target.getZ(),
+                            target.getX() + 1, target.getY() + 1, target.getZ() + 1
+                    );
+
+                    if (mc.thePlayer.getEntityBoundingBox().intersectsWith(targetBB)) continue;
+
+                    boolean hasSupport = false;
+                    for (EnumFacing dir : EnumFacing.values()) {
+                        if (dir == EnumFacing.DOWN) continue;
+                        BlockPos support = target.offset(dir);
+                        if (!mc.theWorld.getBlockState(support).getBlock().isReplaceable(mc.theWorld, support)) {
+                            hasSupport = true;
+                            break;
+                        }
+                    }
+
+                    if (!hasSupport) continue;
+
+                    if (placeBlockScaffold(target)) {
+                        placed = true;
+                        break;
                     }
                 }
             }
@@ -309,6 +340,21 @@ public class Scaffold extends Module {
         if (placed != null && placed) {
             holdingBlock = true;
         }
+    }
+
+    private EnumFacing getPlayerFacing() {
+        int yaw = MathHelper.floor_double((mc.thePlayer.rotationYaw * 4.0F / 360.0F) + 0.5D) & 3;
+        switch (yaw) {
+            case 1: return EnumFacing.WEST;
+            case 2: return EnumFacing.NORTH;
+            case 3: return EnumFacing.EAST;
+            case 0:
+            default: return EnumFacing.SOUTH;
+        }
+    }
+
+    private EnumFacing[] getFullPrioritizedFacings(boolean jumping, boolean sprinting) {
+        return new EnumFacing[]{EnumFacing.DOWN, EnumFacing.NORTH, EnumFacing.SOUTH, EnumFacing.EAST, EnumFacing.WEST, EnumFacing.UP};
     }
 
     private boolean isBlockVeryCloseUnderPlayer() {
@@ -385,8 +431,10 @@ public class Scaffold extends Module {
             if (!holdingBlock) return false;
 
             BlockPos neighbor = pos.offset(facing);
+            IBlockState state = mc.theWorld.getBlockState(neighbor);
+            Block block = state.getBlock();
 
-            if (!mc.theWorld.getBlockState(neighbor).getBlock().canCollideCheck(mc.theWorld.getBlockState(neighbor), false)) continue;
+            if (!block.canCollideCheck(state, false)) continue;
 
             EnumFacing opposite = facing.getOpposite();
             Vec3 hitVec = new Vec3(

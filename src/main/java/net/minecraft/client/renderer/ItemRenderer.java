@@ -406,7 +406,7 @@ public class ItemRenderer
                     break;
 
                 case "dash":
-                    this.transformFirstPersonItem(f / 2.2F, 0.0F);
+                    this.transformFirstPersonItem(f / 1.6F, 0.0F);
 
                     GlStateManager.rotate(-var9 * 22.0F, var9 / 2, 0.0F, 9.0F);
                     GlStateManager.rotate(-var9 * 50.0F, 0.8F, var9 / 2, 0F);

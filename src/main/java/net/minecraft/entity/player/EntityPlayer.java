@@ -14,6 +14,7 @@ import net.minecraft.block.BlockBed;
 import net.minecraft.block.BlockDirectional;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.command.server.CommandBlockLogic;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
@@ -1570,7 +1571,7 @@ public abstract class EntityPlayer extends EntityLivingBase
         super.jump();
         this.triggerAchievement(StatList.jumpStat);
 
-        if (this.isSprinting() && !MovementUtil.mcJumpNoBoost)
+        if (this.isSprinting() && (!MovementUtil.mcJumpNoBoost || !(this instanceof EntityPlayerSP)))
         {
             this.addExhaustion(0.8F);
         }
