@@ -1,4 +1,4 @@
-package com.dew.system.screens.utils;
+package com.dew.utils.alt;
 
 import net.minecraft.util.Session;
 import static com.dew.IMinecraft.mc;
@@ -6,7 +6,6 @@ import static com.dew.IMinecraft.mc;
 public class SessionChanger {
     public static Session previousSession;
     public static void setSession(String username, String uuid, String token, String type) {
-        Session newSession = new Session(username, uuid, token, type);
-        mc.session = newSession;
+        mc.session = new Session(username, uuid, token, type);
     }
 }

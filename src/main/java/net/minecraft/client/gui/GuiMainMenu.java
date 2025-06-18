@@ -1,7 +1,6 @@
 package net.minecraft.client.gui;
 
 import com.dew.system.gui.AltManagerGuiScreen;
-import com.dew.system.screens.TokenLoginScreen;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import java.io.BufferedReader;

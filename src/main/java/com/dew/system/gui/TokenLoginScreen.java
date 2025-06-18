@@ -1,11 +1,10 @@
-package com.dew.system.screens;
+package com.dew.system.gui;
 
-import com.dew.system.gui.AltManagerGuiScreen;
-import com.dew.system.screens.utils.APIUtils;
+import com.dew.utils.alt.APIUtils;
 import net.minecraft.client.gui.*;
 import org.lwjgl.input.Keyboard;
 import java.io.IOException;
-import static com.dew.system.screens.utils.SessionChanger.setSession;
+import static com.dew.utils.alt.SessionChanger.setSession;
 public class TokenLoginScreen extends GuiScreen {
     private GuiTextField tokenField;
     private String status = "Not logged in";

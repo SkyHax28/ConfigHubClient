@@ -9,7 +9,7 @@ import com.dew.system.event.EventManager;
 import com.dew.system.module.HandleEvents;
 import com.dew.system.module.ModuleManager;
 import com.dew.system.rotation.RotationManager;
-import com.dew.system.screens.utils.SessionChanger;
+import com.dew.utils.alt.SessionChanger;
 import com.dew.utils.LogUtil;
 import com.dew.utils.WingsManager;
 import com.dew.utils.fonts.CustomFontRenderer;

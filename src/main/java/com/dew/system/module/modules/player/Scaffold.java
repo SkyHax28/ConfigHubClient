@@ -38,11 +38,12 @@ public class Scaffold extends Module {
         super("Scaffold", ModuleCategory.PLAYER, Keyboard.KEY_NONE, false, true, true);
     }
 
-    private static final SelectionValue mode = new SelectionValue("Mode", "Normal", "Normal", "Hypixel");
+    private static final SelectionValue mode = new SelectionValue("Mode", "Normal", "Normal", "Telly", "Hypixel");
     private static final SelectionValue towerMode = new SelectionValue("Tower Mode", "OFF", "OFF", "Vanilla", "Hypixel");
-    private static final NumberValue rotationSpeed = new NumberValue("Rotation Speed", 60.0, 0.0, 180.0, 10.0, () -> mode.get().equals("Normal"));
-    private static final NumberValue placeDelay = new NumberValue("Place Delay", 0.0, 0.0, 10.0, 1.0, () -> mode.get().equals("Normal"));
-    private static final BooleanValue noHitCheck = new BooleanValue("No Hit Check", false, () -> mode.get().equals("Normal"));
+    private static final NumberValue clutchRange = new NumberValue("Clutch Range", 3.0, 1.0, 5.0, 1.0);
+    private static final NumberValue rotationSpeed = new NumberValue("Rotation Speed", 60.0, 0.0, 180.0, 10.0, () -> mode.get().equals("Normal") || mode.get().equals("Telly"));
+    private static final NumberValue placeDelay = new NumberValue("Place Delay", 0.0, 0.0, 10.0, 1.0, () -> mode.get().equals("Normal") || mode.get().equals("Telly"));
+    private static final BooleanValue noHitCheck = new BooleanValue("No Hit Check", false, () -> mode.get().equals("Normal") || mode.get().equals("Telly"));
     private static final SelectionValue edgeSafeMode = new SelectionValue("Edge Safe Mode", "OFF", "OFF", "Safewalk", "Sneak");
     public static final BooleanValue noSprint = new BooleanValue("No Sprint", false);
 
@@ -62,7 +63,7 @@ public class Scaffold extends Module {
     }
 
     private boolean shouldUpdateKeepYState() {
-        return keepY == -1 || !DewCommon.moduleManager.getModule(SpeedModule.class).isEnabled() && !mode.get().equals("Hypixel") || Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode());
+        return keepY == -1 || !DewCommon.moduleManager.getModule(SpeedModule.class).isEnabled() && !mode.get().equals("Telly") && !mode.get().equals("Hypixel") || Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode());
     }
 
     @Override
@@ -183,6 +184,17 @@ public class Scaffold extends Module {
             keepY = mc.thePlayer.posY;
         }
 
+        if (mode.get().equals("Telly") && !towered && !Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode())) {
+            if (jumpTicks <= 1 || this.isBlockVeryCloseUnderPlayer()) {
+                DewCommon.rotationManager.resetRotationsInstantly();
+                mc.gameSettings.keyBindJump.setKeyDown(false);
+                if (mc.thePlayer.onGround) {
+                    mc.thePlayer.jump();
+                }
+                return;
+            }
+        }
+
         if (delay <= placeDelay.get()) return;
 
         if (this.canTower() && !towerMode.get().equals("OFF")) {
@@ -273,11 +285,55 @@ public class Scaffold extends Module {
                     }
                 }
             }
+
+            if (!placed && clutchRange.get() > 1) {
+                outer:
+                for (int dist = 2; dist <= clutchRange.get(); dist++) {
+                    for (int dx = -dist; dx <= dist; dx++) {
+                        for (int dy = 0; dy <= dist; dy++) {
+                            for (int dz = -dist; dz <= dist; dz++) {
+                                if (Math.abs(dx) + Math.abs(dy) + Math.abs(dz) != dist) continue;
+                                BlockPos neighbor = below.add(dx, dy, dz);
+                                if (!mc.theWorld.getBlockState(neighbor).getBlock().isReplaceable(mc.theWorld, neighbor)) continue;
+                                if (placeBlockScaffold(neighbor)) {
+                                    placed = true;
+                                    break outer;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         if (placed != null && placed) {
             holdingBlock = true;
         }
+    }
+
+    private boolean isBlockVeryCloseUnderPlayer() {
+        double minY = mc.thePlayer.getEntityBoundingBox().minY;
+
+        for (int dx = -1; dx <= 1; dx++) {
+            for (int dz = -1; dz <= 1; dz++) {
+                double checkX = mc.thePlayer.posX + dx;
+                double checkZ = mc.thePlayer.posZ + dz;
+
+                for (double offsetY = 0.0; offsetY <= 0.2; offsetY += 0.05) {
+                    BlockPos pos = new BlockPos(
+                            Math.floor(checkX),
+                            Math.floor(minY - offsetY),
+                            Math.floor(checkZ)
+                    );
+
+                    Block block = mc.theWorld.getBlockState(pos).getBlock();
+                    if (block != Blocks.air) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     private boolean isNearEdge() {
@@ -339,14 +395,9 @@ public class Scaffold extends Module {
                     neighbor.getZ() + 0.5 + 0.5 * opposite.getFrontOffsetZ()
             );
 
-            switch (mode.get().toLowerCase()) {
-                case "normal":
-                    boolean canPlace = DewCommon.rotationManager.faceBlockWithFacing(neighbor, opposite, rotationSpeed.get().floatValue());
-                    if (!canPlace && !noHitCheck.get()) continue;
-                    break;
-
-                default:
-                    break;
+            if (mode.get().equals("Normal") || mode.get().equals("Telly")) {
+                boolean canPlace = DewCommon.rotationManager.faceBlockWithFacing(neighbor, opposite, rotationSpeed.get().floatValue());
+                if (!canPlace && !noHitCheck.get()) continue;
             }
 
             if (mc.playerController.onPlayerRightClick(mc.thePlayer, mc.theWorld, mc.thePlayer.getHeldItem(), neighbor, opposite, hitVec)) {

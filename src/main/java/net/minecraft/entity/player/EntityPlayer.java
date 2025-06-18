@@ -2,6 +2,7 @@ package net.minecraft.entity.player;
 
 import com.dew.DewCommon;
 import com.dew.system.module.modules.player.KeepSprint;
+import com.dew.utils.MovementUtil;
 import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
 import com.mojang.authlib.GameProfile;
@@ -1569,7 +1570,7 @@ public abstract class EntityPlayer extends EntityLivingBase
         super.jump();
         this.triggerAchievement(StatList.jumpStat);
 
-        if (this.isSprinting())
+        if (this.isSprinting() && !MovementUtil.mcJumpNoBoost)
         {
             this.addExhaustion(0.8F);
         }

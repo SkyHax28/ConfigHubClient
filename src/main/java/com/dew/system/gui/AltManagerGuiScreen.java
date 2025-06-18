@@ -3,7 +3,6 @@ package com.dew.system.gui;
 import com.dew.DewCommon;
 import com.dew.system.altmanager.Alt;
 import com.dew.system.altmanager.login.MicrosoftAuth;
-import com.dew.system.screens.TokenLoginScreen;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiMainMenu;
 import net.minecraft.client.gui.GuiScreen;

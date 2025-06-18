@@ -25,7 +25,7 @@ public class HitSelect extends Module {
     public boolean canAttack() {
         boolean canAttack = currentShouldAttack;
 
-        if (!DewCommon.moduleManager.getModule(HitSelect.class).isEnabled() || mode.equals("Active")) {
+        if (!DewCommon.moduleManager.getModule(HitSelect.class).isEnabled() || mode.get().equals("Active")) {
             canAttack = true;
         }
 
@@ -33,7 +33,7 @@ public class HitSelect extends Module {
     }
     @Override
     public void onAttack(AttackEvent event) {
-        if (mode.equals("Active") && !currentShouldAttack) {
+        if (mode.get().equals("Active") && !currentShouldAttack) {
             event.cancel();
             return;
         }

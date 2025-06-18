@@ -1,4 +1,4 @@
-package com.dew.system.screens.utils;
+package com.dew.utils.alt;
 // Credits: https://github.com/schubilegend/SchubiAuthV2/blob/main/src/main/java/dev/schubilegend/Utils/APIUtils.java
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;

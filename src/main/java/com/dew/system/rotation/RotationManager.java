@@ -72,6 +72,20 @@ public class RotationManager {
         }
     }
 
+    public void resetRotationsInstantly() {
+        if (isRotating) {
+            isRotating = false;
+            isReturning = false;
+
+            if (mc.thePlayer != null) {
+                this.clientYaw = mc.thePlayer.rotationYaw;
+                this.clientPitch = mc.thePlayer.rotationPitch;
+                this.prevClientYaw = this.clientYaw;
+                this.prevClientPitch = this.clientPitch;
+            }
+        }
+    }
+
     private void updateRotations() {
         this.prevClientYaw = this.clientYaw;
         this.prevClientPitch = this.clientPitch;
