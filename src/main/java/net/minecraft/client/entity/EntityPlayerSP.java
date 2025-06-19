@@ -1,8 +1,10 @@
 package net.minecraft.client.entity;
 
 import com.dew.DewCommon;
+import com.dew.system.event.events.LivingUpdateEvent;
 import com.dew.system.event.events.PostMotionEvent;
 import com.dew.system.event.events.PreMotionEvent;
+import com.dew.system.event.events.PreUpdateEvent;
 import com.dew.system.module.modules.movement.InvMove;
 import com.dew.system.module.modules.movement.NoSlow;
 import com.dew.system.module.modules.player.Sprint;
@@ -138,8 +140,8 @@ public class EntityPlayerSP extends AbstractClientPlayer
     {
         RotationManager rotationManager = DewCommon.rotationManager;
 
-        float baseYaw = rotationManager.isRotating() && DewCommon.handleEvents.canRotation() ? rotationManager.getClientYaw() : this.rotationYaw;
-        float basePitch = rotationManager.isRotating() && DewCommon.handleEvents.canRotation() ? rotationManager.getClientPitch() : this.rotationPitch;
+        float baseYaw = rotationManager.isRotating() ? rotationManager.getClientYaw() : this.rotationYaw;
+        float basePitch = rotationManager.isRotating() ? rotationManager.getClientPitch() : this.rotationPitch;
 
         PreMotionEvent preMotionEvent = new PreMotionEvent(this.posX, this.getEntityBoundingBox().minY, this.posZ, baseYaw, basePitch, this.onGround);
         DewCommon.eventManager.call(preMotionEvent);
@@ -721,6 +723,10 @@ public class EntityPlayerSP extends AbstractClientPlayer
         {
             this.setSprinting(false);
         }
+
+        LivingUpdateEvent event = new LivingUpdateEvent();
+        DewCommon.eventManager.call(event);
+        if (event.isCancelled()) return;
 
         if (this.capabilities.allowFlying)
         {

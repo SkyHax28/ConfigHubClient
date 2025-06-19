@@ -54,6 +54,8 @@ public class Scaffold extends Module {
 
     private int delay = 0;
 
+    private boolean checked = false;
+
     private boolean canTower() {
         return Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) && !DewCommon.moduleManager.getModule(SpeedModule.class).isEnabled() && MovementUtil.isBlockUnderPlayer(mc.thePlayer, 3, 1.2, false) && !MovementUtil.isBlockAbovePlayer(mc.thePlayer, 1) && holdingBlock;
     }
@@ -79,6 +81,7 @@ public class Scaffold extends Module {
         originalSlot = -1;
         delay = 0;
         holdingBlock = false;
+        checked = false;
         if (isSneaking) {
             mc.gameSettings.keyBindSneak.setKeyDown(false);
             isSneaking = false;
@@ -149,6 +152,10 @@ public class Scaffold extends Module {
             isSneaking = false;
         }
 
+        if (!DewCommon.rotationManager.isRotating()) {
+            checked = false;
+        }
+
         switch (mode.get().toLowerCase()) {
             case "normal":
                 if (!holdingBlock) {
@@ -181,7 +188,7 @@ public class Scaffold extends Module {
         }
 
         if (mode.get().equals("Telly") && !towered && !Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode())) {
-            if (jumpTicks <= 2 || this.isBlockVeryCloseUnderPlayer()) {
+            if ((jumpTicks <= 2 || this.isBlockVeryCloseUnderPlayer())) {
                 DewCommon.rotationManager.resetRotationsInstantly();
                 if (mc.thePlayer.onGround && mc.thePlayer.posY > 0.0D) {
                     mc.thePlayer.jump();
@@ -448,7 +455,10 @@ public class Scaffold extends Module {
                 if (!canPlace && !noHitCheck.get()) continue;
             }
 
-            if (mc.playerController.onPlayerRightClick(mc.thePlayer, mc.theWorld, mc.thePlayer.getHeldItem(), neighbor, opposite, hitVec)) {
+            if (!checked) {
+                checked = true;
+                return true;
+            } else if (mc.playerController.onPlayerRightClick(mc.thePlayer, mc.theWorld, mc.thePlayer.getHeldItem(), neighbor, opposite, hitVec)) {
                 mc.thePlayer.swingItem();
                 int i = mc.thePlayer.getHeldItem() != null ? mc.thePlayer.getHeldItem().stackSize : 0;
                 if (mc.thePlayer.getHeldItem().stackSize != 0 && (mc.thePlayer.getHeldItem().stackSize != i || mc.playerController.isInCreativeMode())) {

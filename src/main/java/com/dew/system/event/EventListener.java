@@ -45,4 +45,6 @@ public interface EventListener {
     default void onStrafe(StrafeEvent event) {
     }
 
+    default void onLivingUpdate(LivingUpdateEvent event) {
+    }
 }

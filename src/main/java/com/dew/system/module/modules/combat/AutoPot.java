@@ -53,7 +53,7 @@ public class AutoPot extends Module {
     }
 
     @Override
-    public void onPreUpdate(PreUpdateEvent event) {
+    public void onTick(TickEvent event) {
         MovingObjectPosition mop = mc.objectMouseOver;
         if (mop != null) {
             if (mop.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {

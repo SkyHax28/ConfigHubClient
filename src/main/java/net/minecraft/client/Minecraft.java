@@ -2031,6 +2031,10 @@ public class Minecraft implements IThreadListener, IPlayerUsage
                 this.rightClickMouse();
             }
 
+            TickEvent event = new TickEvent();
+            DewCommon.eventManager.call(event);
+            if (event.isCancelled()) return;
+
             this.sendClickBlockToController(this.currentScreen == null && this.gameSettings.keyBindAttack.isKeyDown() && this.inGameHasFocus);
         }
 
@@ -2038,10 +2042,6 @@ public class Minecraft implements IThreadListener, IPlayerUsage
         {
             if (this.thePlayer != null)
             {
-                TickEvent event = new TickEvent();
-                DewCommon.eventManager.call(event);
-                if (event.isCancelled()) return;
-
                 ++this.joinPlayerCounter;
 
                 if (this.joinPlayerCounter == 30)

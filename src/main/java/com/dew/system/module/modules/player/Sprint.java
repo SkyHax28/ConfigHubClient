@@ -1,6 +1,7 @@
 package com.dew.system.module.modules.player;
 
 import com.dew.DewCommon;
+import com.dew.system.event.events.LivingUpdateEvent;
 import com.dew.system.event.events.PreUpdateEvent;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
@@ -24,7 +25,7 @@ public class Sprint extends Module {
     }
 
     @Override
-    public void onPreUpdate(PreUpdateEvent event) {
+    public void onLivingUpdate(LivingUpdateEvent event) {
         if (mc.thePlayer == null) return;
 
         mc.thePlayer.setSprinting(!this.shouldNotSprint());
