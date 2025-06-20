@@ -47,4 +47,16 @@ public interface EventListener {
 
     default void onLivingUpdate(LivingUpdateEvent event) {
     }
+
+    default void onMoveInput(MoveInputEvent event){
+    }
+
+    default void onMoveForward(MoveForwardEvent event){
+    }
+
+    default void onPostSprint(PostSprintEvent event){
+    }
+
+    default void onPreSprint(PreSprintEvent event){
+    }
 }

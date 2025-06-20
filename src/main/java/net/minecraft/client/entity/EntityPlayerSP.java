@@ -1,10 +1,7 @@
 package net.minecraft.client.entity;
 
 import com.dew.DewCommon;
-import com.dew.system.event.events.LivingUpdateEvent;
-import com.dew.system.event.events.PostMotionEvent;
-import com.dew.system.event.events.PreMotionEvent;
-import com.dew.system.event.events.PreUpdateEvent;
+import com.dew.system.event.events.*;
 import com.dew.system.module.modules.movement.InvMove;
 import com.dew.system.module.modules.movement.NoSlow;
 import com.dew.system.module.modules.player.Sprint;
@@ -73,7 +70,7 @@ public class EntityPlayerSP extends AbstractClientPlayer
     private float lastReportedYaw;
     private float lastReportedPitch;
     private boolean serverSneakState;
-    private boolean serverSprintState;
+    public boolean serverSprintState;
     private int positionUpdateTicks;
     private boolean hasValidHealth;
     private String clientBrand;
@@ -604,7 +601,13 @@ public class EntityPlayerSP extends AbstractClientPlayer
             this.renderArmYaw = (float)((double)this.renderArmYaw + (double)(this.rotationYaw - this.renderArmYaw) * 0.5D);
         }
     }
+    public void sendStartSprintingPacket() {
+        this.sendQueue.addToSendQueue(new C0BPacketEntityAction(this, C0BPacketEntityAction.Action.START_SPRINTING));
+    }
 
+    public void sendStopSprintingPacket() {
+        this.sendQueue.addToSendQueue(new C0BPacketEntityAction(this, C0BPacketEntityAction.Action.STOP_SPRINTING));
+    }
     protected boolean isCurrentViewEntity()
     {
         return this.mc.getRenderViewEntity() == this;
@@ -703,7 +706,8 @@ public class EntityPlayerSP extends AbstractClientPlayer
         this.pushOutOfBlocks(this.posX + (double)this.width * 0.35D, this.getEntityBoundingBox().minY + 0.5D, this.posZ - (double)this.width * 0.35D);
         this.pushOutOfBlocks(this.posX + (double)this.width * 0.35D, this.getEntityBoundingBox().minY + 0.5D, this.posZ + (double)this.width * 0.35D);
         boolean flag3 = (float)this.getFoodStats().getFoodLevel() > 6.0F || this.capabilities.allowFlying;
-
+        PreSprintEvent preSprintEvent = new PreSprintEvent();
+        DewCommon.eventManager.call(preSprintEvent);
         if (this.onGround && !flag1 && !flag2 && this.movementInput.moveForward >= f && !this.isSprinting() && flag3 && (!this.isUsingItem() || DewCommon.moduleManager.getModule(NoSlow.class).canNoSlow()) && !this.isPotionActive(Potion.blindness))
         {
             if (this.sprintToggleTimer <= 0 && !this.mc.gameSettings.keyBindSprint.isKeyDown())
@@ -724,9 +728,16 @@ public class EntityPlayerSP extends AbstractClientPlayer
             this.setSprinting(false);
         }
 
-        LivingUpdateEvent event = new LivingUpdateEvent();
-        DewCommon.eventManager.call(event);
-        if (event.isCancelled()) return;
+        LivingUpdateEvent livingUpdateEvent = new LivingUpdateEvent();
+        MoveForwardEvent moveForwardEvent = new MoveForwardEvent(false);
+        DewCommon.eventManager.call(livingUpdateEvent);
+        DewCommon.eventManager.call(moveForwardEvent);
+        if (moveForwardEvent.reset){
+            this.setSprinting(false);
+        }
+        PostSprintEvent postSprintEvent = new PostSprintEvent();
+        DewCommon.eventManager.call(postSprintEvent);
+        if (livingUpdateEvent.isCancelled()) return;
 
         if (this.capabilities.allowFlying)
         {

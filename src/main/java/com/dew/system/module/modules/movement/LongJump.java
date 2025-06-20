@@ -18,7 +18,7 @@ import net.minecraft.network.play.server.S12PacketEntityVelocity;
 import org.lwjgl.input.Keyboard;
 
 public class LongJump extends Module {
-    private NumberValue boostMotion = new NumberValue("Boost", 1.6, 1.5, 1.75, 0.05);
+    private static NumberValue boostMotion = new NumberValue("Boost", 1.6, 1.5, 1.75, 0.05);
     private int tick, lastSlot, motionTick;
     private double startMotion;
     private boolean boost, sent;
