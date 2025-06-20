@@ -63,26 +63,22 @@ public class Velocity extends Module {
                     }
                     event.cancel();
                     break;
+
                 case "jump":
-                    EntityPlayerSP player = mc.thePlayer;
-                    if (player == null) return;
+                    if (((S12PacketEntityVelocity) packet).getEntityID() == mc.thePlayer.getEntityId()) {
+                        if (mc.thePlayer.onGround && mc.thePlayer.isSprinting() && mc.thePlayer.posY > 0.0D) {
+                            int motionX = ((S12PacketEntityVelocity) packet).getMotionX();
+                            int motionZ = ((S12PacketEntityVelocity) packet).getMotionZ();
 
-                    if (event.packet instanceof S12PacketEntityVelocity) {
-                        S12PacketEntityVelocity packet1 = (S12PacketEntityVelocity) packet;
-                        if (packet1.getEntityID() == player.getEntityId()) {
-                            if (player.onGround && player.isSprinting() && player.posY > 0.0D) {
-                                int motionX = packet1.getMotionX();
-                                int motionZ = packet1.getMotionZ();
+                            double horizontal = motionX * motionX + motionZ * motionZ;
+                            double horizontalStrength = Math.sqrt(horizontal);
 
-                                double horizontal = motionX * motionX + motionZ * motionZ;
-                                double horizontalStrength = Math.sqrt(horizontal);
+                            if (horizontalStrength <= 1000) return;
 
-                                if (horizontalStrength <= 1000) return;
-
-                                mc.thePlayer.jump();
-                            }
+                            mc.thePlayer.jump();
                         }
                     }
+                    break;
             }
         }
     }

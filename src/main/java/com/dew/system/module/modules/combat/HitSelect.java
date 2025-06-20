@@ -22,6 +22,7 @@ public class HitSelect extends Module {
     public HitSelect() {
         super("Hit Select", ModuleCategory.COMBAT, Keyboard.KEY_NONE, false, true, true);
     }
+
     public boolean canAttack() {
         boolean canAttack = currentShouldAttack;
 
@@ -31,6 +32,13 @@ public class HitSelect extends Module {
 
         return canAttack;
     }
+
+    @Override
+    public void onDisable() {
+        lastAttackTime = -1;
+        currentShouldAttack = false;
+    }
+
     @Override
     public void onAttack(AttackEvent event) {
         if (mode.get().equals("Active") && !currentShouldAttack) {
@@ -41,6 +49,7 @@ public class HitSelect extends Module {
             lastAttackTime = System.currentTimeMillis();
         }
     }
+
     @Override
     public void onPreUpdate(PreUpdateEvent event) {
         currentShouldAttack = false;

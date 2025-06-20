@@ -1352,8 +1352,8 @@ public abstract class EntityLivingBase extends Entity
             if (IMinecraft.mc.gameSettings.keyBindBack.isKeyDown()) forward -= 1f;
 
             float strafe = 0f;
-            if (IMinecraft.mc.gameSettings.keyBindRight.isKeyDown()) strafe += 1f;
-            if (IMinecraft.mc.gameSettings.keyBindLeft.isKeyDown()) strafe -= 1f;
+            if (IMinecraft.mc.gameSettings.keyBindRight.isKeyDown()) strafe -= 1f;
+            if (IMinecraft.mc.gameSettings.keyBindLeft.isKeyDown()) strafe += 1f;
 
             Entity target = DewCommon.moduleManager.getModule(KillAura.class).target;
             boolean doTargetStrafe = DewCommon.moduleManager.getModule(KillAura.class).isEnabled() && !DewCommon.moduleManager.getModule(TargetStrafe.class).isStrafeOnly() && target != null && forward == 1f && strafe == 0f && IMinecraft.mc.gameSettings.keyBindJump.isKeyDown();

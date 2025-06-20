@@ -7,6 +7,7 @@ import com.dew.system.settingsvalue.NumberValue;
 import com.dew.system.settingsvalue.SelectionValue;
 import com.dew.utils.Clock;
 import com.dew.utils.LogUtil;
+import com.dew.utils.PacketUtil;
 import com.dew.utils.RandomUtil;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.network.play.client.C0BPacketEntityAction;
@@ -14,22 +15,18 @@ import net.optifine.Log;
 import org.lwjgl.input.Keyboard;
 
 public class Knockback extends Module {
-    private static SelectionValue mode = new SelectionValue("Mode", "WTap", "WTap", "Legit", "Rapid", "Backtap", "Packet", "InitPacket", "LegitPacket", "DualPacket");
-    private static NumberValue minDelayValue = new NumberValue("MinDelayValue", 50, 50, 500, 1);
-    private static NumberValue maxDelayValue = new NumberValue("MaxDelayValue", 50, 50, 500, 1);
-    private static BooleanValue hurtTime = new BooleanValue("HurtTime Check", true);
-    private static NumberValue hurtTimeThreshold = new NumberValue("HurtTime Threshold", 10, 0, 10, 1);
-    private static BooleanValue debug = new BooleanValue("Debug", false);
+    private static final SelectionValue mode = new SelectionValue("Mode", "WTap", "WTap", "Legit", "Rapid", "Backtap", "Packet", "InitPacket", "LegitPacket", "DualPacket");
+    private static final NumberValue minDelayValue = new NumberValue("MinDelayValue", 50, 50, 500, 1);
+    private static final NumberValue maxDelayValue = new NumberValue("MaxDelayValue", 50, 50, 500, 1);
+    private static final BooleanValue hurtTime = new BooleanValue("HurtTime Check", true);
+    private static final NumberValue hurtTimeThreshold = new NumberValue("HurtTime Threshold", 10, 0, 10, 1);
+    private static final BooleanValue debug = new BooleanValue("Debug", false);
     private boolean isHit = false;
     private final Clock attackDelay = new Clock();
     private float delay = 0f;
+
     public Knockback() {
         super("Knockback", ModuleCategory.COMBAT, Keyboard.KEY_NONE, false, true, true);
-    }
-    @Override
-    public void onEnable() {
-        attackDelay.reset();
-        isHit = false;
     }
 
     @Override
@@ -37,6 +34,7 @@ public class Knockback extends Module {
         attackDelay.reset();
         isHit = false;
     }
+
     @Override
     public void onPreUpdate(PreUpdateEvent event) {
         if (mode.get().equalsIgnoreCase("Rapid") && isHit) {
@@ -47,6 +45,7 @@ public class Knockback extends Module {
             isHit = false;
         }
     }
+
     @Override
     public void onMoveForward(MoveForwardEvent event) {
         if (mode.get().equalsIgnoreCase("WTap") && isHit) {
@@ -57,6 +56,7 @@ public class Knockback extends Module {
             isHit = false;
         }
     }
+
     @Override
     public void onPostSprint(PostSprintEvent event) {
         if (mode.get().equalsIgnoreCase("Legit") && attackDelay.hasTimePassed(delay)) {
@@ -71,6 +71,7 @@ public class Knockback extends Module {
             attackDelay.reset();
         }
     }
+
     @Override
     public void onAttack(AttackEvent event) {
         if (!mc.gameSettings.keyBindForward.isKeyDown() || mc.thePlayer.isSneaking()) return;
@@ -88,9 +89,7 @@ public class Knockback extends Module {
                     case "legitpacket":
                         if (mc.thePlayer.isSprinting()) {
                             if (!mc.thePlayer.serverSprintState) {
-                                mc.getNetHandler().addToSendQueue(
-                                        new C0BPacketEntityAction(mc.thePlayer,
-                                                C0BPacketEntityAction.Action.START_SPRINTING));
+                                PacketUtil.sendPacket(new C0BPacketEntityAction(mc.thePlayer, C0BPacketEntityAction.Action.START_SPRINTING));
                                 mc.thePlayer.serverSprintState = true;
                             }
                             mc.thePlayer.setSprinting(false);
@@ -138,6 +137,7 @@ public class Knockback extends Module {
             }
         }
     }
+
     public void debug(String text1) {
         if (debug.get()){
             LogUtil.printChat(text1);

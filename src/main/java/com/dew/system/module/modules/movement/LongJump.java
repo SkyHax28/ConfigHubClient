@@ -12,13 +12,14 @@ import com.dew.utils.PacketUtil;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.init.Items;
+import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement;
 import net.minecraft.network.play.client.C09PacketHeldItemChange;
 import net.minecraft.network.play.server.S12PacketEntityVelocity;
 import org.lwjgl.input.Keyboard;
 
 public class LongJump extends Module {
-    private static NumberValue boostMotion = new NumberValue("Boost", 1.6, 1.5, 1.75, 0.05);
+    private static final NumberValue boostMotion = new NumberValue("Boost", 1.6, 1.5, 1.75, 0.05);
     private int tick, lastSlot, motionTick;
     private double startMotion;
     private boolean boost, sent;
@@ -59,9 +60,7 @@ public class LongJump extends Module {
             tick++;
         } else if (tick == 1) {
             DewCommon.rotationManager.setRotations(mc.thePlayer.rotationYaw, 90f);
-            PacketUtil.sendPacket(
-                    new C08PacketPlayerBlockPlacement(player.inventory.getCurrentItem())
-            );
+            PacketUtil.sendPacket(new C08PacketPlayerBlockPlacement(player.inventory.getCurrentItem()));
             sent = true;
             tick++;
         } else if (tick == 2) {
@@ -93,17 +92,20 @@ public class LongJump extends Module {
             MovementUtil.setSpeed(MovementUtil.getSpeed());
         }
     }
+
     @Override
     public void onReceivedPacket(ReceivedPacketEvent event) {
-        if (event.packet instanceof S12PacketEntityVelocity) {
-            S12PacketEntityVelocity packet = (S12PacketEntityVelocity) event.packet;
-            if (packet.getEntityID() == mc.thePlayer.getEntityId() && sent) {
-                LogUtil.printChat("Boosting");
-                boost = true;
-                sent = false;
-            }
+        if (mc.thePlayer == null || mc.theWorld == null) return;
+
+        Packet<?> packet = event.packet;
+
+        if (packet instanceof S12PacketEntityVelocity && mc.theWorld.getEntityByID(((S12PacketEntityVelocity) packet).getEntityID()) == mc.thePlayer && sent) {
+            LogUtil.printChat("Boosting");
+            boost = true;
+            sent = false;
         }
     }
+
     private int getBall() {
         int ballSlot = -1;
         for (int i = 0; i < 9; i++) {
