@@ -1,6 +1,7 @@
 package net.minecraft.client.renderer.entity;
 
 import com.dew.DewCommon;
+import com.dew.IMinecraft;
 import com.dew.system.module.modules.render.NameTags;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
@@ -374,7 +375,7 @@ public abstract class Render<T extends Entity> implements IEntityRenderer
                 GlStateManager.popMatrix();
             }
         } else {
-            FontRenderer fontrenderer = this.getFontRendererFromRenderManager();
+            FontRenderer fontrenderer = IMinecraft.mc.bitFontRendererObj;
             float f = 1.6F;
             double distance = entityIn.getDistance(renderManager.viewerPosX, renderManager.viewerPosY, renderManager.viewerPosZ);
             float scale = (float)(f * 0.016666668F * Math.max(distance * 0.1F, 1.0F));

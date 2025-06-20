@@ -16,8 +16,8 @@ import org.lwjgl.input.Keyboard;
 
 public class Knockback extends Module {
     private static final SelectionValue mode = new SelectionValue("Mode", "WTap", "WTap", "Legit", "Rapid", "Backtap", "Packet", "InitPacket", "LegitPacket", "DualPacket");
-    private static final NumberValue minDelayValue = new NumberValue("MinDelayValue", 50, 50, 500, 1);
-    private static final NumberValue maxDelayValue = new NumberValue("MaxDelayValue", 50, 50, 500, 1);
+    private static final NumberValue minDelayValue = new NumberValue("Min Delay", 50, 50, 500, 1);
+    private static final NumberValue maxDelayValue = new NumberValue("Max Delay", 50, 50, 500, 1);
     private static final BooleanValue hurtTime = new BooleanValue("HurtTime Check", true);
     private static final NumberValue hurtTimeThreshold = new NumberValue("HurtTime Threshold", 10, 0, 10, 1);
     private static final BooleanValue debug = new BooleanValue("Debug", false);
