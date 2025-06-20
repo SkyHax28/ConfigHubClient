@@ -4,15 +4,9 @@ import com.dew.system.event.events.PreUpdateEvent;
 import com.dew.system.event.events.ReceivedPacketEvent;
 import com.dew.system.event.events.SendPacketEvent;
 import com.dew.system.module.modules.movement.flight.FlightMode;
-import com.dew.utils.LogUtil;
-import com.dew.utils.MovementUtil;
-import com.dew.utils.PacketUtil;
-import com.dew.utils.TimerUtil;
+import com.dew.utils.*;
 import net.minecraft.network.Packet;
-import net.minecraft.network.play.client.C00PacketKeepAlive;
-import net.minecraft.network.play.client.C03PacketPlayer;
-import net.minecraft.network.play.client.C0CPacketInput;
-import net.minecraft.network.play.client.C0FPacketConfirmTransaction;
+import net.minecraft.network.play.client.*;
 import net.minecraft.network.play.server.S08PacketPlayerPosLook;
 import net.minecraft.network.status.server.S01PacketPong;
 
@@ -22,7 +16,7 @@ public class HypixelPredictionFlight implements FlightMode {
         return "Hypixel Prediction";
     }
 
-    private int ticks;
+    private int boostSpeed = 0;
 
     @Override
     public void onEnable() {
@@ -30,20 +24,24 @@ public class HypixelPredictionFlight implements FlightMode {
 
     @Override
     public void onDisable() {
-        if (mc.thePlayer == null) return;
-
-        mc.thePlayer.capabilities.isFlying = false;
-        TimerUtil.resetTimerSpeed();
+        boostSpeed = 0;
+        BlinkUtil.sync(true, true);
+        BlinkUtil.stopBlink();
     }
 
     @Override
     public void onPreUpdate(PreUpdateEvent event) {
         if (mc.thePlayer == null) return;
 
-        mc.thePlayer.capabilities.isFlying = true;
-        mc.thePlayer.motionY = 0f;
-        MovementUtil.strafe(0.3f);
-        TimerUtil.setTimerSpeed(0.3f);
+        boostSpeed++;
+
+        if (boostSpeed >= 5) {
+            BlinkUtil.sync(true, true);
+            boostSpeed = 0;
+        } else {
+            BlinkUtil.doBlink();
+            LogUtil.printChat("bruh" + boostSpeed);
+        }
     }
 
     @Override
@@ -52,13 +50,16 @@ public class HypixelPredictionFlight implements FlightMode {
 
         Packet<?> packet = event.packet;
 
-        if (packet instanceof C0FPacketConfirmTransaction) {
-            PacketUtil.sendPacketAsSilent(new C0FPacketConfirmTransaction(((C0FPacketConfirmTransaction) packet).getWindowId(), (short) Math.abs(((C0FPacketConfirmTransaction) packet).getUid()), false));
-            event.cancel();
-        }
     }
 
     @Override
     public void onReceivedPacket(ReceivedPacketEvent event) {
+        if (mc.thePlayer == null || mc.theWorld == null) return;
+
+        Packet<?> packet = event.packet;
+
+        if (packet instanceof S08PacketPlayerPosLook) {
+            LogUtil.printChat("Crym");
+        }
     }
 }
