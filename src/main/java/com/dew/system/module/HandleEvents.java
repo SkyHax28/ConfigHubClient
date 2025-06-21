@@ -56,6 +56,13 @@ public class HandleEvents implements EventListener {
     }
 
     @Override
+    public void onItemRender(ItemRenderEvent event) {
+        if (DewCommon.moduleManager.getModule(AutoTool.class).autoToolManager.originalSlot != -1) {
+            event.itemToRender = mc.thePlayer.inventory.getStackInSlot(DewCommon.moduleManager.getModule(AutoTool.class).autoToolManager.originalSlot);
+        }
+    }
+
+    @Override
     public void onPreUpdate(PreUpdateEvent event) {
         DewCommon.moduleManager.getModule(AutoTool.class).autoToolManager.tick();
 

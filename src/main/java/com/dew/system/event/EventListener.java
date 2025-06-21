@@ -59,4 +59,7 @@ public interface EventListener {
 
     default void onPreSprint(PreSprintEvent event){
     }
+
+    default void onItemRender(ItemRenderEvent event){
+    }
 }

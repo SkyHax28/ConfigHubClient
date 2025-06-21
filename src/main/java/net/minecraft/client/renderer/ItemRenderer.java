@@ -1,6 +1,8 @@
 package net.minecraft.client.renderer;
 
 import com.dew.DewCommon;
+import com.dew.system.event.events.ItemRenderEvent;
+import com.dew.system.event.events.PreMotionEvent;
 import com.dew.system.module.Module;
 import com.dew.system.module.modules.render.Animations;
 import com.dew.system.module.modules.render.NoFireOverlay;
@@ -325,13 +327,19 @@ public class ItemRenderer
             Animations animationsModule = DewCommon.moduleManager.getModule(Animations.class);
             final float var9 = MathHelper.sin(MathHelper.sqrt_float(f1) * (float) Math.PI);
 
-            if (this.itemToRender != null) {
-                if (this.itemToRender.getItem() instanceof ItemMap) {
+            ItemRenderEvent itemRenderEvent = new ItemRenderEvent(this.itemToRender);
+            DewCommon.eventManager.call(itemRenderEvent);
+            if (itemRenderEvent.isCancelled()) return;
+
+            ItemStack toRender = itemRenderEvent.itemToRender;
+
+            if (toRender != null) {
+                if (toRender.getItem() instanceof ItemMap) {
                     this.renderItemMap(abstractclientplayer, f2, f, f1);
-                } else if (animationsModule.isVisualBlocking() && mc.thePlayer.getHeldItem() != null && this.itemToRender.getItem() instanceof ItemSword) {
+                } else if (animationsModule.isVisualBlocking() && mc.thePlayer.getHeldItem() != null && toRender.getItem() instanceof ItemSword) {
                     this.renderSwordAnimations(animationsModule, f, f1, var9);
                 } else if (abstractclientplayer.getItemInUseCount() > 0) {
-                    EnumAction enumaction = this.itemToRender.getItemUseAction();
+                    EnumAction enumaction = toRender.getItemUseAction();
 
                     switch (enumaction)
                     {
@@ -364,7 +372,7 @@ public class ItemRenderer
                     this.transformFirstPersonItem(f, f1);
                 }
 
-                this.renderItem(abstractclientplayer, this.itemToRender, ItemCameraTransforms.TransformType.FIRST_PERSON);
+                this.renderItem(abstractclientplayer, toRender, ItemCameraTransforms.TransformType.FIRST_PERSON);
             }
             else if (!abstractclientplayer.isInvisible())
             {

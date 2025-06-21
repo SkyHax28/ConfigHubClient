@@ -53,6 +53,13 @@ public class AutoPot extends Module {
     }
 
     @Override
+    public void onItemRender(ItemRenderEvent event) {
+        if (prevSlot != -1) {
+            event.itemToRender = mc.thePlayer.inventory.getStackInSlot(prevSlot);
+        }
+    }
+
+    @Override
     public void onTick(TickEvent event) {
         MovingObjectPosition mop = mc.objectMouseOver;
         if (mop != null) {

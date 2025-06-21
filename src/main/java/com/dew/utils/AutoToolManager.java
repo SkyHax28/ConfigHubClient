@@ -13,7 +13,7 @@ import net.minecraft.util.BlockPos;
 public class AutoToolManager {
     private final Minecraft mc = IMinecraft.mc;
 
-    private int originalSlot = -1;
+    public int originalSlot = -1;
     private int switchBackTicks = -1;
 
     private static final int RETURN_DELAY_TICKS = 3;

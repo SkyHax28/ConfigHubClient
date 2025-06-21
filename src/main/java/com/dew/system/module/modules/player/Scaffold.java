@@ -134,6 +134,13 @@ public class Scaffold extends Module {
     }
 
     @Override
+    public void onItemRender(ItemRenderEvent event) {
+        if (originalSlot != -1) {
+            event.itemToRender = mc.thePlayer.inventory.getStackInSlot(originalSlot);
+        }
+    }
+
+    @Override
     public void onTick(TickEvent event) {
         if (mc.thePlayer == null || mc.theWorld == null) return;
 
