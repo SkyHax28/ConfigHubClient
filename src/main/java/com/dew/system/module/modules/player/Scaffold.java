@@ -163,12 +163,6 @@ public class Scaffold extends Module {
         this.towerFunction();
     }
 
-    @Override
-    public void onPreMotion(PreMotionEvent event) {
-        if (mc.thePlayer == null || mc.theWorld == null) return;
-
-    }
-
     private void doMainFunctions() {
         if (edgeSafeMode.get().equals("Sneak") && this.isNearEdge()) {
             mc.gameSettings.keyBindSneak.setKeyDown(true);
