@@ -229,8 +229,6 @@ public class EntityPlayerSP extends AbstractClientPlayer
                 this.lastReportedYaw = yaw;
                 this.lastReportedPitch = pitch;
             }
-
-            rotationManager.tick();
         }
 
         PostMotionEvent postMotionEvent = new PostMotionEvent(this.posX, this.getEntityBoundingBox().minY, this.posZ, yaw, pitch, this.onGround);

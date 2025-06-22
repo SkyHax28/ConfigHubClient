@@ -49,6 +49,7 @@ public class Scaffold extends Module {
     private boolean isSneaking = false;
 
     private int jumpTicks = 0;
+    private int towerTicks = 0;
     private boolean hypGroundCheck = false;
     private boolean towered = false;
 
@@ -87,6 +88,7 @@ public class Scaffold extends Module {
             isSneaking = false;
         }
         jumpTicks = 0;
+        towerTicks = 0;
         hypGroundCheck = false;
         if (mode.get().equals("Hypixel")) {
             MovementUtil.mcJumpNoBoost = false;
@@ -150,6 +152,23 @@ public class Scaffold extends Module {
         this.doMainFunctions();
     }
 
+    @Override
+    public void onPreUpdate(PreUpdateEvent event) {
+        if (mc.thePlayer == null || mc.theWorld == null) return;
+
+        this.tellyFunction();
+
+        towerTicks = mc.thePlayer.onGround ? 0 : towerTicks + 1;
+
+        this.towerFunction();
+    }
+
+    @Override
+    public void onPreMotion(PreMotionEvent event) {
+        if (mc.thePlayer == null || mc.theWorld == null) return;
+
+    }
+
     private void doMainFunctions() {
         if (edgeSafeMode.get().equals("Sneak") && this.isNearEdge()) {
             mc.gameSettings.keyBindSneak.setKeyDown(true);
@@ -194,73 +213,11 @@ public class Scaffold extends Module {
             keepY = mc.thePlayer.posY;
         }
 
-        if (mode.get().equals("Telly") && !towered && !Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode())) {
-            if ((jumpTicks <= 2 || this.isBlockVeryCloseUnderPlayer())) {
-                DewCommon.rotationManager.resetRotationsInstantly();
-                if (mc.thePlayer.onGround && mc.thePlayer.posY > 0.0D) {
-                    mc.thePlayer.jump();
-                    keepY = mc.thePlayer.posY;
-                }
-                return;
-            }
+        if (this.isTellying()) {
+            return;
         }
 
         if (delay <= placeDelay.get()) return;
-
-        if (this.canTower() && !towerMode.get().equals("OFF")) {
-            MovementUtil.mcJumpNoBoost = true;
-
-            switch (towerMode.get().toLowerCase()) {
-                case "vanilla":
-                    if (MovementUtil.isMoving()) {
-                        mc.thePlayer.motionY = 0.5;
-                    } else {
-                        mc.thePlayer.motionY = 0.8;
-                        MovementUtil.stopMovingQuickly();
-                    }
-                    break;
-
-                case "hypixel":
-                    if (MovementUtil.isMoving()) {
-                        if (mc.thePlayer.onGround) {
-                            hypGroundCheck = true;
-                        }
-
-                        if (hypGroundCheck) {
-                            switch (jumpTicks % 3) {
-                                case 0:
-                                    this.strafeWithCorrectHypPotMath(0.2f);
-                                    mc.thePlayer.motionY = 0.42;
-                                    break;
-
-                                case 1:
-                                    mc.thePlayer.motionY = 0.33;
-                                    break;
-
-                                case 2:
-                                    double targetY = Math.floor(mc.thePlayer.posY) + 1.0;
-                                    mc.thePlayer.motionY = targetY - mc.thePlayer.posY;
-                                    break;
-                            }
-                        }
-
-                        if (jumpTicks >= 18) {
-                            hypGroundCheck = false;
-                        }
-                    }
-                    break;
-            }
-
-            towered = true;
-        } else if (towered) {
-            if (towerMode.get().equals("Vanilla")) {
-                MovementUtil.stopYMotion();
-            }
-
-            MovementUtil.mcJumpNoBoost = false;
-            hypGroundCheck = false;
-            towered = false;
-        }
 
         if (holdingBlock && (mc.thePlayer.getHeldItem() == null || !(mc.thePlayer.getHeldItem().getItem() instanceof ItemBlock) || mc.thePlayer.getHeldItem().stackSize == 0)) {
             this.resetState();
@@ -356,15 +313,77 @@ public class Scaffold extends Module {
         }
     }
 
-    private EnumFacing getPlayerFacing() {
-        int yaw = MathHelper.floor_double((mc.thePlayer.rotationYaw * 4.0F / 360.0F) + 0.5D) & 3;
-        switch (yaw) {
-            case 1: return EnumFacing.WEST;
-            case 2: return EnumFacing.NORTH;
-            case 3: return EnumFacing.EAST;
-            case 0:
-            default: return EnumFacing.SOUTH;
+    private void tellyFunction() {
+        if (mode.get().equals("Telly") && !towered && !Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode())) {
+            if (jumpTicks <= 2 || this.isBlockVeryCloseUnderPlayer()) {
+                DewCommon.rotationManager.resetRotationsInstantly();
+                if (mc.thePlayer.onGround && mc.thePlayer.posY > 0.0D) {
+                    mc.thePlayer.jump();
+                    keepY = mc.thePlayer.posY;
+                }
+            }
         }
+    }
+
+    private void towerFunction() {
+        if (this.canTower() && !towerMode.get().equals("OFF")) {
+            MovementUtil.mcJumpNoBoost = true;
+
+            switch (towerMode.get().toLowerCase()) {
+                case "vanilla":
+                    if (MovementUtil.isMoving()) {
+                        mc.thePlayer.motionY = 0.5;
+                    } else {
+                        mc.thePlayer.motionY = 0.8;
+                        MovementUtil.stopMovingQuickly();
+                    }
+                    break;
+
+                case "hypixel":
+                    if (MovementUtil.isMoving()) {
+                        if (mc.thePlayer.onGround) {
+                            hypGroundCheck = true;
+                        }
+
+                        if (hypGroundCheck) {
+                            switch (towerTicks % 3) {
+                                case 0:
+                                    this.strafeWithCorrectHypPotMath(0.2f);
+                                    mc.thePlayer.motionY = 0.42;
+                                    break;
+
+                                case 1:
+                                    mc.thePlayer.motionY = 0.33;
+                                    break;
+
+                                case 2:
+                                    double targetY = Math.floor(mc.thePlayer.posY) + 1.0;
+                                    mc.thePlayer.motionY = targetY - mc.thePlayer.posY;
+                                    break;
+                            }
+                        }
+
+                        if (towerTicks >= 18) {
+                            hypGroundCheck = false;
+                        }
+                    }
+                    break;
+            }
+
+            towered = true;
+        } else if (towered) {
+            if (towerMode.get().equals("Vanilla")) {
+                MovementUtil.stopYMotion();
+            }
+
+            MovementUtil.mcJumpNoBoost = false;
+            hypGroundCheck = false;
+            towered = false;
+        }
+    }
+
+    private boolean isTellying() {
+        return mode.get().equals("Telly") && !towered && !Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) && (jumpTicks <= 2 || this.isBlockVeryCloseUnderPlayer());
     }
 
     private EnumFacing[] getFullPrioritizedFacings(boolean jumping, boolean sprinting) {

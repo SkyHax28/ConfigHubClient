@@ -12,6 +12,7 @@ import com.dew.system.module.modules.player.Sprint;
 import com.dew.system.module.modules.render.Rotations;
 import com.dew.system.rotation.RotationManager;
 import com.dew.system.viapatcher.MovePatcher;
+import com.dew.utils.LogUtil;
 import com.dew.utils.MovementUtil;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
@@ -1358,7 +1359,8 @@ public abstract class EntityLivingBase extends Entity
             Entity target = DewCommon.moduleManager.getModule(KillAura.class).target;
             boolean doTargetStrafe = DewCommon.moduleManager.getModule(KillAura.class).isEnabled() && !DewCommon.moduleManager.getModule(TargetStrafe.class).isStrafeOnly() && target != null && forward == 1f && strafe == 0f && IMinecraft.mc.gameSettings.keyBindJump.isKeyDown();
 
-            float yaw = doTargetStrafe ? MovementUtil.getTargetStrafeYawDirection(target, DewCommon.moduleManager.getModule(TargetStrafe.class).getDistance()) : DewCommon.moduleManager.getModule(Sprint.class).isEnabled() && Sprint.omni.get() && this instanceof EntityPlayerSP ? (float) MovementUtil.getDirection() : DewCommon.moduleManager.getModule(MoveFix.class).isEnabled() && DewCommon.rotationManager.isRotating() && this instanceof EntityPlayerSP ? DewCommon.rotationManager.getClientYaw() : this.rotationYaw;
+            float yaw = doTargetStrafe ? MovementUtil.getTargetStrafeYawDirection(target, DewCommon.moduleManager.getModule(TargetStrafe.class).getDistance()) : DewCommon.moduleManager.getModule(Sprint.class).isEnabled() && Sprint.omni.get() && this instanceof EntityPlayerSP ? (float) MovementUtil.getDirection() : DewCommon.moduleManager.getModule(MoveFix.class).isEnabled() && DewCommon.rotationManager.isRotating() && this instanceof EntityPlayerSP ? DewCommon.rotationManager.getClientYaw() : this instanceof EntityPlayerSP ? DewCommon.rotationManager.getClientYaw() : this.rotationYaw;
+
             float f = yaw * 0.017453292F;
             if (!MovementUtil.mcJumpNoBoost) {
                 this.motionX -= (double)(MathHelper.sin(f) * 0.2F);
@@ -1723,12 +1725,6 @@ public abstract class EntityLivingBase extends Entity
 
     public void onLivingUpdate()
     {
-        if (this instanceof EntityPlayerSP) {
-            PreUpdateEvent event = new PreUpdateEvent();
-            DewCommon.eventManager.call(event);
-            if (event.isCancelled()) return;
-        }
-
         if (this.jumpTicks > 0)
         {
             --this.jumpTicks;
@@ -1785,6 +1781,16 @@ public abstract class EntityLivingBase extends Entity
         }
 
         this.worldObj.theProfiler.endSection();
+
+        if (this instanceof EntityPlayerSP) {
+            RotationManager rotationManager = DewCommon.rotationManager;
+            rotationManager.tick();
+
+            PreUpdateEvent event = new PreUpdateEvent();
+            DewCommon.eventManager.call(event);
+            if (event.isCancelled()) return;
+        }
+
         this.worldObj.theProfiler.startSection("jump");
 
         if (this.isJumping)

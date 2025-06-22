@@ -2,6 +2,9 @@ package net.minecraft.client.gui;
 
 import java.io.IOException;
 import java.util.List;
+
+import com.dew.utils.ServerUtil;
+import de.florianmichael.viamcp.gui.GuiProtocolSelector;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.IChatComponent;
 
@@ -30,6 +33,9 @@ public class GuiDisconnected extends GuiScreen
         this.multilineMessage = this.fontRendererObj.listFormattedStringToWidth(this.message.getFormattedText(), this.width - 50);
         this.field_175353_i = this.multilineMessage.size() * this.fontRendererObj.FONT_HEIGHT;
         this.buttonList.add(new GuiButton(0, this.width / 2 - 100, this.height / 2 + this.field_175353_i / 2 + this.fontRendererObj.FONT_HEIGHT, I18n.format("gui.toMenu", new Object[0])));
+
+        this.buttonList.add(new GuiButton(1, this.width / 2 - 100, this.height / 2 + field_175353_i / 2 + this.fontRendererObj.FONT_HEIGHT + 22, 200, 20, "Reconnect to §7" + ServerUtil.serverData.serverIP));
+        this.buttonList.add(new GuiButton(69, 5, this.height - 28, 90, 20, "Protocol"));
     }
 
     protected void actionPerformed(GuiButton button) throws IOException
@@ -37,6 +43,10 @@ public class GuiDisconnected extends GuiScreen
         if (button.id == 0)
         {
             this.mc.displayGuiScreen(this.parentScreen);
+        } else if (button.id == 1) {
+            ServerUtil.connectToLastServer();
+        } else if (button.id == 69) {
+            this.mc.displayGuiScreen(new GuiProtocolSelector(this));
         }
     }
 
