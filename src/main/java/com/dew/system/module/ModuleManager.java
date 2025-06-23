@@ -4,10 +4,7 @@ import com.dew.DewCommon;
 import com.dew.system.event.EventListener;
 import com.dew.system.module.modules.combat.*;
 import com.dew.system.module.modules.exploit.Disabler;
-import com.dew.system.module.modules.movement.InvMove;
-import com.dew.system.module.modules.movement.LongJump;
-import com.dew.system.module.modules.movement.MoveFix;
-import com.dew.system.module.modules.movement.NoSlow;
+import com.dew.system.module.modules.movement.*;
 import com.dew.system.module.modules.movement.flight.FlightModule;
 import com.dew.system.module.modules.movement.speed.SpeedModule;
 import com.dew.system.module.modules.player.*;
@@ -33,7 +30,7 @@ public class ModuleManager implements EventListener {
                 new ESP(), new NoHurtCam(), new NoFireOverlay(), new Wings(),
                 new Sprint(), new TargetStrafe(), new AutoBlock(), new FastBow(),
                 new FastUse(), new Teams(), new HitSelect(), new LongJump(),
-                new Knockback()
+                new Knockback(), new BloxdPhysics()
         ));
 
         DewCommon.eventManager.register(this);

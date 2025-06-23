@@ -26,6 +26,8 @@ public class BlinkUtil {
     }
 
     public static void doBlink() {
+        if (mc.isIntegratedServerRunning()) return;
+
         blinking = true;
 
         if (prevYMotion == null && mc.thePlayer != null) {
