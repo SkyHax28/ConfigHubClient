@@ -52,6 +52,8 @@ public class WingsManager extends ModelBase {
         rightWing.addChild(rightWingTip);
 
         wingTexture = new ResourceLocation("minecraft", "dew/wing.png");
+
+        LogUtil.infoLog("init wingsManager");
     }
 
     public void renderWings(float partialTicks) {

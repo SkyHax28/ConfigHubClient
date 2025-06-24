@@ -13,6 +13,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
+import net.minecraft.stats.StatList;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.MathHelper;
@@ -24,6 +25,11 @@ public class MovementUtil {
     private static final Minecraft mc = IMinecraft.mc;
 
     public static boolean mcJumpNoBoost = false;
+
+    public static void fakeJump() {
+        mc.thePlayer.isAirBorne = true;
+        mc.thePlayer.triggerAchievement(StatList.jumpStat);
+    }
 
     public static boolean isBlockUnderPlayer(EntityPlayer player, int distance, boolean slabIsNotBlock) {
         return isBlockUnderPlayer(player, distance, 0.6, slabIsNotBlock);

@@ -12,6 +12,7 @@ public class MoveFix extends Module {
     public MoveFix() {
         super("Move Fix", ModuleCategory.MOVEMENT, Keyboard.KEY_NONE, false, true, true);
     }
+
     @Override
     public void onStrafe(StrafeEvent event) {
         RotationManager rotationManager = DewCommon.rotationManager;

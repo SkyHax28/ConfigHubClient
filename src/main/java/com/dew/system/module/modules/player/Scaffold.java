@@ -343,6 +343,7 @@ public class Scaffold extends Module {
                             switch (towerTicks % 3) {
                                 case 0:
                                     this.strafeWithCorrectHypPotMath(0.2f);
+                                    MovementUtil.fakeJump();
                                     mc.thePlayer.motionY = 0.42;
                                     break;
 

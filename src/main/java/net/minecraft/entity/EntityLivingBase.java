@@ -9,6 +9,7 @@ import com.dew.system.module.modules.combat.KillAura;
 import com.dew.system.module.modules.combat.TargetStrafe;
 import com.dew.system.module.modules.movement.MoveFix;
 import com.dew.system.module.modules.player.Sprint;
+import com.dew.system.module.modules.render.Animations;
 import com.dew.system.module.modules.render.Rotations;
 import com.dew.system.rotation.RotationManager;
 import com.dew.system.viapatcher.MovePatcher;
@@ -1148,6 +1149,11 @@ public abstract class EntityLivingBase extends Entity
 
     private int getArmSwingAnimationEnd()
     {
+        Animations animationsModule = DewCommon.moduleManager.getModule(Animations.class);
+        if (animationsModule.isEnabled() && animationsModule.shouldCustomSwingSpeed()) {
+            return animationsModule.getSwingSpeed();
+        }
+
         return this.isPotionActive(Potion.digSpeed) ? 6 - (1 + this.getActivePotionEffect(Potion.digSpeed).getAmplifier()) * 1 : (this.isPotionActive(Potion.digSlowdown) ? 6 + (1 + this.getActivePotionEffect(Potion.digSlowdown).getAmplifier()) * 2 : 6);
     }
 

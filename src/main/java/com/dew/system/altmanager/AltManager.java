@@ -35,6 +35,8 @@ public class AltManager {
 	public AltManager() {
 		this.encryptKey = generateEncryptionKey();
 		readAlts();
+
+		LogUtil.infoLog("init altManager");
 	}
 
 	/**

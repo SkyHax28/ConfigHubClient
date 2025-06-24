@@ -49,7 +49,7 @@ public class AutoToolManager {
     }
 
     public void start(BlockPos pos) {
-        if (mc.thePlayer == null || mc.theWorld == null || pos == null) return;
+        if (mc.thePlayer == null || mc.theWorld == null || pos == null || mc.thePlayer.capabilities.isCreativeMode) return;
 
         Block block = mc.theWorld.getBlockState(pos).getBlock();
         if (block.getMaterial().isReplaceable()) return;

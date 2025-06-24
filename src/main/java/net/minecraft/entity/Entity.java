@@ -8,6 +8,7 @@ import java.util.concurrent.Callable;
 import com.dew.DewCommon;
 import com.dew.system.event.events.MoveEvent;
 import com.dew.system.event.events.StrafeEvent;
+import com.dew.system.module.modules.movement.Step;
 import com.dew.system.viapatcher.MovePatcher;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockFence;
@@ -654,6 +655,11 @@ public abstract class Entity implements ICommandSender
                     y = d7;
                     z = d8;
                     this.setEntityBoundingBox(axisalignedbb3);
+                }
+
+                Step stepModule = DewCommon.moduleManager.getModule(Step.class);
+                if (this instanceof EntityPlayerSP && stepModule.isEnabled()) {
+                    stepModule.onStep();
                 }
             }
 

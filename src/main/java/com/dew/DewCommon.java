@@ -13,6 +13,7 @@ import com.dew.utils.alt.SessionChanger;
 import com.dew.utils.LogUtil;
 import com.dew.utils.WingsManager;
 import com.dew.utils.fonts.CustomFontRenderer;
+import com.dew.utils.pathfinder.MainPathFinder;
 import de.florianmichael.viamcp.ViaMCP;
 import net.minecraft.util.ResourceLocation;
 
@@ -37,6 +38,7 @@ public class DewCommon {
     public static ClientConfigManager clientConfigManager;
     public static RotationManager rotationManager;
     public static WingsManager wingsManager;
+    public static MainPathFinder pathFinder;
 
     public static final File BASE_CFG_DIR = new File(mc.mcDataDir, "dew");
 
@@ -52,9 +54,7 @@ public class DewCommon {
         }
 
         initViaMCP();
-        // Setting session
         SessionChanger.previousSession = mc.session;
-        // Client initialization
         eventManager = new EventManager();
         moduleConfigManager = new ModuleConfigManager();
         bindConfigManager = new BindConfigManager();
@@ -63,6 +63,7 @@ public class DewCommon {
         commandManager = new CommandManager();
         handleEvents = new HandleEvents();
         wingsManager = new WingsManager();
+        pathFinder = new MainPathFinder();
 
         Font font;
         try {
