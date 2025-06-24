@@ -116,7 +116,10 @@ public class KillAura extends Module {
                         }
 
                         AttackOrder.sendFixedAttack(mc.thePlayer, entity);
-                        mc.thePlayer.onEnchantmentCritical(entity);
+
+                        mc.addScheduledTask(() -> {
+                            mc.thePlayer.onEnchantmentCritical(entity);
+                        });
 
                         if (shouldTp) {
                             Collections.reverse(paths);
