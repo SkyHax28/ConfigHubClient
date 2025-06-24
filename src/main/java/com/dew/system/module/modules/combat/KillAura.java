@@ -35,7 +35,7 @@ public class KillAura extends Module {
     }
 
     private static final SelectionValue mode = new SelectionValue("Mode", "Single", "Single", "Multi");
-    private static final NumberValue maxTargets = new NumberValue("Max Targets", 3.0, 2.0, 20.0, 1.0, () -> mode.get().equals("Multi"));
+    private static final NumberValue maxTargets = new NumberValue("Max Targets", 3.0, 2.0, 8.0, 1.0, () -> mode.get().equals("Multi"));
     private static final NumberValue targetRange = new NumberValue("Target Range", 6.0, 0.1, 10.0, 0.1);
     private static final NumberValue attackRange = new NumberValue("Attack Range", 3.0, 0.1, 6.0, 0.1);
     private static final NumberValue maxCps = new NumberValue("Max CPS", 17.0, 0.0, 20.0, 0.1);
@@ -115,7 +115,7 @@ public class KillAura extends Module {
                             }
                         }
 
-                        AttackOrder.sendFixedAttack(mc.thePlayer, entity);
+                        AttackOrder.sendFixedPacketAttack(mc.thePlayer, entity);
 
                         if (shouldTp) {
                             Collections.reverse(paths);
