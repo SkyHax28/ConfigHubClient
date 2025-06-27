@@ -49,6 +49,8 @@ public class ViaMCP {
 
         fixTransactions();
         PacketPatcher.applyNibblesPatches();
+
+        System.setProperty("com.viaversion.handlePingsAsInvAcknowledgements", "true");
     }
 
     private void fixTransactions() {
