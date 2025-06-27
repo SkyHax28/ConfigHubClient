@@ -3,26 +3,17 @@ package com.dew.system.viapatcher;
 import com.dew.IMinecraft;
 import com.dew.system.event.events.ReceivedPacketEvent;
 import com.dew.system.event.events.SendPacketEvent;
-import com.dew.utils.LogUtil;
-import com.dew.utils.PacketUtil;
 import com.viaversion.viabackwards.protocol.v1_11to1_10.Protocol1_11To1_10;
-import com.viaversion.viabackwards.protocol.v1_17_1to1_17.Protocol1_17_1To1_17;
-import com.viaversion.viabackwards.protocol.v1_17_1to1_17.storage.InventoryStateIds;
-import com.viaversion.viabackwards.protocol.v1_17to1_16_4.Protocol1_17To1_16_4;
-import com.viaversion.viabackwards.protocol.v1_17to1_16_4.storage.PlayerLastCursorItem;
 import com.viaversion.viarewind.protocol.v1_9to1_8.Protocol1_9To1_8;
 import com.viaversion.viarewind.protocol.v1_9to1_8.storage.BossBarStorage;
 import com.viaversion.viarewind.protocol.v1_9to1_8.storage.PlayerPositionTracker;
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.minecraft.BlockPosition;
-import com.viaversion.viaversion.api.minecraft.item.Item;
 import com.viaversion.viaversion.api.protocol.ProtocolManager;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandlers;
 import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
 import com.viaversion.viaversion.api.type.Types;
-import com.viaversion.viaversion.protocols.v1_16_1to1_16_2.packet.ServerboundPackets1_16_2;
-import com.viaversion.viaversion.protocols.v1_16_4to1_17.packet.ServerboundPackets1_17;
 import com.viaversion.viaversion.protocols.v1_8to1_9.packet.ClientboundPackets1_9;
 import com.viaversion.viaversion.protocols.v1_8to1_9.packet.ServerboundPackets1_8;
 import com.viaversion.viaversion.protocols.v1_8to1_9.packet.ServerboundPackets1_9;
@@ -34,10 +25,7 @@ import net.minecraft.item.ItemEnderPearl;
 import net.minecraft.item.ItemExpBottle;
 import net.minecraft.item.ItemSnowball;
 import net.minecraft.network.Packet;
-import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.play.client.*;
-import net.minecraft.network.play.server.S08PacketPlayerPosLook;
-import net.minecraft.network.play.server.S32PacketConfirmTransaction;
 
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -89,9 +77,7 @@ public class PacketPatcher {
     public static void applyNibblesPatches() {
         ProtocolManager protocolManager = Via.getManager().getProtocolManager();
         Protocol1_9To1_8 protocol1_9To1_8 = protocolManager.getProtocol(Protocol1_9To1_8.class);
-        Protocol1_17To1_16_4 protocol1_17To1_16_4 = protocolManager.getProtocol(Protocol1_17To1_16_4.class);
-        Protocol1_17_1To1_17 protocol1_17_1To1_17 = protocolManager.getProtocol(Protocol1_17_1To1_17.class);
-        if (mc.isSingleplayer() || protocol1_9To1_8 == null || protocol1_17To1_16_4 == null || protocol1_17_1To1_17 == null) {
+        if (mc.isSingleplayer() || protocol1_9To1_8 == null) {
             return;
         }
 
@@ -191,59 +177,5 @@ public class PacketPatcher {
                 }
             }
         });
-
-        protocol1_17To1_16_4.registerServerbound(ServerboundPackets1_16_2.CONTAINER_CLICK, ServerboundPackets1_17.CONTAINER_CLICK, new PacketHandlers() {
-            @Override
-            public void register() {
-                map(Types.UNSIGNED_BYTE);
-                handler(wrapper -> {
-                    short slot = wrapper.passthrough(Types.SHORT);
-                    byte button = wrapper.passthrough(Types.BYTE);
-                    wrapper.read(Types.SHORT);
-                    int mode = wrapper.passthrough(Types.VAR_INT);
-                    Item clicked = protocol1_17To1_16_4.getItemRewriter().handleItemToServer(
-                            wrapper.user(), wrapper.read(Types.ITEM1_13_2)
-                    );
-
-                    wrapper.write(Types.VAR_INT, 0);
-
-                    PlayerLastCursorItem state = wrapper.user().get(PlayerLastCursorItem.class);
-                    if (state == null) {
-                        wrapper.write(Types.ITEM1_13_2, clicked);
-                        return;
-                    }
-
-                    if (mode == 0 && button == 0 && clicked != null) {
-                        state.setLastCursorItem(clicked);
-                    } else if (mode == 0 && button == 1 && clicked != null) {
-                        if (state.isSet()) {
-                            state.setLastCursorItem(clicked);
-                        } else {
-                            state.setLastCursorItem(clicked, (clicked.amount() + 1) / 2);
-                        }
-                    } else if (!(mode == 5 && (slot == -999 && (button == 0 || button == 4) || (button == 1 || button == 5)))) {
-                        state.setLastCursorItem(null);
-                    }
-
-                    Item carried = state.getLastCursorItem();
-                    if (carried == null) {
-                        wrapper.write(Types.ITEM1_13_2, clicked);
-                    } else {
-                        wrapper.write(Types.ITEM1_13_2, carried);
-                    }
-                });
-            }
-        }, true);
-
-        protocol1_17_1To1_17.registerServerbound(ServerboundPackets1_17.CONTAINER_CLICK, ServerboundPackets1_17.CONTAINER_CLICK, wrapper -> {
-            short containerId = wrapper.passthrough(Types.UNSIGNED_BYTE);
-            int stateId = Integer.MAX_VALUE;
-            InventoryStateIds state = wrapper.user().get(InventoryStateIds.class);
-            if (state != null) {
-                stateId = state.removeStateId(containerId);
-                state.setStateId(containerId, stateId);
-            }
-            wrapper.write(Types.VAR_INT, stateId == Integer.MAX_VALUE ? 0 : stateId);
-        }, true);
     }
 }

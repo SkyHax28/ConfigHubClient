@@ -12,7 +12,6 @@ import com.dew.system.settingsvalue.BooleanValue;
 import com.dew.system.settingsvalue.MultiSelectionValue;
 import com.dew.system.settingsvalue.NumberValue;
 import com.dew.system.settingsvalue.SelectionValue;
-import com.dew.utils.LogUtil;
 import com.dew.utils.PacketUtil;
 import com.dew.utils.pathfinder.Vec3;
 import de.florianmichael.viamcp.fixes.AttackOrder;
@@ -214,7 +213,7 @@ public class KillAura extends Module {
         List<Entity> targets = new ArrayList<>();
 
         for (Entity entity : mc.theWorld.loadedEntityList) {
-            if (entity instanceof EntityPlayerSP || !this.shouldNotAttack(entity)) continue;
+            if (entity instanceof EntityPlayerSP || !this.shouldAttack(entity)) continue;
             double dist = mc.thePlayer.getDistanceToEntity(entity);
             if (dist <= range) {
                 targets.add(entity);
@@ -235,7 +234,7 @@ public class KillAura extends Module {
         double closestDist = range;
 
         for (Entity entity : mc.theWorld.loadedEntityList) {
-            if (entity instanceof EntityPlayerSP || !this.shouldNotAttack(entity)) continue;
+            if (entity instanceof EntityPlayerSP || !this.shouldAttack(entity)) continue;
             double dist = mc.thePlayer.getDistanceToEntity(entity);
             if (dist < closestDist) {
                 closestDist = dist;
@@ -246,7 +245,7 @@ public class KillAura extends Module {
         return closest;
     }
 
-    private boolean shouldNotAttack(Entity entity) {
+    private boolean shouldAttack(Entity entity) {
         if (entity == null) return false;
         if (!targets.isSelected("Teammate") && entity instanceof EntityLiving && DewCommon.moduleManager.getModule(Teams.class).isInYourTeam((EntityLivingBase) entity)) return false;
         if ((entity.isDead || entity instanceof EntityLiving && ((EntityLiving) entity).deathTime > 0) && !targets.isSelected("Dead")) return false;
