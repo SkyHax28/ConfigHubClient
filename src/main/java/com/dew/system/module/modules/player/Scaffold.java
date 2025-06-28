@@ -8,9 +8,7 @@ import com.dew.system.module.modules.movement.speed.SpeedModule;
 import com.dew.system.settingsvalue.BooleanValue;
 import com.dew.system.settingsvalue.NumberValue;
 import com.dew.system.settingsvalue.SelectionValue;
-import com.dew.utils.LogUtil;
 import com.dew.utils.MovementUtil;
-import com.dew.utils.PacketUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockFalling;
 import net.minecraft.block.state.IBlockState;
@@ -21,7 +19,6 @@ import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.play.client.C0APacketAnimation;
 import net.minecraft.potion.Potion;
 import net.minecraft.util.*;
 import org.lwjgl.input.Keyboard;
@@ -43,7 +40,7 @@ public class Scaffold extends Module {
     private static final SelectionValue edgeSafeMode = new SelectionValue("Edge Safe Mode", "OFF", "OFF", "Safewalk", "Sneak");
     public static final BooleanValue noSprint = new BooleanValue("No Sprint", false);
 
-    private double keepY = -1;
+    private int keepY = -1;
     private int originalSlot = -1;
     public boolean holdingBlock = false;
     private boolean isSneaking = false;
@@ -68,7 +65,7 @@ public class Scaffold extends Module {
     @Override
     public void onDisable() {
         this.resetState();
-        keepY = -1.0;
+        keepY = -1;
     }
 
     @Override
@@ -204,10 +201,10 @@ public class Scaffold extends Module {
         }
 
         if (shouldUpdateKeepYState()) {
-            keepY = mc.thePlayer.posY;
+            this.updateKeepY();
         }
 
-        if (this.isTellying()) {
+        if (this.isTelly()) {
             return;
         }
 
@@ -239,7 +236,7 @@ public class Scaffold extends Module {
             placed = placeBlockScaffold(below);
 
             if (!placed) {
-                EnumFacing[] facings = getFullPrioritizedFacings(mc.thePlayer.motionY > 0, mc.thePlayer.isSprinting());
+                EnumFacing[] facings = getFullPrioritizedFacings();
 
                 for (EnumFacing dir : facings) {
                     BlockPos neighbor = below.offset(dir);
@@ -307,13 +304,17 @@ public class Scaffold extends Module {
         }
     }
 
+    private void updateKeepY() {
+        keepY = (int) mc.thePlayer.posY;
+    }
+
     private void tellyFunction() {
         if (mode.get().equals("Telly") && !towered && !Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode())) {
             if (jumpTicks <= 2 || this.isBlockVeryCloseUnderPlayer()) {
                 DewCommon.rotationManager.resetRotationsInstantly();
                 if (mc.thePlayer.onGround && mc.thePlayer.posY > 0.0D) {
                     mc.thePlayer.jump();
-                    keepY = mc.thePlayer.posY;
+                    this.updateKeepY();
                 }
             }
         }
@@ -377,11 +378,11 @@ public class Scaffold extends Module {
         }
     }
 
-    private boolean isTellying() {
+    private boolean isTelly() {
         return mode.get().equals("Telly") && !towered && !Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) && (jumpTicks <= 2 || this.isBlockVeryCloseUnderPlayer());
     }
 
-    private EnumFacing[] getFullPrioritizedFacings(boolean jumping, boolean sprinting) {
+    private EnumFacing[] getFullPrioritizedFacings() {
         return new EnumFacing[]{EnumFacing.DOWN, EnumFacing.NORTH, EnumFacing.SOUTH, EnumFacing.EAST, EnumFacing.WEST, EnumFacing.UP};
     }
 
