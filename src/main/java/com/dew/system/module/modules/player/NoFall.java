@@ -51,7 +51,7 @@ public class NoFall extends Module {
                 } else if (mc.thePlayer.fallDistance > 0 && mc.thePlayer.motionY <= -0.55) {
                     switch (hypTick) {
                         case 0:
-                            TimerUtil.setTimerSpeed(0.55f);
+                            TimerUtil.setTimerSpeed(0.45f);
                             PacketUtil.sendPacket(new C03PacketPlayer(true));
                             hypTick++;
                             break;

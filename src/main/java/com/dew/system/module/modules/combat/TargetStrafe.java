@@ -8,6 +8,7 @@ import com.dew.system.event.events.WorldEvent;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
 import com.dew.system.module.modules.movement.flight.FlightModule;
+import com.dew.system.module.modules.movement.speed.SpeedModule;
 import com.dew.system.settingsvalue.BooleanValue;
 import com.dew.system.settingsvalue.NumberValue;
 import com.dew.utils.MovementUtil;
@@ -63,7 +64,7 @@ public class TargetStrafe extends Module {
 
     @Override
     public void onStrafe(StrafeEvent event) {
-        if (mc.thePlayer == null || !DewCommon.moduleManager.getModule(KillAura.class).isEnabled() || isStrafeOnly()) return;
+        if (mc.thePlayer == null || !DewCommon.moduleManager.getModule(KillAura.class).isEnabled() || isStrafeOnly() || !DewCommon.moduleManager.getModule(FlightModule.class).isEnabled() && !DewCommon.moduleManager.getModule(SpeedModule.class).isEnabled()) return;
 
         float forward = 0f;
         if (mc.gameSettings.keyBindForward.isKeyDown()) forward += 1f;

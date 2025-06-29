@@ -9,6 +9,7 @@ import com.dew.system.settingsvalue.BooleanValue;
 import com.dew.system.settingsvalue.NumberValue;
 import com.dew.system.settingsvalue.SelectionValue;
 import com.dew.utils.MovementUtil;
+import com.dew.utils.PacketUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockFalling;
 import net.minecraft.block.state.IBlockState;
@@ -19,6 +20,7 @@ import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.play.client.C0APacketAnimation;
 import net.minecraft.potion.Potion;
 import net.minecraft.util.*;
 import org.lwjgl.input.Keyboard;
@@ -481,11 +483,7 @@ public class Scaffold extends Module {
                 checked = true;
                 return true;
             } else if (mc.playerController.onPlayerRightClick(mc.thePlayer, mc.theWorld, mc.thePlayer.getHeldItem(), neighbor, opposite, hitVec)) {
-                mc.thePlayer.swingItem();
-                int i = mc.thePlayer.getHeldItem() != null ? mc.thePlayer.getHeldItem().stackSize : 0;
-                if (mc.thePlayer.getHeldItem().stackSize != 0 && (mc.thePlayer.getHeldItem().stackSize != i || mc.playerController.isInCreativeMode())) {
-                    mc.entityRenderer.itemRenderer.resetEquippedProgress();
-                }
+                PacketUtil.sendPacket(new C0APacketAnimation());
                 delay = 0;
                 return true;
             }

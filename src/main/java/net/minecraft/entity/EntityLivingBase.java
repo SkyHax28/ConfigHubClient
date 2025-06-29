@@ -8,6 +8,8 @@ import com.dew.system.module.Module;
 import com.dew.system.module.modules.combat.KillAura;
 import com.dew.system.module.modules.combat.TargetStrafe;
 import com.dew.system.module.modules.movement.MoveFix;
+import com.dew.system.module.modules.movement.flight.FlightModule;
+import com.dew.system.module.modules.movement.speed.SpeedModule;
 import com.dew.system.module.modules.player.Sprint;
 import com.dew.system.module.modules.render.Animations;
 import com.dew.system.module.modules.render.Rotations;
@@ -1363,7 +1365,7 @@ public abstract class EntityLivingBase extends Entity
             if (IMinecraft.mc.gameSettings.keyBindLeft.isKeyDown()) strafe += 1f;
 
             Entity target = DewCommon.moduleManager.getModule(KillAura.class).target;
-            boolean doTargetStrafe = DewCommon.moduleManager.getModule(KillAura.class).isEnabled() && !DewCommon.moduleManager.getModule(TargetStrafe.class).isStrafeOnly() && target != null && forward == 1f && strafe == 0f && IMinecraft.mc.gameSettings.keyBindJump.isKeyDown();
+            boolean doTargetStrafe = DewCommon.moduleManager.getModule(KillAura.class).isEnabled() && (DewCommon.moduleManager.getModule(TargetStrafe.class).isStrafeOnly() || DewCommon.moduleManager.getModule(FlightModule.class).isEnabled() || DewCommon.moduleManager.getModule(SpeedModule.class).isEnabled()) && target != null && forward == 1f && strafe == 0f && IMinecraft.mc.gameSettings.keyBindJump.isKeyDown();
 
             float yaw = doTargetStrafe ? MovementUtil.getTargetStrafeYawDirection(target, DewCommon.moduleManager.getModule(TargetStrafe.class).getDistance()) : DewCommon.moduleManager.getModule(Sprint.class).isEnabled() && Sprint.omni.get() && this instanceof EntityPlayerSP ? (float) MovementUtil.getDirection() : DewCommon.moduleManager.getModule(MoveFix.class).isEnabled() && DewCommon.rotationManager.isRotating() && this instanceof EntityPlayerSP ? DewCommon.rotationManager.getClientYaw() : this instanceof EntityPlayerSP ? DewCommon.rotationManager.getClientYaw() : this.rotationYaw;
 

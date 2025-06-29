@@ -333,6 +333,10 @@ public class ItemRenderer
 
             ItemStack toRender = itemRenderEvent.itemToRender;
 
+            if (!this.itemToRender.getIsItemStackEqual(toRender)) {
+                f = f / 10f;
+            }
+
             if (toRender != null) {
                 if (toRender.getItem() instanceof ItemMap) {
                     this.renderItemMap(abstractclientplayer, f2, f, f1);

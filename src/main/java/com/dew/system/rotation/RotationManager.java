@@ -160,20 +160,23 @@ public class RotationManager {
     }
 
     private float snapToHypYaw(float yaw) {
-        float snapped = Math.round(yaw / 45.0f) * 45.0f;
+        float snappedBase = Math.round(yaw / 45.0f) * 45.0f;
 
-        float lowerCandidate;
-        float upperCandidate;
-        if (Math.abs(snapped % 90.0f) < 0.001f) {
-            lowerCandidate = snapped - 115.0f;
-            upperCandidate = snapped + 115.0f;
+        float lowerOffset;
+        float upperOffset;
+
+        if (Math.abs(snappedBase % 90.0f) < 0.001f) {
+            lowerOffset = 112.5f;
+            upperOffset = 112.5f;
         } else {
-            lowerCandidate = snapped - 145.0f;
-            upperCandidate = snapped + 145.0f;
+            lowerOffset = 138.0f;
+            upperOffset = 138.0f;
         }
-        snapped = Math.abs(yaw - lowerCandidate) <= Math.abs(upperCandidate - yaw) ? lowerCandidate : upperCandidate;
 
-        return snapped;
+        float lowerCandidate = snappedBase - lowerOffset;
+        float upperCandidate = snappedBase + upperOffset;
+
+        return Math.abs(yaw - lowerCandidate) <= Math.abs(upperCandidate - yaw) ? lowerCandidate : upperCandidate;
     }
 
     private void rotateToward(float targetYaw, float targetPitch, float rotationSpeed) {

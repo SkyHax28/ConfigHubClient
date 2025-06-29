@@ -7,6 +7,7 @@ import com.dew.system.module.modules.movement.speed.SpeedMode;
 import com.dew.system.module.modules.player.Scaffold;
 import com.dew.utils.LogUtil;
 import com.dew.utils.MovementUtil;
+import net.minecraft.client.settings.GameSettings;
 import net.minecraft.potion.Potion;
 import org.lwjgl.input.Keyboard;
 
@@ -53,7 +54,7 @@ public class HypixelSpeed implements SpeedMode {
             if (mc.thePlayer.onGround) {
                 if (MovementUtil.isMoving()) {
                     mc.thePlayer.jump();
-                    allowLow = !mc.thePlayer.isPotionActive(Potion.jump) && !mc.thePlayer.isCollidedHorizontally && !MovementUtil.isBlockAbovePlayer(mc.thePlayer, 2, 1) && !DewCommon.moduleManager.getModule(Scaffold.class).isEnabled();
+                    allowLow = !mc.thePlayer.isPotionActive(Potion.jump) && !mc.thePlayer.isCollidedHorizontally && !MovementUtil.isBlockAbovePlayer(mc.thePlayer, 2, 1) && (!DewCommon.moduleManager.getModule(Scaffold.class).isEnabled() || !GameSettings.isKeyDown(mc.gameSettings.keyBindJump));
                 }
 
                 this.strafeWithCorrectHypPotMath(0.481f);

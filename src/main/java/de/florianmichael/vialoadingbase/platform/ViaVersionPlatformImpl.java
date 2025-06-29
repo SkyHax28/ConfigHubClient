@@ -83,6 +83,26 @@ public class ViaVersionPlatformImpl implements ViaPlatform<UserConnection> {
     }
 
     @Override
+    public ViaCommandSender[] getOnlinePlayers() {
+        return new ViaCommandSender[0];
+    }
+
+    @Override
+    public void sendMessage(UUID uuid, String s) {
+        Via.getPlatform().sendMessage(uuid, s);
+    }
+
+    @Override
+    public boolean kickPlayer(UUID uuid, String s) {
+        return false;
+    }
+
+    @Override
+    public boolean isPluginEnabled() {
+        return false;
+    }
+
+    @Override
     public boolean isProxy() {
         return true;
     }
