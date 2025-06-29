@@ -333,7 +333,7 @@ public class ItemRenderer
 
             ItemStack toRender = itemRenderEvent.itemToRender;
 
-            if (!this.itemToRender.getIsItemStackEqual(toRender)) {
+            if (this.itemToRender != null && !this.itemToRender.getIsItemStackEqual(toRender)) {
                 f = f / 10f;
             }
 
