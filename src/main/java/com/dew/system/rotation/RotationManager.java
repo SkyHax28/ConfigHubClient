@@ -169,8 +169,8 @@ public class RotationManager {
             lowerOffset = 112.5f;
             upperOffset = 112.5f;
         } else {
-            lowerOffset = 138.0f;
-            upperOffset = 138.0f;
+            lowerOffset = 139.0f;
+            upperOffset = 139.0f;
         }
 
         float lowerCandidate = snappedBase - lowerOffset;

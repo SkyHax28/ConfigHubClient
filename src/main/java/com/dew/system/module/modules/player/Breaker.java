@@ -11,6 +11,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
 import net.minecraft.block.BlockBed;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.C07PacketPlayerDigging;
 import net.minecraft.util.BlockPos;
@@ -64,9 +65,10 @@ public class Breaker extends Module {
             for (int y = -range; y <= range; y++) {
                 for (int z = -range; z <= range; z++) {
                     BlockPos pos = playerPos.add(x, y, z);
+                    IBlockState state = mc.theWorld.getBlockState(pos);
                     Block block = mc.theWorld.getBlockState(pos).getBlock();
 
-                    if (isBedBlock(block)) {
+                    if (isBedBlock(block) && state.getValue(BlockBed.PART) == BlockBed.EnumPartType.HEAD) {
                         bedPositions.add(pos);
                     }
                 }
