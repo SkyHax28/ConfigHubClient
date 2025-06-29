@@ -1,6 +1,8 @@
 package net.minecraft.client.gui;
 
 import java.io.IOException;
+
+import com.dew.IMinecraft;
 import net.minecraft.client.network.NetHandlerPlayClient;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.network.play.client.C00PacketKeepAlive;
@@ -51,7 +53,7 @@ public class GuiDownloadTerrain extends GuiScreen
         }
 
         this.drawCenteredString(this.fontRendererObj, I18n.format("multiplayer.downloadingTerrain", new Object[0]), this.width / 2, this.height / 2 - 50, 16777215);
-        this.drawCenteredString(this.fontRendererObj, "Currently Logged Into: " + mc.session.getUsername(), width / 2, 5, 0xFFFFFF);
+        this.drawCenteredString(IMinecraft.mc.bitFontRendererObj, "Currently Logged Into: " + mc.session.getUsername(), width / 2, 5, 0xFFFFFF);
         super.drawScreen(mouseX, mouseY, partialTicks);
     }
 

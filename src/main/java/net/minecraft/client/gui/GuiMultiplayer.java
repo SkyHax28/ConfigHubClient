@@ -1,5 +1,6 @@
 package net.minecraft.client.gui;
 
+import com.dew.IMinecraft;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import java.io.IOException;
@@ -351,7 +352,7 @@ public class GuiMultiplayer extends GuiScreen implements GuiYesNoCallback
         this.drawDefaultBackground();
         this.serverListSelector.drawScreen(mouseX, mouseY, partialTicks);
         this.drawCenteredString(this.fontRendererObj, I18n.format("multiplayer.title", new Object[0]), this.width / 2, 20, 16777215);
-        this.drawCenteredString(this.fontRendererObj, "Currently Logged Into: " + mc.session.getUsername(), width / 2, 5, 0xFFFFFF);
+        this.drawCenteredString(IMinecraft.mc.bitFontRendererObj, "Currently Logged Into: " + mc.session.getUsername(), width / 2, 5, 0xFFFFFF);
         super.drawScreen(mouseX, mouseY, partialTicks);
 
         if (this.hoveringText != null)

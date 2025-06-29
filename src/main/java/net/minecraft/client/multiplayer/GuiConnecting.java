@@ -5,6 +5,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.dew.IMinecraft;
 import com.dew.utils.ServerUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
@@ -155,7 +156,9 @@ public class GuiConnecting extends GuiScreen
             this.drawCenteredString(this.fontRendererObj, I18n.format("connect.authorizing", new Object[0]), this.width / 2, this.height / 2 - 50, 16777215);
         }
 
-        this.drawCenteredString(this.fontRendererObj, "Currently Logged Into: " + mc.session.getUsername(), width / 2, 5, 0xFFFFFF);
+        this.drawCenteredString(this.fontRendererObj, "(§7" + ServerUtil.serverData.serverIP + "§r)", this.width / 2, this.height / 2 - 38, 16777215);
+
+        this.drawCenteredString(IMinecraft.mc.bitFontRendererObj, "Currently Logged Into: " + mc.session.getUsername(), width / 2, 5, 0xFFFFFF);
 
         super.drawScreen(mouseX, mouseY, partialTicks);
     }

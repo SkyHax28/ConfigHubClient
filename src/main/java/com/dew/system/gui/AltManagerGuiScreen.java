@@ -1,6 +1,7 @@
 package com.dew.system.gui;
 
 import com.dew.DewCommon;
+import com.dew.IMinecraft;
 import com.dew.system.altmanager.Alt;
 import com.dew.system.altmanager.login.MicrosoftAuth;
 import net.minecraft.client.gui.GuiButton;
@@ -49,8 +50,8 @@ public class AltManagerGuiScreen extends GuiScreen {
         this.drawDefaultBackground();
         List<Alt> alts = DewCommon.altManager.getAlts();
 
-        this.drawCenteredString(this.fontRendererObj, "Currently Logged Into: " + mc.session.getUsername() + " (" + DewCommon.altManager.getAlts().size() + " Alts)", width / 2, 5, 0xFFFFFF);
-        this.drawCenteredString(this.fontRendererObj, DewCommon.altManager.status, width / 2, 21, 0xFFFFFF);
+        this.drawCenteredString(IMinecraft.mc.bitFontRendererObj, "Currently Logged Into: " + mc.session.getUsername() + " (" + DewCommon.altManager.getAlts().size() + " Alts)", width / 2, 5, 0xFFFFFF);
+        this.drawCenteredString(IMinecraft.mc.bitFontRendererObj, DewCommon.altManager.status, width / 2, 21, 0xFFFFFF);
 
         int y = listTop - scrollOffset;
         for (int i = 0; i < alts.size(); i++) {

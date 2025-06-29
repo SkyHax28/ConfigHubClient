@@ -1,6 +1,8 @@
 package net.minecraft.client.gui;
 
+import com.dew.IMinecraft;
 import com.dew.system.gui.AltManagerGuiScreen;
+import com.dew.utils.ServerUtil;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import java.io.BufferedReader;
@@ -12,6 +14,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import de.florianmichael.viamcp.gui.GuiProtocolSelector;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
@@ -218,16 +222,15 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
     private void addSingleplayerMultiplayerButtons(int p_73969_1_, int p_73969_2_)
     {
         this.buttonList.add(new GuiButton(1, this.width / 2 - 100, p_73969_1_, I18n.format("menu.singleplayer", new Object[0])));
-        this.buttonList.add(new GuiButton(2, this.width / 2 - 100, p_73969_1_ + p_73969_2_ * 1, I18n.format("menu.multiplayer", new Object[0])));
+        this.buttonList.add(new GuiButton(2, this.width / 2 - 100, p_73969_1_ + p_73969_2_ * 1, 98, 20, I18n.format("menu.multiplayer", new Object[0])));
+        this.buttonList.add(new GuiButton(70, this.width / 2 + 2, p_73969_1_ + p_73969_2_ * 1, 98, 20, ServerUtil.serverData.serverIP));
+
+        this.buttonList.add(this.accountManagerButton = new GuiButton(14, this.width / 2 - 100, p_73969_1_ + p_73969_2_ * 2, 98, 20, "Alt Manager"));
+        this.buttonList.add(new GuiButton(69, this.width / 2 + 2, p_73969_1_ + p_73969_2_ * 2, 98, 20, "Protocol"));
 
         if (Reflector.GuiModList_Constructor.exists())
         {
-            this.buttonList.add(this.accountManagerButton = new GuiButton(14, this.width / 2 + 2, p_73969_1_ + p_73969_2_ * 2, 98, 20, "Account Manager"));
             this.buttonList.add(this.modButton = new GuiButton(6, this.width / 2 - 100, p_73969_1_ + p_73969_2_ * 2, 98, 20, I18n.format("fml.menu.mods", new Object[0])));
-        }
-        else
-        {
-            this.buttonList.add(this.accountManagerButton = new GuiButton(14, this.width / 2 - 100, p_73969_1_ + p_73969_2_ * 2, "Account Manager"));
         }
     }
 
@@ -296,6 +299,14 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
                 GuiYesNo guiyesno = GuiSelectWorld.makeDeleteWorldYesNo(this, worldinfo.getWorldName(), 12);
                 this.mc.displayGuiScreen(guiyesno);
             }
+        }
+
+        if (button.id == 69) {
+            this.mc.displayGuiScreen(new GuiProtocolSelector(this));
+        }
+
+        if (button.id == 70) {
+            ServerUtil.connectToLastServer();
         }
     }
 
@@ -618,7 +629,7 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
             this.modUpdateNotification.drawScreen(mouseX, mouseY, partialTicks);
         }
 
-        this.drawCenteredString(this.fontRendererObj, "Currently Logged Into: " + mc.session.getUsername(), width / 2, 5, 0xFFFFFF);
+        this.drawCenteredString(IMinecraft.mc.bitFontRendererObj, "Currently Logged Into: " + mc.session.getUsername(), width / 2, 5, 0xFFFFFF);
     }
 
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException
