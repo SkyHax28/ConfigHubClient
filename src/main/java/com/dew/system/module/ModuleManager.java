@@ -30,7 +30,7 @@ public class ModuleManager implements EventListener {
                 new ESP(), new NoHurtCam(), new NoFireOverlay(), new Wings(),
                 new Sprint(), new TargetStrafe(), new AutoBlock(), new FastBow(),
                 new FastUse(), new Teams(), new HitSelect(), new LongJump(),
-                new Knockback(), new BloxdPhysics(), new Step()
+                new Knockback(), new BloxdPhysics(), new Step(), new AutoWalkAI()
         ));
 
         DewCommon.eventManager.register(this);

@@ -16,9 +16,9 @@ import net.minecraft.world.IBlockAccess;
 
 public class WalkNodeProcessor extends NodeProcessor
 {
-    private boolean canEnterDoors;
-    private boolean canBreakDoors;
-    private boolean avoidsWater;
+    protected boolean canEnterDoors;
+    protected boolean canBreakDoors;
+    protected boolean avoidsWater;
     private boolean canSwim;
     private boolean shouldAvoidWater;
 

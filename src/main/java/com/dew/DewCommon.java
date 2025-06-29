@@ -14,6 +14,7 @@ import com.dew.utils.LogUtil;
 import com.dew.utils.WingsManager;
 import com.dew.utils.fonts.CustomFontRenderer;
 import com.dew.utils.pathfinder.MainPathFinder;
+import com.dew.utils.pathfinder.SmartPlayerNavigator;
 import de.florianmichael.viamcp.ViaMCP;
 import net.minecraft.util.ResourceLocation;
 
@@ -39,6 +40,7 @@ public class DewCommon {
     public static RotationManager rotationManager;
     public static WingsManager wingsManager;
     public static MainPathFinder pathFinder;
+    public static SmartPlayerNavigator smartPlayerNavigator;
 
     public static final File BASE_CFG_DIR = new File(mc.mcDataDir, "dew");
 
@@ -64,6 +66,7 @@ public class DewCommon {
         handleEvents = new HandleEvents();
         wingsManager = new WingsManager();
         pathFinder = new MainPathFinder();
+        smartPlayerNavigator = new SmartPlayerNavigator();
 
         Font font;
         try {

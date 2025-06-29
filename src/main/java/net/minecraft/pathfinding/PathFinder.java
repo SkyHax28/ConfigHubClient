@@ -97,7 +97,7 @@ public class PathFinder
         }
     }
 
-    private PathEntity createEntityPath(PathPoint start, PathPoint end)
+    public PathEntity createEntityPath(PathPoint start, PathPoint end)
     {
         int i = 1;
 
