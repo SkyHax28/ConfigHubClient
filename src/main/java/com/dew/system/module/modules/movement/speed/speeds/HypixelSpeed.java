@@ -57,7 +57,9 @@ public class HypixelSpeed implements SpeedMode {
                     allowLow = !mc.thePlayer.isPotionActive(Potion.jump) && !mc.thePlayer.isCollidedHorizontally && !MovementUtil.isBlockAbovePlayer(mc.thePlayer, 2, 1) && (!DewCommon.moduleManager.getModule(Scaffold.class).isEnabled() || !GameSettings.isKeyDown(mc.gameSettings.keyBindJump));
                 }
 
-                this.strafeWithCorrectHypPotMath(0.481f);
+                if ((!DewCommon.moduleManager.getModule(Scaffold.class).isEnabled() || !GameSettings.isKeyDown(mc.gameSettings.keyBindJump))) {
+                    this.strafeWithCorrectHypPotMath(0.465f);
+                }
             } else if (allowLow) {
                 switch (ticks) {
                     case 1:
@@ -93,7 +95,7 @@ public class HypixelSpeed implements SpeedMode {
                     mc.thePlayer.jump();
                 }
 
-                this.strafeWithCorrectHypPotMath(0.481f);
+                this.strafeWithCorrectHypPotMath(0.465f);
             } else {
                 switch (ticks) {
                     case 1:

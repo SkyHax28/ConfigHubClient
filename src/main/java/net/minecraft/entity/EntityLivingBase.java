@@ -1152,7 +1152,7 @@ public abstract class EntityLivingBase extends Entity
     private int getArmSwingAnimationEnd()
     {
         Animations animationsModule = DewCommon.moduleManager.getModule(Animations.class);
-        if (animationsModule.isEnabled() && animationsModule.shouldCustomSwingSpeed()) {
+        if (animationsModule.isEnabled() && animationsModule.shouldCustomSwingSpeed() && this instanceof EntityPlayerSP) {
             return animationsModule.getSwingSpeed();
         }
 

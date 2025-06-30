@@ -169,8 +169,8 @@ public class RotationManager {
             lowerOffset = 112.5f;
             upperOffset = 112.5f;
         } else {
-            lowerOffset = 139.0f;
-            upperOffset = 139.0f;
+            lowerOffset = 139.5f;
+            upperOffset = 139.5f;
         }
 
         float lowerCandidate = snappedBase - lowerOffset;
@@ -258,6 +258,10 @@ public class RotationManager {
 
     public boolean isRotating() {
         return DewCommon.handleEvents.canRotation() && (isRotating || isReturning);
+    }
+
+    public boolean isReturning() {
+        return DewCommon.handleEvents.canRotation() && !isRotating && isReturning;
     }
 
     public float getClientYaw() {

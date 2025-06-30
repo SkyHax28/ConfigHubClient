@@ -61,6 +61,11 @@ public class AutoPot extends Module {
 
     @Override
     public void onTick(TickEvent event) {
+        if (mc.thePlayer == null || mc.theWorld == null) {
+            tickDelayCounter = 0;
+            return;
+        }
+
         MovingObjectPosition mop = mc.objectMouseOver;
         if (mop != null) {
             if (mop.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {
@@ -72,11 +77,12 @@ public class AutoPot extends Module {
                     return;
                 }
             } else if (mop.typeOfHit == MovingObjectPosition.MovingObjectType.ENTITY) {
+                tickDelayCounter = 0;
                 return;
             }
         }
 
-        if (mc.thePlayer == null || mc.theWorld == null || mc.thePlayer.isUsingItem() || mc.currentScreen != null || !DewCommon.handleEvents.canRotation() || stage == 0 && !MovementUtil.isBlockUnderPlayer(mc.thePlayer, 2, 0.2, false) || DewCommon.moduleManager.getModule(Scaffold.class).isEnabled()) {
+        if (mc.thePlayer.isUsingItem() || !DewCommon.handleEvents.canRotation() || stage == 0 && !MovementUtil.isBlockUnderPlayer(mc.thePlayer, 2, 0.2, false) || DewCommon.moduleManager.getModule(Scaffold.class).isEnabled()) {
             tickDelayCounter = 0;
             return;
         }

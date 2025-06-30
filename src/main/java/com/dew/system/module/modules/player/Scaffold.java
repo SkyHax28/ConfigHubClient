@@ -8,14 +8,15 @@ import com.dew.system.module.modules.movement.speed.SpeedModule;
 import com.dew.system.settingsvalue.BooleanValue;
 import com.dew.system.settingsvalue.NumberValue;
 import com.dew.system.settingsvalue.SelectionValue;
+import com.dew.utils.LogUtil;
 import com.dew.utils.MovementUtil;
 import com.dew.utils.PacketUtil;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockFalling;
+import net.minecraft.block.*;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.settings.GameSettings;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
@@ -57,7 +58,7 @@ public class Scaffold extends Module {
     private boolean checked = false;
 
     private boolean canTower() {
-        return Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) && !DewCommon.moduleManager.getModule(SpeedModule.class).isEnabled() && MovementUtil.isBlockUnderPlayer(mc.thePlayer, 3, 1.2, false) && !MovementUtil.isBlockAbovePlayer(mc.thePlayer, 1) && holdingBlock;
+        return Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) && !DewCommon.moduleManager.getModule(SpeedModule.class).isEnabled() && MovementUtil.isBlockUnderPlayer(mc.thePlayer, 3, 2, false) && !MovementUtil.isBlockAbovePlayer(mc.thePlayer, 1) && holdingBlock;
     }
 
     private boolean shouldUpdateKeepYState() {
@@ -162,6 +163,16 @@ public class Scaffold extends Module {
         this.towerFunction();
     }
 
+    @Override
+    public void onPreMotion(PreMotionEvent event) {
+        if (mc.thePlayer == null || mc.theWorld == null) return;
+
+        if (!towered && event.onGround && !GameSettings.isKeyDown(mc.gameSettings.keyBindJump) && mode.get().equals("Hypixel")) {
+            event.y += 1E-14;
+            event.onGround = false;
+        }
+    }
+
     private void doMainFunctions() {
         if (edgeSafeMode.get().equals("Sneak") && this.isNearEdge()) {
             mc.gameSettings.keyBindSneak.setKeyDown(true);
@@ -177,7 +188,7 @@ public class Scaffold extends Module {
 
         switch (mode.get().toLowerCase()) {
             case "normal":
-                if (!holdingBlock) {
+                if (DewCommon.rotationManager.isReturning() || !holdingBlock) {
                     DewCommon.rotationManager.setRotations((float) (MovementUtil.getDirection() - 180f), 83f);
                 }
                 break;
@@ -185,12 +196,14 @@ public class Scaffold extends Module {
             case "hypixel":
                 MovementUtil.mcJumpNoBoost = true;
                 if (mc.thePlayer.onGround && MovementUtil.isMoving()) {
-                    if (mc.thePlayer.onGround && mc.thePlayer.posY > 0.0D && !DewCommon.moduleManager.getModule(SpeedModule.class).isEnabled()) {
+                    if (!towered && !GameSettings.isKeyDown(mc.gameSettings.keyBindJump) && mc.thePlayer.onGround && mc.thePlayer.posY > 0.0D && !DewCommon.moduleManager.getModule(SpeedModule.class).isEnabled()) {
                         mc.thePlayer.jump();
-                        this.strafeWithCorrectHypPotMath(0.472f);
+                        this.strafeWithCorrectHypPotMath(0.465f);
                     }
                 } else {
-                    DewCommon.rotationManager.faceBlockHypixelSafe(90f);
+                    if (DewCommon.rotationManager.isReturning() || !holdingBlock) {
+                        DewCommon.rotationManager.faceBlockHypixelSafe(90f);
+                    }
                 }
                 break;
 
@@ -223,7 +236,7 @@ public class Scaffold extends Module {
 
         if (!mc.theWorld.getBlockState(below).getBlock().isReplaceable(mc.theWorld, below)) return;
 
-        int blockSlot = getValidBlockSlot(below);
+        int blockSlot = getValidBlockSlot();
         if (blockSlot == -1) return;
 
         if (!holdingBlock) {
@@ -324,6 +337,7 @@ public class Scaffold extends Module {
 
     private void towerFunction() {
         if (this.canTower() && !towerMode.get().equals("OFF")) {
+            checked = true;
             MovementUtil.mcJumpNoBoost = true;
 
             switch (towerMode.get().toLowerCase()) {
@@ -345,7 +359,6 @@ public class Scaffold extends Module {
                         if (hypGroundCheck) {
                             switch (towerTicks % 3) {
                                 case 0:
-                                    this.strafeWithCorrectHypPotMath(0.2f);
                                     MovementUtil.fakeJump();
                                     mc.thePlayer.motionY = 0.42;
                                     break;
@@ -438,10 +451,14 @@ public class Scaffold extends Module {
 
         int direction = MathHelper.floor_double((yaw * 4.0F / 360.0F) + 0.5D) & 3;
         switch (direction) {
-            case 0: return EnumFacing.SOUTH;
-            case 1: return EnumFacing.WEST;
-            case 2: return EnumFacing.NORTH;
-            case 3: return EnumFacing.EAST;
+            case 0:
+                return EnumFacing.SOUTH;
+            case 1:
+                return EnumFacing.WEST;
+            case 2:
+                return EnumFacing.NORTH;
+            case 3:
+                return EnumFacing.EAST;
         }
         return EnumFacing.UP;
     }
@@ -474,6 +491,10 @@ public class Scaffold extends Module {
                     neighbor.getZ() + 0.5 + 0.5 * opposite.getFrontOffsetZ()
             );
 
+            if (mode.get().equals("Hypixel")) {
+                DewCommon.rotationManager.faceBlockWithFacing(neighbor, opposite, 180f);
+            }
+
             if (mode.get().equals("Normal") || mode.get().equals("Telly")) {
                 boolean canPlace = DewCommon.rotationManager.faceBlockWithFacing(neighbor, opposite, rotationSpeed.get().floatValue());
                 if (!canPlace && !noHitCheck.get()) continue;
@@ -495,43 +516,27 @@ public class Scaffold extends Module {
         int total = 0;
         for (int i = 0; i < 9; i++) {
             ItemStack stack = mc.thePlayer.inventory.getStackInSlot(i);
-            if (stack == null || !(stack.getItem() instanceof ItemBlock) || stack.stackSize == 0) continue;
-
-            Item item = stack.getItem();
-            Block block = ((ItemBlock) item).getBlock();
-
-            if (item == Item.getItemFromBlock(Blocks.chest) ||
-                    item == Item.getItemFromBlock(Blocks.ender_chest) ||
-                    item == Item.getItemFromBlock(Blocks.trapped_chest) ||
-                    block.getMaterial().isReplaceable()) {
-                continue;
-            }
-
-            if (block instanceof BlockFalling) {
-                BlockPos belowBelow = new BlockPos(mc.thePlayer.posX, mc.thePlayer.posY - 2, mc.thePlayer.posZ);
-                if (mc.theWorld.isAirBlock(belowBelow)) continue;
-            }
-
+            if (this.isInvalidBlock(stack)) continue;
             total += stack.stackSize;
         }
         return total;
     }
 
-    private int getValidBlockSlot(BlockPos below) {
+    private int getValidBlockSlot() {
         for (int i = 0; i < 9; i++) {
             ItemStack stack = mc.thePlayer.inventory.getStackInSlot(i);
-            if (stack == null || !(stack.getItem() instanceof ItemBlock) || stack.stackSize == 0 || stack.getItem() == Item.getItemFromBlock(Blocks.chest) || stack.getItem() == Item.getItemFromBlock(Blocks.ender_chest) || stack.getItem() == Item.getItemFromBlock(Blocks.trapped_chest)) continue;
-
-            Block block = ((ItemBlock) stack.getItem()).getBlock();
-
-            if (block.getMaterial().isReplaceable()) continue;
-            if (block instanceof BlockFalling) {
-                BlockPos belowBelow = below.down();
-                if (mc.theWorld.isAirBlock(belowBelow)) continue;
-            }
-
+            if (this.isInvalidBlock(stack)) continue;
             return i;
         }
         return -1;
+    }
+
+    private boolean isInvalidBlock(ItemStack stack) {
+        if (stack == null || !(stack.getItem() instanceof ItemBlock) || stack.stackSize == 0) {
+            return true;
+        }
+
+        Block block = ((ItemBlock) stack.getItem()).getBlock();
+        return !block.isFullBlock() || block instanceof BlockChest || block instanceof BlockEnderChest || block instanceof BlockWorkbench || block instanceof BlockFurnace || block instanceof BlockAnvil || block instanceof BlockFenceGate || block instanceof BlockTrapDoor || block instanceof BlockDoor || block.getMaterial().isReplaceable() || block instanceof BlockFalling || block instanceof BlockSlab || block instanceof BlockStairs || block instanceof BlockPane || block instanceof BlockWall || block instanceof BlockSign || block instanceof BlockButton || block instanceof BlockPressurePlate;
     }
 }

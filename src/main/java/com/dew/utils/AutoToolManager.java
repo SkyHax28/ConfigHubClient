@@ -16,7 +16,7 @@ public class AutoToolManager {
     public int originalSlot = -1;
     private int switchBackTicks = -1;
 
-    private static final int RETURN_DELAY_TICKS = 3;
+    private static final int RETURN_DELAY_TICKS = 8;
 
     public void switchToBestSword() {
         if (mc.thePlayer == null) return;

@@ -1697,6 +1697,10 @@ public class Minecraft implements IThreadListener, IPlayerUsage
             }
         }
 
+        TickEvent event = new TickEvent();
+        DewCommon.eventManager.call(event);
+        if (event.isCancelled()) return;
+
         if (this.currentScreen == null || this.currentScreen.allowUserInput)
         {
             this.mcProfiler.endStartSection("mouse");
@@ -2030,10 +2034,6 @@ public class Minecraft implements IThreadListener, IPlayerUsage
             {
                 this.rightClickMouse();
             }
-
-            TickEvent event = new TickEvent();
-            DewCommon.eventManager.call(event);
-            if (event.isCancelled()) return;
 
             this.sendClickBlockToController(this.currentScreen == null && this.gameSettings.keyBindAttack.isKeyDown() && this.inGameHasFocus);
         }

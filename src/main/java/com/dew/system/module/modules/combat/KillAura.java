@@ -136,7 +136,7 @@ public class KillAura extends Module {
     }
 
     public void doMainFunctions(boolean doAttack) {
-        if (mc.thePlayer == null || DewCommon.moduleManager.getModule(Scaffold.class).isEnabled() && DewCommon.moduleManager.getModule(Scaffold.class).holdingBlock || DewCommon.moduleManager.getModule(AutoPot.class).isEnabled() && DewCommon.moduleManager.getModule(AutoPot.class).isThrowing() || DewCommon.moduleManager.getModule(Breaker.class).isEnabled() && DewCommon.moduleManager.getModule(Breaker.class).isBreaking) {
+        if (mc.thePlayer == null || DewCommon.moduleManager.getModule(Scaffold.class).isEnabled() || DewCommon.moduleManager.getModule(AutoPot.class).isEnabled() && DewCommon.moduleManager.getModule(AutoPot.class).isThrowing() || DewCommon.moduleManager.getModule(Breaker.class).isEnabled() && DewCommon.moduleManager.getModule(Breaker.class).isBreaking) {
             this.resetState();
             return;
         }

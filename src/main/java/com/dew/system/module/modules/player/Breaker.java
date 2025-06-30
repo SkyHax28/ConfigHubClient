@@ -7,6 +7,7 @@ import com.dew.system.module.ModuleCategory;
 import com.dew.system.settingsvalue.BooleanValue;
 import com.dew.system.settingsvalue.NumberValue;
 import com.dew.utils.LogUtil;
+import com.dew.utils.PacketUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
 import net.minecraft.block.BlockBed;
@@ -14,6 +15,7 @@ import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.C07PacketPlayerDigging;
+import net.minecraft.network.play.client.C0APacketAnimation;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import org.lwjgl.input.Keyboard;
@@ -167,7 +169,7 @@ public class Breaker extends Module {
                 if (mc.theWorld.getBlockState(pos).getBlock().getMaterial() != Material.air && mc.playerController.onPlayerDamageBlock(pos, facing))
                 {
                     mc.effectRenderer.addBlockHitEffects(pos, facing);
-                    mc.thePlayer.swingItem();
+                    PacketUtil.sendPacket(new C0APacketAnimation());
                 }
             }
         }
