@@ -71,7 +71,7 @@ public class DewCommon {
         Font font;
         try {
             InputStream is = mc.getResourceManager()
-                    .getResource(new ResourceLocation("minecraft", "dew/rubik.ttf"))
+                    .getResource(new ResourceLocation("minecraft", "dew/sf.ttf"))
                     .getInputStream();
 
             font = Font.createFont(Font.TRUETYPE_FONT, is).deriveFont(18f);

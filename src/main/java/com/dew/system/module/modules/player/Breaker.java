@@ -59,6 +59,8 @@ public class Breaker extends Module {
 
     @Override
     public void onTick(TickEvent event) {
+        if (mc.thePlayer == null || mc.theWorld == null) return;
+
         int range = breakRange.get().intValue();
         BlockPos playerPos = new BlockPos(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ);
         List<BlockPos> bedPositions = new ArrayList<>();

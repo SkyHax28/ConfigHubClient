@@ -56,6 +56,7 @@ public class Scaffold extends Module {
     private int delay = 0;
 
     private boolean checked = false;
+    public boolean jumped = false;
 
     private boolean canTower() {
         return Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) && !DewCommon.moduleManager.getModule(SpeedModule.class).isEnabled() && MovementUtil.isBlockUnderPlayer(mc.thePlayer, 3, 2, false) && !MovementUtil.isBlockAbovePlayer(mc.thePlayer, 1) && holdingBlock;
@@ -90,6 +91,7 @@ public class Scaffold extends Module {
         jumpTicks = 0;
         towerTicks = 0;
         hypGroundCheck = false;
+        jumped = false;
         if (mode.get().equals("Hypixel")) {
             MovementUtil.mcJumpNoBoost = false;
         }
@@ -109,23 +111,6 @@ public class Scaffold extends Module {
         if (edgeSafeMode.get().equals("Safewalk")) {
             event.isSafeWalk = true;
         }
-    }
-
-    @Override
-    public void onRender2D(Render2DEvent event) {
-        if (mc.thePlayer == null || mc.theWorld == null) return;
-
-        int totalBlocks = getTotalValidBlocksInHotbar();
-        String display = totalBlocks + " blocks";
-
-        ScaledResolution sr = new ScaledResolution(mc);
-        int x = sr.getScaledWidth() / 2 + 20;
-        int y = sr.getScaledHeight() / 2;
-
-        GlStateManager.pushMatrix();
-        RenderHelper.disableStandardItemLighting();
-        mc.bitFontRendererObj.drawStringWithShadow(display, x, y, 0xFFFFFF);
-        GlStateManager.popMatrix();
     }
 
     private void strafeWithCorrectHypPotMath(float speed) {
@@ -167,9 +152,16 @@ public class Scaffold extends Module {
     public void onPreMotion(PreMotionEvent event) {
         if (mc.thePlayer == null || mc.theWorld == null) return;
 
-        if (!towered && event.onGround && !GameSettings.isKeyDown(mc.gameSettings.keyBindJump) && mode.get().equals("Hypixel")) {
-            event.y += 1E-14;
-            event.onGround = false;
+        if (!mc.thePlayer.onGround && !jumped) {
+            jumped = true;
+        }
+
+        this.scaffoldBanPatch(event);
+    }
+
+    private void scaffoldBanPatch(PreMotionEvent preMotionEvent) {
+        if (!towered && preMotionEvent.onGround && jumped && !GameSettings.isKeyDown(mc.gameSettings.keyBindJump) && mode.get().equals("Hypixel")) {
+            preMotionEvent.y += 1E-14;
         }
     }
 
@@ -198,12 +190,14 @@ public class Scaffold extends Module {
                 if (mc.thePlayer.onGround && MovementUtil.isMoving()) {
                     if (!towered && !GameSettings.isKeyDown(mc.gameSettings.keyBindJump) && mc.thePlayer.onGround && mc.thePlayer.posY > 0.0D && !DewCommon.moduleManager.getModule(SpeedModule.class).isEnabled()) {
                         mc.thePlayer.jump();
-                        this.strafeWithCorrectHypPotMath(0.465f);
+                        if (jumped) {
+                            this.strafeWithCorrectHypPotMath(0.46f);
+                        } else {
+                            MovementUtil.stopMovingQuickly();
+                        }
                     }
                 } else {
-                    if (DewCommon.rotationManager.isReturning() || !holdingBlock) {
-                        DewCommon.rotationManager.faceBlockHypixelSafe(90f);
-                    }
+                    DewCommon.rotationManager.faceBlockHypixelSafe(90f);
                 }
                 break;
 
@@ -491,10 +485,6 @@ public class Scaffold extends Module {
                     neighbor.getZ() + 0.5 + 0.5 * opposite.getFrontOffsetZ()
             );
 
-            if (mode.get().equals("Hypixel")) {
-                DewCommon.rotationManager.faceBlockWithFacing(neighbor, opposite, 180f);
-            }
-
             if (mode.get().equals("Normal") || mode.get().equals("Telly")) {
                 boolean canPlace = DewCommon.rotationManager.faceBlockWithFacing(neighbor, opposite, rotationSpeed.get().floatValue());
                 if (!canPlace && !noHitCheck.get()) continue;
@@ -512,7 +502,7 @@ public class Scaffold extends Module {
         return false;
     }
 
-    private int getTotalValidBlocksInHotbar() {
+    public int getTotalValidBlocksInHotbar() {
         int total = 0;
         for (int i = 0; i < 9; i++) {
             ItemStack stack = mc.thePlayer.inventory.getStackInSlot(i);

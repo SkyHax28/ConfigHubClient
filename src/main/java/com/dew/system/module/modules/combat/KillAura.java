@@ -41,7 +41,8 @@ public class KillAura extends Module {
     private static final NumberValue minCps = new NumberValue("Min CPS", 5.0, 0.0, 20.0, 0.1);
     private static final NumberValue rotationSpeed = new NumberValue("Rotation Speed", 60.0, 0.0, 180.0, 10.0);
     private static final MultiSelectionValue targets = new MultiSelectionValue("Targets", Arrays.asList("Player", "Mob", "Animal", "Living"), "Player", "Mob", "Animal", "Living", "Dead", "Teammate");
-    private static final BooleanValue noHitCheck = new BooleanValue("No Hit Check", false);
+    private static final BooleanValue noRotationHitCheck = new BooleanValue("No Rotation Hit Check", false);
+    private static final BooleanValue throughWalls = new BooleanValue("Through Walls", true);
     private static final BooleanValue visualAutoBlock = new BooleanValue("Visual Auto Block", true);
     private static final BooleanValue tpAura = new BooleanValue("TP Aura", false);
     private static final NumberValue tpExtendedRange = new NumberValue("TP Extended Range", 50.0, 0.0, 100.0, 1.0, tpAura::get);
@@ -101,7 +102,7 @@ public class KillAura extends Module {
     }
 
     private boolean attack(Entity entity, boolean canHit, long currentTime) {
-        if (mc.thePlayer.getDistanceToEntity(entity) <= this.getAttackRange() && (canHit && mc.thePlayer.canEntityBeSeen(entity) || noHitCheck.get())) {
+        if (mc.thePlayer.getDistanceToEntity(entity) <= this.getAttackRange() && (canHit || noRotationHitCheck.get()) && (mc.thePlayer.canEntityBeSeen(entity) || throughWalls.get())) {
             if (currentTime - lastAttackTime >= nextAttackDelay) {
                 if (tpAura.get()) {
                     new Thread(() -> {
