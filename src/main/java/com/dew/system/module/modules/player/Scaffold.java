@@ -178,6 +178,8 @@ public class Scaffold extends Module {
             checked = false;
         }
 
+        boolean doNotPlace = false;
+
         switch (mode.get().toLowerCase()) {
             case "normal":
                 if (DewCommon.rotationManager.isReturning() || !holdingBlock) {
@@ -197,7 +199,12 @@ public class Scaffold extends Module {
                         }
                     }
                 } else {
-                    DewCommon.rotationManager.faceBlockHypixelSafe(90f);
+                    if (jumpTicks == 5f) {
+                        DewCommon.rotationManager.setRotations((float) MovementUtil.getDirection(), 60f);
+                        doNotPlace = true;
+                    } else {
+                        DewCommon.rotationManager.faceBlockHypixelSafe(180f);
+                    }
                 }
                 break;
 
@@ -213,7 +220,7 @@ public class Scaffold extends Module {
             this.updateKeepY();
         }
 
-        if (this.isTelly()) {
+        if (this.isTelly() || doNotPlace) {
             return;
         }
 
