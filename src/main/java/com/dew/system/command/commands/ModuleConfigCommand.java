@@ -13,13 +13,13 @@ public class ModuleConfigCommand extends Command {
 
     @Override
     public String getUsage() {
-        return "m <load/save/list> <name> - Customize module configuration through ConfigManager";
+        return "m <load/save/list/folder> <name> - Customize module configuration through ConfigManager";
     }
 
     @Override
     public void execute(String[] args) {
         if (args.length < 1) {
-            LogUtil.printChat("§cUsage: .m <load/save/list> <name>");
+            LogUtil.printChat("§cUsage: .m <load/save/list/folder> <name>");
             return;
         }
 
@@ -52,8 +52,13 @@ public class ModuleConfigCommand extends Command {
                 }
                 break;
 
+            case "folder":
+                LogUtil.printChat("Opening module config folder...");
+                DewCommon.moduleConfigManager.openFolder();
+                break;
+
             default:
-                LogUtil.printChat("§cUsage: .m <load/save/create> <name>");
+                LogUtil.printChat("§cUsage: .m <load/save/create/folder> <name>");
                 break;
         }
     }

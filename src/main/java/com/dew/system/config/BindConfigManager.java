@@ -3,6 +3,7 @@ package com.dew.system.config;
 import com.dew.DewCommon;
 import com.dew.system.module.Module;
 
+import java.awt.*;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -74,5 +75,14 @@ public class BindConfigManager {
         }
 
         return configNames;
+    }
+
+    public void openFolder() {
+        if (Desktop.isDesktopSupported()) {
+            try {
+                Desktop.getDesktop().open(configFolder);
+            } catch (IOException ignored) {
+            }
+        }
     }
 }

@@ -12,13 +12,13 @@ public class BindConfigCommand extends Command {
 
     @Override
     public String getUsage() {
-        return "b <load/save/list> <name> - Customize bind configuration through ConfigManager";
+        return "b <load/save/list/folder> <name> - Customize bind configuration through ConfigManager";
     }
 
     @Override
     public void execute(String[] args) {
         if (args.length < 1) {
-            LogUtil.printChat("§cUsage: .b <load/save/list> <name>");
+            LogUtil.printChat("§cUsage: .b <load/save/list/folder> <name>");
             return;
         }
 
@@ -51,8 +51,13 @@ public class BindConfigCommand extends Command {
                 }
                 break;
 
+            case "folder":
+                LogUtil.printChat("Opening bind config folder...");
+                DewCommon.bindConfigManager.openFolder();
+                break;
+
             default:
-                LogUtil.printChat("§cUsage: .b <load/save/create> <name>");
+                LogUtil.printChat("§cUsage: .b <load/save/create/folder> <name>");
                 break;
         }
     }

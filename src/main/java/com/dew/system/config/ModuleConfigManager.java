@@ -5,8 +5,10 @@ import com.dew.IMinecraft;
 import com.dew.system.module.Module;
 import com.dew.system.settingsvalue.*;
 
+import java.awt.*;
 import java.io.*;
 import java.util.*;
+import java.util.List;
 
 public class ModuleConfigManager {
     private final File configFolder;
@@ -83,6 +85,15 @@ public class ModuleConfigManager {
         }
 
         return configNames;
+    }
+
+    public void openFolder() {
+        if (Desktop.isDesktopSupported()) {
+            try {
+                Desktop.getDesktop().open(configFolder);
+            } catch (IOException ignored) {
+            }
+        }
     }
 
     private String serialize(Value<?> value) {
