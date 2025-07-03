@@ -12,7 +12,7 @@ import com.dew.system.rotation.RotationManager;
 import com.dew.utils.alt.SessionChanger;
 import com.dew.utils.LogUtil;
 import com.dew.utils.WingsManager;
-import com.dew.utils.fonts.CustomFontRenderer;
+import com.dew.utils.font.CustomFontRenderer;
 import com.dew.utils.pathfinder.MainPathFinder;
 import com.dew.utils.pathfinder.SmartPlayerNavigator;
 import de.florianmichael.viamcp.ViaMCP;

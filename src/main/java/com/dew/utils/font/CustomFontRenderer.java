@@ -1,4 +1,4 @@
-package com.dew.utils.fonts;
+package com.dew.utils.font;
 
 import com.dew.utils.LogUtil;
 import org.lwjgl.BufferUtils;

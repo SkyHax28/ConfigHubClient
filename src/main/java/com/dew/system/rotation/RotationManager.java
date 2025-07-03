@@ -169,8 +169,12 @@ public class RotationManager {
             lowerOffset = 112.5f;
             upperOffset = 112.5f;
         } else {
-            lowerOffset = 139.5f;
-            upperOffset = 139.5f;
+            lowerOffset = 141.5f;
+            upperOffset = 141.5f;
+            if (!mc.thePlayer.onGround) {
+                mc.thePlayer.motionX *= 0.9f;
+                mc.thePlayer.motionZ *= 0.9f;
+            }
         }
 
         float lowerCandidate = snappedBase - lowerOffset;

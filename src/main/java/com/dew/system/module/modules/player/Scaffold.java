@@ -155,14 +155,6 @@ public class Scaffold extends Module {
         if (!mc.thePlayer.onGround && !jumped) {
             jumped = true;
         }
-
-        this.scaffoldBanPatch(event);
-    }
-
-    private void scaffoldBanPatch(PreMotionEvent preMotionEvent) {
-        if (!towered && preMotionEvent.onGround && jumped && !GameSettings.isKeyDown(mc.gameSettings.keyBindJump) && mode.get().equals("Hypixel")) {
-            preMotionEvent.y += 1E-14;
-        }
     }
 
     private void doMainFunctions() {

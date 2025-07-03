@@ -8,7 +8,7 @@ import com.dew.system.module.modules.combat.KillAura;
 import com.dew.system.module.modules.player.Scaffold;
 import com.dew.system.settingsvalue.MultiSelectionValue;
 import com.dew.utils.Lerper;
-import com.dew.utils.fonts.CustomFontRenderer;
+import com.dew.utils.font.CustomFontRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.gui.Gui;
@@ -16,16 +16,14 @@ import net.minecraft.client.gui.GuiChat;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
-import net.minecraft.src.Config;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StatCollector;
 import org.lwjgl.input.Keyboard;
+import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
 import java.util.*;
@@ -58,8 +56,8 @@ public class Hud extends Module {
             float time = (System.currentTimeMillis() % (int) speed) / speed;
             float progress = (time + 1f) % 1.0f;
 
-            mc.bitFontRendererObj.drawString(beforeWater, 4, 4, getSmoothPurpleGradient(progress).getRGB(), true);
-            mc.bitFontRendererObj.drawString(afterWater, 4 + mc.bitFontRendererObj.getStringWidth(beforeWater), 4, Color.WHITE.getRGB(), true);
+            mc.bitFontRendererObj.drawBlackOutlinedString(beforeWater, 4, 4, getSmoothPurpleGradient(progress).getRGB());
+            mc.bitFontRendererObj.drawBlackOutlinedString(afterWater, 4 + mc.bitFontRendererObj.getStringWidth(beforeWater), 4, Color.WHITE.getRGB());
         }
 
         if (features.isSelected("Armor Hud")) {
@@ -134,7 +132,11 @@ public class Hud extends Module {
                 int width = 120;
                 int height = 42;
 
-                Gui.drawRect(x, y, x + width, y + height, new Color(0, 0, 0, 120).getRGB());
+                drawBlurredBackground(
+                        x, y, width, height,
+                        5,
+                        new Color(0, 0, 0, 50).getRGB()
+                );
 
                 String name = target.getName();
                 mc.bitFontRendererObj.drawStringWithShadow(name, x + 40, y + 4, 0xFFFFFF);
@@ -151,7 +153,7 @@ public class Hud extends Module {
                 );
 
                 Gui.drawRect(x + 40, y + 15, x + 40 + healthBarWidth, y + 25, healthColor.getRGB());
-                mc.bitFontRendererObj.drawStringWithShadow(String.format("%.1f", health), x + 64, y + 16, 0xFFFFFF);
+                mc.bitFontRendererObj.drawStringWithShadow(String.format("%.1f", health), x + 64, y + 16.5f, 0xFFFFFF);
 
                 if (target instanceof AbstractClientPlayer) {
                     ResourceLocation skin = ((AbstractClientPlayer) target).getLocationSkin();
@@ -188,7 +190,7 @@ public class Hud extends Module {
         }
 
         if (features.isSelected("Module List")) {
-            int rightEdgeX = sr.getScaledWidth();
+            int rightEdgeX = sr.getScaledWidth() - 12;
 
             List<Module> moduleList = DewCommon.moduleManager.getModules().stream()
                     .filter(m -> m.showOnArray)
@@ -217,14 +219,14 @@ public class Hud extends Module {
                 String tag = module.tag();
                 String display = moduleName + (!tag.isEmpty() ? " " + tag : "");
 
-                float progress = (time + (float) cumulativeY / 100f) % 1.0f;
+                float progress = (time + cumulativeY / 100f) % 1.0f;
                 Color accentColor = getSmoothPurpleGradient(progress);
 
                 float displayWidth = fontRenderer.getStringWidth(display, fontSize);
-                float displayHeight = 11;
+                float displayHeight = 13;
 
                 float slideOffset = (1.0f - interpolated) * 10;
-                float finalY = cumulativeY + slideOffset;
+                float finalY = cumulativeY + slideOffset + 12;
 
                 int bgLeft = (int) (rightEdgeX - displayWidth - 6);
                 int bgTop = (int) (finalY - 1);
@@ -232,10 +234,14 @@ public class Hud extends Module {
 
                 int alpha = (int) (255 * interpolated);
                 Color bgColor = new Color(10, 10, 10, (int)(170 * interpolated));
-                Color barColor = new Color(accentColor.getRed(), accentColor.getGreen(), accentColor.getBlue(), (int)(170 * interpolated));
 
-                Gui.drawRect(bgLeft + 1, bgTop, rightEdgeX + 1, bgBottom, bgColor.getRGB());
-                Gui.drawRect(bgLeft + 1, bgTop, bgLeft + 2, bgBottom, barColor.getRGB());
+                drawBlurredBackground(
+                        bgLeft + 1, bgTop + 1,
+                        (rightEdgeX + 1) - (bgLeft + 1),
+                        bgBottom - bgTop - 2,
+                        5,
+                        new Color(bgColor.getRed(), bgColor.getGreen(), bgColor.getBlue(), 50).getRGB()
+                );
 
                 if (!tag.isEmpty()) {
                     float tagWidth = fontRenderer.getStringWidth(" " + tag, fontSize);
@@ -259,6 +265,37 @@ public class Hud extends Module {
                 cumulativeY += displayHeight + 1;
             }
         }
+    }
+
+    public static void drawBlurredBackground(double x, double y, double width, double height, int passes, int color) {
+        GlStateManager.pushMatrix();
+        GlStateManager.enableBlend();
+        GlStateManager.disableTexture2D();
+        GlStateManager.tryBlendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
+
+        for (int i = 0; i < passes; i++) {
+            double offset = i * 0.5;
+            drawRect(x - offset, y - offset, x + width + offset, y + height + offset, color);
+        }
+
+        GlStateManager.enableTexture2D();
+        GlStateManager.disableBlend();
+        GlStateManager.popMatrix();
+    }
+
+    public static void drawRect(double left, double top, double right, double bottom, int color) {
+        float alpha = (color >> 24 & 255) / 255.0F;
+        float red = (color >> 16 & 255) / 255.0F;
+        float green = (color >> 8 & 255) / 255.0F;
+        float blue = (color & 255) / 255.0F;
+
+        GlStateManager.color(red, green, blue, alpha);
+        GL11.glBegin(GL11.GL_QUADS);
+        GL11.glVertex2d(left, top);
+        GL11.glVertex2d(left, bottom);
+        GL11.glVertex2d(right, bottom);
+        GL11.glVertex2d(right, top);
+        GL11.glEnd();
     }
 
     private Color getSmoothPurpleGradient(float progress) {

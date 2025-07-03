@@ -6,7 +6,7 @@ import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
 import com.dew.system.settingsvalue.*;
 import com.dew.utils.Lerper;
-import com.dew.utils.fonts.CustomFontRenderer;
+import com.dew.utils.font.CustomFontRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
@@ -60,9 +60,6 @@ public class ClickGuiScreen extends GuiScreen {
         drawRect(x, y + h, x + w, y + h + 1, new Color(0, 0, 0, 100).getRGB());
 
         drawRect(x + w - resizeHandleSize, y + h - resizeHandleSize, x + w, y + h, resizing || mouseX >= ClickGuiState.animatedX + ClickGuiState.animatedWidth - resizeHandleSize && mouseX <= ClickGuiState.animatedX + ClickGuiState.animatedWidth && mouseY >= ClickGuiState.animatedY + ClickGuiState.animatedHeight - resizeHandleSize && mouseY <= ClickGuiState.animatedY + ClickGuiState.animatedHeight ? new Color(255, 255, 255, 180).getRGB() : new Color(150, 150, 150, 180).getRGB());
-
-        String sizeInfo = ClickGuiState.x + ", " + ClickGuiState.y + ", " + ClickGuiState.width + ", " + ClickGuiState.height;
-        fontRenderer.drawStringWithShadow(sizeInfo, x + w - fontRenderer.getStringWidth(sizeInfo, 0.5f) - 3, y + 2, new Color(120, 120, 120, 255).getRGB(), 0.5f);
 
         ModuleCategory[] categories = ModuleCategory.values();
 

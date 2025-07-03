@@ -5,10 +5,9 @@ import com.dew.IMinecraft;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
 import com.dew.system.settingsvalue.*;
-import com.dew.utils.fonts.CustomFontRenderer;
+import com.dew.utils.font.CustomFontRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
-import org.lwjgl.input.Mouse;
 
 import java.awt.*;
 import java.io.IOException;

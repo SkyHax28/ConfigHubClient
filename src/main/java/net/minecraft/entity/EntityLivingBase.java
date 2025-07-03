@@ -1153,7 +1153,7 @@ public abstract class EntityLivingBase extends Entity
     {
         Animations animationsModule = DewCommon.moduleManager.getModule(Animations.class);
         if (animationsModule.isEnabled() && animationsModule.shouldCustomSwingSpeed() && this instanceof EntityPlayerSP) {
-            return animationsModule.getSwingSpeed();
+            return animationsModule.getSwingSpeed() + 6;
         }
 
         return this.isPotionActive(Potion.digSpeed) ? 6 - (1 + this.getActivePotionEffect(Potion.digSpeed).getAmplifier()) * 1 : (this.isPotionActive(Potion.digSlowdown) ? 6 + (1 + this.getActivePotionEffect(Potion.digSlowdown).getAmplifier()) * 2 : 6);

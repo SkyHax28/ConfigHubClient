@@ -214,7 +214,7 @@ public class KillAura extends Module {
         List<Entity> targets = new ArrayList<>();
 
         for (Entity entity : mc.theWorld.loadedEntityList) {
-            if (entity instanceof EntityPlayerSP || !this.shouldAttack(entity)) continue;
+            if (entity instanceof EntityPlayerSP || this.shouldNotAttack(entity)) continue;
             double dist = mc.thePlayer.getDistanceToEntity(entity);
             if (dist <= range) {
                 targets.add(entity);
@@ -235,7 +235,7 @@ public class KillAura extends Module {
         double closestDist = range;
 
         for (Entity entity : mc.theWorld.loadedEntityList) {
-            if (entity instanceof EntityPlayerSP || !this.shouldAttack(entity)) continue;
+            if (entity instanceof EntityPlayerSP || this.shouldNotAttack(entity)) continue;
             double dist = mc.thePlayer.getDistanceToEntity(entity);
             if (dist < closestDist) {
                 closestDist = dist;
@@ -246,10 +246,10 @@ public class KillAura extends Module {
         return closest;
     }
 
-    private boolean shouldAttack(Entity entity) {
-        if (entity == null) return false;
-        if (!targets.isSelected("Teammate") && entity instanceof EntityLiving && DewCommon.moduleManager.getModule(Teams.class).isInYourTeam((EntityLivingBase) entity)) return false;
-        if ((entity.isDead || entity instanceof EntityLiving && ((EntityLiving) entity).deathTime > 0) && !targets.isSelected("Dead")) return false;
-        return entity instanceof EntityPlayer && targets.isSelected("Player") || entity instanceof EntityMob && targets.isSelected("Mob") || entity instanceof EntityAnimal && targets.isSelected("Animal") || entity instanceof EntityLiving && targets.isSelected("Living");
+    private boolean shouldNotAttack(Entity entity) {
+        if (entity == null) return true;
+        if (!targets.isSelected("Teammate") && entity instanceof EntityLivingBase && DewCommon.moduleManager.getModule(Teams.class).isInYourTeam((EntityLivingBase) entity)) return true;
+        if ((entity.isDead || entity instanceof EntityLiving && ((EntityLiving) entity).deathTime > 0) && !targets.isSelected("Dead")) return true;
+        return !(entity instanceof EntityPlayer && targets.isSelected("Player") || entity instanceof EntityMob && targets.isSelected("Mob") || entity instanceof EntityAnimal && targets.isSelected("Animal") || entity instanceof EntityLiving && targets.isSelected("Living"));
     }
 }

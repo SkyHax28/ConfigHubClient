@@ -39,6 +39,11 @@ public class AutoBlock extends Module {
     private long legitBlockEndTime = 0L;
 
     @Override
+    public String tag() {
+        return mode.get();
+    }
+
+    @Override
     public void onDisable() {
         this.resetState();
     }
