@@ -2,6 +2,7 @@ package com.dew.system.module.modules.movement.speed;
 
 import com.dew.IMinecraft;
 import com.dew.system.event.events.PreUpdateEvent;
+import com.dew.system.event.events.ReceivedPacketEvent;
 import net.minecraft.client.Minecraft;
 
 public interface SpeedMode {
@@ -10,4 +11,5 @@ public interface SpeedMode {
     void onEnable();
     void onDisable();
     void onPreUpdate(PreUpdateEvent event);
+    void onReceivedPacket(ReceivedPacketEvent event);
 }

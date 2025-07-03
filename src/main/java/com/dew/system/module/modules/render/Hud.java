@@ -8,6 +8,7 @@ import com.dew.system.module.modules.combat.KillAura;
 import com.dew.system.module.modules.player.Scaffold;
 import com.dew.system.settingsvalue.MultiSelectionValue;
 import com.dew.utils.Lerper;
+import com.dew.utils.LogUtil;
 import com.dew.utils.font.CustomFontRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
@@ -39,10 +40,15 @@ public class Hud extends Module {
     private static final MultiSelectionValue features = new MultiSelectionValue("Features", Arrays.asList("Watermark", "Module List", "Armor Hud", "Potion Hud", "Target Hud"), "Watermark", "Module List", "Armor Hud", "Potion Hud", "Target Hud");
 
     private final Map<Module, Float> animationProgress = new HashMap<>();
+    private long lastRenderTime = System.nanoTime();
 
     @Override
     public void onRender2D(Render2DEvent event) {
         ScaledResolution sr = new ScaledResolution(mc);
+
+        long now = System.nanoTime();
+        float deltaTime = (now - lastRenderTime) / 1_000_000_000.0f;
+        lastRenderTime = now;
 
         CustomFontRenderer fontRenderer = DewCommon.customFontRenderer;
         float fontSize = 0.5f;
@@ -205,13 +211,13 @@ public class Hud extends Module {
                 boolean enabled = module.isEnabled();
                 float current = animationProgress.getOrDefault(module, enabled ? 0f : 1f);
                 float target = enabled ? 1f : 0f;
-                float animationSpeed = 0.2f;
+                float animationSpeed = 18f * deltaTime;
 
                 float interpolated = Lerper.lerp(current, target, animationSpeed);
 
                 animationProgress.put(module, interpolated);
 
-                if (interpolated <= 0.01f) {
+                if (interpolated <= 0.25f) {
                     continue;
                 }
 
@@ -232,15 +238,18 @@ public class Hud extends Module {
                 int bgTop = (int) (finalY - 1);
                 int bgBottom = (int) (finalY + displayHeight);
 
-                int alpha = (int) (255 * interpolated);
-                Color bgColor = new Color(10, 10, 10, (int)(170 * interpolated));
+                int alpha = Math.max(0, Math.min(255, (int) (255 * interpolated)));
+                Color bgColor = new Color(10, 10, 10, Math.max(0, Math.min(255, (int) (170 * interpolated))));
+
+                int softAlpha = (int)(alpha * 0.22);
+                softAlpha = Math.min(softAlpha, 100);
 
                 drawBlurredBackground(
                         bgLeft + 1, bgTop + 1,
                         (rightEdgeX + 1) - (bgLeft + 1),
                         bgBottom - bgTop - 2,
                         5,
-                        new Color(bgColor.getRed(), bgColor.getGreen(), bgColor.getBlue(), 50).getRGB()
+                        new Color(bgColor.getRed(), bgColor.getGreen(), bgColor.getBlue(), softAlpha).getRGB()
                 );
 
                 if (!tag.isEmpty()) {
@@ -267,7 +276,7 @@ public class Hud extends Module {
         }
     }
 
-    public static void drawBlurredBackground(double x, double y, double width, double height, int passes, int color) {
+    private static void drawBlurredBackground(double x, double y, double width, double height, int passes, int color) {
         GlStateManager.pushMatrix();
         GlStateManager.enableBlend();
         GlStateManager.disableTexture2D();
@@ -283,7 +292,7 @@ public class Hud extends Module {
         GlStateManager.popMatrix();
     }
 
-    public static void drawRect(double left, double top, double right, double bottom, int color) {
+    private static void drawRect(double left, double top, double right, double bottom, int color) {
         float alpha = (color >> 24 & 255) / 255.0F;
         float red = (color >> 16 & 255) / 255.0F;
         float green = (color >> 8 & 255) / 255.0F;

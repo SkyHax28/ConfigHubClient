@@ -91,7 +91,7 @@ public class RotationManager {
         this.prevClientPitch = this.clientPitch;
     }
 
-    public void setRotations(float yaw, float pitch) {
+    private void setRotations(float yaw, float pitch) {
         this.clientYaw = applyGCDFix(yaw);
         this.clientPitch = MathHelper.clamp_float(applyGCDFix(pitch), -90.0f, 90.0f);
         onRotationUpdated();
@@ -172,8 +172,8 @@ public class RotationManager {
             lowerOffset = 141.5f;
             upperOffset = 141.5f;
             if (!mc.thePlayer.onGround) {
-                mc.thePlayer.motionX *= 0.9f;
-                mc.thePlayer.motionZ *= 0.9f;
+                mc.thePlayer.motionX *= 0.75f;
+                mc.thePlayer.motionZ *= 0.75f;
             }
         }
 
@@ -183,7 +183,7 @@ public class RotationManager {
         return Math.abs(yaw - lowerCandidate) <= Math.abs(upperCandidate - yaw) ? lowerCandidate : upperCandidate;
     }
 
-    private void rotateToward(float targetYaw, float targetPitch, float rotationSpeed) {
+    public void rotateToward(float targetYaw, float targetPitch, float rotationSpeed) {
         float yawDiff = MathHelper.wrapAngleTo180_float(targetYaw - this.clientYaw);
         float pitchDiff = MathHelper.wrapAngleTo180_float(targetPitch - this.clientPitch);
 

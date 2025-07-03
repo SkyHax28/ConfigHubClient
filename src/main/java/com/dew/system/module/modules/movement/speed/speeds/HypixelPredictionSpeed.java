@@ -1,6 +1,7 @@
 package com.dew.system.module.modules.movement.speed.speeds;
 
 import com.dew.system.event.events.PreUpdateEvent;
+import com.dew.system.event.events.ReceivedPacketEvent;
 import com.dew.system.module.modules.movement.speed.SpeedMode;
 import com.dew.utils.MovementUtil;
 import com.dew.utils.PacketUtil;
@@ -32,5 +33,9 @@ public class HypixelPredictionSpeed implements SpeedMode {
         if (mc.thePlayer.onGround && mc.thePlayer.posY > 0.0D) {
             mc.thePlayer.jump();
         }
+    }
+
+    @Override
+    public void onReceivedPacket(ReceivedPacketEvent event) {
     }
 }

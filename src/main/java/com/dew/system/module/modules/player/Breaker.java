@@ -8,17 +8,21 @@ import com.dew.system.settingsvalue.BooleanValue;
 import com.dew.system.settingsvalue.NumberValue;
 import com.dew.utils.LogUtil;
 import com.dew.utils.PacketUtil;
+import com.dew.utils.RenderUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
 import net.minecraft.block.BlockBed;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.C07PacketPlayerDigging;
 import net.minecraft.network.play.client.C0APacketAnimation;
+import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import org.lwjgl.input.Keyboard;
+import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -55,6 +59,40 @@ public class Breaker extends Module {
                 DewCommon.moduleManager.getModule(AutoTool.class).autoToolManager.stop();
             isBreaking = false;
         }
+    }
+
+    @Override
+    public void onRender3D(Render3DEvent event) {
+        if (mc.thePlayer == null || mc.theWorld == null || currentTarget == null || !isBreaking) return;
+
+        double renderX = mc.getRenderManager().viewerPosX;
+        double renderY = mc.getRenderManager().viewerPosY;
+        double renderZ = mc.getRenderManager().viewerPosZ;
+
+        GlStateManager.pushMatrix();
+        GlStateManager.enableBlend();
+        GlStateManager.disableTexture2D();
+        GlStateManager.disableDepth();
+        GlStateManager.depthMask(false);
+        GlStateManager.disableLighting();
+        GlStateManager.disableCull();
+        GlStateManager.tryBlendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
+
+        double x = currentTarget.getX() - renderX;
+        double y = currentTarget.getY() - renderY;
+        double z = currentTarget.getZ() - renderZ;
+        AxisAlignedBB bb = new AxisAlignedBB(
+                x, y, z,
+                x + 1, y + 1, z + 1
+        );
+        RenderUtil.drawFilledBox(bb, 0f, 1f, 0f, 0.2f);
+
+        GlStateManager.enableCull();
+        GlStateManager.depthMask(true);
+        GlStateManager.enableDepth();
+        GlStateManager.enableTexture2D();
+        GlStateManager.disableBlend();
+        GlStateManager.popMatrix();
     }
 
     @Override

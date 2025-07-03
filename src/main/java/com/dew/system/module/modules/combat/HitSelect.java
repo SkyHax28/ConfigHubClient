@@ -3,6 +3,7 @@ package com.dew.system.module.modules.combat;
 import com.dew.DewCommon;
 import com.dew.system.event.events.AttackEvent;
 import com.dew.system.event.events.PreUpdateEvent;
+import com.dew.system.event.events.WorldEvent;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
 import com.dew.system.settingsvalue.NumberValue;
@@ -12,29 +13,30 @@ import org.lwjgl.input.Keyboard;
 
 
 public class HitSelect extends Module {
-    public static SelectionValue mode = new SelectionValue("Mode", "Active", "Active", "Pause");
-    public static SelectionValue preference = new SelectionValue("Preference", "Reduce", "Movement", "Reduce", "Critical");
-    private static final NumberValue chance = new NumberValue("Chance", 80, 10, 100, 1);
-    private static final NumberValue threshold = new NumberValue("Threshold", 400, 300, 500, 1);
-    private long lastAttackTime = -1;
-    private boolean currentShouldAttack = false;
 
     public HitSelect() {
         super("Hit Select", ModuleCategory.COMBAT, Keyboard.KEY_NONE, false, true, true);
     }
 
-    public boolean canAttack() {
-        boolean canAttack = currentShouldAttack;
+    public static SelectionValue mode = new SelectionValue("Mode", "Active", "Active", "Pause");
+    public static SelectionValue preference = new SelectionValue("Preference", "Reduce", "Movement", "Reduce", "Critical");
+    private static final NumberValue chance = new NumberValue("Chance", 80.0, 10.0, 100.0, 1.0);
+    private static final NumberValue threshold = new NumberValue("Threshold", 400.0, 300.0, 500.0, 1.0);
 
-        if (!DewCommon.moduleManager.getModule(HitSelect.class).isEnabled() || mode.get().equals("Active")) {
-            canAttack = true;
-        }
-
-        return canAttack;
-    }
+    private long lastAttackTime = -1;
+    private boolean currentShouldAttack = false;
 
     @Override
     public void onDisable() {
+        this.resetState();
+    }
+
+    @Override
+    public void onWorld(WorldEvent event) {
+        this.resetState();
+    }
+
+    private void resetState() {
         lastAttackTime = -1;
         currentShouldAttack = false;
     }
@@ -45,35 +47,38 @@ public class HitSelect extends Module {
             event.cancel();
             return;
         }
-        if (canAttack()) {
+
+        if (mode.get().equals("Active") || currentShouldAttack) {
             lastAttackTime = System.currentTimeMillis();
         }
     }
 
     @Override
     public void onPreUpdate(PreUpdateEvent event) {
+        if (mc.thePlayer == null) return;
+
         currentShouldAttack = false;
-        EntityPlayerSP player = mc.thePlayer;
-        if (player == null) return;
+
         if (Math.random() * 100 > chance.get()) {
             currentShouldAttack = true;
         } else {
             switch (preference.get().toLowerCase()) {
                 case "movement":
-                    double dx = player.posX - player.prevPosX;
-                    double dz = player.posZ - player.prevPosZ;
+                    double dx = mc.thePlayer.posX - mc.thePlayer.prevPosX;
+                    double dz = mc.thePlayer.posZ - mc.thePlayer.prevPosZ;
                     double speed = Math.sqrt(dx * dx + dz * dz);
-                    currentShouldAttack = speed > 0.1; // threshold, adjust as needed
+                    currentShouldAttack = speed > 0.1;
                     break;
 
                 case "reduce":
-                    currentShouldAttack = player.hurtTime > 0 && !player.onGround;
+                    currentShouldAttack = mc.thePlayer.hurtTime > 0 && !mc.thePlayer.onGround;
                     break;
 
                 case "critical":
-                    currentShouldAttack = !player.onGround && player.motionY < 0;
+                    currentShouldAttack = !mc.thePlayer.onGround && mc.thePlayer.motionY < 0;
                     break;
             }
+
             if (!currentShouldAttack) {
                 currentShouldAttack = System.currentTimeMillis() - lastAttackTime >= threshold.get();
             }

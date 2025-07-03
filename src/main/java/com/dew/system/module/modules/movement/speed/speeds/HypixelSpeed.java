@@ -2,12 +2,16 @@ package com.dew.system.module.modules.movement.speed.speeds;
 
 import com.dew.DewCommon;
 import com.dew.system.event.events.PreUpdateEvent;
+import com.dew.system.event.events.ReceivedPacketEvent;
 import com.dew.system.module.modules.exploit.Disabler;
 import com.dew.system.module.modules.movement.speed.SpeedMode;
+import com.dew.system.module.modules.movement.speed.SpeedModule;
 import com.dew.system.module.modules.player.Scaffold;
 import com.dew.utils.LogUtil;
 import com.dew.utils.MovementUtil;
 import net.minecraft.client.settings.GameSettings;
+import net.minecraft.network.Packet;
+import net.minecraft.network.play.server.S08PacketPlayerPosLook;
 import net.minecraft.potion.Potion;
 import org.lwjgl.input.Keyboard;
 
@@ -110,6 +114,17 @@ public class HypixelSpeed implements SpeedMode {
                         break;
                 }
             }
+        }
+    }
+
+    @Override
+    public void onReceivedPacket(ReceivedPacketEvent event) {
+        if (mc.thePlayer == null) return;
+
+        Packet<?> packet = event.packet;
+
+        if (packet instanceof S08PacketPlayerPosLook) {
+            DewCommon.moduleManager.getModule(SpeedModule.class).setState(false);
         }
     }
 }

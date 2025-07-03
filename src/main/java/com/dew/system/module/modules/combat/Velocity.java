@@ -25,6 +25,11 @@ public class Velocity extends Module {
     private int hypTick = 0;
 
     @Override
+    public String tag() {
+        return mode.get();
+    }
+
+    @Override
     public void onDisable() {
         hypTick = 0;
     }

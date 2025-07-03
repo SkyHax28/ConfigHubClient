@@ -223,7 +223,30 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
     {
         this.buttonList.add(new GuiButton(1, this.width / 2 - 100, p_73969_1_, I18n.format("menu.singleplayer", new Object[0])));
         this.buttonList.add(new GuiButton(2, this.width / 2 - 100, p_73969_1_ + p_73969_2_ * 1, 98, 20, I18n.format("menu.multiplayer", new Object[0])));
-        this.buttonList.add(new GuiButton(70, this.width / 2 + 2, p_73969_1_ + p_73969_2_ * 1, 98, 20, ServerUtil.serverData != null ? ServerUtil.serverData.serverIP : "Last Server"));
+
+        String lastServerString = "Last Server";
+        if (ServerUtil.serverData != null) {
+            String fullIp = ServerUtil.serverData.serverIP;
+            int maxWidth = 80;
+
+            if (IMinecraft.mc.fontRendererObj.getStringWidth(fullIp) <= maxWidth) {
+                lastServerString = fullIp;
+            } else {
+                String ellipsis = "...";
+                int ellipsisWidth = IMinecraft.mc.fontRendererObj.getStringWidth(ellipsis);
+                StringBuilder trimmed = new StringBuilder();
+
+                for (int i = 0; i < fullIp.length(); i++) {
+                    String sub = fullIp.substring(0, i + 1);
+                    int width = IMinecraft.mc.fontRendererObj.getStringWidth(sub);
+                    if (width + ellipsisWidth >= maxWidth) break;
+                    trimmed.append(fullIp.charAt(i));
+                }
+
+                lastServerString = trimmed + ellipsis;
+            }
+        }
+        this.buttonList.add(new GuiButton(70, this.width / 2 + 2, p_73969_1_ + p_73969_2_ * 1, 98, 20, lastServerString));
 
         this.buttonList.add(this.accountManagerButton = new GuiButton(14, this.width / 2 - 100, p_73969_1_ + p_73969_2_ * 2, 98, 20, "Alt Manager"));
         this.buttonList.add(new GuiButton(69, this.width / 2 + 2, p_73969_1_ + p_73969_2_ * 2, 98, 20, "Protocol"));

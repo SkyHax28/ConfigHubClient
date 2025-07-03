@@ -1,6 +1,7 @@
 package com.dew.system.module.modules.movement.speed;
 
 import com.dew.system.event.events.PreUpdateEvent;
+import com.dew.system.event.events.ReceivedPacketEvent;
 import com.dew.system.event.events.WorldEvent;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
@@ -74,5 +75,11 @@ public class SpeedModule extends Module {
 
         if (currentMode != null)
             currentMode.onPreUpdate(event);
+    }
+
+    @Override
+    public void onReceivedPacket(ReceivedPacketEvent event) {
+        if (currentMode != null)
+            currentMode.onReceivedPacket(event);
     }
 }

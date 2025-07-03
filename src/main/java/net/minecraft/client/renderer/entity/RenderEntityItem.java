@@ -1,6 +1,9 @@
 package net.minecraft.client.renderer.entity;
 
-import java.util.Random;
+import java.util.*;
+
+import com.dew.DewCommon;
+import com.dew.system.module.modules.render.ItemPhysics;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.texture.TextureMap;
@@ -10,11 +13,17 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.Vec3;
 
 public class RenderEntityItem extends Render<EntityItem>
 {
     private final RenderItem itemRenderer;
     private Random field_177079_e = new Random();
+
+    private final Map<Integer, Float> pitchRotationMap = new HashMap<>();
+    private final Set<Integer> landedItems = new HashSet<>();
+    private final Map<Integer, Vec3> rotationAxisMap = new HashMap<>();
+    private final Random trulyRandom = new Random();
 
     public RenderEntityItem(RenderManager renderManagerIn, RenderItem p_i46167_2_)
     {
@@ -38,12 +47,35 @@ public class RenderEntityItem extends Render<EntityItem>
             boolean flag = p_177077_9_.isGui3d();
             int i = this.func_177078_a(itemstack);
             float f = 0.25F;
-            float f1 = MathHelper.sin(((float)itemIn.getAge() + p_177077_8_) / 10.0F + itemIn.hoverStart) * 0.1F + 0.1F;
+            float f1 = !itemIn.onGround || !DewCommon.moduleManager.getModule(ItemPhysics.class).isEnabled() ? MathHelper.sin(((float)itemIn.getAge() + p_177077_8_) / 10.0F + itemIn.hoverStart) * 0.1F + 0.1F : 0.0F;
             float f2 = p_177077_9_.getItemCameraTransforms().getTransform(ItemCameraTransforms.TransformType.GROUND).scale.y;
             GlStateManager.translate((float)p_177077_2_, (float)p_177077_4_ + f1 + 0.25F * f2, (float)p_177077_6_);
 
-            if (flag || this.renderManager.options != null)
-            {
+            if (DewCommon.moduleManager.getModule(ItemPhysics.class).isEnabled()) {
+                int entityId = itemIn.getEntityId();
+                boolean onGround = itemIn.onGround;
+
+                float currentPitch = pitchRotationMap.getOrDefault(entityId, 0f);
+
+                if (!onGround && !landedItems.contains(entityId)) {
+                    currentPitch += 3.0f;
+                    pitchRotationMap.put(entityId, currentPitch);
+                } else {
+                    landedItems.add(entityId);
+                    pitchRotationMap.put(entityId, currentPitch);
+                }
+
+                Vec3 axis = rotationAxisMap.get(entityId);
+                if (axis == null) {
+                    float x = trulyRandom.nextFloat() * 2f - 1f;
+                    float y = trulyRandom.nextFloat() * 2f - 1f;
+                    float z = trulyRandom.nextFloat() * 2f - 1f;
+                    axis = new Vec3(x, y, z).normalize();
+                    rotationAxisMap.put(entityId, axis);
+                }
+
+                GlStateManager.rotate(currentPitch, (float)axis.xCoord, (float)axis.yCoord, (float)axis.zCoord);
+            } else if (flag || this.renderManager.options != null) {
                 float f3 = (((float)itemIn.getAge() + p_177077_8_) / 20.0F + itemIn.hoverStart) * (180F / (float)Math.PI);
                 GlStateManager.rotate(f3, 0.0F, 1.0F, 0.0F);
             }
@@ -105,6 +137,8 @@ public class RenderEntityItem extends Render<EntityItem>
         IBakedModel ibakedmodel = this.itemRenderer.getItemModelMesher().getItemModel(itemstack);
         int i = this.func_177077_a(entity, x, y, z, partialTicks, ibakedmodel);
 
+        float itemSize = DewCommon.moduleManager.getModule(ItemPhysics.class).isEnabled() ? 0.6f : 0.5f;
+
         for (int j = 0; j < i; ++j)
         {
             if (ibakedmodel.isGui3d())
@@ -119,7 +153,7 @@ public class RenderEntityItem extends Render<EntityItem>
                     GlStateManager.translate(f, f1, f2);
                 }
 
-                GlStateManager.scale(0.5F, 0.5F, 0.5F);
+                GlStateManager.scale(itemSize, itemSize, itemSize);
                 ibakedmodel.getItemCameraTransforms().applyTransform(ItemCameraTransforms.TransformType.GROUND);
                 this.itemRenderer.renderItem(itemstack, ibakedmodel);
                 GlStateManager.popMatrix();
@@ -127,6 +161,10 @@ public class RenderEntityItem extends Render<EntityItem>
             else
             {
                 GlStateManager.pushMatrix();
+
+                if (DewCommon.moduleManager.getModule(ItemPhysics.class).isEnabled()) {
+                    GlStateManager.scale(itemSize * 2f, itemSize * 2f, itemSize * 2f);
+                }
                 ibakedmodel.getItemCameraTransforms().applyTransform(ItemCameraTransforms.TransformType.GROUND);
                 this.itemRenderer.renderItem(itemstack, ibakedmodel);
                 GlStateManager.popMatrix();
@@ -145,6 +183,13 @@ public class RenderEntityItem extends Render<EntityItem>
         if (flag)
         {
             this.renderManager.renderEngine.getTexture(this.getEntityTexture(entity)).restoreLastBlurMipmap();
+        }
+
+        if (entity.isDead) {
+            int id = entity.getEntityId();
+            pitchRotationMap.remove(id);
+            landedItems.remove(id);
+            rotationAxisMap.remove(id);
         }
 
         super.doRender(entity, x, y, z, entityYaw, partialTicks);

@@ -4,6 +4,7 @@ import com.dew.DewCommon;
 import com.dew.system.event.events.*;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
+import com.dew.system.module.modules.combat.KillAura;
 import com.dew.system.module.modules.movement.speed.SpeedModule;
 import com.dew.system.settingsvalue.BooleanValue;
 import com.dew.system.settingsvalue.NumberValue;
@@ -11,12 +12,14 @@ import com.dew.system.settingsvalue.SelectionValue;
 import com.dew.utils.LogUtil;
 import com.dew.utils.MovementUtil;
 import com.dew.utils.PacketUtil;
+import com.dew.utils.RenderUtil;
 import net.minecraft.block.*;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.settings.GameSettings;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
@@ -25,6 +28,7 @@ import net.minecraft.network.play.client.C0APacketAnimation;
 import net.minecraft.potion.Potion;
 import net.minecraft.util.*;
 import org.lwjgl.input.Keyboard;
+import org.lwjgl.opengl.GL11;
 
 import java.util.*;
 
@@ -40,6 +44,7 @@ public class Scaffold extends Module {
     private static final NumberValue rotationSpeed = new NumberValue("Rotation Speed", 60.0, 0.0, 180.0, 10.0, () -> mode.get().equals("Normal") || mode.get().equals("Telly"));
     private static final NumberValue placeDelay = new NumberValue("Place Delay", 0.0, 0.0, 10.0, 1.0, () -> mode.get().equals("Normal") || mode.get().equals("Telly"));
     private static final BooleanValue noHitCheck = new BooleanValue("No Hit Check", false, () -> mode.get().equals("Normal") || mode.get().equals("Telly"));
+    private static final BooleanValue tellyQuickRotation = new BooleanValue("Telly Quick Rotation", true, () -> mode.get().equals("Telly"));
     private static final SelectionValue edgeSafeMode = new SelectionValue("Edge Safe Mode", "OFF", "OFF", "Safewalk", "Sneak");
     public static final BooleanValue noSprint = new BooleanValue("No Sprint", false);
 
@@ -58,6 +63,9 @@ public class Scaffold extends Module {
     private boolean checked = false;
     public boolean jumped = false;
 
+    private BlockPos lastPlacedPos = null;
+    private int tellyWaitTicks = 0;
+
     private boolean canTower() {
         return Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) && !DewCommon.moduleManager.getModule(SpeedModule.class).isEnabled() && MovementUtil.isBlockUnderPlayer(mc.thePlayer, 3, 2, false) && !MovementUtil.isBlockAbovePlayer(mc.thePlayer, 1) && holdingBlock;
     }
@@ -70,6 +78,7 @@ public class Scaffold extends Module {
     public void onDisable() {
         this.resetState();
         keepY = -1;
+        lastPlacedPos = null;
     }
 
     @Override
@@ -103,6 +112,10 @@ public class Scaffold extends Module {
             MovementUtil.mcJumpNoBoost = false;
             hypGroundCheck = false;
             towered = false;
+        }
+        tellyWaitTicks = 0;
+        if (mode.get().equals("Telly")) {
+            mc.gameSettings.keyBindSneak.setKeyDown(false);
         }
     }
 
@@ -157,6 +170,40 @@ public class Scaffold extends Module {
         }
     }
 
+    @Override
+    public void onRender3D(Render3DEvent event) {
+        if (mc.thePlayer == null || mc.theWorld == null || lastPlacedPos == null) return;
+
+        double renderX = mc.getRenderManager().viewerPosX;
+        double renderY = mc.getRenderManager().viewerPosY;
+        double renderZ = mc.getRenderManager().viewerPosZ;
+
+        GlStateManager.pushMatrix();
+        GlStateManager.enableBlend();
+        GlStateManager.disableTexture2D();
+        GlStateManager.disableDepth();
+        GlStateManager.depthMask(false);
+        GlStateManager.disableLighting();
+        GlStateManager.disableCull();
+        GlStateManager.tryBlendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
+
+        double x = lastPlacedPos.getX() - renderX;
+        double y = lastPlacedPos.getY() - renderY;
+        double z = lastPlacedPos.getZ() - renderZ;
+        AxisAlignedBB bb = new AxisAlignedBB(
+                x, y, z,
+                x + 1, y + 1, z + 1
+        );
+        RenderUtil.drawFilledBox(bb, 1f, 0f, 0f, 0.2f);
+
+        GlStateManager.enableCull();
+        GlStateManager.depthMask(true);
+        GlStateManager.enableDepth();
+        GlStateManager.enableTexture2D();
+        GlStateManager.disableBlend();
+        GlStateManager.popMatrix();
+    }
+
     private void doMainFunctions() {
         if (edgeSafeMode.get().equals("Sneak") && this.isNearEdge()) {
             mc.gameSettings.keyBindSneak.setKeyDown(true);
@@ -175,7 +222,7 @@ public class Scaffold extends Module {
         switch (mode.get().toLowerCase()) {
             case "normal":
                 if (DewCommon.rotationManager.isReturning() || !holdingBlock) {
-                    DewCommon.rotationManager.setRotations((float) (MovementUtil.getDirection() - 180f), 83f);
+                    DewCommon.rotationManager.rotateToward((float) (MovementUtil.getDirection() - 180f), 83f, rotationSpeed.get().floatValue());
                 }
                 break;
 
@@ -192,7 +239,7 @@ public class Scaffold extends Module {
                     }
                 } else {
                     if (jumpTicks == 5f) {
-                        DewCommon.rotationManager.setRotations((float) MovementUtil.getDirection(), 60f);
+                        DewCommon.rotationManager.rotateToward((float) MovementUtil.getDirection(), 60f, 180f);
                         doNotPlace = true;
                     } else {
                         DewCommon.rotationManager.faceBlockHypixelSafe(180f);
@@ -241,14 +288,25 @@ public class Scaffold extends Module {
         Boolean placed = null;
 
         if (!mode.get().equals("Hypixel") || !mc.thePlayer.onGround) {
-            placed = placeBlockScaffold(below);
+            PlaceResult result = tryPlaceBlock(below);
 
-            if (!placed) {
+            if (result == PlaceResult.SUCCESS) {
+                lastPlacedPos = below;
+                placed = true;
+            } else if (result == PlaceResult.FAIL_ROTATION) {
+                return;
+            } else {
                 EnumFacing[] facings = getFullPrioritizedFacings();
-
                 for (EnumFacing dir : facings) {
                     BlockPos neighbor = below.offset(dir);
-                    if (placeBlockScaffold(neighbor)) {
+                    PlaceResult neighborResult = tryPlaceBlock(neighbor);
+
+                    if (neighborResult == PlaceResult.FAIL_ROTATION) {
+                        return;
+                    }
+
+                    if (neighborResult == PlaceResult.SUCCESS) {
+                        lastPlacedPos = neighbor;
                         placed = true;
                         break;
                     }
@@ -257,9 +315,8 @@ public class Scaffold extends Module {
 
             Set<BlockPos> visited = new HashSet<>();
 
-            if (!placed && clutchRange.get() > 1) {
+            if (!Boolean.TRUE.equals(placed) && clutchRange.get() > 1) {
                 List<BlockPos> searchOrder = new ArrayList<>();
-
                 int range = clutchRange.get().intValue();
 
                 for (int x = -range; x <= range; x++) {
@@ -280,6 +337,7 @@ public class Scaffold extends Module {
                     visited.add(target);
 
                     if (!mc.theWorld.getBlockState(target).getBlock().isReplaceable(mc.theWorld, target)) continue;
+
                     AxisAlignedBB targetBB = new AxisAlignedBB(
                             target.getX(), target.getY(), target.getZ(),
                             target.getX() + 1, target.getY() + 1, target.getZ() + 1
@@ -299,7 +357,14 @@ public class Scaffold extends Module {
 
                     if (!hasSupport) continue;
 
-                    if (placeBlockScaffold(target)) {
+                    PlaceResult clutchResult = tryPlaceBlock(target);
+
+                    if (clutchResult == PlaceResult.FAIL_ROTATION) {
+                        return;
+                    }
+
+                    if (clutchResult == PlaceResult.SUCCESS) {
+                        lastPlacedPos = target;
                         placed = true;
                         break;
                     }
@@ -307,7 +372,7 @@ public class Scaffold extends Module {
             }
         }
 
-        if (placed != null && placed) {
+        if (Boolean.TRUE.equals(placed)) {
             holdingBlock = true;
         }
     }
@@ -319,10 +384,25 @@ public class Scaffold extends Module {
     private void tellyFunction() {
         if (mode.get().equals("Telly") && !towered && !Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode())) {
             if (jumpTicks <= 2 || this.isBlockVeryCloseUnderPlayer()) {
-                DewCommon.rotationManager.resetRotationsInstantly();
-                if (mc.thePlayer.onGround && mc.thePlayer.posY > 0.0D) {
-                    mc.thePlayer.jump();
-                    this.updateKeepY();
+                DewCommon.rotationManager.rotateToward((float) MovementUtil.getDirection(), 60f, tellyQuickRotation.get() ? 180f : rotationSpeed.get().floatValue());
+                if (mc.thePlayer.posY > 0.0D) {
+                    if (mc.thePlayer.isSprinting()) {
+                        if (mc.thePlayer.onGround) {
+                            mc.thePlayer.jump();
+                            tellyWaitTicks = 0;
+                            mc.gameSettings.keyBindSneak.setKeyDown(false);
+                            this.updateKeepY();
+                        }
+                    } else if (!tellyQuickRotation.get()) {
+                        if (tellyWaitTicks >= 4) {
+                            mc.gameSettings.keyBindSneak.setKeyDown(false);
+                            tellyWaitTicks = 0;
+                        } else if (isTellyNearEdge()) {
+                            tellyWaitTicks++;
+                            mc.gameSettings.keyBindSneak.setKeyDown(true);
+                        }
+                        this.updateKeepY();
+                    }
                 }
             }
         }
@@ -419,6 +499,25 @@ public class Scaffold extends Module {
         return false;
     }
 
+    private boolean isTellyNearEdge() {
+        double x = mc.thePlayer.posX;
+        double z = mc.thePlayer.posZ;
+        int y = (int) Math.floor(mc.thePlayer.posY) - 2;
+
+        double expand = 0.15;
+        for (double dx = -expand; dx <= expand; dx += expand) {
+            for (double dz = -expand; dz <= expand; dz += expand) {
+                if (dx == 0 && dz == 0) continue;
+
+                BlockPos pos = new BlockPos(x + dx, y, z + dz);
+                if (!mc.theWorld.getBlockState(pos).getBlock().isFullBlock()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     private boolean isNearEdge() {
         double x = mc.thePlayer.posX;
         double z = mc.thePlayer.posZ;
@@ -439,38 +538,33 @@ public class Scaffold extends Module {
     }
 
     private EnumFacing facingFromRotation(float yaw, float pitch) {
-        if (pitch > 45) return EnumFacing.DOWN;
-        if (pitch < -45) return EnumFacing.UP;
+        if (pitch >= 80.0F) return EnumFacing.DOWN;
+        if (pitch <= -80.0F) return EnumFacing.UP;
 
-        int direction = MathHelper.floor_double((yaw * 4.0F / 360.0F) + 0.5D) & 3;
+        int direction = MathHelper.floor_float((yaw / 90.0F) + 0.5F) & 3;
+
         switch (direction) {
-            case 0:
-                return EnumFacing.SOUTH;
-            case 1:
-                return EnumFacing.WEST;
+            case 0: return EnumFacing.SOUTH;
+            case 1: return EnumFacing.WEST;
+            case 3: return EnumFacing.EAST;
             case 2:
-                return EnumFacing.NORTH;
-            case 3:
-                return EnumFacing.EAST;
+            default: return EnumFacing.NORTH;
         }
-        return EnumFacing.UP;
     }
 
     private boolean placeBlockScaffold(BlockPos pos) {
-        if (!holdingBlock) return false;
+        return tryPlaceBlock(pos) == PlaceResult.SUCCESS;
+    }
 
-        float yaw = DewCommon.rotationManager.getClientYaw();
-        float pitch = DewCommon.rotationManager.getClientPitch();
+    private PlaceResult tryPlaceBlock(BlockPos pos) {
+        if (!holdingBlock) return PlaceResult.FAIL_OTHER;
 
-        EnumFacing preferredFacing = facingFromRotation(yaw, pitch);
-
+        EnumFacing preferredFacing = facingFromRotation(mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch);
         List<EnumFacing> facings = new ArrayList<>(Arrays.asList(EnumFacing.values()));
         facings.remove(preferredFacing);
         facings.add(0, preferredFacing);
 
         for (EnumFacing facing : facings) {
-            if (!holdingBlock) return false;
-
             BlockPos neighbor = pos.offset(facing);
             IBlockState state = mc.theWorld.getBlockState(neighbor);
             Block block = state.getBlock();
@@ -486,19 +580,28 @@ public class Scaffold extends Module {
 
             if (mode.get().equals("Normal") || mode.get().equals("Telly")) {
                 boolean canPlace = DewCommon.rotationManager.faceBlockWithFacing(neighbor, opposite, rotationSpeed.get().floatValue());
-                if (!canPlace && !noHitCheck.get()) continue;
+                if (!canPlace) {
+                    if (!noHitCheck.get()) {
+                        return PlaceResult.FAIL_ROTATION; // ← 注目
+                    }
+                    continue;
+                }
             }
 
             if (!checked) {
                 checked = true;
-                return true;
+                return PlaceResult.SUCCESS;
             } else if (mc.playerController.onPlayerRightClick(mc.thePlayer, mc.theWorld, mc.thePlayer.getHeldItem(), neighbor, opposite, hitVec)) {
                 PacketUtil.sendPacket(new C0APacketAnimation());
                 delay = 0;
-                return true;
+                return PlaceResult.SUCCESS;
             }
         }
-        return false;
+        return PlaceResult.FAIL_OTHER;
+    }
+
+    private enum PlaceResult {
+        SUCCESS, FAIL_ROTATION, FAIL_OTHER
     }
 
     public int getTotalValidBlocksInHotbar() {

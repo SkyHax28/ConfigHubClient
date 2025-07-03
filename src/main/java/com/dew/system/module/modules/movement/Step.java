@@ -27,6 +27,11 @@ public class Step extends Module {
     private int ticksSinceLastStep = -1;
 
     @Override
+    public String tag() {
+        return mode.get();
+    }
+
+    @Override
     public void onDisable() {
         this.resetState();
     }

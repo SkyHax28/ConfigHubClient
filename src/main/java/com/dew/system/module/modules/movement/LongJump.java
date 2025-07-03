@@ -56,10 +56,10 @@ public class LongJump extends Module {
                 player.inventory.currentItem = ballSlot;
                 PacketUtil.sendPacket(new C09PacketHeldItemChange(ballSlot));
             }
-            DewCommon.rotationManager.setRotations(mc.thePlayer.rotationYaw, 90f);// Look straight down
+            DewCommon.rotationManager.rotateToward(mc.thePlayer.rotationYaw, 90f, 180f);
             tick++;
         } else if (tick == 1) {
-            DewCommon.rotationManager.setRotations(mc.thePlayer.rotationYaw, 90f);
+            DewCommon.rotationManager.rotateToward(mc.thePlayer.rotationYaw, 90f, 180f);
             PacketUtil.sendPacket(new C08PacketPlayerBlockPlacement(player.inventory.getCurrentItem()));
             sent = true;
             tick++;
