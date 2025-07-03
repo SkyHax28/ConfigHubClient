@@ -386,7 +386,7 @@ public class Scaffold extends Module {
             if (jumpTicks <= 2 || this.isBlockVeryCloseUnderPlayer()) {
                 DewCommon.rotationManager.rotateToward((float) MovementUtil.getDirection(), 60f, tellyQuickRotation.get() ? 180f : rotationSpeed.get().floatValue());
                 if (mc.thePlayer.posY > 0.0D) {
-                    if (mc.thePlayer.isSprinting()) {
+                    if (mc.thePlayer.isSprinting() && (mc.thePlayer.onGround || tellyQuickRotation.get())) {
                         if (mc.thePlayer.onGround) {
                             mc.thePlayer.jump();
                             tellyWaitTicks = 0;
@@ -394,7 +394,7 @@ public class Scaffold extends Module {
                             this.updateKeepY();
                         }
                     } else if (!tellyQuickRotation.get()) {
-                        if (tellyWaitTicks >= 4) {
+                        if (tellyWaitTicks >= 4 && mc.gameSettings.keyBindForward.isKeyDown()) {
                             mc.gameSettings.keyBindSneak.setKeyDown(false);
                             tellyWaitTicks = 0;
                         } else if (isTellyNearEdge()) {
@@ -467,7 +467,7 @@ public class Scaffold extends Module {
     }
 
     private boolean isTelly() {
-        return mode.get().equals("Telly") && !towered && !Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) && (jumpTicks <= 2 || this.isBlockVeryCloseUnderPlayer());
+        return mode.get().equals("Telly") && !towered && !Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) && (jumpTicks <= 2 || this.isBlockVeryCloseUnderPlayer()) && (tellyQuickRotation.get() || mc.thePlayer.isSneaking());
     }
 
     private EnumFacing[] getFullPrioritizedFacings() {

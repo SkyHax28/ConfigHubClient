@@ -64,6 +64,10 @@ public class ModuleConfigManager {
 
             if (enabledStr != null) {
                 boolean enabled = Boolean.parseBoolean(enabledStr);
+                if (enabled && module.isEnabled()) {
+                    module.setState(false);
+                }
+
                 module.setState(enabled);
             }
         }
