@@ -51,7 +51,7 @@ public class Hud extends Module {
         lastRenderTime = now;
 
         CustomFontRenderer fontRenderer = DewCommon.customFontRenderer;
-        float fontSize = 0.5f;
+        float fontSize = 0.35f;
 
         if (features.isSelected("Watermark")) {
             String clientName = DewCommon.clientName + " | " + Minecraft.getDebugFPS() + " fps";
@@ -203,7 +203,7 @@ public class Hud extends Module {
                     .sorted(Comparator.comparingDouble((Module m) -> fontRenderer.getStringWidth(m.name + (!m.tag().isEmpty() ? " " + m.tag() : ""), fontSize)).reversed())
                     .collect(Collectors.toList());
 
-            float speed = 2000f;
+            float speed = 1800f;
             float time = (System.currentTimeMillis() % (int) speed) / speed;
 
             float cumulativeY = 0;
@@ -229,7 +229,7 @@ public class Hud extends Module {
                 Color accentColor = getSmoothPurpleGradient(progress);
 
                 float displayWidth = fontRenderer.getStringWidth(display, fontSize);
-                float displayHeight = 13;
+                float displayHeight = 14;
 
                 float slideOffset = (1.0f - interpolated) * 10;
                 float finalY = cumulativeY + slideOffset + 12;

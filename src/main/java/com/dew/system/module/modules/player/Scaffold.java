@@ -142,6 +142,20 @@ public class Scaffold extends Module {
 
     @Override
     public void onTick(TickEvent event) {
+        this.scaffoldMainTick();
+    }
+
+    @Override
+    public void onPreUpdate(PreUpdateEvent event) {
+        this.scaffoldSubTick();
+    }
+
+    @Override
+    public void onPreMotion(PreMotionEvent event) {
+        this.jumpCheck();
+    }
+
+    private void scaffoldMainTick() {
         if (mc.thePlayer == null || mc.theWorld == null) return;
 
         jumpTicks = mc.thePlayer.onGround ? 0 : jumpTicks + 1;
@@ -150,8 +164,7 @@ public class Scaffold extends Module {
         this.doMainFunctions();
     }
 
-    @Override
-    public void onPreUpdate(PreUpdateEvent event) {
+    private void scaffoldSubTick() {
         if (mc.thePlayer == null || mc.theWorld == null) return;
 
         this.tellyFunction();
@@ -161,8 +174,7 @@ public class Scaffold extends Module {
         this.towerFunction();
     }
 
-    @Override
-    public void onPreMotion(PreMotionEvent event) {
+    private void jumpCheck() {
         if (mc.thePlayer == null || mc.theWorld == null) return;
 
         if (!mc.thePlayer.onGround && !jumped) {
@@ -231,11 +243,7 @@ public class Scaffold extends Module {
                 if (mc.thePlayer.onGround && MovementUtil.isMoving()) {
                     if (!towered && !GameSettings.isKeyDown(mc.gameSettings.keyBindJump) && mc.thePlayer.onGround && mc.thePlayer.posY > 0.0D && !DewCommon.moduleManager.getModule(SpeedModule.class).isEnabled()) {
                         mc.thePlayer.jump();
-                        if (jumped) {
-                            this.strafeWithCorrectHypPotMath(0.46f);
-                        } else {
-                            MovementUtil.stopMovingQuickly();
-                        }
+                        this.strafeWithCorrectHypPotMath(0.46f);
                     }
                 } else {
                     if (jumpTicks == 5f) {

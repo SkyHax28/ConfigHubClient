@@ -75,7 +75,7 @@ public class ClickGuiScreen extends GuiScreen {
             drawRect(tabX, tabY + 14, tabX + 60, tabY + 15, new Color(0, 0, 0, 100).getRGB());
 
             int textColor = isSelected ? Color.WHITE.getRGB() : new Color(200, 200, 200).getRGB();
-            fontRenderer.drawCenteredStringWithShadow(categories[i].name().toLowerCase(), tabX + 30, tabY + 2, textColor, 0.5f);
+            fontRenderer.drawCenteredStringWithShadow(categories[i].name().toLowerCase(), tabX + 30, tabY + 2, textColor, 0.28f);
         }
 
         List<Module> modules = DewCommon.moduleManager.getModules().stream()
@@ -118,7 +118,7 @@ public class ClickGuiScreen extends GuiScreen {
 
             String arrow = ClickGuiState.expandedModules.contains(module) && !module.getValues().isEmpty() ? "v" : !module.getValues().isEmpty() ? ">" : "  ";
             String label = arrow + " " + module.name + (module.key != Keyboard.KEY_NONE ? " [" + Keyboard.getKeyName(module.key) + "]" : "");
-            fontRenderer.drawStringWithShadow(label, (int) ClickGuiState.animatedX + 5, offsetY, color, 0.5f);
+            fontRenderer.drawStringWithShadow(label, (int) ClickGuiState.animatedX + 5, offsetY, color, 0.28f);
 
             offsetY += 14;
 
@@ -128,7 +128,7 @@ public class ClickGuiScreen extends GuiScreen {
 
                     if (value instanceof BooleanValue) {
                         BooleanValue boolVal = (BooleanValue) value;
-                        fontRenderer.drawStringWithShadow(" - " + boolVal.getName() + ": " + boolVal.get(), (int) ClickGuiState.animatedX + 10, offsetY, 0xFFFFFFFF, 0.5f);
+                        fontRenderer.drawStringWithShadow(" - " + boolVal.getName() + ": " + boolVal.get(), (int) ClickGuiState.animatedX + 10, offsetY, 0xFFFFFFFF, 0.28f);
                         offsetY += 12;
                     } else if (value instanceof NumberValue) {
                         NumberValue numVal = (NumberValue) value;
@@ -148,7 +148,7 @@ public class ClickGuiScreen extends GuiScreen {
                         int filledWidth = (int) (percent * sliderWidth);
                         drawRect(sliderX, sliderY, sliderX + filledWidth, sliderY + sliderHeight, 0xFF00AAFF);
 
-                        fontRenderer.drawStringWithShadow(" - " + numVal.getName() + ": " + val, sliderX, offsetY - 2, 0xFFFFFFFF, 0.5f);
+                        fontRenderer.drawStringWithShadow(" - " + numVal.getName() + ": " + val, sliderX, offsetY - 2, 0xFFFFFFFF, 0.28f);
 
                         if (Mouse.isButtonDown(0) && !dragging && !resizing) {
                             if (mouseX >= sliderX && mouseX <= sliderX + sliderWidth && mouseY >= sliderY && mouseY <= sliderY + sliderHeight) {
@@ -164,14 +164,14 @@ public class ClickGuiScreen extends GuiScreen {
                         SelectionValue selVal = (SelectionValue) value;
                         String prefix = selVal.isExpanded() ? " v " : " > ";
 
-                        fontRenderer.drawStringWithShadow(prefix + selVal.getName() + ": " + selVal.get(), (int) ClickGuiState.animatedX + 10, offsetY, 0xFFFFFFFF, 0.5f);
+                        fontRenderer.drawStringWithShadow(prefix + selVal.getName() + ": " + selVal.get(), (int) ClickGuiState.animatedX + 10, offsetY, 0xFFFFFFFF, 0.28f);
                         offsetY += 12;
 
                         if (selVal.isExpanded()) {
                             for (String option : selVal.getOptions()) {
                                 boolean selected = option.equals(selVal.get());
                                 String display = "     " + (selected ? "> " : "") + option;
-                                fontRenderer.drawStringWithShadow(display, (int) ClickGuiState.animatedX + 10, offsetY, selected ? 0xFF55FF55 : 0xFFAAAAAA, 0.5f);
+                                fontRenderer.drawStringWithShadow(display, (int) ClickGuiState.animatedX + 10, offsetY, selected ? 0xFF55FF55 : 0xFFAAAAAA, 0.28f);
                                 offsetY += 12;
                             }
                         }
@@ -179,14 +179,14 @@ public class ClickGuiScreen extends GuiScreen {
                         MultiSelectionValue listVal = (MultiSelectionValue) value;
                         String prefix = listVal.isExpanded() ? " v " : " > ";
 
-                        fontRenderer.drawStringWithShadow(prefix + listVal.getName() + ": " + listVal.get().stream().sorted().collect(Collectors.toList()), (int) ClickGuiState.animatedX + 10, offsetY, 0xFFFFFFFF, 0.5f);
+                        fontRenderer.drawStringWithShadow(prefix + listVal.getName() + ": " + listVal.get().stream().sorted().collect(Collectors.toList()), (int) ClickGuiState.animatedX + 10, offsetY, 0xFFFFFFFF, 0.28f);
                         offsetY += 12;
 
                         if (listVal.isExpanded()) {
                             for (String option : listVal.getOptions()) {
                                 boolean selected = listVal.isSelected(option);
                                 String display = "     " + (selected ? "[*] " : "[ ] ") + option;
-                                fontRenderer.drawStringWithShadow(display, (int) ClickGuiState.animatedX + 10, offsetY, selected ? 0xFF55FF55 : 0xFFAAAAAA, 0.5f);
+                                fontRenderer.drawStringWithShadow(display, (int) ClickGuiState.animatedX + 10, offsetY, selected ? 0xFF55FF55 : 0xFFAAAAAA, 0.28f);
                                 offsetY += 12;
                             }
                         }

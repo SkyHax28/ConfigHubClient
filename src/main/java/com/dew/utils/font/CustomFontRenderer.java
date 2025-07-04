@@ -3,6 +3,7 @@ package com.dew.utils.font;
 import com.dew.utils.LogUtil;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL30;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -80,12 +81,15 @@ public class CustomFontRenderer {
 
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
+        GL30.glGenerateMipmap(GL11.GL_TEXTURE_2D);
         GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA8, TEX_WIDTH, TEX_HEIGHT, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buffer);
 
         return id;
     }
 
     public void drawString(String text, float x, float y, int color, float size) {
+        float scale = Math.min(size, 1.0f);
+
         GL11.glPushAttrib(GL11.GL_CURRENT_BIT);
 
         GL11.glEnable(GL11.GL_TEXTURE_2D);
@@ -114,8 +118,8 @@ public class CustomFontRenderer {
             float texW = data.width / (float) TEX_WIDTH;
             float texH = data.height / (float) TEX_HEIGHT;
 
-            float w = data.width * size;
-            float h = data.height * size;
+            float w = data.width * scale;
+            float h = data.height * scale;
 
             GL11.glTexCoord2f(texX, texY);
             GL11.glVertex2f(posX, y);

@@ -23,6 +23,7 @@ public class RenderEntityItem extends Render<EntityItem>
     private final Map<Integer, Float> pitchRotationMap = new HashMap<>();
     private final Set<Integer> landedItems = new HashSet<>();
     private final Map<Integer, Vec3> rotationAxisMap = new HashMap<>();
+    private final Map<Integer, Long> lastUpdateTimeMap = new HashMap<>();
     private final Random trulyRandom = new Random();
 
     public RenderEntityItem(RenderManager renderManagerIn, RenderItem p_i46167_2_)
@@ -55,10 +56,15 @@ public class RenderEntityItem extends Render<EntityItem>
                 int entityId = itemIn.getEntityId();
                 boolean onGround = itemIn.onGround;
 
+                long currentTime = System.nanoTime();
+                long lastTime = lastUpdateTimeMap.getOrDefault(entityId, currentTime);
+                float deltaTimeSec = (currentTime - lastTime) / 1_000_000_000.0f;
+                lastUpdateTimeMap.put(entityId, currentTime);
+
                 float currentPitch = pitchRotationMap.getOrDefault(entityId, 0f);
 
                 if (!onGround && !landedItems.contains(entityId)) {
-                    currentPitch += 3.0f;
+                    currentPitch += 720f * deltaTimeSec;
                     pitchRotationMap.put(entityId, currentPitch);
                 } else {
                     landedItems.add(entityId);
@@ -137,7 +143,7 @@ public class RenderEntityItem extends Render<EntityItem>
         IBakedModel ibakedmodel = this.itemRenderer.getItemModelMesher().getItemModel(itemstack);
         int i = this.func_177077_a(entity, x, y, z, partialTicks, ibakedmodel);
 
-        float itemSize = DewCommon.moduleManager.getModule(ItemPhysics.class).isEnabled() ? 0.6f : 0.5f;
+        float itemSize = DewCommon.moduleManager.getModule(ItemPhysics.class).isEnabled() ? 0.65f : 0.5f;
 
         for (int j = 0; j < i; ++j)
         {
@@ -190,6 +196,7 @@ public class RenderEntityItem extends Render<EntityItem>
             pitchRotationMap.remove(id);
             landedItems.remove(id);
             rotationAxisMap.remove(id);
+            lastUpdateTimeMap.remove(id);
         }
 
         super.doRender(entity, x, y, z, entityYaw, partialTicks);

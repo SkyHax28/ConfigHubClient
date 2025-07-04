@@ -74,11 +74,11 @@ public class DewCommon {
                     .getResource(new ResourceLocation("minecraft", "dew/sf.ttf"))
                     .getInputStream();
 
-            font = Font.createFont(Font.TRUETYPE_FONT, is).deriveFont(18f);
+            font = Font.createFont(Font.TRUETYPE_FONT, is).deriveFont(32f);
             LogUtil.infoLog("Loaded custom fonts");
         } catch (Exception e) {
             e.printStackTrace();
-            font = new Font("Arial", Font.PLAIN, 18);
+            font = new Font("Arial", Font.PLAIN, 32);
             LogUtil.infoLog("Failed to load custom fonts");
         }
         customFontRenderer = new CustomFontRenderer(font);
