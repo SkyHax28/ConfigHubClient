@@ -1,6 +1,7 @@
 package com.dew.system.module.modules.movement;
 
 import com.dew.system.gui.ClickGuiScreen;
+import com.dew.system.gui.NewClickGuiScreen;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
 import com.dew.system.settingsvalue.BooleanValue;
@@ -17,6 +18,6 @@ public class InvMove extends Module {
     private static final BooleanValue noChests = new BooleanValue("No Chests", false);
 
     public boolean canMoveFreely() {
-        return mc.currentScreen instanceof ClickGuiScreen || this.isEnabled() && !(mc.currentScreen instanceof GuiChat) && (!noChests.get() || !(mc.currentScreen instanceof GuiChest));
+        return mc.currentScreen instanceof ClickGuiScreen || mc.currentScreen instanceof NewClickGuiScreen || this.isEnabled() && !(mc.currentScreen instanceof GuiChat) && (!noChests.get() || !(mc.currentScreen instanceof GuiChest));
     }
 }

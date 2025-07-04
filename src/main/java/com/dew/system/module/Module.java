@@ -19,6 +19,7 @@ public abstract class Module implements EventListener {
     private boolean enabled;
     public boolean showOnArray;
     public boolean canBeEnabled;
+    public boolean guiExpanded = false;
 
     private final List<Value<?>> values = new ArrayList<>();
 
@@ -84,6 +85,14 @@ public abstract class Module implements EventListener {
 
     public boolean isEnabled() {
         return this.enabled;
+    }
+
+    public boolean isGuiExpanded() {
+        return guiExpanded;
+    }
+
+    public void setGuiExpanded(boolean guiExpanded) {
+        this.guiExpanded = guiExpanded;
     }
 
     public String tag() {

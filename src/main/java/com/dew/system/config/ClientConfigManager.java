@@ -3,16 +3,14 @@ package com.dew.system.config;
 import com.dew.DewCommon;
 import com.dew.system.gui.ClickGuiState;
 import com.dew.system.module.Module;
+import com.dew.system.module.ModuleCategory;
 import com.dew.system.settingsvalue.*;
 
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
-import java.util.Queue;
+import java.util.*;
 
 public class ClientConfigManager {
 
@@ -33,6 +31,17 @@ public class ClientConfigManager {
         props.setProperty("ClickGui.animatedY", String.valueOf(ClickGuiState.animatedY));
         props.setProperty("ClickGui.animatedWidth", String.valueOf(ClickGuiState.animatedWidth));
         props.setProperty("ClickGui.animatedHeight", String.valueOf(ClickGuiState.animatedHeight));
+
+        for (Map.Entry<ModuleCategory, ClickGuiState.WindowState> entry : ClickGuiState.windowStates.entrySet()) {
+            ModuleCategory category = entry.getKey();
+            ClickGuiState.WindowState state = entry.getValue();
+            String keyBase = "Category." + category.name();
+
+            props.setProperty(keyBase + ".x", String.valueOf(state.x));
+            props.setProperty(keyBase + ".y", String.valueOf(state.y));
+            props.setProperty(keyBase + ".open", String.valueOf(state.open));
+            props.setProperty(keyBase + ".scroll", String.valueOf(state.scrollOffset));
+        }
 
         try (FileWriter writer = new FileWriter(configFile)) {
             props.store(writer, "Client Config");
@@ -62,5 +71,16 @@ public class ClientConfigManager {
         ClickGuiState.animatedY = Float.parseFloat(props.getProperty("ClickGui.animatedY"));
         ClickGuiState.animatedWidth = Float.parseFloat(props.getProperty("ClickGui.animatedWidth"));
         ClickGuiState.animatedHeight = Float.parseFloat(props.getProperty("ClickGui.animatedHeight"));
+
+        for (ModuleCategory category : ModuleCategory.values()) {
+            String keyBase = "Category." + category.name();
+
+            int x = Integer.parseInt(props.getProperty(keyBase + ".x", "10"));
+            int y = Integer.parseInt(props.getProperty(keyBase + ".y", "10"));
+            boolean open = Boolean.parseBoolean(props.getProperty(keyBase + ".open", "true"));
+            int scroll = Integer.parseInt(props.getProperty(keyBase + ".scroll", "0"));
+
+            ClickGuiState.windowStates.put(category, new ClickGuiState.WindowState(x, y, open, scroll));
+        }
     }
 }

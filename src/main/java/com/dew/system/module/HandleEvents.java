@@ -5,6 +5,7 @@ import com.dew.IMinecraft;
 import com.dew.system.event.EventListener;
 import com.dew.system.event.events.*;
 import com.dew.system.gui.ClickGuiScreen;
+import com.dew.system.gui.NewClickGuiScreen;
 import com.dew.system.module.modules.combat.KillAura;
 import com.dew.system.module.modules.player.AutoTool;
 import com.dew.system.module.modules.render.ClickGui;
@@ -85,10 +86,19 @@ public class HandleEvents implements EventListener {
 
         if (!isPress || key == Keyboard.KEY_NONE) return;
 
+        ClickGui clickGuiModule = DewCommon.moduleManager.getModule(ClickGui.class);
         for (Module module : DewCommon.moduleManager.getModules()) {
             if (module.key == key) {
-                if (module == DewCommon.moduleManager.getModule(ClickGui.class)) {
-                    mc.displayGuiScreen(new ClickGuiScreen());
+                if (module == clickGuiModule) {
+                    switch (clickGuiModule.getMode().toLowerCase()) {
+                        case "modern":
+                            mc.displayGuiScreen(DewCommon.clickGuiScreen);
+                            break;
+
+                        case "nostalgia":
+                            mc.displayGuiScreen(new ClickGuiScreen());
+                            break;
+                    }
                     return;
                 }
 

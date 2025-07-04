@@ -90,7 +90,7 @@ public class CustomFontRenderer {
     public void drawString(String text, float x, float y, int color, float size) {
         float scale = Math.min(size, 1.0f);
 
-        GL11.glPushAttrib(GL11.GL_CURRENT_BIT);
+        GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
 
         GL11.glEnable(GL11.GL_TEXTURE_2D);
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, texId);
@@ -134,7 +134,6 @@ public class CustomFontRenderer {
         }
 
         GL11.glEnd();
-        GL11.glDisable(GL11.GL_BLEND);
 
         GL11.glPopAttrib();
     }

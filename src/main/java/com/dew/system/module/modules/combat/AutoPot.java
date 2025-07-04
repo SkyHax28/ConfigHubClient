@@ -24,7 +24,7 @@ public class AutoPot extends Module {
         super("Auto Pot", ModuleCategory.COMBAT, Keyboard.KEY_NONE, false, true, true);
     }
 
-    private static final NumberValue throwDelay = new NumberValue("Throw Delay", 15.0, 0.0, 10.0, 0.1);
+    private static final NumberValue throwDelay = new NumberValue("Throw Delay", 15.0, 0.0, 20.0, 0.1);
 
     private int tickDelayCounter = 0;
     private int stage = 0;

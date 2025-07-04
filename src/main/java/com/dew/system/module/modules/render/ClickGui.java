@@ -12,4 +12,10 @@ public class ClickGui extends Module {
     public ClickGui() {
         super("Click Gui", ModuleCategory.RENDER, Keyboard.KEY_RSHIFT, false, false, false);
     }
+
+    private static final SelectionValue mode = new SelectionValue("Mode", "Modern", "Modern", "Nostalgia");
+
+    public String getMode() {
+        return mode.get();
+    }
 }

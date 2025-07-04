@@ -27,6 +27,7 @@ import net.minecraft.client.gui.inventory.GuiFurnace;
 import net.minecraft.client.gui.inventory.GuiScreenHorseInventory;
 import net.minecraft.client.network.NetHandlerPlayClient;
 import net.minecraft.client.settings.GameSettings;
+import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.command.server.CommandBlockLogic;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.IMerchant;
@@ -59,6 +60,9 @@ import net.minecraft.util.MovementInput;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.IInteractionObject;
 import net.minecraft.world.World;
+
+import java.util.Arrays;
+import java.util.List;
 
 public class EntityPlayerSP extends AbstractClientPlayer
 {
@@ -613,13 +617,19 @@ public class EntityPlayerSP extends AbstractClientPlayer
 
     public void onLivingUpdate()
     {
-        if (DewCommon.moduleManager.getModule(InvMove.class).canMoveFreely()) {
-            mc.gameSettings.keyBindForward.setKeyDown(GameSettings.isKeyDown(mc.gameSettings.keyBindForward));
-            mc.gameSettings.keyBindBack.setKeyDown(GameSettings.isKeyDown(mc.gameSettings.keyBindBack));
-            mc.gameSettings.keyBindRight.setKeyDown(GameSettings.isKeyDown(mc.gameSettings.keyBindRight));
-            mc.gameSettings.keyBindLeft.setKeyDown(GameSettings.isKeyDown(mc.gameSettings.keyBindLeft));
-            mc.gameSettings.keyBindJump.setKeyDown(GameSettings.isKeyDown(mc.gameSettings.keyBindJump));
-            mc.gameSettings.keyBindSprint.setKeyDown(GameSettings.isKeyDown(mc.gameSettings.keyBindSprint));
+        if (DewCommon.moduleManager.getModule(InvMove.class).canMoveFreely() && mc.currentScreen != null) {
+            List<KeyBinding> movementKeys = Arrays.asList(
+                    mc.gameSettings.keyBindForward,
+                    mc.gameSettings.keyBindBack,
+                    mc.gameSettings.keyBindLeft,
+                    mc.gameSettings.keyBindRight,
+                    mc.gameSettings.keyBindJump,
+                    mc.gameSettings.keyBindSprint
+            );
+
+            for (KeyBinding key : movementKeys) {
+                key.setKeyDown(GameSettings.isKeyDown(key));
+            }
         }
 
         if (this.sprintingTicksLeft > 0)

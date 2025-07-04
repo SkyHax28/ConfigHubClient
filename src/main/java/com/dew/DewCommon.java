@@ -6,6 +6,7 @@ import com.dew.system.config.BindConfigManager;
 import com.dew.system.config.ClientConfigManager;
 import com.dew.system.config.ModuleConfigManager;
 import com.dew.system.event.EventManager;
+import com.dew.system.gui.NewClickGuiScreen;
 import com.dew.system.module.HandleEvents;
 import com.dew.system.module.ModuleManager;
 import com.dew.system.rotation.RotationManager;
@@ -41,6 +42,7 @@ public class DewCommon {
     public static WingsManager wingsManager;
     public static MainPathFinder pathFinder;
     public static SmartPlayerNavigator smartPlayerNavigator;
+    public static NewClickGuiScreen clickGuiScreen;
 
     public static final File BASE_CFG_DIR = new File(mc.mcDataDir, "dew");
 
@@ -67,6 +69,7 @@ public class DewCommon {
         wingsManager = new WingsManager();
         pathFinder = new MainPathFinder();
         smartPlayerNavigator = new SmartPlayerNavigator();
+        clickGuiScreen = new NewClickGuiScreen();
 
         Font font;
         try {

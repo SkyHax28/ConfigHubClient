@@ -145,7 +145,7 @@ public class Hud extends Module {
                 );
 
                 String name = target.getName();
-                mc.bitFontRendererObj.drawStringWithShadow(name, x + 40, y + 4, 0xFFFFFF);
+                mc.bitFontRendererObj.drawStringWithShadow(name, x + 40, y + 3.5f, Color.WHITE.getRGB());
 
                 float health = target.getHealth();
                 float maxHealth = target.getMaxHealth();
@@ -159,7 +159,7 @@ public class Hud extends Module {
                 );
 
                 Gui.drawRect(x + 40, y + 15, x + 40 + healthBarWidth, y + 25, healthColor.getRGB());
-                mc.bitFontRendererObj.drawStringWithShadow(String.format("%.1f", health), x + 64, y + 16.5f, 0xFFFFFF);
+                mc.bitFontRendererObj.drawStringWithShadow(String.format("%.1f", health), x + 64, y + 16.5f, Color.WHITE.getRGB());
 
                 if (target instanceof AbstractClientPlayer) {
                     ResourceLocation skin = ((AbstractClientPlayer) target).getLocationSkin();

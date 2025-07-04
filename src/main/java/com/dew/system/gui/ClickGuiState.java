@@ -1,8 +1,11 @@
 package com.dew.system.gui;
 
 import com.dew.system.module.Module;
+import com.dew.system.module.ModuleCategory;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 public class ClickGuiState {
@@ -18,4 +21,30 @@ public class ClickGuiState {
     public static float animatedY = ClickGuiState.y;
     public static float animatedWidth = ClickGuiState.width;
     public static float animatedHeight = ClickGuiState.height;
+
+    public static final int NEW_GUI_WIDTH = 120;
+
+    public static class WindowState {
+        public int x, y, scrollOffset;
+        public boolean open;
+
+        public WindowState(int x, int y, boolean open, int scrollOffset) {
+            this.x = x;
+            this.y = y;
+            this.open = open;
+            this.scrollOffset = scrollOffset;
+        }
+    }
+
+    public static final Map<ModuleCategory, WindowState> windowStates = new HashMap<>();
+
+    public static WindowState getOrCreate(ModuleCategory category, int defaultX, int defaultY) {
+        if (windowStates.containsKey(category)) {
+            return windowStates.get(category);
+        }
+
+        WindowState newState = new WindowState(defaultX, defaultY, true, 0);
+        windowStates.put(category, newState);
+        return newState;
+    }
 }
