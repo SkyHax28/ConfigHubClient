@@ -27,7 +27,6 @@ public class TargetStrafe extends Module {
     }
 
     private static final NumberValue distance = new NumberValue("Distance", 1.2, 0.0, 5.0, 0.1);
-    private static final BooleanValue strafeOnly = new BooleanValue("Strafe Only", true);
 
     private int direction = 0;
 
@@ -37,10 +36,6 @@ public class TargetStrafe extends Module {
 
     public double getDistance() {
         return distance.get();
-    }
-
-    public boolean isStrafeOnly() {
-        return strafeOnly.get();
     }
 
     @Override
@@ -64,7 +59,7 @@ public class TargetStrafe extends Module {
 
     @Override
     public void onStrafe(StrafeEvent event) {
-        if (mc.thePlayer == null || !DewCommon.moduleManager.getModule(KillAura.class).isEnabled() || isStrafeOnly() || !DewCommon.moduleManager.getModule(FlightModule.class).isEnabled() && !DewCommon.moduleManager.getModule(SpeedModule.class).isEnabled()) return;
+        if (mc.thePlayer == null || !DewCommon.moduleManager.getModule(KillAura.class).isEnabled() || !DewCommon.moduleManager.getModule(FlightModule.class).isEnabled() && !DewCommon.moduleManager.getModule(SpeedModule.class).isEnabled()) return;
 
         float forward = 0f;
         if (mc.gameSettings.keyBindForward.isKeyDown()) forward += 1f;

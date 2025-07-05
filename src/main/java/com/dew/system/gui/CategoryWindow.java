@@ -114,14 +114,18 @@ public class CategoryWindow {
     private void renderConfigThingy(List<String> configList, int mouseX, int mouseY) {
         int yOffset = headerHeight;
 
+        boolean hovered = mouseX >= x && mouseX <= x + ClickGuiState.NEW_GUI_WIDTH && mouseY >= y + yOffset && mouseY <= y + yOffset + configButtonHeight - 1;
+        Color bgColor = hovered ? new Color(85, 153, 255, 100) : new Color(0, 0, 0, 100);
+        Gui.drawRect(x, y + yOffset, x + ClickGuiState.NEW_GUI_WIDTH, y + yOffset + configButtonHeight, bgColor.getRGB());
+        DewCommon.customFontRenderer.drawCenteredStringWithShadow("Open folder", x + 60, y + yOffset + 3, Color.WHITE.getRGB(), 0.3f);
+
+        yOffset += configButtonHeight;
+
         for (String config : configList) {
-            boolean hovered = mouseX >= x && mouseX <= x + ClickGuiState.NEW_GUI_WIDTH && mouseY >= y + yOffset && mouseY <= y + yOffset + configButtonHeight;
-
-            Color bgColor = hovered ? new Color(85, 153, 255, 100) : new Color(0, 0, 0, 100);
-            Gui.drawRect(x, y + yOffset, x + ClickGuiState.NEW_GUI_WIDTH, y + yOffset + configButtonHeight, bgColor.getRGB());
-
+            boolean hoveredConfig = mouseX >= x && mouseX <= x + ClickGuiState.NEW_GUI_WIDTH && mouseY >= y + yOffset && mouseY <= y + yOffset + configButtonHeight - 1;
+            Color bgColorConfig = hoveredConfig ? new Color(85, 153, 255, 100) : new Color(0, 0, 0, 100);
+            Gui.drawRect(x, y + yOffset, x + ClickGuiState.NEW_GUI_WIDTH, y + yOffset + configButtonHeight, bgColorConfig.getRGB());
             DewCommon.customFontRenderer.drawCenteredStringWithShadow(config, x + 60, y + yOffset + 3, Color.WHITE.getRGB(), 0.3f);
-
             yOffset += configButtonHeight;
         }
     }
@@ -140,54 +144,68 @@ public class CategoryWindow {
         if (dragging) return;
 
         if (open) {
-            if (category == ModuleCategory.MODULE_CONFIG_MANAGER) {
+            if (category == ModuleCategory.MODULE_CONFIG_MANAGER || category == ModuleCategory.BIND_CONFIG_MANAGER) {
                 int yOffset = headerHeight;
 
-                for (String config : moduleConfigList) {
-                    int top = y + yOffset;
-                    int bottom = top + configButtonHeight;
-
-                    if (mouseX >= x && mouseX <= x + ClickGuiState.NEW_GUI_WIDTH && mouseY >= top && mouseY <= bottom) {
-                        if (button == 0) {
-                            if (DewCommon.moduleConfigManager.load(config, DewCommon.moduleManager.getModules())) {
-                                LogUtil.printChat("Loaded module config: " + config);
-                            } else {
-                                LogUtil.printChat("Module config " + config + " was not found");
-                            }
-                        } else if (button == 2) {
-                            DewCommon.moduleConfigManager.save(config, DewCommon.moduleManager.getModules());
-                            LogUtil.printChat("Saved module config: " + config);
+                int top = y + yOffset;
+                int bottom = top + configButtonHeight;
+                if (mouseX >= x && mouseX <= x + ClickGuiState.NEW_GUI_WIDTH && mouseY >= top && mouseY <= bottom - 1) {
+                    if (button == 0) {
+                        if (category == ModuleCategory.MODULE_CONFIG_MANAGER) {
+                            LogUtil.printChat("Opening module config folder...");
+                            DewCommon.moduleConfigManager.openFolder();
+                        } else {
+                            LogUtil.printChat("Opening bind config folder...");
+                            DewCommon.bindConfigManager.openFolder();
                         }
-                        break;
                     }
-
-                    yOffset += configButtonHeight;
+                    return;
                 }
-                return;
-            } else if (category == ModuleCategory.BIND_CONFIG_MANAGER) {
-                int yOffset = headerHeight;
+                yOffset += configButtonHeight;
 
-                for (String config : bindConfigList) {
-                    int top = y + yOffset;
-                    int bottom = top + configButtonHeight;
+                if (category == ModuleCategory.MODULE_CONFIG_MANAGER) {
+                    for (String config : moduleConfigList) {
+                        top = y + yOffset;
+                        bottom = top + configButtonHeight;
 
-                    if (mouseX >= x && mouseX <= x + ClickGuiState.NEW_GUI_WIDTH && mouseY >= top && mouseY <= bottom) {
-                        if (button == 0) {
-                            if (DewCommon.bindConfigManager.load(config, DewCommon.moduleManager.getModules())) {
-                                LogUtil.printChat("Loaded bind config: " + config);
-                            } else {
-                                LogUtil.printChat("Bind config " + config + " was not found");
+                        if (mouseX >= x && mouseX <= x + ClickGuiState.NEW_GUI_WIDTH && mouseY >= top && mouseY <= bottom - 1) {
+                            if (button == 0) {
+                                if (DewCommon.moduleConfigManager.load(config, DewCommon.moduleManager.getModules())) {
+                                    LogUtil.printChat("Loaded module config: " + config);
+                                } else {
+                                    LogUtil.printChat("Module config " + config + " was not found");
+                                }
+                            } else if (button == 2) {
+                                DewCommon.moduleConfigManager.save(config, DewCommon.moduleManager.getModules());
+                                LogUtil.printChat("Saved module config: " + config);
                             }
-                        } else if (button == 2) {
-                            DewCommon.bindConfigManager.save(config, DewCommon.moduleManager.getModules());
-                            LogUtil.printChat("Saved bind config: " + config);
+                            break;
                         }
-                        break;
+                        yOffset += configButtonHeight;
                     }
+                    return;
+                } else if (category == ModuleCategory.BIND_CONFIG_MANAGER) {
+                    for (String config : bindConfigList) {
+                        top = y + yOffset;
+                        bottom = top + configButtonHeight;
 
-                    yOffset += configButtonHeight;
+                        if (mouseX >= x && mouseX <= x + ClickGuiState.NEW_GUI_WIDTH && mouseY >= top && mouseY <= bottom - 1) {
+                            if (button == 0) {
+                                if (DewCommon.bindConfigManager.load(config, DewCommon.moduleManager.getModules())) {
+                                    LogUtil.printChat("Loaded bind config: " + config);
+                                } else {
+                                    LogUtil.printChat("Bind config " + config + " was not found");
+                                }
+                            } else if (button == 2) {
+                                DewCommon.bindConfigManager.save(config, DewCommon.moduleManager.getModules());
+                                LogUtil.printChat("Saved bind config: " + config);
+                            }
+                            break;
+                        }
+                        yOffset += configButtonHeight;
+                    }
+                    return;
                 }
-                return;
             }
 
             int yOffset = headerHeight;
