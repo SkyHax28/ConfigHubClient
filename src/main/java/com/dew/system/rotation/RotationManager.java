@@ -8,6 +8,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.*;
 
+import java.util.Random;
+
 public class RotationManager {
     private final Minecraft mc = IMinecraft.mc;
 
@@ -16,10 +18,10 @@ public class RotationManager {
 
     private long lastRotationUpdate = 0L;
     private boolean isRotating = false;
-
     private boolean isReturning = false;
 
     private static final long ROTATION_TIMEOUT = 300L;
+    private Random random = new Random();
 
     public RotationManager() {
         this.clientYaw = 114514f;
@@ -52,13 +54,16 @@ public class RotationManager {
             yawDiff = MathHelper.clamp_float(yawDiff, -returnSpeed, returnSpeed);
             pitchDiff = MathHelper.clamp_float(pitchDiff, -returnSpeed, returnSpeed);
 
+            yawDiff += (random.nextFloat() - 0.5f) * 2.0f;
+            pitchDiff += (random.nextFloat() - 0.5f) * 2.0f;
+
             this.prevClientYaw = this.clientYaw;
             this.prevClientPitch = this.clientPitch;
 
-            this.clientYaw += yawDiff;
-            this.clientPitch += pitchDiff;
+            this.clientYaw += applyGCDFix(yawDiff);
+            this.clientPitch += applyGCDFix(pitchDiff);
 
-            if (Math.abs(yawDiff) < 0.8f && Math.abs(pitchDiff) < 0.8f) {
+            if (Math.abs(yawDiff) < 1f && Math.abs(pitchDiff) < 1f) {
                 this.clientYaw = targetYaw;
                 this.clientPitch = targetPitch;
                 isReturning = false;
@@ -184,6 +189,8 @@ public class RotationManager {
     }
 
     public void rotateToward(float targetYaw, float targetPitch, float rotationSpeed) {
+        rotationSpeed += (random.nextFloat() - 0.5f) * 10.0f;
+
         float yawDiff = MathHelper.wrapAngleTo180_float(targetYaw - this.clientYaw);
         float pitchDiff = MathHelper.wrapAngleTo180_float(targetPitch - this.clientPitch);
 
