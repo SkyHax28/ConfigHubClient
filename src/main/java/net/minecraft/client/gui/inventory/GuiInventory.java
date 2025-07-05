@@ -25,6 +25,11 @@ public class GuiInventory extends InventoryEffectRenderer
         this.allowUserInput = true;
     }
 
+    @Override
+    protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
+        super.mouseClicked(mouseX, mouseY, mouseButton);
+    }
+
     public void updateScreen()
     {
         if (this.mc.playerController.isInCreativeMode())

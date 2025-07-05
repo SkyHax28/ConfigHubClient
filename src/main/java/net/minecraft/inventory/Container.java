@@ -1,5 +1,6 @@
 package net.minecraft.inventory;
 
+import com.dew.utils.ClickEffectHandler;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import java.util.List;
@@ -115,6 +116,10 @@ public abstract class Container
 
     public ItemStack slotClick(int slotId, int clickedButton, int mode, EntityPlayer playerIn)
     {
+        if (playerIn.worldObj.isRemote) {
+            ClickEffectHandler.onContainerClick(slotId, clickedButton, mode, playerIn);
+        }
+
         ItemStack itemstack = null;
         InventoryPlayer inventoryplayer = playerIn.inventory;
 

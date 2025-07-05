@@ -29,6 +29,22 @@ public class Ambience extends Module {
     public void onPreUpdate(PreUpdateEvent event) {
         if (mc.theWorld == null) return;
 
+        this.update();
+    }
+
+    @Override
+    public void onReceivedPacket(ReceivedPacketEvent event) {
+        if (mc.theWorld == null) return;
+
+        Packet<?> packet = event.packet;
+
+        if (packet instanceof S03PacketTimeUpdate || clearWeather.get() && packet instanceof S2BPacketChangeGameState && (((S2BPacketChangeGameState) packet).getGameState() == 7 || ((S2BPacketChangeGameState) packet).getGameState() == 8)) {
+            this.update();
+            event.cancel();
+        }
+    }
+
+    private void update() {
         int time = 0;
 
         switch (mode.get().toLowerCase()) {
@@ -58,17 +74,6 @@ public class Ambience extends Module {
         if (clearWeather.get()) {
             mc.theWorld.setRainStrength(0f);
             mc.theWorld.setThunderStrength(0f);
-        }
-    }
-
-    @Override
-    public void onReceivedPacket(ReceivedPacketEvent event) {
-        if (mc.theWorld == null) return;
-
-        Packet<?> packet = event.packet;
-
-        if (packet instanceof S03PacketTimeUpdate || clearWeather.get() && packet instanceof S2BPacketChangeGameState && (((S2BPacketChangeGameState) packet).getGameState() == 7 || ((S2BPacketChangeGameState) packet).getGameState() == 8)) {
-            event.cancel();
         }
     }
 }

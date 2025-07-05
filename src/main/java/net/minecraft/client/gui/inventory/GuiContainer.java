@@ -1,6 +1,9 @@
 package net.minecraft.client.gui.inventory;
 
+import com.dew.utils.ClickEffectHandler;
 import com.google.common.collect.Sets;
+
+import java.awt.*;
 import java.io.IOException;
 import java.util.Set;
 import net.minecraft.client.Minecraft;
@@ -25,8 +28,8 @@ public abstract class GuiContainer extends GuiScreen
     protected int xSize = 176;
     protected int ySize = 166;
     public Container inventorySlots;
-    protected int guiLeft;
-    protected int guiTop;
+    public int guiLeft;
+    public int guiTop;
     private Slot theSlot;
     private Slot clickedSlot;
     private boolean isRightMouseClick;
@@ -75,6 +78,9 @@ public abstract class GuiContainer extends GuiScreen
         GlStateManager.disableLighting();
         GlStateManager.disableDepth();
         super.drawScreen(mouseX, mouseY, partialTicks);
+
+        ClickEffectHandler.guiContainerClick();
+
         RenderHelper.enableGUIStandardItemLighting();
         GlStateManager.pushMatrix();
         GlStateManager.translate((float)i, (float)j, 0.0F);

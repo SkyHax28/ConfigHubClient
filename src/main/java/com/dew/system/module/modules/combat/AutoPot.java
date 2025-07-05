@@ -123,16 +123,11 @@ public class AutoPot extends Module {
 
             case 1:
                 DewCommon.rotationManager.rotateToward(mc.thePlayer.rotationYaw, 90f, 180f);
+                mc.rightClickMouse();
                 stage = 2;
                 break;
 
             case 2:
-                DewCommon.rotationManager.rotateToward(mc.thePlayer.rotationYaw, 90f, 180f);
-                mc.rightClickMouse();
-                stage = 3;
-                break;
-
-            case 3:
                 if (prevSlot != -1) {
                     mc.thePlayer.inventory.currentItem = prevSlot;
                     mc.playerController.updateController();

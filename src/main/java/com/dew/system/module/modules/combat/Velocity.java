@@ -59,7 +59,7 @@ public class Velocity extends Module {
                     break;
 
                 case "hypixel":
-                    if (!DewCommon.handleEvents.canRotation() || !DewCommon.moduleManager.getModule(SpeedModule.class).isEnabled() || hypTick >= 6 || mc.thePlayer.onGround) {
+                    if (!DewCommon.handleEvents.canRotation() || !DewCommon.moduleManager.getModule(SpeedModule.class).isEnabled() || hypTick >= 8 || mc.thePlayer.onGround) {
                         if (DewCommon.moduleManager.getModule(KillAura.class).isInAutoBlockMode()) {
                             BlinkUtil.sync(true, true);
                             BlinkUtil.stopBlink();
