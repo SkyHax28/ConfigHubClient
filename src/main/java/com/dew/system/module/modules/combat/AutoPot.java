@@ -61,7 +61,7 @@ public class AutoPot extends Module {
 
     @Override
     public void onTick(TickEvent event) {
-        if (mc.thePlayer == null || mc.theWorld == null) {
+        if (mc.thePlayer == null || mc.theWorld == null || mc.currentScreen instanceof GuiChest) {
             tickDelayCounter = 0;
             return;
         }

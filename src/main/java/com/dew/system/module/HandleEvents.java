@@ -128,6 +128,7 @@ public class HandleEvents implements EventListener {
         Packet<?> packet = event.packet;
 
         if (packet instanceof S08PacketPlayerPosLook) {
+            DewCommon.rotationManager.resetRotationsInstantly();
             rotLockTick = 3;
         }
 
