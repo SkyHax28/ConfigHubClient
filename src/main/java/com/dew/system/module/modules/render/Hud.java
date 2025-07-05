@@ -262,13 +262,13 @@ public class Hud extends Module {
                     Color nameColor = new Color(accentColor.getRed(), accentColor.getGreen(), accentColor.getBlue(), alpha);
                     Color tagColor = new Color(150, 150, 150, alpha);
 
-                    fontRenderer.drawStringWithShadow(moduleName, nameX, finalY, nameColor.getRGB(), fontSize);
-                    fontRenderer.drawStringWithShadow(" " + tag, tagX, finalY, tagColor.getRGB(), fontSize);
+                    fontRenderer.drawStringWithShadow(moduleName, nameX, finalY - 1, nameColor.getRGB(), fontSize);
+                    fontRenderer.drawStringWithShadow(" " + tag, tagX, finalY - 1, tagColor.getRGB(), fontSize);
                 } else {
                     float nameWidth = fontRenderer.getStringWidth(moduleName, fontSize);
                     float nameX = rightEdgeX - nameWidth - 2;
                     Color nameColor = new Color(accentColor.getRed(), accentColor.getGreen(), accentColor.getBlue(), alpha);
-                    fontRenderer.drawStringWithShadow(moduleName, nameX, finalY, nameColor.getRGB(), fontSize);
+                    fontRenderer.drawStringWithShadow(moduleName, nameX, finalY - 1, nameColor.getRGB(), fontSize);
                 }
 
                 cumulativeY += displayHeight + 1;

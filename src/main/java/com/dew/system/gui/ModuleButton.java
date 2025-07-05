@@ -5,6 +5,7 @@ import com.dew.system.module.Module;
 import com.dew.system.settingsvalue.*;
 import com.dew.utils.Lerper;
 import net.minecraft.client.gui.Gui;
+import org.lwjgl.input.Keyboard;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -87,8 +88,13 @@ public class ModuleButton {
 
         DewCommon.customFontRenderer.drawStringWithShadow(module.name, x + 4 + (hasSettings ? 2 : 0), y + 2, Color.WHITE.getRGB(), 0.35f);
 
+        if (module.key != Keyboard.KEY_NONE) {
+            String keyInfo = "(" + Keyboard.getKeyName(module.key) + ")";
+            DewCommon.customFontRenderer.drawStringWithShadow(keyInfo, x + width - DewCommon.customFontRenderer.getStringWidth(keyInfo, 0.35f) - 2, y + 2, Color.LIGHT_GRAY.getRGB(), 0.35f);
+        }
+
         if (module.isEnabled()) {
-            glowProgress += 0.01f;
+            glowProgress += 0.02f;
 
             float phase = (float)Math.sin(glowProgress);
             int barHeight = 2;
@@ -118,19 +124,13 @@ public class ModuleButton {
             );
         }
 
-        if (currentHeight > 18f) {
+        if (currentHeight > 18f && module.isGuiExpanded()) {
             int yOffset = 18;
             for (ValueComponentHolder holder : valueComponents) {
                 holder.component.draw(x + 4, y + yOffset, width - 8, mouseX, mouseY);
                 yOffset += holder.component.getHeight();
             }
         }
-
-        float targetHeight = getTargetHeight();
-        long now = System.nanoTime();
-        float deltaSec = (now - lastUpdateTime) / 1_000_000_000f;
-        lastUpdateTime = now;
-        currentHeight = Lerper.animate(targetHeight, currentHeight, 30f * deltaSec);
     }
 
     public void mouseClicked(int mouseX, int mouseY, int button, int x, int y, int width) {
@@ -172,6 +172,14 @@ public class ModuleButton {
 
     public int getHeight() {
         return (int) currentHeight;
+    }
+
+    public void updateHeightAnimation() {
+        float targetHeight = getTargetHeight();
+        long now = System.nanoTime();
+        float deltaSec = (now - lastUpdateTime) / 1_000_000_000f;
+        lastUpdateTime = now;
+        currentHeight = Lerper.animate(targetHeight, currentHeight, 30f * deltaSec);
     }
 
     private void drawBlurRect(int left, int top, int right, int bottom, Color color) {

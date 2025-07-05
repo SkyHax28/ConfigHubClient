@@ -25,14 +25,13 @@ public class ClickGuiState {
     public static final int NEW_GUI_WIDTH = 120;
 
     public static class WindowState {
-        public int x, y, scrollOffset;
+        public int x, y;
         public boolean open;
 
-        public WindowState(int x, int y, boolean open, int scrollOffset) {
+        public WindowState(int x, int y, boolean open) {
             this.x = x;
             this.y = y;
             this.open = open;
-            this.scrollOffset = scrollOffset;
         }
     }
 
@@ -43,7 +42,7 @@ public class ClickGuiState {
             return windowStates.get(category);
         }
 
-        WindowState newState = new WindowState(defaultX, defaultY, true, 0);
+        WindowState newState = new WindowState(defaultX, defaultY, true);
         windowStates.put(category, newState);
         return newState;
     }

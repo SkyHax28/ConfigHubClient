@@ -46,9 +46,9 @@ public class BindConfigCommand extends Command {
 
             case "list":
                 LogUtil.printChat("Bind Configs:");
-                for (String config : DewCommon.bindConfigManager.getConfigNames()) {
-                    LogUtil.printChat(" " + config);
-                }
+                DewCommon.bindConfigManager.getConfigNames().stream()
+                        .sorted(String::compareToIgnoreCase)
+                        .forEach(config -> LogUtil.printChat(" " + config));
                 break;
 
             case "folder":

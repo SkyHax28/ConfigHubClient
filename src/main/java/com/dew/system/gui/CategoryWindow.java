@@ -11,16 +11,21 @@ import net.minecraft.client.gui.Gui;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
+import java.util.stream.Collectors;
 
 public class CategoryWindow {
     private final ModuleCategory category;
     private final List<ModuleButton> moduleButtons = new ArrayList<>();
     public int x, y, headerHeight = 16;
-    private boolean open;
+    public boolean open;
     private boolean dragging;
     private int dragX, dragY;
-    public int scrollOffset;
-    public int maxScroll = 0;
+
+    private final List<String> moduleConfigList;
+    private final List<String> bindConfigList;
+    private final int configButtonHeight = 14;
+    private static final Random random = new Random();
 
     public CategoryWindow(ModuleCategory category, int x, int y) {
         this.category = category;
@@ -29,23 +34,56 @@ public class CategoryWindow {
         this.x = state.x;
         this.y = state.y;
         this.open = state.open;
-        this.scrollOffset = state.scrollOffset;
 
-        for (Module m : DewCommon.moduleManager.getModules()) {
-            if (m.category == category)
-                moduleButtons.add(new ModuleButton(m));
-        }
+        DewCommon.moduleManager.getModules().stream()
+                .filter(m -> m.category == category)
+                .sorted((a, b) -> a.name.compareToIgnoreCase(b.name))
+                .forEach(m -> moduleButtons.add(new ModuleButton(m)));
+
+        moduleConfigList = DewCommon.moduleConfigManager.getConfigNames()
+                .stream()
+                .sorted(String::compareToIgnoreCase)
+                .collect(Collectors.toList());
+
+        bindConfigList = DewCommon.bindConfigManager.getConfigNames()
+                .stream()
+                .sorted(String::compareToIgnoreCase)
+                .collect(Collectors.toList());
     }
 
     public void draw(int mouseX, int mouseY) {
         updatePosition(mouseX, mouseY);
+
+        for (ModuleButton btn : moduleButtons) {
+            btn.updateHeightAnimation();
+        }
 
         drawBlurRect(x, y, x + ClickGuiState.NEW_GUI_WIDTH, y + headerHeight, new Color(0, 0, 0, 170));
 
         Gui.drawRect(x, y, x + ClickGuiState.NEW_GUI_WIDTH, y + 1, new Color(85, 153, 255, 180).getRGB());
         Gui.drawRect(x, y + headerHeight - 1, x + ClickGuiState.NEW_GUI_WIDTH, y + headerHeight, new Color(85, 153, 255, 120).getRGB());
 
-        String categoryTitle = category.name().substring(0,1).toUpperCase() + category.name().substring(1).toLowerCase();
+        String categoryName = category.name().toLowerCase();
+
+        String categoryTitle;
+        if (categoryName.contains("_")) {
+            String[] parts = categoryName.split("_");
+            StringBuilder builder = new StringBuilder();
+            for (int i = 0; i < parts.length; i++) {
+                String part = parts[i];
+                if (!part.isEmpty()) {
+                    builder.append(Character.toUpperCase(part.charAt(0)))
+                            .append(part.substring(1));
+                }
+                if (i != parts.length - 1) {
+                    builder.append(" ");
+                }
+            }
+            categoryTitle = builder.toString();
+        } else {
+            categoryTitle = categoryName.substring(0, 1).toUpperCase() + categoryName.substring(1);
+        }
+
         DewCommon.customFontRenderer.drawCenteredStringWithShadow(
                 categoryTitle,
                 x + 60,
@@ -55,21 +93,37 @@ public class CategoryWindow {
         );
 
         if (open) {
-            int yOffset = headerHeight - scrollOffset;
-            int totalContentHeight = 0;
+            if (category == ModuleCategory.MODULE_CONFIG_MANAGER) {
+                renderConfigThingy(moduleConfigList, mouseX, mouseY);
+            } else if (category == ModuleCategory.BIND_CONFIG_MANAGER) {
+                renderConfigThingy(bindConfigList, mouseX, mouseY);
+            }
+
+            int yOffset = headerHeight;
             for (ModuleButton btn : moduleButtons) {
                 btn.draw(x, y + yOffset, ClickGuiState.NEW_GUI_WIDTH, mouseX, mouseY);
                 yOffset += btn.getHeight();
-                totalContentHeight += btn.getHeight();
             }
-
-            maxScroll = Math.max(0, totalContentHeight - (IMinecraft.mc.displayHeight - y - 50));
         }
 
         ClickGuiState.windowStates.get(category).x = x;
         ClickGuiState.windowStates.get(category).y = y;
         ClickGuiState.windowStates.get(category).open = open;
-        ClickGuiState.windowStates.get(category).scrollOffset = scrollOffset;
+    }
+
+    private void renderConfigThingy(List<String> configList, int mouseX, int mouseY) {
+        int yOffset = headerHeight;
+
+        for (String config : configList) {
+            boolean hovered = mouseX >= x && mouseX <= x + ClickGuiState.NEW_GUI_WIDTH && mouseY >= y + yOffset && mouseY <= y + yOffset + configButtonHeight;
+
+            Color bgColor = hovered ? new Color(85, 153, 255, 100) : new Color(0, 0, 0, 100);
+            Gui.drawRect(x, y + yOffset, x + ClickGuiState.NEW_GUI_WIDTH, y + yOffset + configButtonHeight, bgColor.getRGB());
+
+            DewCommon.customFontRenderer.drawCenteredStringWithShadow(config, x + 60, y + yOffset + 3, Color.WHITE.getRGB(), 0.3f);
+
+            yOffset += configButtonHeight;
+        }
     }
 
     public void mouseClicked(int mouseX, int mouseY, int button) {
@@ -83,8 +137,60 @@ public class CategoryWindow {
             }
         }
 
+        if (dragging) return;
+
         if (open) {
-            int yOffset = headerHeight - scrollOffset;
+            if (category == ModuleCategory.MODULE_CONFIG_MANAGER) {
+                int yOffset = headerHeight;
+
+                for (String config : moduleConfigList) {
+                    int top = y + yOffset;
+                    int bottom = top + configButtonHeight;
+
+                    if (mouseX >= x && mouseX <= x + ClickGuiState.NEW_GUI_WIDTH && mouseY >= top && mouseY <= bottom) {
+                        if (button == 0) {
+                            if (DewCommon.moduleConfigManager.load(config, DewCommon.moduleManager.getModules())) {
+                                LogUtil.printChat("Loaded module config: " + config);
+                            } else {
+                                LogUtil.printChat("Module config " + config + " was not found");
+                            }
+                        } else if (button == 2) {
+                            DewCommon.moduleConfigManager.save(config, DewCommon.moduleManager.getModules());
+                            LogUtil.printChat("Saved module config: " + config);
+                        }
+                        break;
+                    }
+
+                    yOffset += configButtonHeight;
+                }
+                return;
+            } else if (category == ModuleCategory.BIND_CONFIG_MANAGER) {
+                int yOffset = headerHeight;
+
+                for (String config : bindConfigList) {
+                    int top = y + yOffset;
+                    int bottom = top + configButtonHeight;
+
+                    if (mouseX >= x && mouseX <= x + ClickGuiState.NEW_GUI_WIDTH && mouseY >= top && mouseY <= bottom) {
+                        if (button == 0) {
+                            if (DewCommon.bindConfigManager.load(config, DewCommon.moduleManager.getModules())) {
+                                LogUtil.printChat("Loaded bind config: " + config);
+                            } else {
+                                LogUtil.printChat("Bind config " + config + " was not found");
+                            }
+                        } else if (button == 2) {
+                            DewCommon.bindConfigManager.save(config, DewCommon.moduleManager.getModules());
+                            LogUtil.printChat("Saved bind config: " + config);
+                        }
+                        break;
+                    }
+
+                    yOffset += configButtonHeight;
+                }
+                return;
+            }
+
+            int yOffset = headerHeight;
             for (ModuleButton btn : moduleButtons) {
                 btn.mouseClicked(mouseX, mouseY, button, x, y + yOffset, ClickGuiState.NEW_GUI_WIDTH);
                 yOffset += btn.getHeight();
@@ -100,7 +206,7 @@ public class CategoryWindow {
         }
 
         if (open) {
-            int yOffset = headerHeight - scrollOffset;
+            int yOffset = headerHeight;
             for (ModuleButton btn : moduleButtons) {
                 btn.mouseReleased(mouseX, mouseY + yOffset, button);
                 yOffset += btn.getHeight();
@@ -112,6 +218,49 @@ public class CategoryWindow {
         if (dragging) {
             x = mouseX - dragX;
             y = mouseY - dragY;
+        }
+    }
+
+    public void resolveOverlap(List<CategoryWindow> others) {
+        int attempts = 0;
+        while (attempts++ < 10) {
+            boolean moved = false;
+
+            for (CategoryWindow other : others) {
+                if (other == this) continue;
+
+                int thisLeft = this.x;
+                int thisRight = this.x + ClickGuiState.NEW_GUI_WIDTH;
+                int thisTop = this.y;
+                int thisBottom = this.y + this.headerHeight;
+
+                int otherLeft = other.x;
+                int otherRight = other.x + ClickGuiState.NEW_GUI_WIDTH;
+                int otherTop = other.y;
+                int otherBottom = other.y + other.headerHeight;
+
+                boolean overlapX = thisLeft < otherRight && thisRight > otherLeft;
+                boolean overlapY = thisTop < otherBottom && thisBottom > otherTop;
+
+                if (overlapX && overlapY) {
+                    int dx = random.nextBoolean() ? 15 : -15;
+                    int dy = random.nextBoolean() ? 15 : -15;
+
+                    this.x += dx;
+                    this.y += dy;
+
+                    int screenWidth = IMinecraft.mc.displayWidth / IMinecraft.mc.gameSettings.guiScale;
+                    int screenHeight = IMinecraft.mc.displayHeight / IMinecraft.mc.gameSettings.guiScale;
+
+                    this.x = Math.max(0, Math.min(this.x, screenWidth - ClickGuiState.NEW_GUI_WIDTH));
+                    this.y = Math.max(0, Math.min(this.y, screenHeight - this.headerHeight - 100));
+
+                    moved = true;
+                    break;
+                }
+            }
+
+            if (!moved) break;
         }
     }
 

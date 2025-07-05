@@ -47,9 +47,9 @@ public class ModuleConfigCommand extends Command {
 
             case "list":
                 LogUtil.printChat("Module Configs:");
-                for (String config : DewCommon.moduleConfigManager.getConfigNames()) {
-                    LogUtil.printChat(" " + config);
-                }
+                DewCommon.moduleConfigManager.getConfigNames().stream()
+                        .sorted(String::compareToIgnoreCase)
+                        .forEach(config -> LogUtil.printChat(" " + config));
                 break;
 
             case "folder":

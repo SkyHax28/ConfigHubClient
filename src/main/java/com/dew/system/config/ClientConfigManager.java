@@ -40,7 +40,6 @@ public class ClientConfigManager {
             props.setProperty(keyBase + ".x", String.valueOf(state.x));
             props.setProperty(keyBase + ".y", String.valueOf(state.y));
             props.setProperty(keyBase + ".open", String.valueOf(state.open));
-            props.setProperty(keyBase + ".scroll", String.valueOf(state.scrollOffset));
         }
 
         try (FileWriter writer = new FileWriter(configFile)) {
@@ -78,9 +77,8 @@ public class ClientConfigManager {
             int x = Integer.parseInt(props.getProperty(keyBase + ".x", "10"));
             int y = Integer.parseInt(props.getProperty(keyBase + ".y", "10"));
             boolean open = Boolean.parseBoolean(props.getProperty(keyBase + ".open", "true"));
-            int scroll = Integer.parseInt(props.getProperty(keyBase + ".scroll", "0"));
 
-            ClickGuiState.windowStates.put(category, new ClickGuiState.WindowState(x, y, open, scroll));
+            ClickGuiState.windowStates.put(category, new ClickGuiState.WindowState(x, y, open));
         }
     }
 }
