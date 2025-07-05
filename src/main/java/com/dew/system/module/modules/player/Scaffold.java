@@ -37,7 +37,6 @@ public class Scaffold extends Module {
     private static final NumberValue clutchRange = new NumberValue("Clutch Range", 3.0, 1.0, 5.0, 1.0);
     private static final NumberValue rotationSpeed = new NumberValue("Rotation Speed", 60.0, 0.0, 180.0, 10.0, () -> mode.get().equals("Normal") || mode.get().equals("Telly"));
     private static final NumberValue placeDelay = new NumberValue("Place Delay", 0.0, 0.0, 3.0, 0.1, () -> mode.get().equals("Normal") || mode.get().equals("Telly"));
-    private static final BooleanValue noHitCheck = new BooleanValue("No Hit Check", false, () -> mode.get().equals("Normal") || mode.get().equals("Telly"));
     private static final BooleanValue tellyQuickRotation = new BooleanValue("Telly Quick Rotation", true, () -> mode.get().equals("Telly"));
     private static final SelectionValue edgeSafeMode = new SelectionValue("Edge Safe Mode", "OFF", "OFF", "Safewalk", "Sneak");
     public static final BooleanValue preferHighestStack = new BooleanValue("Prefer Highest Stack", true);
@@ -245,13 +244,8 @@ public class Scaffold extends Module {
                         mc.thePlayer.jump();
                         this.strafeWithCorrectHypPotMath(0.46f);
                     }
-                } else {
-                    if (jumpTicks == 5f) {
-                        DewCommon.rotationManager.rotateToward((float) MovementUtil.getDirection(), 60f, 180f);
-                        doNotPlace = true;
-                    } else {
-                        DewCommon.rotationManager.faceBlockHypixelSafe(180f);
-                    }
+                } else if (mc.thePlayer.ticksExisted % 2 == 0) {
+                    DewCommon.rotationManager.faceBlockHypixelSafe(180f);
                 }
                 break;
 
@@ -591,10 +585,7 @@ public class Scaffold extends Module {
             if (mode.get().equals("Normal") || mode.get().equals("Telly")) {
                 boolean canPlace = DewCommon.rotationManager.faceBlockWithFacing(neighbor, opposite, rotationSpeed.get().floatValue());
                 if (!canPlace) {
-                    if (!noHitCheck.get()) {
-                        return PlaceResult.FAIL_ROTATION; // ← 注目
-                    }
-                    continue;
+                    return PlaceResult.FAIL_ROTATION;
                 }
             }
 
