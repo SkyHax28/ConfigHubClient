@@ -48,7 +48,7 @@ public class MultiSelectionComponent implements ValueComponent {
                 boolean selected = value.isSelected(option);
                 drawBlurRect(x, y + offsetY, x + width, y + offsetY + 16, new Color(30, 30, 30, 120));
                 Gui.drawRect(x, y + offsetY, x + width, y + offsetY + 16, selected ? 0xFF5599FF : 0xFF222222);
-                DewCommon.customFontRenderer.drawStringWithShadow(option, x + 7, y + offsetY + 1, Color.WHITE.getRGB(), 0.35f);
+                DewCommon.customFontRenderer.drawStringWithShadow(option, x + 12, y + offsetY + 1, Color.WHITE.getRGB(), 0.35f);
                 offsetY += 16;
             }
         }

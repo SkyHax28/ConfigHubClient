@@ -49,7 +49,7 @@ class SelectionComponent implements ValueComponent {
                 boolean selected = value.get().equals(option);
                 drawBlurRect(x, y + offsetY, x + width, y + offsetY + 16, new Color(30, 30, 30, 120));
                 Gui.drawRect(x, y + offsetY, x + width, y + offsetY + 16, selected ? 0xFF5599FF : 0xFF222222);
-                DewCommon.customFontRenderer.drawString(option, x + 7, y + offsetY + 1, Color.WHITE.getRGB(), 0.35f);
+                DewCommon.customFontRenderer.drawString(option, x + 12, y + offsetY + 1, Color.WHITE.getRGB(), 0.35f);
                 offsetY += 16;
             }
         }

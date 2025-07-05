@@ -28,7 +28,7 @@ public class NumberComponent implements ValueComponent {
         Gui.drawRect(x, y, x + filled, y + 16, new Color(85, 153, 255, 180).getRGB());
         Gui.drawRect(x, y, x + width, y + 1, new Color(85, 153, 255, 150).getRGB());
         Gui.drawRect(x, y + 15, x + width, y + 16, new Color(85, 153, 255, 100).getRGB());
-        if (mouseX >= x && mouseX <= x + ClickGuiState.NEW_GUI_WIDTH && mouseY >= y && mouseY <= y + 15) {
+        if (mouseX >= x && mouseX <= x + ClickGuiState.NEW_GUI_WIDTH && mouseY >= y && mouseY <= y + 16) {
             Gui.drawRect(x, y, x + width, y + 18, new Color(255, 255, 255, 50).getRGB());
         }
 
@@ -57,7 +57,7 @@ public class NumberComponent implements ValueComponent {
 
     @Override
     public void mouseClicked(int mouseX, int mouseY, int button, int x, int y) {
-        if (mouseX >= x && mouseX <= x + ClickGuiState.NEW_GUI_WIDTH && mouseY >= y && mouseY <= y + 15 && button == 0) {
+        if (mouseX >= x && mouseX <= x + ClickGuiState.NEW_GUI_WIDTH && mouseY >= y && mouseY <= y + 16 && button == 0) {
             dragging = true;
             double ratio = (double) (mouseX - x) / ClickGuiState.NEW_GUI_WIDTH;
             ratio = Math.max(0.0, Math.min(1.0, ratio));
@@ -75,7 +75,7 @@ public class NumberComponent implements ValueComponent {
 
     @Override
     public int getHeight() {
-        return 16;
+        return 17;
     }
 
     private void drawBlurRect(int left, int top, int right, int bottom, Color color) {

@@ -42,7 +42,7 @@ public class Scaffold extends Module {
     private static final SelectionValue towerMode = new SelectionValue("Tower Mode", "OFF", "OFF", "Vanilla", "Hypixel");
     private static final NumberValue clutchRange = new NumberValue("Clutch Range", 3.0, 1.0, 5.0, 1.0);
     private static final NumberValue rotationSpeed = new NumberValue("Rotation Speed", 60.0, 0.0, 180.0, 10.0, () -> mode.get().equals("Normal") || mode.get().equals("Telly"));
-    private static final NumberValue placeDelay = new NumberValue("Place Delay", 0.0, 0.0, 10.0, 1.0, () -> mode.get().equals("Normal") || mode.get().equals("Telly"));
+    private static final NumberValue placeDelay = new NumberValue("Place Delay", 0.0, 0.0, 3.0, 0.1, () -> mode.get().equals("Normal") || mode.get().equals("Telly"));
     private static final BooleanValue noHitCheck = new BooleanValue("No Hit Check", false, () -> mode.get().equals("Normal") || mode.get().equals("Telly"));
     private static final BooleanValue tellyQuickRotation = new BooleanValue("Telly Quick Rotation", true, () -> mode.get().equals("Telly"));
     private static final SelectionValue edgeSafeMode = new SelectionValue("Edge Safe Mode", "OFF", "OFF", "Safewalk", "Sneak");
