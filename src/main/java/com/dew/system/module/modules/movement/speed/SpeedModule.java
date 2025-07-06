@@ -1,5 +1,6 @@
 package com.dew.system.module.modules.movement.speed;
 
+import com.dew.system.event.events.PreMotionEvent;
 import com.dew.system.event.events.PreUpdateEvent;
 import com.dew.system.event.events.ReceivedPacketEvent;
 import com.dew.system.event.events.WorldEvent;
@@ -34,6 +35,7 @@ public class SpeedModule extends Module {
     public static final SelectionValue mode = new SelectionValue("Mode", "Vanilla", "Vanilla", "Hypixel", "Hypixel Prediction", "BlocksMC", "Bloxd", "Test");
     public static final BooleanValue autoBHop = new BooleanValue("Auto BHop", true, () -> mode.get().equals("Vanilla"));
     public static final NumberValue speed = new NumberValue("Speed", 1, 0.1, 5.0, 0.1, () -> mode.get().equals("Vanilla"));
+    public static final SelectionValue hypixelLowHopMode = new SelectionValue("Hypixel Lowhop Mode", "More Strafe", () -> mode.get().equals("Hypixel"), "More Strafe", "7 Tick");
 
     @Override
     public String tag() {
@@ -75,6 +77,12 @@ public class SpeedModule extends Module {
 
         if (currentMode != null)
             currentMode.onPreUpdate(event);
+    }
+
+    @Override
+    public void onPreMotion(PreMotionEvent event) {
+        if (currentMode != null)
+            currentMode.onPreMotion(event);
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.dew.system.module.modules.movement.speed.speeds;
 
+import com.dew.system.event.events.PreMotionEvent;
 import com.dew.system.event.events.PreUpdateEvent;
 import com.dew.system.event.events.ReceivedPacketEvent;
 import com.dew.system.module.modules.movement.speed.SpeedMode;
@@ -34,6 +35,10 @@ public class VanillaSpeed implements SpeedMode {
             mc.thePlayer.jump();
 
         MovementUtil.strafe(SpeedModule.speed.get());
+    }
+
+    @Override
+    public void onPreMotion(PreMotionEvent event) {
     }
 
     @Override

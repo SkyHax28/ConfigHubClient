@@ -1,6 +1,7 @@
 package com.dew.system.module.modules.movement.speed.speeds;
 
 import com.dew.DewCommon;
+import com.dew.system.event.events.PreMotionEvent;
 import com.dew.system.event.events.PreUpdateEvent;
 import com.dew.system.event.events.ReceivedPacketEvent;
 import com.dew.system.module.modules.movement.speed.SpeedMode;
@@ -41,6 +42,10 @@ public class BlocksMCSpeed implements SpeedMode {
                 MovementUtil.strafe(MovementUtil.getSpeed());
             }
         }
+    }
+
+    @Override
+    public void onPreMotion(PreMotionEvent event) {
     }
 
     @Override

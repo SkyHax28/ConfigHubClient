@@ -1,6 +1,7 @@
 package com.dew.system.module.modules.movement.speed.speeds;
 
 import com.dew.DewCommon;
+import com.dew.system.event.events.PreMotionEvent;
 import com.dew.system.event.events.PreUpdateEvent;
 import com.dew.system.event.events.ReceivedPacketEvent;
 import com.dew.system.module.modules.exploit.Disabler;
@@ -31,11 +32,13 @@ public class HypixelSpeed implements SpeedMode {
         this.resetState();
     }
 
-    private int ticks = 0;
+    private int preUpdateEventTicks = 0;
+    private int preMotionEventTicks = 0;
     private boolean allowLow = false;
 
     private void resetState() {
-        ticks = 0;
+        preUpdateEventTicks = 0;
+        preMotionEventTicks = 0;
         allowLow = false;
     }
 
@@ -47,50 +50,108 @@ public class HypixelSpeed implements SpeedMode {
     }
 
     @Override
+    public void onPreMotion(PreMotionEvent event) {
+        if (mc.thePlayer == null) return;
+
+        preMotionEventTicks = mc.thePlayer.onGround ? 0 : preMotionEventTicks + 1;
+
+        if (DewCommon.moduleManager.getModule(Disabler.class).canLowHop()) {
+            if (SpeedModule.hypixelLowHopMode.get().equals("More Strafe")) {
+                if (mc.thePlayer.onGround) {
+                    if (MovementUtil.isMoving()) {
+                        mc.thePlayer.jump();
+                        allowLow = !mc.thePlayer.isPotionActive(Potion.jump) && (!DewCommon.moduleManager.getModule(Scaffold.class).isEnabled() || !GameSettings.isKeyDown(mc.gameSettings.keyBindJump) && DewCommon.moduleManager.getModule(Scaffold.class).jumped);
+                    }
+
+                    if ((!DewCommon.moduleManager.getModule(Scaffold.class).isEnabled() || !GameSettings.isKeyDown(mc.gameSettings.keyBindJump) && DewCommon.moduleManager.getModule(Scaffold.class).jumped)) {
+                        this.strafeWithCorrectHypPotMath(0.46f);
+                    }
+                } else if (allowLow) {
+                    switch (preMotionEventTicks) {
+                        case 1:
+                            mc.thePlayer.motionY = 0.39F;
+                            this.strafeWithCorrectHypPotMath(0.305f);
+                            break;
+
+                        case 3:
+                            mc.thePlayer.motionY -= 0.1309F;
+                            break;
+
+                        case 4:
+                            mc.thePlayer.motionY -= 0.20F;
+                            break;
+
+                        case 6:
+                            if (MovementUtil.isBlockUnderPlayer(mc.thePlayer, 1, true)) {
+                                mc.thePlayer.motionY += 0.075;
+                                this.strafeWithCorrectHypPotMath(0.275f);
+                            }
+                            break;
+
+                        case 7:
+                            if (MovementUtil.isBlockUnderPlayer(mc.thePlayer, 1, true)) {
+                                MovementUtil.strafe(MovementUtil.getSpeed());
+                            }
+                            break;
+
+                        case 8:
+                            if (MovementUtil.isBlockUnderPlayer(mc.thePlayer, 1, true)) {
+                                this.strafeWithCorrectHypPotMath(0.285f);
+                            }
+                            break;
+                    }
+                }
+            }
+        }
+    }
+
+    @Override
     public void onPreUpdate(PreUpdateEvent event) {
         if (mc.thePlayer == null) return;
 
         MovementUtil.mcJumpNoBoost = true;
 
-        ticks = mc.thePlayer.onGround ? 0 : ticks + 1;
+        preUpdateEventTicks = mc.thePlayer.onGround ? 0 : preUpdateEventTicks + 1;
 
         if (DewCommon.moduleManager.getModule(Disabler.class).canLowHop()) {
-            if (mc.thePlayer.onGround) {
-                if (MovementUtil.isMoving()) {
-                    mc.thePlayer.jump();
-                    allowLow = !mc.thePlayer.isPotionActive(Potion.jump) && !mc.thePlayer.isCollidedHorizontally && !MovementUtil.isBlockAbovePlayer(mc.thePlayer, 2, 1) && (!DewCommon.moduleManager.getModule(Scaffold.class).isEnabled() || !GameSettings.isKeyDown(mc.gameSettings.keyBindJump) && DewCommon.moduleManager.getModule(Scaffold.class).jumped);
-                }
+            if (SpeedModule.hypixelLowHopMode.get().equals("7 Tick")) {
+                if (mc.thePlayer.onGround) {
+                    if (MovementUtil.isMoving()) {
+                        mc.thePlayer.jump();
+                        allowLow = !mc.thePlayer.isPotionActive(Potion.jump) && !mc.thePlayer.isCollidedHorizontally && !MovementUtil.isBlockAbovePlayer(mc.thePlayer, 2, 1) && (!DewCommon.moduleManager.getModule(Scaffold.class).isEnabled() || !GameSettings.isKeyDown(mc.gameSettings.keyBindJump) && DewCommon.moduleManager.getModule(Scaffold.class).jumped);
+                    }
 
-                if ((!DewCommon.moduleManager.getModule(Scaffold.class).isEnabled() || !GameSettings.isKeyDown(mc.gameSettings.keyBindJump) && DewCommon.moduleManager.getModule(Scaffold.class).jumped)) {
-                    this.strafeWithCorrectHypPotMath(0.46f);
-                }
-            } else if (allowLow) {
-                switch (ticks) {
-                    case 1:
-                        mc.thePlayer.motionY += 0.0568;
-                        break;
+                    if ((!DewCommon.moduleManager.getModule(Scaffold.class).isEnabled() || !GameSettings.isKeyDown(mc.gameSettings.keyBindJump) && DewCommon.moduleManager.getModule(Scaffold.class).jumped)) {
+                        this.strafeWithCorrectHypPotMath(0.46f);
+                    }
+                } else if (allowLow) {
+                    switch (preUpdateEventTicks) {
+                        case 1:
+                            mc.thePlayer.motionY += 0.0568;
+                            break;
 
-                    case 3:
-                        mc.thePlayer.motionY -= 0.13;
-                        break;
+                        case 3:
+                            mc.thePlayer.motionY -= 0.13;
+                            break;
 
-                    case 4:
-                        mc.thePlayer.motionY -= 0.2;
-                        break;
+                        case 4:
+                            mc.thePlayer.motionY -= 0.2;
+                            break;
 
-                    case 7:
-                        if (MovementUtil.isBlockUnderPlayer(mc.thePlayer, 1, true)) {
-                            this.strafeWithCorrectHypPotMath(0.285f);
-                        }
-                        break;
+                        case 7:
+                            if (MovementUtil.isBlockUnderPlayer(mc.thePlayer, 1, true)) {
+                                this.strafeWithCorrectHypPotMath(0.285f);
+                            }
+                            break;
 
-                    case 8:
-                        mc.thePlayer.motionY = -0.4;
-                        break;
-                }
+                        case 8:
+                            mc.thePlayer.motionY = -0.4;
+                            break;
+                    }
 
-                if (ticks >= 9) {
-                    allowLow = false;
+                    if (preUpdateEventTicks >= 9) {
+                        allowLow = false;
+                    }
                 }
             }
         } else {
@@ -101,7 +162,7 @@ public class HypixelSpeed implements SpeedMode {
 
                 this.strafeWithCorrectHypPotMath(0.46f);
             } else {
-                switch (ticks) {
+                switch (preUpdateEventTicks) {
                     case 1:
                         this.strafeWithCorrectHypPotMath(0.2873f);
                         break;

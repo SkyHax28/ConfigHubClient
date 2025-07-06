@@ -1,5 +1,6 @@
 package com.dew.system.module.modules.movement.speed.speeds;
 
+import com.dew.system.event.events.PreMotionEvent;
 import com.dew.system.event.events.PreUpdateEvent;
 import com.dew.system.event.events.ReceivedPacketEvent;
 import com.dew.system.module.modules.movement.speed.SpeedMode;
@@ -25,6 +26,10 @@ public class BloxdSpeed implements SpeedMode {
         if (mc.thePlayer == null || mc.thePlayer.isInWater()) return;
 
 
+    }
+
+    @Override
+    public void onPreMotion(PreMotionEvent event) {
     }
 
     @Override
