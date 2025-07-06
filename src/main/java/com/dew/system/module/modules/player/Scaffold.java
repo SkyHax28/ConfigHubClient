@@ -14,7 +14,6 @@ import com.dew.utils.RenderUtil;
 import net.minecraft.block.*;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.settings.GameSettings;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
@@ -54,14 +53,13 @@ public class Scaffold extends Module {
 
     private int delay = 0;
 
-    private boolean checked = false;
     public boolean jumped = false;
 
     private BlockPos lastPlacedPos = null;
     private int tellyWaitTicks = 0;
 
     private boolean canTower() {
-        return Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) && !DewCommon.moduleManager.getModule(SpeedModule.class).isEnabled() && MovementUtil.isBlockUnderPlayer(mc.thePlayer, 3, 2, false) && !MovementUtil.isBlockAbovePlayer(mc.thePlayer, 1) && holdingBlock;
+        return Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) && MovementUtil.isBlockUnderPlayer(mc.thePlayer, 3, 2, false) && !MovementUtil.isBlockAbovePlayer(mc.thePlayer, 1) && holdingBlock;
     }
 
     private boolean shouldUpdateKeepYState() {
@@ -91,7 +89,6 @@ public class Scaffold extends Module {
         originalSlot = -1;
         delay = 0;
         holdingBlock = false;
-        checked = false;
         if (isSneaking) {
             mc.gameSettings.keyBindSneak.setKeyDown(false);
             isSneaking = false;
@@ -120,13 +117,6 @@ public class Scaffold extends Module {
         if (edgeSafeMode.get().equals("Safewalk")) {
             event.isSafeWalk = true;
         }
-    }
-
-    private void strafeWithCorrectHypPotMath(float speed) {
-        if (!MovementUtil.isMoving()) return;
-        if (mc.thePlayer.isPotionActive(Potion.moveSpeed))
-            MovementUtil.strafe(speed + ((mc.thePlayer.getActivePotionEffect(Potion.moveSpeed).getAmplifier() + 1f) * mc.thePlayer.getActivePotionEffect(Potion.moveSpeed).getAmplifier() == 0 ? 0.036f : 0.12f));
-        else MovementUtil.strafe(speed);
     }
 
     @Override
@@ -164,10 +154,6 @@ public class Scaffold extends Module {
         if (mc.thePlayer == null || mc.theWorld == null) return;
 
         this.tellyFunction();
-
-        towerTicks = mc.thePlayer.onGround ? 0 : towerTicks + 1;
-
-        this.towerFunction();
     }
 
     private void jumpCheck() {
@@ -176,6 +162,10 @@ public class Scaffold extends Module {
         if (!mc.thePlayer.onGround && !jumped) {
             jumped = true;
         }
+
+        towerTicks = mc.thePlayer.onGround ? 0 : towerTicks + 1;
+
+        this.towerFunction();
     }
 
     @Override
@@ -221,10 +211,6 @@ public class Scaffold extends Module {
             isSneaking = false;
         }
 
-        if (!DewCommon.rotationManager.isRotating()) {
-            checked = false;
-        }
-
         boolean doNotPlace = false;
 
         switch (mode.get().toLowerCase()) {
@@ -235,7 +221,6 @@ public class Scaffold extends Module {
                 break;
 
             case "hypixel":
-                checked = true;
                 if (mc.thePlayer.ticksExisted % 2 == 0) {
                     DewCommon.rotationManager.faceBlockHypixelSafe(180f);
                 }
@@ -403,8 +388,7 @@ public class Scaffold extends Module {
     }
 
     private void towerFunction() {
-        if (this.canTower() && !towerMode.get().equals("OFF")) {
-            checked = true;
+        if (this.canTower() && !towerMode.get().equals("OFF") || towerMode.get().equals("Hypixel") && hypGroundCheck && !DewCommon.moduleManager.getModule(SpeedModule.class).isEnabled()) {
             MovementUtil.mcJumpNoBoost = true;
 
             switch (towerMode.get().toLowerCase()) {
@@ -419,30 +403,22 @@ public class Scaffold extends Module {
 
                 case "hypixel":
                     if (MovementUtil.isMoving()) {
-                        if (mc.thePlayer.onGround) {
-                            hypGroundCheck = true;
-                        }
+                        hypGroundCheck = true;
 
-                        if (hypGroundCheck) {
-                            switch (towerTicks % 3) {
-                                case 0:
-                                    MovementUtil.fakeJump();
-                                    mc.thePlayer.motionY = 0.42;
-                                    break;
+                        switch (towerTicks) {
+                            case 1:
+                                MovementUtil.strafe(0.2f);
+                                mc.thePlayer.motionY = 0.39F;
+                                break;
 
-                                case 1:
-                                    mc.thePlayer.motionY = 0.33;
-                                    break;
+                            case 3:
+                                mc.thePlayer.motionY -= 0.1309F;
+                                break;
 
-                                case 2:
-                                    double targetY = Math.floor(mc.thePlayer.posY) + 1.0;
-                                    mc.thePlayer.motionY = targetY - mc.thePlayer.posY;
-                                    break;
-                            }
-                        }
-
-                        if (towerTicks >= 18) {
-                            hypGroundCheck = false;
+                            case 4:
+                                mc.thePlayer.motionY -= 0.20F;
+                                hypGroundCheck = false;
+                                break;
                         }
                     }
                     break;
@@ -579,10 +555,7 @@ public class Scaffold extends Module {
                 }
             }
 
-            if (!checked) {
-                checked = true;
-                return PlaceResult.FAIL_ROTATION;
-            } else if (mc.playerController.onPlayerRightClick(mc.thePlayer, mc.theWorld, mc.thePlayer.getHeldItem(), neighbor, opposite, hitVec)) {
+            if (mc.playerController.onPlayerRightClick(mc.thePlayer, mc.theWorld, mc.thePlayer.getHeldItem(), neighbor, opposite, hitVec)) {
                 PacketUtil.sendPacket(new C0APacketAnimation());
                 delay = 0;
                 return PlaceResult.SUCCESS;

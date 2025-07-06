@@ -1,9 +1,11 @@
 package com.dew.system.module.modules.player;
 
+import com.dew.DewCommon;
 import com.dew.system.event.events.PreUpdateEvent;
 import com.dew.system.event.events.WorldEvent;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
+import com.dew.system.module.modules.exploit.Disabler;
 import com.dew.system.settingsvalue.BooleanValue;
 import com.dew.system.settingsvalue.NumberValue;
 import net.minecraft.block.Block;
@@ -54,7 +56,7 @@ public class Manager extends Module {
 
     @Override
     public void onPreUpdate(PreUpdateEvent event) {
-        if (mc.thePlayer == null || mc.currentScreen instanceof GuiChest || inventoryOnly.get() && !(mc.currentScreen instanceof GuiInventory)) {
+        if (mc.thePlayer == null || mc.currentScreen instanceof GuiChest || inventoryOnly.get() && !(mc.currentScreen instanceof GuiInventory) || DewCommon.moduleManager.getModule(Disabler.class).isEnabled() && DewCommon.moduleManager.getModule(Disabler.class).isInventoryDisablerEnabled() && mc.thePlayer.isUsingItem()) {
             this.resetState();
             return;
         }
