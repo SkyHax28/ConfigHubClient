@@ -18,7 +18,7 @@ import java.util.*;
 public class Backtrack extends Module {
 
     public Backtrack() {
-        super("Backtrack", ModuleCategory.COMBAT, Keyboard.KEY_NONE, true, true, true);
+        super("Backtrack", ModuleCategory.COMBAT, Keyboard.KEY_NONE, true, false, true);
     }
 
     public static final NumberValue ticksBack = new NumberValue("Ticks Back", 5.0, 1.0, 10.0, 1.0);

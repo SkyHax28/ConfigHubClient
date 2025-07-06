@@ -23,4 +23,11 @@ public class PacketUtil {
         silentPackets.add(packet);
         mc.getNetHandler().addToSendQueue(packet);
     }
+
+    public static void processPacketClientSide(Packet<?> packet) {
+        try {
+            mc.getNetHandler().getNetworkManager().channelRead0(null, packet);
+        } catch (Exception ignored) {
+        }
+    }
 }

@@ -591,7 +591,7 @@ public class Scaffold extends Module {
 
             if (!checked) {
                 checked = true;
-                return PlaceResult.SUCCESS;
+                return PlaceResult.FAIL_ROTATION;
             } else if (mc.playerController.onPlayerRightClick(mc.thePlayer, mc.theWorld, mc.thePlayer.getHeldItem(), neighbor, opposite, hitVec)) {
                 PacketUtil.sendPacket(new C0APacketAnimation());
                 delay = 0;

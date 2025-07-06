@@ -31,7 +31,7 @@ public class ModuleManager implements EventListener {
                 new Sprint(), new TargetStrafe(), new AutoBlock(), new FastBow(),
                 new FastUse(), new Teams(), new HitSelect(), new LongJump(),
                 new Knockback(), new BloxdPhysics(), new Step(), new ItemPhysics(),
-                new Ambience(), new NoJumpDelay()
+                new Ambience(), new NoJumpDelay(), new NewBacktrackBeta()
         ));
 
         DewCommon.eventManager.register(this);
