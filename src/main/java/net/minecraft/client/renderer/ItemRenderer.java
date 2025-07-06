@@ -403,7 +403,7 @@ public class ItemRenderer
                     break;
 
                 case "crazy":
-                    GlStateManager.translate(0.0F, 0.08F, 0.0F);
+                    GlStateManager.translate(0.0F, 0.05F, 0.0F);
                     this.transformFirstPersonItem(0.0F, f1);
                     this.doBlockTransformations();
                     break;
