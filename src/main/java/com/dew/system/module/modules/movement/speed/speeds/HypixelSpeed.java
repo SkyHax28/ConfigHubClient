@@ -60,7 +60,7 @@ public class HypixelSpeed implements SpeedMode {
                 if (mc.thePlayer.onGround) {
                     if (MovementUtil.isMoving()) {
                         mc.thePlayer.jump();
-                        allowLow = !mc.thePlayer.isPotionActive(Potion.jump) && !MovementUtil.isBlockAbovePlayer(mc.thePlayer, 2, 1) && (!DewCommon.moduleManager.getModule(Scaffold.class).isEnabled() || !GameSettings.isKeyDown(mc.gameSettings.keyBindJump) && DewCommon.moduleManager.getModule(Scaffold.class).jumped);
+                        allowLow = !mc.thePlayer.isPotionActive(Potion.jump) && !MovementUtil.isBlockAbovePlayer(mc.thePlayer, 2, 1) && (!DewCommon.moduleManager.getModule(Scaffold.class).isEnabled() || !GameSettings.isKeyDown(mc.gameSettings.keyBindJump));
                     }
 
                     if ((!DewCommon.moduleManager.getModule(Scaffold.class).isEnabled() || !GameSettings.isKeyDown(mc.gameSettings.keyBindJump) && DewCommon.moduleManager.getModule(Scaffold.class).jumped)) {

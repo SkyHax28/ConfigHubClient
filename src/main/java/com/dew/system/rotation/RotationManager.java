@@ -171,15 +171,12 @@ public class RotationManager {
         float upperOffset;
 
         if (Math.abs(snappedBase % 90.0f) < 0.001f) {
-            lowerOffset = 110f;
-            upperOffset = 110f;
+            lowerOffset = 118f;
+            upperOffset = 118f;
         } else {
-            lowerOffset = 137f;
-            upperOffset = 137f;
-            if (!mc.thePlayer.onGround) {
-                mc.thePlayer.motionX *= 0.75f;
-                mc.thePlayer.motionZ *= 0.75f;
-            }
+            lowerOffset = 142f;
+            upperOffset = 142f;
+            MovementUtil.strafe(0.06f);
         }
 
         float lowerCandidate = snappedBase - lowerOffset;

@@ -65,7 +65,7 @@ public class Scaffold extends Module {
     }
 
     private boolean shouldUpdateKeepYState() {
-        return keepY == -1 || !DewCommon.moduleManager.getModule(SpeedModule.class).isEnabled() && !mode.get().equals("Telly") && !mode.get().equals("Hypixel") || Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode());
+        return keepY == -1 || !DewCommon.moduleManager.getModule(SpeedModule.class).isEnabled() && !mode.get().equals("Telly") || Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode());
     }
 
     @Override
@@ -100,9 +100,6 @@ public class Scaffold extends Module {
         towerTicks = 0;
         hypGroundCheck = false;
         jumped = false;
-        if (mode.get().equals("Hypixel")) {
-            MovementUtil.mcJumpNoBoost = false;
-        }
         if (towered) {
             if (towerMode.get().equals("Vanilla")) {
                 MovementUtil.stopYMotion();
@@ -238,13 +235,8 @@ public class Scaffold extends Module {
                 break;
 
             case "hypixel":
-                MovementUtil.mcJumpNoBoost = true;
-                if (mc.thePlayer.onGround && MovementUtil.isMoving()) {
-                    if (!towered && !GameSettings.isKeyDown(mc.gameSettings.keyBindJump) && mc.thePlayer.onGround && mc.thePlayer.posY > 0.0D && !DewCommon.moduleManager.getModule(SpeedModule.class).isEnabled()) {
-                        mc.thePlayer.jump();
-                        this.strafeWithCorrectHypPotMath(0.46f);
-                    }
-                } else if (mc.thePlayer.ticksExisted % 2 == 0) {
+                checked = true;
+                if (mc.thePlayer.ticksExisted % 2 == 0) {
                     DewCommon.rotationManager.faceBlockHypixelSafe(180f);
                 }
                 break;
@@ -291,87 +283,85 @@ public class Scaffold extends Module {
 
         Boolean placed = null;
 
-        if (!mode.get().equals("Hypixel") || !mc.thePlayer.onGround) {
-            PlaceResult result = tryPlaceBlock(below);
+        PlaceResult result = tryPlaceBlock(below);
 
-            if (result == PlaceResult.SUCCESS) {
-                lastPlacedPos = below;
-                placed = true;
-            } else if (result == PlaceResult.FAIL_ROTATION) {
-                return;
-            } else {
-                EnumFacing[] facings = getFullPrioritizedFacings();
-                for (EnumFacing dir : facings) {
-                    BlockPos neighbor = below.offset(dir);
-                    PlaceResult neighborResult = tryPlaceBlock(neighbor);
+        if (result == PlaceResult.SUCCESS) {
+            lastPlacedPos = below;
+            placed = true;
+        } else if (result == PlaceResult.FAIL_ROTATION) {
+            return;
+        } else {
+            EnumFacing[] facings = getFullPrioritizedFacings();
+            for (EnumFacing dir : facings) {
+                BlockPos neighbor = below.offset(dir);
+                PlaceResult neighborResult = tryPlaceBlock(neighbor);
 
-                    if (neighborResult == PlaceResult.FAIL_ROTATION) {
-                        return;
-                    }
+                if (neighborResult == PlaceResult.FAIL_ROTATION) {
+                    return;
+                }
 
-                    if (neighborResult == PlaceResult.SUCCESS) {
-                        lastPlacedPos = neighbor;
-                        placed = true;
-                        break;
+                if (neighborResult == PlaceResult.SUCCESS) {
+                    lastPlacedPos = neighbor;
+                    placed = true;
+                    break;
+                }
+            }
+        }
+
+        Set<BlockPos> visited = new HashSet<>();
+
+        if (!Boolean.TRUE.equals(placed) && clutchRange.get() > 1) {
+            List<BlockPos> searchOrder = new ArrayList<>();
+            int range = clutchRange.get().intValue();
+
+            for (int x = -range; x <= range; x++) {
+                for (int y = 0; y >= -range; y--) {
+                    for (int z = -range; z <= range; z++) {
+                        BlockPos pos = below.add(x, y, z);
+                        if (mc.thePlayer.getDistanceSqToCenter(pos) <= range * range) {
+                            searchOrder.add(pos);
+                        }
                     }
                 }
             }
 
-            Set<BlockPos> visited = new HashSet<>();
+            searchOrder.sort(Comparator.comparingDouble(pos -> mc.thePlayer.getDistanceSqToCenter(pos)));
 
-            if (!Boolean.TRUE.equals(placed) && clutchRange.get() > 1) {
-                List<BlockPos> searchOrder = new ArrayList<>();
-                int range = clutchRange.get().intValue();
+            for (BlockPos target : searchOrder) {
+                if (visited.contains(target)) continue;
+                visited.add(target);
 
-                for (int x = -range; x <= range; x++) {
-                    for (int y = 0; y >= -range; y--) {
-                        for (int z = -range; z <= range; z++) {
-                            BlockPos pos = below.add(x, y, z);
-                            if (mc.thePlayer.getDistanceSqToCenter(pos) <= range * range) {
-                                searchOrder.add(pos);
-                            }
-                        }
+                if (!mc.theWorld.getBlockState(target).getBlock().isReplaceable(mc.theWorld, target)) continue;
+
+                AxisAlignedBB targetBB = new AxisAlignedBB(
+                        target.getX(), target.getY(), target.getZ(),
+                        target.getX() + 1, target.getY() + 1, target.getZ() + 1
+                );
+
+                if (mc.thePlayer.getEntityBoundingBox().intersectsWith(targetBB)) continue;
+
+                boolean hasSupport = false;
+                for (EnumFacing dir : EnumFacing.values()) {
+                    if (dir == EnumFacing.DOWN) continue;
+                    BlockPos support = target.offset(dir);
+                    if (!mc.theWorld.getBlockState(support).getBlock().isReplaceable(mc.theWorld, support)) {
+                        hasSupport = true;
+                        break;
                     }
                 }
 
-                searchOrder.sort(Comparator.comparingDouble(pos -> mc.thePlayer.getDistanceSqToCenter(pos)));
+                if (!hasSupport) continue;
 
-                for (BlockPos target : searchOrder) {
-                    if (visited.contains(target)) continue;
-                    visited.add(target);
+                PlaceResult clutchResult = tryPlaceBlock(target);
 
-                    if (!mc.theWorld.getBlockState(target).getBlock().isReplaceable(mc.theWorld, target)) continue;
+                if (clutchResult == PlaceResult.FAIL_ROTATION) {
+                    return;
+                }
 
-                    AxisAlignedBB targetBB = new AxisAlignedBB(
-                            target.getX(), target.getY(), target.getZ(),
-                            target.getX() + 1, target.getY() + 1, target.getZ() + 1
-                    );
-
-                    if (mc.thePlayer.getEntityBoundingBox().intersectsWith(targetBB)) continue;
-
-                    boolean hasSupport = false;
-                    for (EnumFacing dir : EnumFacing.values()) {
-                        if (dir == EnumFacing.DOWN) continue;
-                        BlockPos support = target.offset(dir);
-                        if (!mc.theWorld.getBlockState(support).getBlock().isReplaceable(mc.theWorld, support)) {
-                            hasSupport = true;
-                            break;
-                        }
-                    }
-
-                    if (!hasSupport) continue;
-
-                    PlaceResult clutchResult = tryPlaceBlock(target);
-
-                    if (clutchResult == PlaceResult.FAIL_ROTATION) {
-                        return;
-                    }
-
-                    if (clutchResult == PlaceResult.SUCCESS) {
-                        lastPlacedPos = target;
-                        placed = true;
-                        break;
-                    }
+                if (clutchResult == PlaceResult.SUCCESS) {
+                    lastPlacedPos = target;
+                    placed = true;
+                    break;
                 }
             }
         }
@@ -563,7 +553,7 @@ public class Scaffold extends Module {
     private PlaceResult tryPlaceBlock(BlockPos pos) {
         if (!holdingBlock) return PlaceResult.FAIL_OTHER;
 
-        EnumFacing preferredFacing = facingFromRotation(mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch);
+        EnumFacing preferredFacing = facingFromRotation(DewCommon.rotationManager.getClientYaw(), DewCommon.rotationManager.getClientPitch());
         List<EnumFacing> facings = new ArrayList<>(Arrays.asList(EnumFacing.values()));
         facings.remove(preferredFacing);
         facings.add(0, preferredFacing);
