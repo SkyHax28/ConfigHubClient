@@ -60,17 +60,17 @@ public class HypixelSpeed implements SpeedMode {
                 if (mc.thePlayer.onGround) {
                     if (MovementUtil.isMoving()) {
                         mc.thePlayer.jump();
-                        allowLow = !mc.thePlayer.isPotionActive(Potion.jump) && (!DewCommon.moduleManager.getModule(Scaffold.class).isEnabled() || !GameSettings.isKeyDown(mc.gameSettings.keyBindJump) && DewCommon.moduleManager.getModule(Scaffold.class).jumped);
+                        allowLow = !mc.thePlayer.isPotionActive(Potion.jump) && !MovementUtil.isBlockAbovePlayer(mc.thePlayer, 2, 1) && (!DewCommon.moduleManager.getModule(Scaffold.class).isEnabled() || !GameSettings.isKeyDown(mc.gameSettings.keyBindJump) && DewCommon.moduleManager.getModule(Scaffold.class).jumped);
                     }
 
                     if ((!DewCommon.moduleManager.getModule(Scaffold.class).isEnabled() || !GameSettings.isKeyDown(mc.gameSettings.keyBindJump) && DewCommon.moduleManager.getModule(Scaffold.class).jumped)) {
-                        this.strafeWithCorrectHypPotMath(0.46f);
+                        this.strafeWithCorrectHypPotMath(0.41f);
                     }
                 } else if (allowLow) {
                     switch (preMotionEventTicks) {
                         case 1:
                             mc.thePlayer.motionY = 0.39F;
-                            this.strafeWithCorrectHypPotMath(0.305f);
+                            MovementUtil.strafe(MovementUtil.getSpeed());
                             break;
 
                         case 3:
@@ -82,21 +82,16 @@ public class HypixelSpeed implements SpeedMode {
                             break;
 
                         case 6:
-                            if (MovementUtil.isBlockUnderPlayer(mc.thePlayer, 1, true)) {
+                            if (MovementUtil.isBlockUnderPlayer(mc.thePlayer, 2, true)) {
                                 mc.thePlayer.motionY += 0.075;
-                                this.strafeWithCorrectHypPotMath(0.275f);
-                            }
-                            break;
-
-                        case 7:
-                            if (MovementUtil.isBlockUnderPlayer(mc.thePlayer, 1, true)) {
                                 MovementUtil.strafe(MovementUtil.getSpeed());
                             }
                             break;
 
+                        case 7:
                         case 8:
-                            if (MovementUtil.isBlockUnderPlayer(mc.thePlayer, 1, true)) {
-                                this.strafeWithCorrectHypPotMath(0.285f);
+                            if (MovementUtil.isBlockUnderPlayer(mc.thePlayer, 2, true)) {
+                                MovementUtil.strafe(MovementUtil.getSpeed());
                             }
                             break;
                     }
@@ -122,7 +117,7 @@ public class HypixelSpeed implements SpeedMode {
                     }
 
                     if ((!DewCommon.moduleManager.getModule(Scaffold.class).isEnabled() || !GameSettings.isKeyDown(mc.gameSettings.keyBindJump) && DewCommon.moduleManager.getModule(Scaffold.class).jumped)) {
-                        this.strafeWithCorrectHypPotMath(0.46f);
+                        this.strafeWithCorrectHypPotMath(0.41f);
                     }
                 } else if (allowLow) {
                     switch (preUpdateEventTicks) {
