@@ -6,6 +6,7 @@ import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
 import com.dew.system.module.modules.combat.KillAura;
 import com.dew.system.module.modules.player.Scaffold;
+import com.dew.system.settingsvalue.BooleanValue;
 import com.dew.system.settingsvalue.MultiSelectionValue;
 import com.dew.utils.Lerper;
 import com.dew.utils.LogUtil;
@@ -38,9 +39,14 @@ public class Hud extends Module {
     }
 
     private static final MultiSelectionValue features = new MultiSelectionValue("Features", Arrays.asList("Watermark", "Module List", "Armor Hud", "Potion Hud", "Target Hud"), "Watermark", "Module List", "Armor Hud", "Potion Hud", "Target Hud");
+    private static final BooleanValue disableAchievementsNotification = new BooleanValue("Disable Achievements Notification", true);
 
     private final Map<Module, Float> animationProgress = new HashMap<>();
     private long lastRenderTime = System.nanoTime();
+
+    public boolean disableAchievementsUI() {
+        return disableAchievementsNotification.get();
+    }
 
     @Override
     public void onRender2D(Render2DEvent event) {

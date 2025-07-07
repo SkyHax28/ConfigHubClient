@@ -263,6 +263,7 @@ public class ItemRenderer
 
     private void transformFirstPersonItem(float equipProgress, float swingProgress)
     {
+        float scale = DewCommon.moduleManager.getModule(Animations.class).getItemScale() / 10f;
         GlStateManager.translate(0.56F, -0.52F, -0.71999997F);
         GlStateManager.translate(0.0F, equipProgress * -0.6F, 0.0F);
         GlStateManager.rotate(45.0F, 0.0F, 1.0F, 0.0F);
@@ -271,7 +272,7 @@ public class ItemRenderer
         GlStateManager.rotate(f * -20.0F, 0.0F, 1.0F, 0.0F);
         GlStateManager.rotate(f1 * -20.0F, 0.0F, 0.0F, 1.0F);
         GlStateManager.rotate(f1 * -80.0F, 1.0F, 0.0F, 0.0F);
-        GlStateManager.scale(0.4F, 0.4F, 0.4F);
+        GlStateManager.scale(0.4f + scale, 0.4f + scale, 0.4f + scale);
     }
 
     private void doBowTransformations(float partialTicks, AbstractClientPlayer clientPlayer)
@@ -403,7 +404,8 @@ public class ItemRenderer
                     break;
 
                 case "crazy":
-                    GlStateManager.translate(0.0F, 0.05F, 0.0F);
+                    GlStateManager.translate(0.0F, 0.05F, -0.02F);
+                    GlStateManager.rotate(1.0F, 0.0F, 0.0F, -0.1F);
                     this.transformFirstPersonItem(0.0F, f1);
                     this.doBlockTransformations();
                     break;

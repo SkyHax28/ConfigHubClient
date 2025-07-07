@@ -1,5 +1,7 @@
 package net.minecraft.client.gui.achievement;
 
+import com.dew.DewCommon;
+import com.dew.system.module.modules.render.Hud;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
@@ -31,6 +33,10 @@ public class GuiAchievement extends Gui
 
     public void displayAchievement(Achievement ach)
     {
+        if (DewCommon.moduleManager.getModule(Hud.class).isEnabled() && DewCommon.moduleManager.getModule(Hud.class).disableAchievementsUI()) {
+            return;
+        }
+
         this.achievementTitle = I18n.format("achievement.get", new Object[0]);
         this.achievementDescription = ach.getStatName().getUnformattedText();
         this.notificationTime = Minecraft.getSystemTime();
@@ -40,6 +46,10 @@ public class GuiAchievement extends Gui
 
     public void displayUnformattedAchievement(Achievement achievementIn)
     {
+        if (DewCommon.moduleManager.getModule(Hud.class).isEnabled() && DewCommon.moduleManager.getModule(Hud.class).disableAchievementsUI()) {
+            return;
+        }
+
         this.achievementTitle = achievementIn.getStatName().getUnformattedText();
         this.achievementDescription = achievementIn.getDescription();
         this.notificationTime = Minecraft.getSystemTime() + 2500L;

@@ -176,7 +176,7 @@ public class RotationManager {
         } else {
             lowerOffset = 142f;
             upperOffset = 142f;
-            MovementUtil.strafe(0.04f);
+            MovementUtil.strafe(0.01f);
         }
 
         float lowerCandidate = snappedBase - lowerOffset;

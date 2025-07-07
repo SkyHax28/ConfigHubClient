@@ -20,6 +20,7 @@ public class Animations extends Module {
     public static final MultiSelectionValue oldAnimations = new MultiSelectionValue("1.7 Animations", Arrays.asList("Food", "Potion", "Bow", "Sword Third Person"), "Food", "Potion", "Bow", "Sword Third Person");
     private static final BooleanValue customSwingSpeed = new BooleanValue("Custom Swing Speed", false);
     private static final NumberValue swingSpeed = new NumberValue("Swing Speed", 9.0, -5.0, 20.0, 1.0, customSwingSpeed::get);
+    private static final NumberValue itemScale = new NumberValue("Item Scale", 0.0, -2.0, 2.0, 0.5);
 
     private boolean visualBlocking = false;
 
@@ -37,5 +38,13 @@ public class Animations extends Module {
 
     public int getSwingSpeed() {
         return swingSpeed.get().intValue();
+    }
+
+    public float getItemScale() {
+        if (!this.isEnabled()) {
+            return 0f;
+        }
+
+        return itemScale.get().floatValue();
     }
 }
