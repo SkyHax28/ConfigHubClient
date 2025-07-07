@@ -399,12 +399,14 @@ public class ItemRenderer
                     break;
 
                 case "legacy":
+                    GlStateManager.translate(0.0F, 0.02F, -0.02F);
+                    GlStateManager.rotate(1.0F, 0.0F, 0.0F, -0.1F);
                     this.transformFirstPersonItem(f, f1);
                     this.doBlockTransformations();
                     break;
 
                 case "crazy":
-                    GlStateManager.translate(0.0F, 0.05F, -0.02F);
+                    GlStateManager.translate(0.0F, 0.1F, -0.02F);
                     GlStateManager.rotate(1.0F, 0.0F, 0.0F, -0.1F);
                     this.transformFirstPersonItem(0.0F, f1);
                     this.doBlockTransformations();
