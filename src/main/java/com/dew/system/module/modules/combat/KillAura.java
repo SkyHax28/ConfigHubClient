@@ -5,6 +5,7 @@ import com.dew.system.event.events.TickEvent;
 import com.dew.system.event.events.WorldEvent;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
+import com.dew.system.module.modules.exploit.SafetySwitchv2000;
 import com.dew.system.module.modules.player.Breaker;
 import com.dew.system.module.modules.player.Scaffold;
 import com.dew.system.module.modules.render.Animations;
@@ -71,7 +72,9 @@ public class KillAura extends Module {
 
     @Override
     public void onWorld(WorldEvent event) {
-        this.setState(false);
+        if (DewCommon.moduleManager.getModule(SafetySwitchv2000.class).isEnabled()) {
+            this.setState(false);
+        }
     }
 
     private void resetState() {

@@ -1,11 +1,13 @@
 package com.dew.system.module.modules.movement.speed;
 
+import com.dew.DewCommon;
 import com.dew.system.event.events.PreMotionEvent;
 import com.dew.system.event.events.PreUpdateEvent;
 import com.dew.system.event.events.ReceivedPacketEvent;
 import com.dew.system.event.events.WorldEvent;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
+import com.dew.system.module.modules.exploit.SafetySwitchv2000;
 import com.dew.system.module.modules.movement.speed.speeds.*;
 import com.dew.system.settingsvalue.BooleanValue;
 import com.dew.system.settingsvalue.NumberValue;
@@ -59,7 +61,9 @@ public class SpeedModule extends Module {
 
     @Override
     public void onWorld(WorldEvent event) {
-        this.setState(false);
+        if (DewCommon.moduleManager.getModule(SafetySwitchv2000.class).isEnabled()) {
+            this.setState(false);
+        }
     }
 
     @Override

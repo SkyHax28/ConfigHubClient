@@ -4,6 +4,7 @@ import com.dew.DewCommon;
 import com.dew.system.event.events.*;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
+import com.dew.system.module.modules.exploit.SafetySwitchv2000;
 import com.dew.system.module.modules.movement.speed.SpeedModule;
 import com.dew.system.settingsvalue.BooleanValue;
 import com.dew.system.settingsvalue.NumberValue;
@@ -80,7 +81,9 @@ public class Scaffold extends Module {
 
     @Override
     public void onWorld(WorldEvent event) {
-        this.setState(false);
+        if (DewCommon.moduleManager.getModule(SafetySwitchv2000.class).isEnabled()) {
+            this.setState(false);
+        }
     }
 
     private void resetState() {
@@ -302,7 +305,7 @@ public class Scaffold extends Module {
             int range = clutchRange.get().intValue();
 
             for (int x = -range; x <= range; x++) {
-                for (int y = 0; y >= -range; y--) {
+                for (int y = 0; y >= -2; y--) {
                     for (int z = -range; z <= range; z++) {
                         BlockPos pos = below.add(x, y, z);
                         if (mc.thePlayer.getDistanceSqToCenter(pos) <= range * range) {
@@ -329,7 +332,6 @@ public class Scaffold extends Module {
 
                 boolean hasSupport = false;
                 for (EnumFacing dir : EnumFacing.values()) {
-                    if (dir == EnumFacing.DOWN) continue;
                     BlockPos support = target.offset(dir);
                     if (!mc.theWorld.getBlockState(support).getBlock().isReplaceable(mc.theWorld, support)) {
                         hasSupport = true;
@@ -522,10 +524,6 @@ public class Scaffold extends Module {
             case 2:
             default: return EnumFacing.NORTH;
         }
-    }
-
-    private boolean placeBlockScaffold(BlockPos pos) {
-        return tryPlaceBlock(pos) == PlaceResult.SUCCESS;
     }
 
     private PlaceResult tryPlaceBlock(BlockPos pos) {
