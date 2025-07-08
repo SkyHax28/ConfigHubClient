@@ -34,7 +34,7 @@ public class Scaffold extends Module {
     private static final SelectionValue mode = new SelectionValue("Mode", "Normal", "Normal", "Telly", "Hypixel");
     private static final SelectionValue towerMode = new SelectionValue("Tower Mode", "OFF", "OFF", "Vanilla", "Hypixel");
     private static final NumberValue clutchRange = new NumberValue("Clutch Range", 3.0, 1.0, 5.0, 1.0);
-    private static final NumberValue rotationSpeed = new NumberValue("Rotation Speed", 60.0, 0.0, 180.0, 10.0, () -> mode.get().equals("Normal") || mode.get().equals("Telly"));
+    private static final NumberValue rotationSpeed = new NumberValue("Rotation Speed", 60.0, 0.0, 180.0, 5.0, () -> mode.get().equals("Normal") || mode.get().equals("Telly"));
     private static final NumberValue placeDelay = new NumberValue("Place Delay", 0.0, 0.0, 3.0, 0.1, () -> mode.get().equals("Normal") || mode.get().equals("Telly"));
     private static final BooleanValue tellyQuickRotation = new BooleanValue("Telly Quick Rotation", true, () -> mode.get().equals("Telly"));
     private static final SelectionValue edgeSafeMode = new SelectionValue("Edge Safe Mode", "OFF", "OFF", "Safewalk", "Sneak");
@@ -133,6 +133,11 @@ public class Scaffold extends Module {
 
     @Override
     public void onPreUpdate(PreUpdateEvent event) {
+        if (mc.thePlayer != null) {
+            jumpTicks = mc.thePlayer.onGround ? 0 : jumpTicks + 1;
+        }
+        delay++;
+
         this.scaffoldSubTick();
     }
 
@@ -143,9 +148,6 @@ public class Scaffold extends Module {
 
     private void scaffoldMainTick() {
         if (mc.thePlayer == null || mc.theWorld == null) return;
-
-        jumpTicks = mc.thePlayer.onGround ? 0 : jumpTicks + 1;
-        delay++;
 
         this.doMainFunctions();
     }

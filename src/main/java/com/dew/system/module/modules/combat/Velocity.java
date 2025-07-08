@@ -9,6 +9,7 @@ import com.dew.system.module.ModuleCategory;
 import com.dew.system.module.modules.movement.speed.SpeedModule;
 import com.dew.system.settingsvalue.SelectionValue;
 import com.dew.utils.BlinkUtil;
+import com.dew.utils.LogUtil;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S12PacketEntityVelocity;
@@ -79,6 +80,8 @@ public class Velocity extends Module {
                             double horizontalStrength = Math.sqrt(horizontal);
 
                             if (horizontalStrength <= 1000) return;
+
+                            LogUtil.printChat("jump");
 
                             mc.thePlayer.jump();
                         }

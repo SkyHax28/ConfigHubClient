@@ -116,7 +116,7 @@ public class NewBacktrackBeta extends Module {
     public void onPreUpdate(PreUpdateEvent event) {
         if (target == null || mc.thePlayer == null || mc.theWorld == null) return;
 
-        if (target != DewCommon.moduleManager.getModule(KillAura.class).target && DewCommon.moduleManager.getModule(KillAura.class).isEnabled()) {
+        if (target != DewCommon.moduleManager.getModule(KillAura.class).target && DewCommon.moduleManager.getModule(KillAura.class).isEnabled() && mc.thePlayer.getDistanceToEntity(target) >= 3f) {
             clear();
             LogUtil.printChat("nerd");
             return;

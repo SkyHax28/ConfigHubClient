@@ -36,7 +36,7 @@ public class Breaker extends Module {
 
     private static final NumberValue breakRange = new NumberValue("Break Range", 4.0, 1.0, 6.0, 1.0);
     private static final BooleanValue breakOpposite = new BooleanValue("Break Opposite", false);
-    private static final NumberValue rotationSpeed = new NumberValue("Rotation Speed", 60.0, 0.0, 180.0, 10.0);
+    private static final NumberValue rotationSpeed = new NumberValue("Rotation Speed", 60.0, 0.0, 180.0, 5.0);
 
     public boolean isBreaking = false;
     private BlockPos currentTarget = null;
