@@ -87,8 +87,10 @@ public class Scaffold extends Module {
     }
 
     private void resetState() {
-        if (originalSlot != -1 && mc.thePlayer != null)
+        if (originalSlot != -1 && mc.thePlayer != null) {
             mc.thePlayer.inventory.currentItem = originalSlot;
+            mc.playerController.updateController();
+        }
         originalSlot = -1;
         delay = 0;
         holdingBlock = false;
@@ -268,6 +270,7 @@ public class Scaffold extends Module {
                 originalSlot = mc.thePlayer.inventory.currentItem;
             }
             mc.thePlayer.inventory.currentItem = blockSlot;
+            mc.playerController.updateController();
             holdingBlock = true;
         }
 
