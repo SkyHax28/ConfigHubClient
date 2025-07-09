@@ -39,6 +39,7 @@ public class Scaffold extends Module {
     private static final NumberValue placeDelay = new NumberValue("Place Delay", 0.0, 0.0, 3.0, 0.1, () -> mode.get().equals("Normal") || mode.get().equals("Telly"));
     private static final BooleanValue tellyQuickRotation = new BooleanValue("Telly Quick Rotation", true, () -> mode.get().equals("Telly"));
     private static final SelectionValue edgeSafeMode = new SelectionValue("Edge Safe Mode", "OFF", "OFF", "Safewalk", "Sneak");
+    private static final SelectionValue clickMode = new SelectionValue("Click Mode", "Normal", "Normal", "Legit");
     public static final BooleanValue preferHighestStack = new BooleanValue("Prefer Highest Stack", true);
     public static final BooleanValue noSprint = new BooleanValue("No Sprint", false);
 
@@ -558,12 +559,19 @@ public class Scaffold extends Module {
                 }
             }
 
-            if (mc.playerController.onPlayerRightClick(mc.thePlayer, mc.theWorld, mc.thePlayer.getHeldItem(), neighbor, opposite, hitVec)) {
-                PacketUtil.sendPacket(new C0APacketAnimation());
+            if (clickMode.get().equals("Normal")) {
+                if (mc.playerController.onPlayerRightClick(mc.thePlayer, mc.theWorld, mc.thePlayer.getHeldItem(), neighbor, opposite, hitVec)) {
+                    PacketUtil.sendPacket(new C0APacketAnimation());
+                    delay = 0;
+                    return PlaceResult.SUCCESS;
+                }
+            } else {
+                mc.placeBlockWithRightClickFunctions();
                 delay = 0;
                 return PlaceResult.SUCCESS;
             }
         }
+
         return PlaceResult.FAIL_OTHER;
     }
 

@@ -1,5 +1,7 @@
 package net.minecraft.client.entity;
 
+import com.dew.DewCommon;
+import com.dew.system.rotation.RotationManager;
 import com.mojang.authlib.GameProfile;
 
 import java.io.BufferedReader;
@@ -275,6 +277,13 @@ public abstract class AbstractClientPlayer extends EntityPlayer
 
     public Vec3 getLook(float partialTicks)
     {
+        if (this instanceof EntityPlayerSP) {
+            RotationManager rotationManager = DewCommon.rotationManager;
+            if (rotationManager.isRotating()) {
+                return this.getVectorForRotation(rotationManager.getClientPitch(), rotationManager.getClientYaw());
+            }
+        }
+
         return this.getVectorForRotation(this.rotationPitch, this.rotationYaw);
     }
 }

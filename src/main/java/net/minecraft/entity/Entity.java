@@ -9,7 +9,9 @@ import com.dew.DewCommon;
 import com.dew.system.event.events.MoveEvent;
 import com.dew.system.event.events.StrafeEvent;
 import com.dew.system.module.modules.movement.Step;
+import com.dew.system.rotation.RotationManager;
 import com.dew.system.viapatcher.MovePatcher;
+import com.dew.utils.LogUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockFence;
 import net.minecraft.block.BlockFenceGate;
@@ -1243,6 +1245,19 @@ public abstract class Entity implements ICommandSender
 
     public Vec3 getLook(float partialTicks)
     {
+        if (this instanceof EntityPlayerSP) {
+            RotationManager rotationManager = DewCommon.rotationManager;
+            if (rotationManager.isRotating()) {
+                if (partialTicks == 1.0F) {
+                    return this.getVectorForRotation(rotationManager.getClientPitch(), rotationManager.getClientYaw());
+                } else {
+                    float f = rotationManager.getPrevClientPitch() + (rotationManager.getClientPitch() - rotationManager.getPrevClientPitch()) * partialTicks;
+                    float f1 = rotationManager.getPrevClientYaw() + (rotationManager.getClientYaw() - rotationManager.getPrevClientYaw()) * partialTicks;
+                    return this.getVectorForRotation(f, f1);
+                }
+            }
+        }
+
         if (partialTicks == 1.0F)
         {
             return this.getVectorForRotation(this.rotationPitch, this.rotationYaw);

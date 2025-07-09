@@ -6,6 +6,7 @@ import com.dew.system.event.events.TickEvent;
 import com.dew.system.event.events.WorldEvent;
 import com.dew.system.module.modules.render.Animations;
 import com.dew.utils.McChanges;
+import com.dew.utils.PacketUtil;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -142,6 +143,7 @@ import net.minecraft.network.EnumConnectionState;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.handshake.client.C00Handshake;
 import net.minecraft.network.login.client.C00PacketLoginStart;
+import net.minecraft.network.play.client.C0APacketAnimation;
 import net.minecraft.network.play.client.C16PacketClientStatus;
 import net.minecraft.profiler.IPlayerUsage;
 import net.minecraft.profiler.PlayerUsageSnooper;
@@ -1448,6 +1450,53 @@ public class Minecraft implements IThreadListener, IPlayerUsage
                         {
                             this.leftClickCounter = 10;
                         }
+                }
+            }
+        }
+    }
+
+    public void placeBlockWithRightClickFunctions() {
+        if (!this.playerController.getIsHittingBlock()) {
+            boolean flag = true;
+            ItemStack itemstack = this.thePlayer.inventory.getCurrentItem();
+
+            if (this.objectMouseOver == null) {
+                logger.warn("Null returned as \'hitResult\', this shouldn\'t happen!");
+            } else if (this.objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {
+                BlockPos blockpos = this.objectMouseOver.getBlockPos();
+
+                if (this.theWorld.getBlockState(blockpos).getBlock().getMaterial() != Material.air) {
+                    int i = itemstack != null ? itemstack.stackSize : 0;
+
+                    if (this.playerController.onPlayerRightClick(this.thePlayer, this.theWorld, itemstack, blockpos, this.objectMouseOver.sideHit, this.objectMouseOver.hitVec))
+                    {
+                        flag = false;
+                        PacketUtil.sendPacket(new C0APacketAnimation());
+                    }
+
+                    if (itemstack == null)
+                    {
+                        return;
+                    }
+
+                    if (itemstack.stackSize == 0)
+                    {
+                        this.thePlayer.inventory.mainInventory[this.thePlayer.inventory.currentItem] = null;
+                    }
+                    else if (itemstack.stackSize != i || this.playerController.isInCreativeMode())
+                    {
+                        this.entityRenderer.itemRenderer.resetEquippedProgress();
+                    }
+                }
+            }
+
+            if (flag)
+            {
+                ItemStack itemstack1 = this.thePlayer.inventory.getCurrentItem();
+
+                if (itemstack1 != null && this.playerController.sendUseItem(this.thePlayer, this.theWorld, itemstack1))
+                {
+                    this.entityRenderer.itemRenderer.resetEquippedProgress2();
                 }
             }
         }
