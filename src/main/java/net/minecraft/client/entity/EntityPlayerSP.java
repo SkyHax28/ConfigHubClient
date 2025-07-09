@@ -255,6 +255,11 @@ public class EntityPlayerSP extends AbstractClientPlayer
         this.sendQueue.addToSendQueue(new C01PacketChatMessage(message));
     }
 
+    public void swingItemWithoutPacket()
+    {
+        super.swingItemWithoutPacket();
+    }
+
     public void swingItem()
     {
         super.swingItem();

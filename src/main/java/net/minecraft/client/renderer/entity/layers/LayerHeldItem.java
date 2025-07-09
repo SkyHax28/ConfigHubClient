@@ -3,6 +3,7 @@ package net.minecraft.client.renderer.entity.layers;
 import com.dew.DewCommon;
 import com.dew.IMinecraft;
 import com.dew.system.module.modules.render.Animations;
+import com.dew.utils.LogUtil;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -13,10 +14,7 @@ import net.minecraft.client.renderer.entity.RendererLivingEntity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemBlock;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemSword;
+import net.minecraft.item.*;
 
 import java.util.UUID;
 
@@ -51,7 +49,9 @@ public class LayerHeldItem implements LayerRenderer<EntityLivingBase>
             final UUID uuid = entitylivingbaseIn.getUniqueID();
             final EntityPlayer entityplayer = IMinecraft.mc.theWorld.getPlayerEntityByUUID(uuid);
 
-            if (DewCommon.moduleManager.getModule(Animations.class).isEnabled() && Animations.oldAnimations.isSelected("Sword Third Person") && entityplayer != null && (entityplayer.isBlocking() || entityplayer instanceof EntityPlayerSP && itemstack.getItem() instanceof ItemSword && DewCommon.moduleManager.getModule(Animations.class).isVisualBlocking())) {
+            boolean shouldSwordBlock = DewCommon.moduleManager.getModule(Animations.class).isEnabled() && Animations.oldAnimations.isSelected("Third Person") && entityplayer != null && (entityplayer.isBlocking() || entityplayer instanceof EntityPlayerSP && itemstack.getItem() instanceof ItemSword && DewCommon.moduleManager.getModule(Animations.class).isVisualBlocking());
+
+            if (shouldSwordBlock) {
                 if (entitylivingbaseIn.isSneaking()) {
                     ((ModelBiped)this.livingEntityRenderer.getMainModel()).postRenderArm(0.0325F);
                     translate(-0.58F, 0.3F, -0.2F);
@@ -87,6 +87,36 @@ public class LayerHeldItem implements LayerRenderer<EntityLivingBase>
             if (entitylivingbaseIn.isSneaking())
             {
                 GlStateManager.translate(0.0F, 0.203125F, 0.0F);
+            }
+
+            if (DewCommon.moduleManager.getModule(Animations.class).isEnabled() && Animations.oldAnimations.isSelected("Third Person") && !IMinecraft.mc.getRenderItem().shouldRenderItemIn3D(itemstack) && !(itemstack.getItem() instanceof ItemSkull || itemstack.getItem() instanceof ItemBanner || itemstack.getItem() instanceof ItemFishingRod || shouldSwordBlock)) {
+                scale = 1.5F * 0.625F;
+                if (itemstack.getItem() instanceof ItemBow) {
+                    GlStateManager.rotate(-12.0F, 0.0f, 1.0f, 0.0f);
+                    GlStateManager.rotate(-7.0F, 1.0f, 0.0f, 0.0f);
+                    GlStateManager.rotate(10.0F, 0.0f, 0.0f, 1.0f);
+                    GlStateManager.rotate(1.0F, 0.0f, 1.0f, 0.0f);
+                    GlStateManager.rotate(-4.5F, 1.0f, 0.0f, 0.0f);
+                    GlStateManager.rotate(-1.5F, 0.0f, 0.0f, 1.0f);
+                    GlStateManager.translate(0.022F, -0.01F, -0.108F);
+                    GlStateManager.scale(scale, scale, scale);
+                } else if (itemstack.getItem().isFull3D()) {
+                    if (entitylivingbaseIn.getHeldItem().getItem().shouldRotateAroundWhenRendering()) {
+                        GlStateManager.rotate(180.0F, 0.0F, 0.0F, 1.0F);
+                    }
+                    GlStateManager.scale(scale / 0.85F, scale / 0.85F, scale / 0.85F);
+                    GlStateManager.rotate(-2.4F, 0.0F, 1.0F, 0.0F);
+                    GlStateManager.rotate(-20.0F, 1.0F, 0.0F, 0.0F);
+                    GlStateManager.rotate(4.5F, 0.0F, 0.0F, 1.0F);
+                    GlStateManager.translate(-0.013F, 0.01F, 0.125F);
+                } else {
+                    scale = 1.5F * 0.375F;
+                    GlStateManager.scale(scale / 0.55, scale / 0.55, scale / 0.55);
+                    GlStateManager.rotate(-195.0F, 0.0F, 1.0F, 0.0F);
+                    GlStateManager.rotate(-168.0F, 1.0F, 0.0F, 0.0F);
+                    GlStateManager.rotate(15.0F, 0.0F, 0.0F, 1.0F);
+                    GlStateManager.translate(-0.047F, -0.28F, 0.038F);
+                }
             }
 
             minecraft.getItemRenderer().renderItem(entitylivingbaseIn, itemstack, ItemCameraTransforms.TransformType.THIRD_PERSON);

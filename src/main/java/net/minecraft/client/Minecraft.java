@@ -4,6 +4,7 @@ import com.dew.DewCommon;
 import com.dew.system.event.events.KeyboardEvent;
 import com.dew.system.event.events.TickEvent;
 import com.dew.system.event.events.WorldEvent;
+import com.dew.system.module.modules.render.Animations;
 import com.dew.utils.McChanges;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -1382,11 +1383,19 @@ public class Minecraft implements IThreadListener, IPlayerUsage
             this.leftClickCounter = 0;
         }
 
-        if (this.leftClickCounter <= 0 && !this.thePlayer.isUsingItem())
+        if (this.leftClickCounter <= 0)
         {
             if (leftClick && this.objectMouseOver != null && this.objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK)
             {
                 BlockPos blockpos = this.objectMouseOver.getBlockPos();
+
+                if (this.thePlayer.isUsingItem()) {
+                    if (this.theWorld.getBlockState(blockpos).getBlock().getMaterial() != Material.air && DewCommon.moduleManager.getModule(Animations.class).isEnabled() && Animations.oldAnimations.isSelected("Punching During Usage")) {
+                        this.effectRenderer.addBlockHitEffects(blockpos, this.objectMouseOver.sideHit);
+                        this.thePlayer.swingItemWithoutPacket();
+                    }
+                    return;
+                }
 
                 if (this.theWorld.getBlockState(blockpos).getBlock().getMaterial() != Material.air && this.playerController.onPlayerDamageBlock(blockpos, this.objectMouseOver.sideHit))
                 {

@@ -7,6 +7,8 @@ import com.dew.system.module.Module;
 import com.dew.system.module.modules.render.Animations;
 import com.dew.system.module.modules.render.NoFireOverlay;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockCarpet;
+import net.minecraft.block.BlockSnow;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -255,10 +257,18 @@ public class ItemRenderer
 
         GlStateManager.translate(0.0F, f2, 0.0F);
         float f3 = 1.0F - (float)Math.pow((double)f1, 27.0D);
-        GlStateManager.translate(f3 * 0.6F, f3 * -0.5F, f3 * 0.0F);
-        GlStateManager.rotate(f3 * 90.0F, 0.0F, 1.0F, 0.0F);
-        GlStateManager.rotate(f3 * 10.0F, 1.0F, 0.0F, 0.0F);
-        GlStateManager.rotate(f3 * 30.0F, 0.0F, 0.0F, 1.0F);
+
+        if (Animations.oldAnimations.isSelected("Potion")) {
+            GlStateManager.translate(f3 * 0.66F, f3 * -0.5F, f3 * 0.0F);
+            GlStateManager.rotate(f3 * 90.0F, 0.0F, 1.0F, 0.0F);
+            GlStateManager.rotate(f3 * 5.0F, 1.0F, 0.0F, 0.0F);
+            GlStateManager.rotate(f3 * 28.0F, 0.0F, 0.0F, 1.0F);
+        } else {
+            GlStateManager.translate(f3 * 0.6F, f3 * -0.5F, f3 * 0.0F);
+            GlStateManager.rotate(f3 * 90.0F, 0.0F, 1.0F, 0.0F);
+            GlStateManager.rotate(f3 * 10.0F, 1.0F, 0.0F, 0.0F);
+            GlStateManager.rotate(f3 * 30.0F, 0.0F, 0.0F, 1.0F);
+        }
     }
 
     private void transformFirstPersonItem(float equipProgress, float swingProgress)
@@ -277,6 +287,11 @@ public class ItemRenderer
 
     private void doBowTransformations(float partialTicks, AbstractClientPlayer clientPlayer)
     {
+        if (Animations.oldAnimations.isSelected("Bow")) {
+            GlStateManager.translate(-0.2D, 0.0D, -0.175D);
+            GlStateManager.rotate(1.0F, 0.0F, 0.0F, -1.25F);
+        }
+
         GlStateManager.rotate(-18.0F, 0.0F, 0.0F, 1.0F);
         GlStateManager.rotate(-12.0F, 0.0F, 1.0F, 0.0F);
         GlStateManager.rotate(-8.0F, 1.0F, 0.0F, 0.0F);
@@ -300,6 +315,22 @@ public class ItemRenderer
 
         GlStateManager.translate(f1 * 0.0F, f1 * 0.0F, f1 * 0.1F);
         GlStateManager.scale(1.0F, 1.0F, 1.0F + f1 * 0.2F);
+    }
+
+    private void doCrazyBlockTransformations()
+    {
+        GlStateManager.translate(0.0F, -0.2F, 0.0F);
+
+        GlStateManager.translate(-0.5F, 0.2F, 0.0F);
+        GlStateManager.rotate(30.0F, 0.0F, 1.0F, 0.0F);
+        GlStateManager.rotate(-80.0F, 1.0F, 0.0F, 0.0F);
+        GlStateManager.rotate(60.0F, 0.0F, 1.0F, 0.0F);
+
+        GlStateManager.translate(-0.55F, 0.2F, 0.1F);
+        GlStateManager.scale(0.85F, 0.85F, 0.85F);
+        GlStateManager.rotate(1.0F, 0.0F, 0.0F, -1.0F);
+        GlStateManager.rotate(1.0F, 0.25F, 0.0F, 0.0F);
+        GlStateManager.rotate(2.0F, 0.0F, 2.0F, 0.0F);
     }
 
     private void doBlockTransformations()
@@ -339,6 +370,27 @@ public class ItemRenderer
             }
 
             if (toRender != null) {
+                if (animationsModule.isEnabled()) {
+                    if (toRender.getItem() instanceof ItemSword) {
+                        GlStateManager.translate(0.0F, 0.0F, -0.02F);
+                        GlStateManager.rotate(1.0F, 0.0F, 0.0F, -0.1F);
+                    } else if (toRender.getItem() instanceof ItemPotion) {
+                        GlStateManager.translate(-0.0225F, -0.02F, 0.0F);
+                        GlStateManager.rotate(1.0F, 0.0F, 0.0F, 0.1F);
+                    } else if (toRender.getItem() instanceof ItemFishingRod || toRender.getItem() instanceof ItemCarrotOnAStick) {
+                        GlStateManager.translate(0.08F, -0.0275F, -0.33F);
+                        GlStateManager.scale(0.949999988079071D, 1.0D, 1.0D);
+                    } else if (toRender.getItem() instanceof ItemBow) {
+                        GlStateManager.translate(0.0F, 0.0F, 0.0F);
+                        GlStateManager.rotate(0.9F, 0.0F, 0.001F, 0.0F);
+                    } else if (toRender.getItem() instanceof ItemBlock) {
+                        Block block = ((ItemBlock) toRender.getItem()).getBlock();
+                        if (block instanceof BlockCarpet || block instanceof BlockSnow) {
+                            GlStateManager.translate(0.0F, -0.25F, 0.0F);
+                        }
+                    }
+                }
+
                 if (toRender.getItem() instanceof ItemMap) {
                     this.renderItemMap(abstractclientplayer, f2, f, f1);
                 } else if (animationsModule.isVisualBlocking() && mc.thePlayer.getHeldItem() != null && toRender.getItem() instanceof ItemSword) {
@@ -399,17 +451,8 @@ public class ItemRenderer
                     break;
 
                 case "legacy":
-                    GlStateManager.translate(0.0F, 0.02F, -0.02F);
-                    GlStateManager.rotate(1.0F, 0.0F, 0.0F, -0.1F);
-                    this.transformFirstPersonItem(f, f1);
-                    this.doBlockTransformations();
-                    break;
-
-                case "crazy":
-                    GlStateManager.translate(0.0F, 0.1F, -0.02F);
-                    GlStateManager.rotate(1.0F, 0.0F, 0.0F, -0.1F);
-                    this.transformFirstPersonItem(0.0F, f1);
-                    this.doBlockTransformations();
+                    this.transformFirstPersonItem(f / 0.8F, f1);
+                    this.doCrazyBlockTransformations();
                     break;
 
                 case "exhibition push":
