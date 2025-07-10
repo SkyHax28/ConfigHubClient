@@ -1,10 +1,8 @@
 package net.minecraft.client.renderer.entity.layers;
 
 import com.dew.DewCommon;
-import com.dew.IMinecraft;
-import com.dew.system.module.Module;
 import com.dew.system.module.modules.render.Cape;
-import com.dew.system.module.modules.render.Rotations;
+import com.dew.system.module.modules.render.SilentView;
 import com.dew.system.rotation.RotationManager;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -13,7 +11,6 @@ import net.minecraft.client.renderer.entity.RenderPlayer;
 import net.minecraft.entity.player.EnumPlayerModelParts;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
-import org.lwjgl.opengl.GL11;
 
 public class LayerCape implements LayerRenderer<AbstractClientPlayer>
 {
@@ -27,9 +24,9 @@ public class LayerCape implements LayerRenderer<AbstractClientPlayer>
     public void doRenderLayer(AbstractClientPlayer entitylivingbaseIn, float p_177141_2_, float p_177141_3_, float partialTicks, float p_177141_5_, float p_177141_6_, float p_177141_7_, float scale)
     {
         Cape capeModule = DewCommon.moduleManager.getModule(Cape.class);
-        Rotations rotationsModule = DewCommon.moduleManager.getModule(Rotations.class);
+        SilentView silentViewModule = DewCommon.moduleManager.getModule(SilentView.class);
         RotationManager rotationManager = DewCommon.rotationManager;
-        boolean semiVisible = rotationManager.isRotating() && rotationsModule.isEnabled() && Rotations.rotationMode.get().equals("GameSense") && entitylivingbaseIn instanceof EntityPlayerSP;
+        boolean semiVisible = rotationManager.isRotating() && silentViewModule.isEnabled() && SilentView.mode.get().equals("GameSense") && entitylivingbaseIn instanceof EntityPlayerSP;
         if (semiVisible) return;
         if (entitylivingbaseIn.hasPlayerInfo() && !entitylivingbaseIn.isInvisible() && entitylivingbaseIn.isWearing(EnumPlayerModelParts.CAPE) && entitylivingbaseIn.getLocationCape() != null || capeModule.isEnabled() && entitylivingbaseIn instanceof EntityPlayerSP) {
             GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);

@@ -3,7 +3,7 @@ package com.dew.utils;
 import com.dew.DewCommon;
 import com.dew.IMinecraft;
 import com.dew.system.event.events.StrafeEvent;
-import com.dew.system.module.modules.combat.KillAura;
+import com.dew.system.module.modules.combat.Aura;
 import com.dew.system.module.modules.combat.TargetStrafe;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockSlab;
@@ -300,8 +300,8 @@ public class MovementUtil {
 
         float yaw = mc.thePlayer.rotationYaw;
 
-        if (forward == 1f && strafe == 0f && mc.gameSettings.keyBindJump.isKeyDown() && DewCommon.moduleManager.getModule(TargetStrafe.class).isEnabled() && DewCommon.moduleManager.getModule(KillAura.class).isEnabled() && DewCommon.moduleManager.getModule(KillAura.class).target != null) {
-            yaw = getTargetStrafeYawDirection(DewCommon.moduleManager.getModule(KillAura.class).target, DewCommon.moduleManager.getModule(TargetStrafe.class).getDistance());
+        if (forward == 1f && strafe == 0f && mc.gameSettings.keyBindJump.isKeyDown() && DewCommon.moduleManager.getModule(TargetStrafe.class).isEnabled() && DewCommon.moduleManager.getModule(Aura.class).isEnabled() && DewCommon.moduleManager.getModule(Aura.class).target != null) {
+            yaw = getTargetStrafeYawDirection(DewCommon.moduleManager.getModule(Aura.class).target, DewCommon.moduleManager.getModule(TargetStrafe.class).getDistance());
         }
 
         double inputAngle = Math.atan2(strafe, forward);

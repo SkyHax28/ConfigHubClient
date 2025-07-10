@@ -2,13 +2,10 @@ package net.minecraft.client.renderer.entity;
 
 import com.dew.DewCommon;
 import com.dew.IMinecraft;
-import com.dew.system.module.Module;
 import com.dew.system.module.modules.render.Chams;
 import com.dew.system.module.modules.render.NameTags;
-import com.dew.system.module.modules.render.Rotations;
+import com.dew.system.module.modules.render.SilentView;
 import com.dew.system.rotation.RotationManager;
-import com.dew.utils.Lerper;
-import com.dew.utils.LogUtil;
 import com.google.common.collect.Lists;
 import java.nio.FloatBuffer;
 import java.util.List;
@@ -26,7 +23,6 @@ import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EnumPlayerModelParts;
@@ -42,9 +38,6 @@ import net.optifine.shaders.Shaders;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.opengl.GL11;
-
-import static org.lwjgl.opengl.GL11.GL_ONE_MINUS_SRC_ALPHA;
-import static org.lwjgl.opengl.GL11.GL_SRC_ALPHA;
 
 public abstract class RendererLivingEntity<T extends EntityLivingBase> extends Render<T>
 {
@@ -310,7 +303,7 @@ public abstract class RendererLivingEntity<T extends EntityLivingBase> extends R
     private EntityOtherPlayerMP ghostPlayer = null;
 
     private void inRenderPlayer(EntityPlayer realPlayer, float f, float f6, float f5, float f2, float ticks) {
-        Rotations rotationsModule = DewCommon.moduleManager.getModule(Rotations.class);
+        SilentView silentViewModule = DewCommon.moduleManager.getModule(SilentView.class);
         RotationManager rotationManager = DewCommon.rotationManager;
 
         if (IMinecraft.mc.theWorld != null && IMinecraft.mc.getSession().getProfile() != null && (ghostPlayer == null || ghostPlayer.getGameProfile() != IMinecraft.mc.getSession().getProfile())) {
@@ -320,7 +313,7 @@ public abstract class RendererLivingEntity<T extends EntityLivingBase> extends R
             );
         }
 
-        if (IMinecraft.mc.gameSettings.thirdPersonView == 0 || !rotationManager.isRotating() || !rotationsModule.isEnabled() || !Rotations.rotationMode.get().equals("GameSense") || ghostPlayer == null) return;
+        if (IMinecraft.mc.gameSettings.thirdPersonView == 0 || !rotationManager.isRotating() || !silentViewModule.isEnabled() || !SilentView.mode.get().equals("GameSense") || ghostPlayer == null) return;
 
         float renderPitch = rotationManager.getInterpolatedPitch(ticks);
         float renderYaw = rotationManager.getInterpolatedYaw(ticks);
@@ -411,9 +404,9 @@ public abstract class RendererLivingEntity<T extends EntityLivingBase> extends R
 
     protected void renderModel(T entitylivingbaseIn, float p_77036_2_, float p_77036_3_, float p_77036_4_, float p_77036_5_, float p_77036_6_, float scaleFactor)
     {
-        Rotations rotationsModule = DewCommon.moduleManager.getModule(Rotations.class);
+        SilentView silentViewModule = DewCommon.moduleManager.getModule(SilentView.class);
         RotationManager rotationManager = DewCommon.rotationManager;
-        boolean semiVisible = rotationManager.isRotating() && rotationsModule.isEnabled() && Rotations.rotationMode.get().equals("GameSense") && ghostPlayer != null && entitylivingbaseIn instanceof EntityPlayerSP;
+        boolean semiVisible = rotationManager.isRotating() && silentViewModule.isEnabled() && SilentView.mode.get().equals("GameSense") && ghostPlayer != null && entitylivingbaseIn instanceof EntityPlayerSP;
         boolean flag = !entitylivingbaseIn.isInvisible();
         boolean flag1 = !flag && !entitylivingbaseIn.isInvisibleToPlayer(Minecraft.getMinecraft().thePlayer);
 

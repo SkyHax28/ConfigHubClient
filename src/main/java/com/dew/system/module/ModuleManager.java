@@ -21,9 +21,9 @@ public class ModuleManager implements EventListener {
 
     public ModuleManager() {
         this.modules.addAll(Arrays.asList(
-                new MoveFix(), new Animations(), new ClickGui(), new KillAura(),
+                new MoveFix(), new Animations(), new ClickGui(), new Aura(),
                 new FlightModule(), new Disabler(), new Hud(), new SpeedModule(),
-                new Cape(), new NoFall(), new Rotations(), new InvMove(), new NoSlow(),
+                new Cape(), new NoFall(), new SilentView(), new InvMove(), new NoSlow(),
                 new Scaffold(), new KeepSprint(), new NameTags(), new Chams(),
                 new Velocity(), new CameraNoClip(), new AutoTool(), new Breaker(),
                 new CaveFinder(), new Fullbright(), new Xray(), new NoBreakDelay(),

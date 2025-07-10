@@ -4,8 +4,7 @@ import com.dew.DewCommon;
 import com.dew.IMinecraft;
 import com.dew.system.event.events.PostUpdateEvent;
 import com.dew.system.event.events.PreUpdateEvent;
-import com.dew.system.module.Module;
-import com.dew.system.module.modules.combat.KillAura;
+import com.dew.system.module.modules.combat.Aura;
 import com.dew.system.module.modules.combat.TargetStrafe;
 import com.dew.system.module.modules.movement.MoveFix;
 import com.dew.system.module.modules.movement.flight.FlightModule;
@@ -13,10 +12,9 @@ import com.dew.system.module.modules.movement.speed.SpeedModule;
 import com.dew.system.module.modules.player.NoJumpDelay;
 import com.dew.system.module.modules.player.Sprint;
 import com.dew.system.module.modules.render.Animations;
-import com.dew.system.module.modules.render.Rotations;
+import com.dew.system.module.modules.render.SilentView;
 import com.dew.system.rotation.RotationManager;
 import com.dew.system.viapatcher.MovePatcher;
-import com.dew.utils.LogUtil;
 import com.dew.utils.MovementUtil;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
@@ -1374,8 +1372,8 @@ public abstract class EntityLivingBase extends Entity
             if (IMinecraft.mc.gameSettings.keyBindRight.isKeyDown()) strafe -= 1f;
             if (IMinecraft.mc.gameSettings.keyBindLeft.isKeyDown()) strafe += 1f;
 
-            Entity target = DewCommon.moduleManager.getModule(KillAura.class).target;
-            boolean doTargetStrafe = DewCommon.moduleManager.getModule(TargetStrafe.class).isEnabled() && DewCommon.moduleManager.getModule(KillAura.class).isEnabled() && (DewCommon.moduleManager.getModule(FlightModule.class).isEnabled() || DewCommon.moduleManager.getModule(SpeedModule.class).isEnabled()) && target != null && forward == 1f && strafe == 0f && IMinecraft.mc.gameSettings.keyBindJump.isKeyDown();
+            Entity target = DewCommon.moduleManager.getModule(Aura.class).target;
+            boolean doTargetStrafe = DewCommon.moduleManager.getModule(TargetStrafe.class).isEnabled() && DewCommon.moduleManager.getModule(Aura.class).isEnabled() && (DewCommon.moduleManager.getModule(FlightModule.class).isEnabled() || DewCommon.moduleManager.getModule(SpeedModule.class).isEnabled()) && target != null && forward == 1f && strafe == 0f && IMinecraft.mc.gameSettings.keyBindJump.isKeyDown();
 
             float yaw = doTargetStrafe ? MovementUtil.getTargetStrafeYawDirection(target, DewCommon.moduleManager.getModule(TargetStrafe.class).getDistance()) : DewCommon.moduleManager.getModule(Sprint.class).isEnabled() && Sprint.omni.get() && this instanceof EntityPlayerSP ? (float) MovementUtil.getDirection() : DewCommon.moduleManager.getModule(MoveFix.class).isEnabled() && DewCommon.rotationManager.isRotating() && this instanceof EntityPlayerSP ? DewCommon.rotationManager.getClientYaw() : this.rotationYaw;
 
@@ -1699,11 +1697,11 @@ public abstract class EntityLivingBase extends Entity
 
     protected float updateDistance(float p_110146_1_, float p_110146_2_)
     {
-        Rotations rotationsModule = DewCommon.moduleManager.getModule(Rotations.class);
+        SilentView silentViewModule = DewCommon.moduleManager.getModule(SilentView.class);
         RotationManager rotationManager = DewCommon.rotationManager;
         float fakeRotationYaw = this.rotationYaw;
 
-        if (rotationsModule.isEnabled() && rotationManager.isRotating() && Rotations.rotationMode.get().equals("Normal") && this instanceof EntityPlayerSP) {
+        if (silentViewModule.isEnabled() && rotationManager.isRotating() && SilentView.mode.get().equals("Normal") && this instanceof EntityPlayerSP) {
             if (this.swingProgress > 0f) {
                 p_110146_1_ = rotationManager.getClientYaw();
             }

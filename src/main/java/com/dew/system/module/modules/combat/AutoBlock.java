@@ -1,23 +1,17 @@
 package com.dew.system.module.modules.combat;
 
 import com.dew.DewCommon;
-import com.dew.system.event.events.PreUpdateEvent;
-import com.dew.system.event.events.ReceivedPacketEvent;
 import com.dew.system.event.events.TickEvent;
 import com.dew.system.event.events.WorldEvent;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
-import com.dew.system.module.modules.movement.speed.SpeedModule;
 import com.dew.system.settingsvalue.SelectionValue;
 import com.dew.utils.BlinkUtil;
-import com.dew.utils.LogUtil;
 import com.dew.utils.PacketUtil;
 import net.minecraft.item.ItemSword;
-import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.C07PacketPlayerDigging;
 import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement;
 import net.minecraft.network.play.client.C09PacketHeldItemChange;
-import net.minecraft.network.play.server.S12PacketEntityVelocity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import org.lwjgl.input.Keyboard;
@@ -64,12 +58,12 @@ public class AutoBlock extends Module {
     public void onTick(TickEvent event) {
         if (mc.thePlayer == null) return;
 
-        KillAura killAuraModule = DewCommon.moduleManager.getModule(KillAura.class);
+        Aura auraModule = DewCommon.moduleManager.getModule(Aura.class);
 
-        if (killAuraModule.isInAutoBlockMode()) {
+        if (auraModule.isInAutoBlockMode()) {
             switch (mode.get().toLowerCase()) {
                 case "vanilla":
-                    killAuraModule.doMainFunctions(true);
+                    auraModule.doMainFunctions(true);
                     if (!block) {
                         PacketUtil.sendPacket(new C08PacketPlayerBlockPlacement(mc.thePlayer.getHeldItem()));
                         block = true;
@@ -89,9 +83,9 @@ public class AutoBlock extends Module {
                     }
 
                     if (!mc.gameSettings.keyBindUseItem.isKeyDown()) {
-                        killAuraModule.doMainFunctions(!block);
+                        auraModule.doMainFunctions(!block);
                     } else {
-                        killAuraModule.doMainFunctions(false);
+                        auraModule.doMainFunctions(false);
                     }
                     break;
 
@@ -107,7 +101,7 @@ public class AutoBlock extends Module {
                             block = false;
                         }
 
-                        killAuraModule.doMainFunctions(false);
+                        auraModule.doMainFunctions(false);
 
                         blinkAB = false;
                     } else {
@@ -117,7 +111,7 @@ public class AutoBlock extends Module {
                             swapped = false;
                         }
 
-                        killAuraModule.doMainFunctions(true);
+                        auraModule.doMainFunctions(true);
                         PacketUtil.sendPacket(new C08PacketPlayerBlockPlacement(mc.thePlayer.getHeldItem()));
                         block = true;
 

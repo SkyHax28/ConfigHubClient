@@ -53,7 +53,7 @@ public class Backtrack extends Module {
 
     @Override
     public void onRender3D(Render3DEvent event) {
-        if (mc.thePlayer == null || mc.theWorld == null || !DewCommon.moduleManager.getModule(KillAura.class).isEnabled() || DewCommon.moduleManager.getModule(KillAura.class).target == null) return;
+        if (mc.thePlayer == null || mc.theWorld == null || !DewCommon.moduleManager.getModule(Aura.class).isEnabled() || DewCommon.moduleManager.getModule(Aura.class).target == null) return;
 
         double renderX = mc.getRenderManager().viewerPosX;
         double renderY = mc.getRenderManager().viewerPosY;
@@ -69,7 +69,7 @@ public class Backtrack extends Module {
         GlStateManager.tryBlendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
 
         for (EntityPlayer player : mc.theWorld.playerEntities) {
-            if (player == mc.thePlayer || player.isDead || DewCommon.moduleManager.getModule(KillAura.class).target != player) continue;
+            if (player == mc.thePlayer || player.isDead || DewCommon.moduleManager.getModule(Aura.class).target != player) continue;
 
             Deque<Vec3> history = backtrackPositions.get(player.getUniqueID());
             if (history == null || history.size() < 2) continue;

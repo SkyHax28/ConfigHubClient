@@ -29,10 +29,10 @@ import org.lwjgl.input.Keyboard;
 
 import java.util.*;
 
-public class KillAura extends Module {
+public class Aura extends Module {
 
-    public KillAura() {
-        super("Kill Aura", ModuleCategory.COMBAT, Keyboard.KEY_NONE, false, true, true);
+    public Aura() {
+        super("Aura", ModuleCategory.COMBAT, Keyboard.KEY_NONE, false, true, true);
     }
 
     private static final SelectionValue mode = new SelectionValue("Mode", "Single", "Single", "Multi");

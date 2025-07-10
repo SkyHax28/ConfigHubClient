@@ -9,13 +9,13 @@ import com.dew.system.rotation.RotationManager;
 import com.dew.system.settingsvalue.SelectionValue;
 import org.lwjgl.input.Keyboard;
 
-public class Rotations extends Module {
+public class SilentView extends Module {
 
-    public Rotations() {
-        super("Rotations", ModuleCategory.RENDER, Keyboard.KEY_NONE, true, false, true);
+    public SilentView() {
+        super("Silent View", ModuleCategory.RENDER, Keyboard.KEY_NONE, true, false, true);
     }
 
-    public static final SelectionValue rotationMode = new SelectionValue("Rotation Mode", "Normal", "Normal", "GameSense");
+    public static final SelectionValue mode = new SelectionValue("Mode", "Normal", "Normal", "GameSense");
 
     private float prevHeadPitch = 0f;
     private float headPitch = 0f;

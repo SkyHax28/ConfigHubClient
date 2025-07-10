@@ -4,12 +4,11 @@ import com.dew.DewCommon;
 import com.dew.system.event.events.Render2DEvent;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
-import com.dew.system.module.modules.combat.KillAura;
+import com.dew.system.module.modules.combat.Aura;
 import com.dew.system.module.modules.player.Scaffold;
 import com.dew.system.settingsvalue.BooleanValue;
 import com.dew.system.settingsvalue.MultiSelectionValue;
 import com.dew.utils.Lerper;
-import com.dew.utils.LogUtil;
 import com.dew.utils.font.CustomFontRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
@@ -135,9 +134,9 @@ public class Hud extends Module {
         }
 
         if (features.isSelected("Target Hud")) {
-            KillAura killAuraModule = DewCommon.moduleManager.getModule(KillAura.class);
-            if (killAuraModule.isEnabled() && killAuraModule.target instanceof EntityLivingBase || killAuraModule.target == null && mc.currentScreen instanceof GuiChat) {
-                EntityLivingBase target = killAuraModule.target == null ? mc.thePlayer : (EntityLivingBase) killAuraModule.target;
+            Aura auraModule = DewCommon.moduleManager.getModule(Aura.class);
+            if (auraModule.isEnabled() && auraModule.target instanceof EntityLivingBase || auraModule.target == null && mc.currentScreen instanceof GuiChat) {
+                EntityLivingBase target = auraModule.target == null ? mc.thePlayer : (EntityLivingBase) auraModule.target;
 
                 int x = sr.getScaledWidth() / 2 - 220;
                 int y = sr.getScaledHeight() / 2 - 90;

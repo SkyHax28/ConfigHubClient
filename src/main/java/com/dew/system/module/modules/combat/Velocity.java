@@ -10,7 +10,6 @@ import com.dew.system.module.modules.movement.speed.SpeedModule;
 import com.dew.system.settingsvalue.SelectionValue;
 import com.dew.utils.BlinkUtil;
 import com.dew.utils.LogUtil;
-import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S12PacketEntityVelocity;
 import org.lwjgl.input.Keyboard;
@@ -61,7 +60,7 @@ public class Velocity extends Module {
 
                 case "hypixel":
                     if (!DewCommon.handleEvents.canRotation() || !DewCommon.moduleManager.getModule(SpeedModule.class).isEnabled() || hypTick >= 8 || mc.thePlayer.onGround) {
-                        if (DewCommon.moduleManager.getModule(KillAura.class).isInAutoBlockMode()) {
+                        if (DewCommon.moduleManager.getModule(Aura.class).isInAutoBlockMode()) {
                             BlinkUtil.sync(true, true);
                             BlinkUtil.stopBlink();
                         }

@@ -2,18 +2,14 @@ package net.minecraft.client.model;
 
 import com.dew.DewCommon;
 import com.dew.IMinecraft;
-import com.dew.system.module.Module;
 import com.dew.system.module.modules.render.Animations;
-import com.dew.system.module.modules.render.Rotations;
+import com.dew.system.module.modules.render.SilentView;
 import com.dew.system.rotation.RotationManager;
 import com.dew.utils.Lerper;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.MathHelper;
-
-import java.util.Objects;
 
 public class ModelBiped extends ModelBase
 {
@@ -158,10 +154,10 @@ public class ModelBiped extends ModelBase
 
         this.bipedLeftArm.rotateAngleY = 0.0F;
 
-        Rotations rotationsModule = DewCommon.moduleManager.getModule(Rotations.class);
+        SilentView silentViewModule = DewCommon.moduleManager.getModule(SilentView.class);
         RotationManager rotationManager = DewCommon.rotationManager;
-        if (entityIn instanceof EntityPlayer && entityIn.equals(IMinecraft.mc.thePlayer) && rotationsModule.isEnabled() && rotationManager.isRotating() && Rotations.rotationMode.get().equals("Normal")) {
-            bipedHead.rotateAngleX = (float) Math.toRadians(Lerper.lerp(DewCommon.moduleManager.getModule(Rotations.class).getPrevHeadPitch(), DewCommon.moduleManager.getModule(Rotations.class).getHeadPitch(), IMinecraft.mc.timer.renderPartialTicks));
+        if (entityIn instanceof EntityPlayer && entityIn.equals(IMinecraft.mc.thePlayer) && silentViewModule.isEnabled() && rotationManager.isRotating() && SilentView.mode.get().equals("Normal")) {
+            bipedHead.rotateAngleX = (float) Math.toRadians(Lerper.lerp(DewCommon.moduleManager.getModule(SilentView.class).getPrevHeadPitch(), DewCommon.moduleManager.getModule(SilentView.class).getHeadPitch(), IMinecraft.mc.timer.renderPartialTicks));
         }
 
         if (this.swingProgress > -9990.0F)
