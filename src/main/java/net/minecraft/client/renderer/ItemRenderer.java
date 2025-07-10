@@ -455,11 +455,52 @@ public class ItemRenderer
                     this.doCrazyBlockTransformations();
                     break;
 
-                case "exhibition push":
-                    this.transformFirstPersonItem(f / 2.0F, 0.0F);
+                case "wag":
+                    this.transformFirstPersonItem(f / 1.5F, 0.0F);
 
-                    GlStateManager.rotate(-var9 * 40.0F / 2.0F, var9 / 2.0F, 1.0F, 4.0F);
-                    GlStateManager.rotate(-var9 * 30.0F, 1.0F, var9 / 3.0F, -0.0F);
+                    GlStateManager.translate(-0.05F * var9, -0.15F * var9, -0.05F);
+                    GlStateManager.rotate(-40.0F * var9, 1.0F, 0.0F, 0.0F);
+                    GlStateManager.rotate(20.0F * var9, 0.0F, 1.0F, 0.0F);
+
+                    this.doBlockTransformations();
+                    break;
+
+                case "strike":
+                    this.transformFirstPersonItem(f / 1.6F, 0.0F);
+
+                    GlStateManager.translate(0.05F * var9, 0.2F * var9, 0.15F);
+                    GlStateManager.rotate(-35.0F * var9, 1.0F, 0.0F, 0.0F);
+                    GlStateManager.rotate(-5.0F * var9, 0.0F, 1.0F, 0.0F);
+
+                    this.doBlockTransformations();
+                    break;
+
+                case "phong":
+                    this.transformFirstPersonItem(f / 1.8F, 0.0F);
+
+                    GlStateManager.translate(0.0F, 0.05F * var9, -0.15F);
+                    GlStateManager.rotate(-15.0F * var9, 1.0F, 0.0F, 0.0F);
+                    GlStateManager.rotate(-10.0F * var9, 0.0F, 1.0F, 0.0F);
+
+                    this.doBlockTransformations();
+                    break;
+
+                case "div":
+                    this.transformFirstPersonItem(f / 1.7F, 0.0F);
+
+                    GlStateManager.translate(0.0F, 0.1F * var9, -0.2F * var9);
+                    GlStateManager.rotate(-var9 * 45.0F, 1.0F, 0.0F, 0.0F);
+                    GlStateManager.rotate(var9 * 15.0F, 0.0F, 1.0F, 0.0F);
+
+                    this.doBlockTransformations();
+                    break;
+
+                case "elegant":
+                    this.transformFirstPersonItem(f / 1.6F, 0.0F);
+
+                    GlStateManager.translate(0.1F * var9, 0.15F * var9, 0.2F * var9);
+                    GlStateManager.rotate(var9 * -30.0F, 1.0F, 0.3F, 0.0F);
+                    GlStateManager.rotate(var9 * -10.0F, 0.0F, 1.0F, 0.0F);
 
                     this.doBlockTransformations();
                     break;
@@ -469,6 +510,15 @@ public class ItemRenderer
 
                     GlStateManager.rotate(-var9 * 22.0F, var9 / 2, 0.0F, 9.0F);
                     GlStateManager.rotate(-var9 * 50.0F, 0.8F, var9 / 2, 0F);
+
+                    this.doBlockTransformations();
+                    break;
+
+                case "exhibition push":
+                    this.transformFirstPersonItem(f / 2.0F, 0.0F);
+
+                    GlStateManager.rotate(-var9 * 40.0F / 2.0F, var9 / 2.0F, 1.0F, 4.0F);
+                    GlStateManager.rotate(-var9 * 30.0F, 1.0F, var9 / 3.0F, -0.0F);
 
                     this.doBlockTransformations();
                     break;
