@@ -1,6 +1,7 @@
 package com.dew.system.module.modules.combat;
 
 import com.dew.DewCommon;
+import com.dew.system.event.events.AttackEvent;
 import com.dew.system.event.events.TickEvent;
 import com.dew.system.event.events.WorldEvent;
 import com.dew.system.module.Module;
@@ -117,6 +118,9 @@ public class KillAura extends Module {
                                 PacketUtil.sendPacket(new C03PacketPlayer.C04PacketPlayerPosition(vec.getX(), vec.getY(), vec.getZ(), true));
                             }
                         }
+
+                        AttackEvent event = new AttackEvent(entity);
+                        DewCommon.eventManager.call(event);
 
                         AttackOrder.sendFixedPacketAttack(mc.thePlayer, entity);
 
