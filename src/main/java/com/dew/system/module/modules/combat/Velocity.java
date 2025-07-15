@@ -20,7 +20,7 @@ public class Velocity extends Module {
         super("Velocity", ModuleCategory.COMBAT, Keyboard.KEY_NONE, false, true, true);
     }
 
-    private static final SelectionValue mode = new SelectionValue("Mode", "Normal", "Normal", "Hypixel", "Jump");
+    private static final SelectionValue mode = new SelectionValue("Mode", "Normal", "Normal", "Hypixel", "Prediction", "Jump");
 
     private int hypTick = 0;
 
@@ -69,21 +69,39 @@ public class Velocity extends Module {
                     event.cancel();
                     break;
 
-                case "jump":
-                    if (((S12PacketEntityVelocity) packet).getEntityID() == mc.thePlayer.getEntityId()) {
-                        if (mc.thePlayer.onGround && mc.thePlayer.isSprinting() && mc.thePlayer.posY > 0.0D) {
-                            int motionX = ((S12PacketEntityVelocity) packet).getMotionX();
-                            int motionZ = ((S12PacketEntityVelocity) packet).getMotionZ();
-
-                            double horizontal = motionX * motionX + motionZ * motionZ;
-                            double horizontalStrength = Math.sqrt(horizontal);
-
-                            if (horizontalStrength <= 1000) return;
-
-                            LogUtil.printChat("jump");
-
-                            mc.thePlayer.jump();
+                case "prediction":
+                    if (!DewCommon.handleEvents.canRotation() || !DewCommon.moduleManager.getModule(SpeedModule.class).isEnabled() || hypTick >= 8 || mc.thePlayer.onGround) {
+                        if (DewCommon.moduleManager.getModule(Aura.class).isInAutoBlockMode()) {
+                            BlinkUtil.sync(true, true);
+                            BlinkUtil.stopBlink();
+                            LogUtil.printChat("WEZ");
                         }
+                    }
+
+                    if (mc.thePlayer.onGround && mc.thePlayer.isSprinting() && mc.thePlayer.posY > 0.0D) {
+                        int motionX = ((S12PacketEntityVelocity) packet).getMotionX();
+                        int motionZ = ((S12PacketEntityVelocity) packet).getMotionZ();
+
+                        double horizontal = motionX * motionX + motionZ * motionZ;
+                        double horizontalStrength = Math.sqrt(horizontal);
+
+                        if (horizontalStrength <= 1000) return;
+
+                        mc.thePlayer.jump();
+                    }
+                    break;
+
+                case "jump":
+                    if (mc.thePlayer.onGround && mc.thePlayer.isSprinting() && mc.thePlayer.posY > 0.0D) {
+                        int motionX = ((S12PacketEntityVelocity) packet).getMotionX();
+                        int motionZ = ((S12PacketEntityVelocity) packet).getMotionZ();
+
+                        double horizontal = motionX * motionX + motionZ * motionZ;
+                        double horizontalStrength = Math.sqrt(horizontal);
+
+                        if (horizontalStrength <= 1000) return;
+
+                        mc.thePlayer.jump();
                     }
                     break;
             }
