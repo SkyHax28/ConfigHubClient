@@ -146,13 +146,9 @@ public class RotationManager {
 
     public boolean faceBlockWithFacing(BlockPos pos, EnumFacing facing, float rotationSpeed) {
         Vec3 hitVec = new Vec3(
-                pos.getX() + 0.5,
-                pos.getY() + 0.5,
-                pos.getZ() + 0.5
-        ).addVector(
-                facing.getFrontOffsetX() * 0.499D,
-                facing.getFrontOffsetY() * 0.499D,
-                facing.getFrontOffsetZ() * 0.499D
+                pos.getX() + 0.5 + 0.5 * facing.getFrontOffsetX(),
+                pos.getY() + 0.5 + 0.5 * facing.getFrontOffsetY(),
+                pos.getZ() + 0.5 + 0.5 * facing.getFrontOffsetZ()
         );
 
         float[] rotations = getRotationsTo(hitVec.xCoord, hitVec.yCoord, hitVec.zCoord);

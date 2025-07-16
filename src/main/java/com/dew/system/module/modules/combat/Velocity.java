@@ -8,8 +8,6 @@ import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
 import com.dew.system.module.modules.movement.speed.SpeedModule;
 import com.dew.system.settingsvalue.SelectionValue;
-import com.dew.utils.BlinkUtil;
-import com.dew.utils.LogUtil;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S12PacketEntityVelocity;
 import org.lwjgl.input.Keyboard;
@@ -60,37 +58,12 @@ public class Velocity extends Module {
 
                 case "hypixel":
                     if (!DewCommon.handleEvents.canRotation() || !DewCommon.moduleManager.getModule(SpeedModule.class).isEnabled() || hypTick >= 8 || mc.thePlayer.onGround) {
-                        if (DewCommon.moduleManager.getModule(Aura.class).isInAutoBlockMode()) {
-                            BlinkUtil.sync(true, true);
-                            BlinkUtil.stopBlink();
-                        }
                         mc.thePlayer.motionY = ((S12PacketEntityVelocity) packet).getMotionY() / 8000.0;
                     }
                     event.cancel();
                     break;
 
                 case "prediction":
-                    if (!DewCommon.handleEvents.canRotation() || !DewCommon.moduleManager.getModule(SpeedModule.class).isEnabled() || hypTick >= 8 || mc.thePlayer.onGround) {
-                        if (DewCommon.moduleManager.getModule(Aura.class).isInAutoBlockMode()) {
-                            BlinkUtil.sync(true, true);
-                            BlinkUtil.stopBlink();
-                            LogUtil.printChat("WEZ");
-                        }
-                    }
-
-                    if (mc.thePlayer.onGround && mc.thePlayer.isSprinting() && mc.thePlayer.posY > 0.0D) {
-                        int motionX = ((S12PacketEntityVelocity) packet).getMotionX();
-                        int motionZ = ((S12PacketEntityVelocity) packet).getMotionZ();
-
-                        double horizontal = motionX * motionX + motionZ * motionZ;
-                        double horizontalStrength = Math.sqrt(horizontal);
-
-                        if (horizontalStrength <= 1000) return;
-
-                        mc.thePlayer.jump();
-                    }
-                    break;
-
                 case "jump":
                     if (mc.thePlayer.onGround && mc.thePlayer.isSprinting() && mc.thePlayer.posY > 0.0D) {
                         int motionX = ((S12PacketEntityVelocity) packet).getMotionX();

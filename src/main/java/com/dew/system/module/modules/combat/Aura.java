@@ -58,7 +58,7 @@ public class Aura extends Module {
 
     public boolean isInAutoBlockMode() {
         AutoBlock autoBlockModule = DewCommon.moduleManager.getModule(AutoBlock.class);
-        return this.isEnabled() && autoBlockModule.isEnabled() && target != null && autoBlockModule.isHoldingSword();
+        return this.isEnabled() && autoBlockModule.isEnabled() && target != null && autoBlockModule.isHoldingSword() && (!autoBlockModule.getMode().equals("Prediction") || mc.thePlayer.getDistanceToEntity(target) <= this.getAttackRange());
     }
 
     @Override

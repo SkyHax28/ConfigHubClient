@@ -1,17 +1,21 @@
 package com.dew.system.module.modules.combat;
 
 import com.dew.DewCommon;
+import com.dew.system.event.events.ReceivedPacketEvent;
 import com.dew.system.event.events.TickEvent;
 import com.dew.system.event.events.WorldEvent;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
 import com.dew.system.settingsvalue.SelectionValue;
 import com.dew.utils.BlinkUtil;
+import com.dew.utils.LogUtil;
 import com.dew.utils.PacketUtil;
 import net.minecraft.item.ItemSword;
+import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.C07PacketPlayerDigging;
 import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement;
 import net.minecraft.network.play.client.C09PacketHeldItemChange;
+import net.minecraft.network.play.server.S12PacketEntityVelocity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import org.lwjgl.input.Keyboard;
@@ -22,7 +26,7 @@ public class AutoBlock extends Module {
         super("Auto Block", ModuleCategory.COMBAT, Keyboard.KEY_NONE, false, true, true);
     }
 
-    private static final SelectionValue mode = new SelectionValue("Mode", "Hypixel", "Vanilla", "Legit", "Hypixel");
+    private static final SelectionValue mode = new SelectionValue("Mode", "Hypixel", "Vanilla", "Legit", "Hypixel", "Prediction");
 
     private boolean blinkAB = true;
     private boolean block = false;
@@ -31,6 +35,10 @@ public class AutoBlock extends Module {
     private int serverSlot = -1;
 
     private long legitBlockEndTime = 0L;
+
+    public String getMode() {
+        return mode.get();
+    }
 
     @Override
     public String tag() {
@@ -90,7 +98,10 @@ public class AutoBlock extends Module {
                     break;
 
                 case "hypixel":
+                case "prediction":
                     if (blinkAB) {
+                        LogUtil.printChat("blinko");
+
                         BlinkUtil.doBlink();
                         blink = true;
 
@@ -128,6 +139,20 @@ public class AutoBlock extends Module {
         }
     }
 
+    @Override
+    public void onReceivedPacket(ReceivedPacketEvent event) {
+        if (mc.thePlayer == null || mc.theWorld == null) return;
+
+        Packet<?> packet = event.packet;
+
+        if (packet instanceof S12PacketEntityVelocity && mc.theWorld.getEntityByID(((S12PacketEntityVelocity) packet).getEntityID()) == mc.thePlayer && (mode.get().equals("Hypixel"))) {
+            if (DewCommon.moduleManager.getModule(Aura.class).isInAutoBlockMode()) {
+                BlinkUtil.sync(true, true);
+                BlinkUtil.stopBlink();
+            }
+        }
+    }
+
     public boolean isHoldingSword() {
         return mc.thePlayer.getHeldItem() != null && mc.thePlayer.getHeldItem().getItem() instanceof ItemSword;
     }
@@ -143,6 +168,7 @@ public class AutoBlock extends Module {
         }
 
         if (blink) {
+            PacketUtil.sendPacketAsSilent(new C07PacketPlayerDigging(C07PacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN));
             BlinkUtil.sync(true, true);
             BlinkUtil.stopBlink();
             blink = false;
