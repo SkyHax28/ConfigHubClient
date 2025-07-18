@@ -59,7 +59,7 @@ public class Hud extends Module {
         float fontSize = 0.35f;
 
         if (features.isSelected("Watermark")) {
-            String clientName = DewCommon.clientName + " | " + Minecraft.getDebugFPS() + " fps";
+            String clientName = DewCommon.clientName + " Ultra 9 X3D Ti Super Pro MAX | " + Minecraft.getDebugFPS() + " fps";
             String beforeWater = clientName.substring(0, 1);
             String afterWater = clientName.substring(1);
 

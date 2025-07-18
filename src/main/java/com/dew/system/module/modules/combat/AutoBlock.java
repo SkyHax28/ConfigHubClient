@@ -168,7 +168,6 @@ public class AutoBlock extends Module {
         }
 
         if (blink) {
-            PacketUtil.sendPacketAsSilent(new C07PacketPlayerDigging(C07PacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN));
             BlinkUtil.sync(true, true);
             BlinkUtil.stopBlink();
             blink = false;

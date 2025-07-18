@@ -243,12 +243,13 @@ public class Scaffold extends Module {
             mc.thePlayer.setSprinting(false);
         }
 
-        if (shouldUpdateKeepYState()) {
-            this.updateKeepY();
+        if (this.isTelly() && jumpTicks <= 3 || doNotPlace) {
+            LogUtil.printChat("return so telly");
+            return;
         }
 
-        if (this.isTelly() || doNotPlace) {
-            return;
+        if (shouldUpdateKeepYState()) {
+            this.updateKeepY();
         }
 
         if (delay <= placeDelay.get()) return;
@@ -370,12 +371,12 @@ public class Scaffold extends Module {
     }
 
     private void tellyFunction() {
-        if (mode.get().equals("Telly") && !towered && !Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) && Keyboard.isKeyDown(mc.gameSettings.keyBindForward.getKeyCode()) && !MovementUtil.isBlockAbovePlayer(mc.thePlayer, 1)) {
+        if (mode.get().equals("Telly") && !mc.thePlayer.isPotionActive(Potion.moveSpeed) && !towered && !Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) && Keyboard.isKeyDown(mc.gameSettings.keyBindForward.getKeyCode()) && !MovementUtil.isBlockAbovePlayer(mc.thePlayer, 1)) {
             if (jumpTicks <= 3 || this.isBlockVeryCloseUnderPlayer()) {
                 if (jumpTicks == 0 || this.isBlockVeryCloseUnderPlayer()) {
                     DewCommon.rotationManager.rotateToward((float) MovementUtil.getDirection(), 60f, tellyQuickRotation.get() ? 180f : rotationSpeed.get().floatValue());
                 } else {
-                    DewCommon.rotationManager.rotateToward((float) (MovementUtil.getDirection() - 180f), 90f, rotationSpeed.get().floatValue());
+                    DewCommon.rotationManager.rotateToward((float) (MovementUtil.getDirection() - 180f), 90f, 35f);
                     LogUtil.printChat("LOL " + (jumpTicks + tellyWaitTicks + (mc.thePlayer.ticksExisted % 3)));
                 }
 
@@ -453,7 +454,7 @@ public class Scaffold extends Module {
     }
 
     private boolean isTelly() {
-        return mode.get().equals("Telly") && !towered && !Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) && Keyboard.isKeyDown(mc.gameSettings.keyBindForward.getKeyCode()) && !MovementUtil.isBlockAbovePlayer(mc.thePlayer, 1) && (jumpTicks <= 2 || this.isBlockVeryCloseUnderPlayer()) && (tellyQuickRotation.get() || mc.thePlayer.isSneaking());
+        return mode.get().equals("Telly") && !mc.thePlayer.isPotionActive(Potion.moveSpeed) && !towered && !Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) && Keyboard.isKeyDown(mc.gameSettings.keyBindForward.getKeyCode()) && !MovementUtil.isBlockAbovePlayer(mc.thePlayer, 1) && (jumpTicks <= 2 || this.isBlockVeryCloseUnderPlayer()) && (tellyQuickRotation.get() || mc.thePlayer.isSneaking());
     }
 
     private EnumFacing[] getFullPrioritizedFacings() {
