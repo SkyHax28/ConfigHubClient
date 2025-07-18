@@ -123,7 +123,7 @@ public class GuiProtocolSelector extends GuiScreen {
         protected void drawSlot(int i, int i1, int i2, int i3, int i4, int i5) {
             String protocolName = (ViaLoadingBase.PROTOCOLS.indexOf(ViaLoadingBase.getInstance().getTargetVersion()) == i ? EnumChatFormatting.GREEN.toString() + EnumChatFormatting.BOLD : EnumChatFormatting.GRAY.toString()) + ViaLoadingBase.getProtocols().get(i).getName();
             if (ViaLoadingBase.getProtocols().get(i) == ProtocolVersion.v1_20) {
-                protocolName += " (Non Prediction)";
+                protocolName += " (HAS Prediction)";
             }
             drawCenteredString(mc.fontRendererObj, protocolName, width / 2, i2 + 2, -1);
             GlStateManager.pushMatrix();

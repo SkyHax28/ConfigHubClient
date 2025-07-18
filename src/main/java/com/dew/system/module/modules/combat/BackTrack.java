@@ -15,10 +15,10 @@ import org.lwjgl.opengl.GL11;
 
 import java.util.*;
 
-public class Backtrack extends Module {
+public class BackTrack extends Module {
 
-    public Backtrack() {
-        super("Backtrack", ModuleCategory.COMBAT, Keyboard.KEY_NONE, true, false, true);
+    public BackTrack() {
+        super("Back Track", ModuleCategory.COMBAT, Keyboard.KEY_NONE, false, true, true);
     }
 
     public static final NumberValue ticksBack = new NumberValue("Ticks Back", 5.0, 1.0, 10.0, 1.0);

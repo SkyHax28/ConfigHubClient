@@ -1,10 +1,9 @@
-package com.dew.system.module.modules.exploit;
+package com.dew.system.module.modules.test;
 
 import com.dew.system.event.events.PreUpdateEvent;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
 import com.dew.utils.Clock;
-import com.dew.utils.LogUtil;
 import com.dew.utils.PacketUtil;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.player.EntityPlayer;

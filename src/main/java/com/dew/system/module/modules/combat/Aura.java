@@ -2,6 +2,7 @@ package com.dew.system.module.modules.combat;
 
 import com.dew.DewCommon;
 import com.dew.system.event.events.AttackEvent;
+import com.dew.system.event.events.Render3DEvent;
 import com.dew.system.event.events.TickEvent;
 import com.dew.system.event.events.WorldEvent;
 import com.dew.system.module.Module;
@@ -15,9 +16,11 @@ import com.dew.system.settingsvalue.MultiSelectionValue;
 import com.dew.system.settingsvalue.NumberValue;
 import com.dew.system.settingsvalue.SelectionValue;
 import com.dew.utils.PacketUtil;
+import com.dew.utils.RenderUtil;
 import com.dew.utils.pathfinder.Vec3;
 import de.florianmichael.viamcp.fixes.AttackOrder;
 import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
@@ -25,7 +28,9 @@ import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.play.client.C03PacketPlayer;
+import net.minecraft.util.AxisAlignedBB;
 import org.lwjgl.input.Keyboard;
+import org.lwjgl.opengl.GL11;
 
 import java.util.*;
 
@@ -84,6 +89,47 @@ public class Aura extends Module {
         target = null;
         targeted = false;
         DewCommon.moduleManager.getModule(Animations.class).setVisualBlocking(false);
+    }
+
+    @Override
+    public void onRender3D(Render3DEvent event) {
+        if (mc.thePlayer == null || mc.theWorld == null || target == null) return;
+        if (!(target instanceof EntityLivingBase)) return;
+
+        EntityLivingBase livingTarget = (EntityLivingBase) target;
+
+        double partialTicks = event.partialTicks;
+        double x = livingTarget.lastTickPosX + (livingTarget.posX - livingTarget.lastTickPosX) * partialTicks;
+        double y = livingTarget.lastTickPosY + (livingTarget.posY - livingTarget.lastTickPosY) * partialTicks;
+        double z = livingTarget.lastTickPosZ + (livingTarget.posZ - livingTarget.lastTickPosZ) * partialTicks;
+
+        double renderX = x - mc.getRenderManager().viewerPosX;
+        double renderY = y - mc.getRenderManager().viewerPosY;
+        double renderZ = z - mc.getRenderManager().viewerPosZ;
+
+        AxisAlignedBB bb = livingTarget.getEntityBoundingBox().offset(
+                -livingTarget.posX + renderX,
+                -livingTarget.posY + renderY,
+                -livingTarget.posZ + renderZ
+        );
+
+        GlStateManager.pushMatrix();
+        GlStateManager.enableBlend();
+        GlStateManager.disableTexture2D();
+        GlStateManager.disableDepth();
+        GlStateManager.depthMask(false);
+        GlStateManager.disableLighting();
+        GlStateManager.disableCull();
+        GlStateManager.tryBlendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
+
+        RenderUtil.drawFilledBox(bb, livingTarget.hurtTime >= 3 ? 1f : 0f, livingTarget.hurtTime >= 3 ? 0f : 1f, 0f, 0.2f);
+
+        GlStateManager.enableCull();
+        GlStateManager.depthMask(true);
+        GlStateManager.enableDepth();
+        GlStateManager.enableTexture2D();
+        GlStateManager.disableBlend();
+        GlStateManager.popMatrix();
     }
 
     @Override

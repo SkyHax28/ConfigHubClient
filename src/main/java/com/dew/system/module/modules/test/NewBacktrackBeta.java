@@ -1,4 +1,4 @@
-package com.dew.system.module.modules.combat;
+package com.dew.system.module.modules.test;
 
 import com.dew.DewCommon;
 import com.dew.system.event.events.AttackEvent;
@@ -7,6 +7,7 @@ import com.dew.system.event.events.ReceivedPacketEvent;
 import com.dew.system.event.events.Render3DEvent;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
+import com.dew.system.module.modules.combat.Aura;
 import com.dew.utils.LogUtil;
 import com.dew.utils.PacketUtil;
 import com.dew.utils.RenderUtil;

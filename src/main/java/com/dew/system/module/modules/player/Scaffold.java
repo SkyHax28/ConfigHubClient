@@ -9,6 +9,7 @@ import com.dew.system.module.modules.movement.speed.SpeedModule;
 import com.dew.system.settingsvalue.BooleanValue;
 import com.dew.system.settingsvalue.NumberValue;
 import com.dew.system.settingsvalue.SelectionValue;
+import com.dew.utils.LogUtil;
 import com.dew.utils.MovementUtil;
 import com.dew.utils.PacketUtil;
 import com.dew.utils.RenderUtil;
@@ -370,11 +371,18 @@ public class Scaffold extends Module {
 
     private void tellyFunction() {
         if (mode.get().equals("Telly") && !towered && !Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) && Keyboard.isKeyDown(mc.gameSettings.keyBindForward.getKeyCode()) && !MovementUtil.isBlockAbovePlayer(mc.thePlayer, 1)) {
-            if (jumpTicks <= 2 || this.isBlockVeryCloseUnderPlayer()) {
-                DewCommon.rotationManager.rotateToward((float) MovementUtil.getDirection(), 60f, tellyQuickRotation.get() ? 180f : rotationSpeed.get().floatValue());
+            if (jumpTicks <= 3 || this.isBlockVeryCloseUnderPlayer()) {
+                if (jumpTicks == 0 || this.isBlockVeryCloseUnderPlayer()) {
+                    DewCommon.rotationManager.rotateToward((float) MovementUtil.getDirection(), 60f, tellyQuickRotation.get() ? 180f : rotationSpeed.get().floatValue());
+                } else {
+                    DewCommon.rotationManager.rotateToward((float) (MovementUtil.getDirection() - 180f), 90f, rotationSpeed.get().floatValue());
+                    LogUtil.printChat("LOL " + (jumpTicks + tellyWaitTicks + (mc.thePlayer.ticksExisted % 3)));
+                }
+
                 if (mc.thePlayer.posY > 0.0D) {
-                    if (mc.thePlayer.isSprinting() && (mc.thePlayer.onGround || tellyQuickRotation.get())) {
-                        if (mc.thePlayer.onGround) {
+                    if (mc.thePlayer.isSprinting() && (jumpTicks == 0 || tellyQuickRotation.get())) {
+                        if (jumpTicks == 0) {
+                            LogUtil.printChat("jump");
                             mc.thePlayer.jump();
                             tellyWaitTicks = 0;
                             mc.gameSettings.keyBindSneak.setKeyDown(false);
