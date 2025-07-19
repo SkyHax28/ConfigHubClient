@@ -37,7 +37,7 @@ public class Hud extends Module {
         super("Hud", ModuleCategory.RENDER, Keyboard.KEY_NONE, true, false, true);
     }
 
-    private static final MultiSelectionValue features = new MultiSelectionValue("Features", Arrays.asList("Watermark", "Module List", "Armor Hud", "Potion Hud", "Target Hud"), "Watermark", "Module List", "Armor Hud", "Potion Hud", "Target Hud");
+    private static final MultiSelectionValue features = new MultiSelectionValue("Features", Arrays.asList("Watermark", "Module List", "Armor Hud", "Potion Hud", "Target Hud", "Hotbar"), "Watermark", "Module List", "Armor Hud", "Potion Hud", "Target Hud", "Hotbar");
     private static final BooleanValue disableAchievementsNotification = new BooleanValue("Disable Achievements Notification", true);
 
     private final Map<Module, Float> animationProgress = new HashMap<>();
@@ -45,6 +45,10 @@ public class Hud extends Module {
 
     public boolean disableAchievementsUI() {
         return disableAchievementsNotification.get();
+    }
+
+    public boolean renderCustomHotbar() {
+        return features.isSelected("Hotbar");
     }
 
     @Override

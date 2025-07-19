@@ -2,9 +2,12 @@ package net.minecraft.client.gui;
 
 import com.dew.DewCommon;
 import com.dew.system.event.events.Render2DEvent;
+import com.dew.system.module.modules.render.Hud;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+
+import java.awt.*;
 import java.util.Collection;
 import java.util.List;
 import java.util.Random;
@@ -45,6 +48,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StringUtils;
 import net.minecraft.world.border.WorldBorder;
 import net.optifine.CustomColors;
+import org.lwjgl.opengl.GL11;
 
 public class GuiIngame extends Gui
 {
@@ -334,38 +338,127 @@ public class GuiIngame extends Gui
         GlStateManager.enableAlpha();
     }
 
+    private static void drawSmoothRoundRect(float x1, float y1, float x2, float y2, float radius, Color color) {
+        int segments = 20;
+        float r = color.getRed() / 255.0f;
+        float g = color.getGreen() / 255.0f;
+        float b = color.getBlue() / 255.0f;
+        float a = color.getAlpha() / 255.0f;
+
+        GL11.glEnable(GL11.GL_BLEND);
+        GL11.glDisable(GL11.GL_TEXTURE_2D);
+        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+        GL11.glColor4f(r, g, b, a);
+
+        drawSmoothRect(x1 + radius, y1, x2 - radius, y2, color);
+        drawSmoothRect(x1, y1 + radius, x2, y2 - radius, color);
+
+        drawArc(x1 + radius, y1 + radius, radius, 180, 270, segments, color);
+        drawArc(x2 - radius, y1 + radius, radius, 270, 360, segments, color);
+        drawArc(x2 - radius, y2 - radius, radius,   0,  90, segments, color);
+        drawArc(x1 + radius, y2 - radius, radius,  90, 180, segments, color);
+
+        GL11.glEnable(GL11.GL_TEXTURE_2D);
+        GL11.glDisable(GL11.GL_BLEND);
+    }
+
+    private static void drawArc(float cx, float cy, float r, float startAngle, float endAngle, int segments, Color color) {
+        float rF = color.getRed() / 255.0f;
+        float gF = color.getGreen() / 255.0f;
+        float bF = color.getBlue() / 255.0f;
+        float aF = color.getAlpha() / 255.0f;
+
+        GL11.glBegin(GL11.GL_TRIANGLE_FAN);
+        GL11.glColor4f(rF, gF, bF, aF);
+        GL11.glVertex2f(cx, cy);
+        for (int i = 0; i <= segments; i++) {
+            double angle = Math.toRadians(startAngle + (endAngle - startAngle) * i / segments);
+            GL11.glVertex2f(cx + (float)Math.cos(angle) * r, cy + (float)Math.sin(angle) * r);
+        }
+        GL11.glEnd();
+    }
+
+    private static void drawSmoothRect(float x1, float y1, float x2, float y2, Color color) {
+        float r = color.getRed() / 255.0f;
+        float g = color.getGreen() / 255.0f;
+        float b = color.getBlue() / 255.0f;
+        float a = color.getAlpha();
+
+        GL11.glColor4f(r, g, b, a);
+        GL11.glBegin(GL11.GL_QUADS);
+        GL11.glVertex2f(x1, y1);
+        GL11.glVertex2f(x1, y2);
+        GL11.glVertex2f(x2, y2);
+        GL11.glVertex2f(x2, y1);
+        GL11.glEnd();
+    }
+
     protected void renderTooltip(ScaledResolution sr, float partialTicks)
     {
-        if (this.mc.getRenderViewEntity() instanceof EntityPlayer)
-        {
-            GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-            this.mc.getTextureManager().bindTexture(widgetsTexPath);
-            EntityPlayer entityplayer = (EntityPlayer)this.mc.getRenderViewEntity();
-            int i = sr.getScaledWidth() / 2;
-            float f = this.zLevel;
-            this.zLevel = -90.0F;
-            this.drawTexturedModalRect(i - 91, sr.getScaledHeight() - 22, 0, 0, 182, 22);
-            this.drawTexturedModalRect(i - 91 - 1 + entityplayer.inventory.currentItem * 20, sr.getScaledHeight() - 22 - 1, 0, 22, 24, 22);
-            this.zLevel = f;
-            GlStateManager.enableRescaleNormal();
-            GlStateManager.enableBlend();
-            GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
-            RenderHelper.enableGUIStandardItemLighting();
+        if (this.mc.getRenderViewEntity() instanceof EntityPlayer) {
+            if (DewCommon.moduleManager.getModule(Hud.class).isEnabled() && DewCommon.moduleManager.getModule(Hud.class).renderCustomHotbar()) {
+                EntityPlayer entityplayer = (EntityPlayer)this.mc.getRenderViewEntity();
+                int centerX = sr.getScaledWidth() / 2;
+                int baseY = sr.getScaledHeight() - 24;
 
-            for (int j = 0; j < 9; ++j)
-            {
-                int k = sr.getScaledWidth() / 2 - 90 + j * 20 + 2;
-                int l = sr.getScaledHeight() - 16 - 3;
-                this.renderHotbarItem(j, k, l, partialTicks, entityplayer);
+                drawSmoothRoundRect(centerX - 95, baseY, centerX + 94, baseY + 22, 3f, new Color(20, 20, 20, 255));
+
+                int selectedX = centerX - 91 + entityplayer.inventory.currentItem * 20;
+                drawSmoothRoundRect(selectedX - 1, baseY, selectedX + 21, baseY + 22, 2f, new Color(60, 60, 60, 255));
+
+                GlStateManager.enableRescaleNormal();
+                GlStateManager.enableBlend();
+                GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
+                RenderHelper.enableGUIStandardItemLighting();
+
+                for (int j = 0; j < 9; ++j) {
+                    int x = centerX - 90 + j * 20;
+                    int y = baseY + 3;
+
+                    if (j == entityplayer.inventory.currentItem) {
+                        GlStateManager.pushMatrix();
+                        GlStateManager.translate(x + 8, y + 8, 0);
+                        GlStateManager.scale(1.1f, 1.1f, 1.0f);
+                        GlStateManager.translate(-(x + 8), -(y + 8), 0);
+                        this.renderHotbarItem(j, x, y - 1, partialTicks, entityplayer);
+                        GlStateManager.popMatrix();
+                    } else {
+                        this.renderHotbarItem(j, x, y, partialTicks, entityplayer);
+                    }
+                }
+
+                RenderHelper.disableStandardItemLighting();
+                GlStateManager.disableRescaleNormal();
+                GlStateManager.disableBlend();
+            } else {
+                GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+                this.mc.getTextureManager().bindTexture(widgetsTexPath);
+                EntityPlayer entityplayer = (EntityPlayer) this.mc.getRenderViewEntity();
+                int i = sr.getScaledWidth() / 2;
+                float f = this.zLevel;
+                this.zLevel = -90.0F;
+                this.drawTexturedModalRect(i - 91, sr.getScaledHeight() - 22, 0, 0, 182, 22);
+                this.drawTexturedModalRect(i - 91 - 1 + entityplayer.inventory.currentItem * 20, sr.getScaledHeight() - 22 - 1, 0, 22, 24, 22);
+                this.zLevel = f;
+                GlStateManager.enableRescaleNormal();
+                GlStateManager.enableBlend();
+                GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
+                RenderHelper.enableGUIStandardItemLighting();
+
+                for (int j = 0; j < 9; ++j) {
+                    int k = sr.getScaledWidth() / 2 - 90 + j * 20 + 2;
+                    int l = sr.getScaledHeight() - 16 - 3;
+                    this.renderHotbarItem(j, k, l, partialTicks, entityplayer);
+                }
+
+                RenderHelper.disableStandardItemLighting();
+                GlStateManager.disableRescaleNormal();
+                GlStateManager.disableBlend();
             }
-
-            RenderHelper.disableStandardItemLighting();
-            GlStateManager.disableRescaleNormal();
-            GlStateManager.disableBlend();
-
-            Render2DEvent event = new Render2DEvent(partialTicks);
-            DewCommon.eventManager.call(event);
         }
+
+        Render2DEvent event = new Render2DEvent(partialTicks);
+        DewCommon.eventManager.call(event);
     }
 
     public void renderHorseJumpBar(ScaledResolution scaledRes, int x)
@@ -493,6 +586,8 @@ public class GuiIngame extends Gui
 
     protected boolean showCrosshair()
     {
+        if (mc.gameSettings.thirdPersonView != 0) return false;
+
         if (this.mc.gameSettings.showDebugInfo && !this.mc.thePlayer.hasReducedDebug() && !this.mc.gameSettings.reducedDebugInfo)
         {
             return false;

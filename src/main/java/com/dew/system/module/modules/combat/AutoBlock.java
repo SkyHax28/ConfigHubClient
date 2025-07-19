@@ -8,7 +8,6 @@ import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
 import com.dew.system.settingsvalue.SelectionValue;
 import com.dew.utils.BlinkUtil;
-import com.dew.utils.LogUtil;
 import com.dew.utils.PacketUtil;
 import net.minecraft.item.ItemSword;
 import net.minecraft.network.Packet;
@@ -100,8 +99,6 @@ public class AutoBlock extends Module {
                 case "hypixel":
                 case "prediction":
                     if (blinkAB) {
-                        LogUtil.printChat("blinko");
-
                         BlinkUtil.doBlink();
                         blink = true;
 
@@ -145,7 +142,7 @@ public class AutoBlock extends Module {
 
         Packet<?> packet = event.packet;
 
-        if (packet instanceof S12PacketEntityVelocity && mc.theWorld.getEntityByID(((S12PacketEntityVelocity) packet).getEntityID()) == mc.thePlayer && (mode.get().equals("Hypixel"))) {
+        if (packet instanceof S12PacketEntityVelocity && mc.theWorld.getEntityByID(((S12PacketEntityVelocity) packet).getEntityID()) == mc.thePlayer && (mode.get().equals("Hypixel") || mode.get().equals("Prediction"))) {
             if (DewCommon.moduleManager.getModule(Aura.class).isInAutoBlockMode()) {
                 BlinkUtil.sync(true, true);
                 BlinkUtil.stopBlink();

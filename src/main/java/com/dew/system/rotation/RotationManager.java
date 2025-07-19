@@ -20,7 +20,7 @@ public class RotationManager {
     private boolean isRotating = false;
     private boolean isReturning = false;
 
-    private static final long ROTATION_TIMEOUT = 300L;
+    private static final long ROTATION_TIMEOUT = 600L;
     private Random random = new Random();
 
     public RotationManager() {

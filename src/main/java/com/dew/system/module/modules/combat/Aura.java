@@ -92,47 +92,6 @@ public class Aura extends Module {
     }
 
     @Override
-    public void onRender3D(Render3DEvent event) {
-        if (mc.thePlayer == null || mc.theWorld == null || target == null) return;
-        if (!(target instanceof EntityLivingBase)) return;
-
-        EntityLivingBase livingTarget = (EntityLivingBase) target;
-
-        double partialTicks = event.partialTicks;
-        double x = livingTarget.lastTickPosX + (livingTarget.posX - livingTarget.lastTickPosX) * partialTicks;
-        double y = livingTarget.lastTickPosY + (livingTarget.posY - livingTarget.lastTickPosY) * partialTicks;
-        double z = livingTarget.lastTickPosZ + (livingTarget.posZ - livingTarget.lastTickPosZ) * partialTicks;
-
-        double renderX = x - mc.getRenderManager().viewerPosX;
-        double renderY = y - mc.getRenderManager().viewerPosY;
-        double renderZ = z - mc.getRenderManager().viewerPosZ;
-
-        AxisAlignedBB bb = livingTarget.getEntityBoundingBox().offset(
-                -livingTarget.posX + renderX,
-                -livingTarget.posY + renderY,
-                -livingTarget.posZ + renderZ
-        );
-
-        GlStateManager.pushMatrix();
-        GlStateManager.enableBlend();
-        GlStateManager.disableTexture2D();
-        GlStateManager.disableDepth();
-        GlStateManager.depthMask(false);
-        GlStateManager.disableLighting();
-        GlStateManager.disableCull();
-        GlStateManager.tryBlendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
-
-        RenderUtil.drawFilledBox(bb, livingTarget.hurtTime >= 3 ? 1f : 0f, livingTarget.hurtTime >= 3 ? 0f : 1f, 0f, 0.2f);
-
-        GlStateManager.enableCull();
-        GlStateManager.depthMask(true);
-        GlStateManager.enableDepth();
-        GlStateManager.enableTexture2D();
-        GlStateManager.disableBlend();
-        GlStateManager.popMatrix();
-    }
-
-    @Override
     public void onTick(TickEvent event) {
         if (this.isInAutoBlockMode()) return;
 
@@ -179,7 +138,6 @@ public class Aura extends Module {
                     }).start();
                 } else {
                     AttackOrder.sendFixedAttack(mc.thePlayer, entity);
-                    mc.thePlayer.onEnchantmentCritical(entity);
                 }
 
                 return true;
@@ -302,7 +260,7 @@ public class Aura extends Module {
     private boolean shouldNotAttack(Entity entity) {
         if (entity == null) return true;
         if (!targets.isSelected("Teammate") && entity instanceof EntityLivingBase && DewCommon.moduleManager.getModule(Teams.class).isInYourTeam((EntityLivingBase) entity)) return true;
-        if ((entity.isDead || entity instanceof EntityLiving && ((EntityLiving) entity).deathTime > 0) && !targets.isSelected("Dead")) return true;
+        if ((entity.isDead || entity instanceof EntityLiving && !entity.isEntityAlive()) && !targets.isSelected("Dead")) return true;
         return !(entity instanceof EntityPlayer && targets.isSelected("Player") || entity instanceof EntityMob && targets.isSelected("Mob") || entity instanceof EntityAnimal && targets.isSelected("Animal") || entity instanceof EntityLiving && targets.isSelected("Living"));
     }
 }

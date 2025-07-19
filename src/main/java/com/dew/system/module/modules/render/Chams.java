@@ -14,6 +14,6 @@ public class Chams extends Module {
     }
 
     public boolean shouldRender(Entity entity) {
-        return entity instanceof EntityPlayer;
+        return entity instanceof EntityPlayer && (!(entity instanceof EntityPlayerSP) || mc.gameSettings.thirdPersonView != 0);
     }
 }
