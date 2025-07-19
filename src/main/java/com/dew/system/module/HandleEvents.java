@@ -109,7 +109,7 @@ public class HandleEvents implements EventListener {
 
         Packet<?> packet = event.packet;
 
-        if (BlinkUtil.blinking && !BlinkUtil.limiter && !(packet instanceof C00Handshake || packet instanceof C00PacketServerQuery || packet instanceof C01PacketPing || packet instanceof C01PacketChatMessage)) {
+        if (BlinkUtil.blinking && !BlinkUtil.limiter && !(packet instanceof C01PacketChatMessage)) {
             event.cancel();
             BlinkUtil.addPacket(packet);
         }

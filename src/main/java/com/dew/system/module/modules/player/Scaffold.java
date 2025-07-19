@@ -37,6 +37,7 @@ public class Scaffold extends Module {
     private static final NumberValue clutchRange = new NumberValue("Clutch Range", 3.0, 1.0, 5.0, 1.0);
     private static final NumberValue rotationSpeed = new NumberValue("Rotation Speed", 60.0, 0.0, 180.0, 5.0, () -> mode.get().equals("Normal") || mode.get().equals("Telly"));
     private static final NumberValue tellyPreRotationSpeed = new NumberValue("Telly Pre Rotation Speed", 35.0, 0.0, 180.0, 5.0, () -> mode.get().equals("Telly"));
+    public static final BooleanValue hypixelTellyBanFix = new BooleanValue("Hypixel Telly Ban Fix", false, () -> mode.get().equals("Telly"));
     private static final NumberValue placeDelay = new NumberValue("Place Delay", 0.0, 0.0, 3.0, 0.1, () -> mode.get().equals("Normal") || mode.get().equals("Telly"));
     private static final SelectionValue edgeSafeMode = new SelectionValue("Edge Safe Mode", "OFF", "OFF", "Safewalk", "Sneak");
     private static final SelectionValue clickMode = new SelectionValue("Click Mode", "Normal", "Normal", "Legit");
@@ -221,7 +222,7 @@ public class Scaffold extends Module {
 
             case "hypixel":
                 if (mc.thePlayer.ticksExisted % 2 == 0) {
-                    DewCommon.rotationManager.faceBlockHypixelSafe(180f);
+                    DewCommon.rotationManager.faceBlockHypixelSafe(180f, true);
                 }
                 break;
 
@@ -365,7 +366,11 @@ public class Scaffold extends Module {
                 if (jumpTicks == 0 || this.isBlockVeryCloseUnderPlayer()) {
                     DewCommon.rotationManager.rotateToward((float) MovementUtil.getDirection(), 60f, 180f);
                 } else {
-                    DewCommon.rotationManager.rotateToward((float) (MovementUtil.getDirection() - 180f), 90f, tellyPreRotationSpeed.get().floatValue());
+                    if (hypixelTellyBanFix.get()) {
+                        DewCommon.rotationManager.faceBlockHypixelSafe(tellyPreRotationSpeed.get().floatValue(), false);
+                    } else {
+                        DewCommon.rotationManager.rotateToward((float) (MovementUtil.getDirection() - 180f), 90f, tellyPreRotationSpeed.get().floatValue());
+                    }
                 }
 
                 if (mc.thePlayer.posY > 0.0D && (mc.thePlayer.isSprinting() || noSprint.get()) && jumpTicks == 0) {

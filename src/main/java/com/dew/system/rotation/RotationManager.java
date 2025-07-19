@@ -156,11 +156,11 @@ public class RotationManager {
         return canHitBlockAtRotation(pos, getClientYaw(), getClientPitch());
     }
 
-    public void faceBlockHypixelSafe(float rotationSpeed) {
-        rotateToward(snapToHypYaw((float) MovementUtil.getDirection()), 80f, rotationSpeed);
+    public void faceBlockHypixelSafe(float rotationSpeed, boolean slowdown) {
+        rotateToward(snapToHypYaw((float) MovementUtil.getDirection(), slowdown), 80f, rotationSpeed);
     }
 
-    private float snapToHypYaw(float yaw) {
+    private float snapToHypYaw(float yaw, boolean slowdown) {
         float snappedBase = Math.round(yaw / 45.0f) * 45.0f;
 
         float lowerOffset;
@@ -172,7 +172,9 @@ public class RotationManager {
         } else {
             lowerOffset = 137f;
             upperOffset = 137f;
-            MovementUtil.strafe(0.01f);
+            if (slowdown) {
+                MovementUtil.strafe(0.01f);
+            }
         }
 
         float lowerCandidate = snappedBase - lowerOffset;
