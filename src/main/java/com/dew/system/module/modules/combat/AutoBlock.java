@@ -142,7 +142,7 @@ public class AutoBlock extends Module {
 
         Packet<?> packet = event.packet;
 
-        if (packet instanceof S12PacketEntityVelocity && mc.theWorld.getEntityByID(((S12PacketEntityVelocity) packet).getEntityID()) == mc.thePlayer && (mode.get().equals("Hypixel") || mode.get().equals("Prediction"))) {
+        if (packet instanceof S12PacketEntityVelocity && mc.theWorld.getEntityByID(((S12PacketEntityVelocity) packet).getEntityID()) == mc.thePlayer && (mode.get().equals("Hypixel"))) {
             if (DewCommon.moduleManager.getModule(Aura.class).isInAutoBlockMode()) {
                 BlinkUtil.sync(true, true);
                 BlinkUtil.stopBlink();

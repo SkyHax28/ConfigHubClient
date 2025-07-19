@@ -368,7 +368,7 @@ public class Scaffold extends Module {
                     DewCommon.rotationManager.rotateToward((float) (MovementUtil.getDirection() - 180f), 90f, tellyPreRotationSpeed.get().floatValue());
                 }
 
-                if (mc.thePlayer.posY > 0.0D && mc.thePlayer.isSprinting() && jumpTicks == 0) {
+                if (mc.thePlayer.posY > 0.0D && (mc.thePlayer.isSprinting() || noSprint.get()) && jumpTicks == 0) {
                     mc.thePlayer.jump();
                     this.updateKeepY();
                 }

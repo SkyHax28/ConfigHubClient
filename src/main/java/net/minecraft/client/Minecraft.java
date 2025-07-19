@@ -442,7 +442,7 @@ public class Minecraft implements IThreadListener, IPlayerUsage
         {
             this.fontRendererObj.setUnicodeFlag(this.isUnicode());
             this.fontRendererObj.setBidiFlag(this.mcLanguageManager.isCurrentLanguageBidirectional());
-            this.bitFontRendererObj.setUnicodeFlag(this.isUnicode());
+            this.bitFontRendererObj.setUnicodeFlag(false);
             this.bitFontRendererObj.setBidiFlag(this.mcLanguageManager.isCurrentLanguageBidirectional());
         }
 
