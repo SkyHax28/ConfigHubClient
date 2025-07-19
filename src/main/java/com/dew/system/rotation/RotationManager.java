@@ -193,6 +193,29 @@ public class RotationManager {
         setRotations(this.clientYaw + yawDiff, this.clientPitch + pitchDiff);
     }
 
+    public boolean canHitEntityFromPlayer(Entity target, double reach, boolean throughWalls) {
+        if (mc.thePlayer == null || mc.theWorld == null || target == null) return false;
+
+        Vec3 eyePos = mc.thePlayer.getPositionEyes(1.0f);
+        AxisAlignedBB targetBox = target.getEntityBoundingBox().expand(0.1, 0.1, 0.1);
+
+        Vec3 targetCenter = new Vec3(
+                (targetBox.minX + targetBox.maxX) / 2.0,
+                (targetBox.minY + targetBox.maxY) / 2.0,
+                (targetBox.minZ + targetBox.maxZ) / 2.0
+        );
+
+        if (eyePos.distanceTo(targetCenter) > reach) return false;
+
+        MovingObjectPosition blockHit = mc.theWorld.rayTraceBlocks(eyePos, targetCenter, false, true, false);
+        if (!throughWalls && blockHit != null && blockHit.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {
+            return false;
+        }
+
+        MovingObjectPosition entityHit = targetBox.calculateIntercept(eyePos, targetCenter);
+        return entityHit != null;
+    }
+
     public boolean canHitEntityAtRotation(Entity target, float yaw, float pitch) {
         double reach = mc.playerController.getBlockReachDistance();
 

@@ -63,7 +63,7 @@ public class Aura extends Module {
 
     public boolean isInAutoBlockMode() {
         AutoBlock autoBlockModule = DewCommon.moduleManager.getModule(AutoBlock.class);
-        return this.isEnabled() && autoBlockModule.isEnabled() && target != null && autoBlockModule.isHoldingSword() && (!autoBlockModule.getMode().equals("Prediction") || mc.thePlayer.getDistanceToEntity(target) <= this.getAttackRange());
+        return this.isEnabled() && autoBlockModule.isEnabled() && target != null && autoBlockModule.isHoldingSword() && (!autoBlockModule.getMode().equals("Prediction") || DewCommon.rotationManager.canHitEntityFromPlayer(target, this.getAttackRange(), throughWalls.get()));
     }
 
     @Override
@@ -111,7 +111,7 @@ public class Aura extends Module {
     }
 
     private boolean attack(Entity entity, boolean canHit, long currentTime) {
-        if (mc.thePlayer.getDistanceToEntity(entity) <= this.getAttackRange() && (canHit || noRotationHitCheck.get()) && (mc.thePlayer.canEntityBeSeen(entity) || throughWalls.get())) {
+        if (DewCommon.rotationManager.canHitEntityFromPlayer(entity, this.getAttackRange(), throughWalls.get()) && (canHit || noRotationHitCheck.get())) {
             if (currentTime - lastAttackTime >= nextAttackDelay) {
                 if (tpAura.get()) {
                     new Thread(() -> {
