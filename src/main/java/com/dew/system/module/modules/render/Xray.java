@@ -39,10 +39,7 @@ public class Xray extends Module {
             // 探索補助
             Blocks.clay,
             Blocks.glowstone,
-            Blocks.fire,
             Blocks.tnt,
-            Blocks.torch,
-            Blocks.ladder,
             Blocks.crafting_table,
             Blocks.furnace,
             Blocks.lit_furnace,
@@ -56,24 +53,11 @@ public class Xray extends Module {
             // 構造物
             Blocks.bookshelf,
             Blocks.enchanting_table,
-            Blocks.mob_spawner,
             Blocks.end_portal_frame,
             Blocks.mossy_cobblestone,
 
-            // 液体
-            Blocks.water,
-            Blocks.flowing_water,
-            Blocks.lava,
-            Blocks.flowing_lava,
-
             // その他
-            Blocks.beacon,
-            Blocks.anvil,
-            Blocks.redstone_torch,
-            Blocks.rail,
-            Blocks.detector_rail,
-            Blocks.activator_rail,
-            Blocks.golden_rail
+            Blocks.anvil
     ));
 
     public List<Block> getXrayBlocks() {
