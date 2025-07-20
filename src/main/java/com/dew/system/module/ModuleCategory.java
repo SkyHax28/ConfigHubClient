@@ -6,6 +6,7 @@ public enum ModuleCategory {
     PLAYER,
     EXPLOIT,
     RENDER,
+    GHOST,
 
     MODULE_CONFIG_MANAGER,
     BIND_CONFIG_MANAGER
