@@ -27,14 +27,13 @@ public class ModuleManager implements EventListener {
                 new Cape(), new NoFall(), new SilentView(), new InvMove(), new NoSlow(),
                 new Scaffold(), new KeepSprint(), new NameTags(), new Chams(),
                 new Velocity(), new CameraNoClip(), new AutoTool(), new Breaker(),
-                new CaveFinder(), new Fullbright(), new Xray(), new NoBreakDelay(),
+                new ESP(), new Fullbright(), new Xray(), new NoBreakDelay(),
                 new Manager(), new Stealer(), new BackTrack(), new AutoPot(),
                 new AutoWalkAI(), new NoHurtCam(), new NoFireOverlay(), new Wings(),
                 new Sprint(), new TargetStrafe(), new AutoBlock(), new FastBow(),
                 new FastUse(), new Teams(), new HitSelect(), new LongJump(),
                 new Knockback(), new BloxdPhysics(), new Step(), new ItemPhysics(),
-                new Ambience(), new NoJumpDelay(), new SafetySwitchv2000(), new AntiExploit(),
-                new ESP()
+                new Ambience(), new NoJumpDelay(), new SafetySwitchv2000(), new AntiExploit()
         ));
 
         DewCommon.eventManager.register(this);

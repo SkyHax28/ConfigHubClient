@@ -1,5 +1,7 @@
 package net.minecraft.client.renderer.chunk;
 
+import com.dew.DewCommon;
+import com.dew.system.module.modules.render.Xray;
 import com.google.common.collect.Sets;
 import java.nio.FloatBuffer;
 import java.util.BitSet;
@@ -235,6 +237,10 @@ public class RenderChunk
                 {
                     aenumworldblocklayer = this.blockLayersSingle;
                     aenumworldblocklayer[0] = block.getBlockLayer();
+
+                    if (DewCommon.moduleManager.getModule(Xray.class).isEnabled()){
+                        aenumworldblocklayer[0] = DewCommon.moduleManager.getModule(Xray.class).getXrayBlocks().contains(block) ? EnumWorldBlockLayer.SOLID : EnumWorldBlockLayer.TRANSLUCENT;
+                    }
                 }
 
                 for (int j = 0; j < aenumworldblocklayer.length; ++j)

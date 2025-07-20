@@ -1,5 +1,7 @@
 package net.minecraft.client.renderer;
 
+import com.dew.DewCommon;
+import com.dew.system.module.modules.render.Xray;
 import com.google.common.primitives.Floats;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -427,32 +429,47 @@ public class WorldRenderer
 
     public void putColorMultiplier(float red, float green, float blue, int p_178978_4_)
     {
-        int i = this.getColorIndex(p_178978_4_);
-        int j = -1;
+        int index = this.getColorIndex(p_178978_4_);
+        int color = this.rawIntBuffer.get(index);
+        int iR;
+        int iG;
+        int iB;
 
-        if (!this.noColor)
-        {
-            j = this.rawIntBuffer.get(i);
-
-            if (ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN)
-            {
-                int k = (int)((float)(j & 255) * red);
-                int l = (int)((float)(j >> 8 & 255) * green);
-                int i1 = (int)((float)(j >> 16 & 255) * blue);
-                j = j & -16777216;
-                j = j | i1 << 16 | l << 8 | k;
-            }
-            else
-            {
-                int j1 = (int)((float)(j >> 24 & 255) * red);
-                int k1 = (int)((float)(j >> 16 & 255) * green);
-                int l1 = (int)((float)(j >> 8 & 255) * blue);
-                j = j & 255;
-                j = j | j1 << 24 | k1 << 16 | l1 << 8;
-            }
+        if (ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN) {
+            iR = (int) ((float) (color & 255) * red);
+            iG = (int) ((float) (color >> 8 & 255) * green);
+            iB = (int) ((float) (color >> 16 & 255) * blue);
+            color &= -16777216;
+            color |= iB << 16 | iG << 8 | iR;
+        } else {
+            iR = (int) ((float) (index >> 24 & 255) * red);
+            iG = (int) ((float) (index >> 16 & 255) * green);
+            iB = (int) ((float) (index>> 8 & 255) * blue);
+            color &= 255;
+            color |= iR << 24 | iG << 16 | iB << 8;
         }
 
-        this.rawIntBuffer.put(i, j);
+        if (DewCommon.moduleManager.getModule(Xray.class).isEnabled()) {
+            color = this.getColorOpacity(color, 120);
+        }
+
+        this.rawIntBuffer.put(index, color);
+    }
+
+    private int getColorOpacity(int color, int alpha) {
+        int red = (color >> 16 & 0xFF);
+        int green = (color >> 8 & 0xFF);
+        int blue = (color & 0xFF);
+        return getColor(red, green, blue, MathHelper.clamp_int(alpha, 0, 255));
+    }
+
+    public static int getColor(int red, int green, int blue, int alpha) {
+        int color = 0;
+        color |= MathHelper.clamp_int(alpha, 0, 255) << 24;
+        color |= MathHelper.clamp_int(red, 0, 255) << 16;
+        color |= MathHelper.clamp_int(green, 0, 255) << 8;
+        color |= MathHelper.clamp_int(blue, 0, 255);
+        return color;
     }
 
     private void putColor(int argb, int p_178988_2_)

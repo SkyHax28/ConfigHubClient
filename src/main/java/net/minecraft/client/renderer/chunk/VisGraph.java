@@ -7,7 +7,6 @@ import java.util.Queue;
 import java.util.Set;
 
 import com.dew.DewCommon;
-import com.dew.system.module.modules.render.CaveFinder;
 import com.dew.system.module.modules.render.Xray;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
@@ -24,6 +23,10 @@ public class VisGraph
 
     public void func_178606_a(BlockPos pos)
     {
+        if (DewCommon.moduleManager.getModule(Xray.class).isEnabled()) {
+            return;
+        }
+
         this.field_178612_d.set(getIndex(pos), true);
         --this.field_178611_f;
     }
@@ -38,22 +41,21 @@ public class VisGraph
         return x << 0 | y << 8 | z << 4;
     }
 
-    public SetVisibility computeVisibility()
-    {
+    public SetVisibility computeVisibility() {
         SetVisibility setvisibility = new SetVisibility();
-
-        if (DewCommon.moduleManager.getModule(CaveFinder.class).isEnabled() || DewCommon.moduleManager.getModule(Xray.class).isEnabled()) {
+        if (DewCommon.moduleManager.getModule(Xray.class).isEnabled()) {
             setvisibility.setAllVisible(true);
+            return setvisibility;
+        }
+
+        if (4096 - this.field_178611_f < 256) {
+            setvisibility.setAllVisible(true);
+        } else if (this.field_178611_f == 0) {
+            setvisibility.setAllVisible(false);
         } else {
-            if (4096 - this.field_178611_f < 256) {
-                setvisibility.setAllVisible(true);
-            } else if (this.field_178611_f == 0) {
-                setvisibility.setAllVisible(false);
-            } else {
-                for (int i : field_178613_e) {
-                    if (!this.field_178612_d.get(i)) {
-                        setvisibility.setManyVisible(this.func_178604_a(i));
-                    }
+            for (int i : field_178613_e) {
+                if (!this.field_178612_d.get(i)) {
+                    setvisibility.setManyVisible(this.func_178604_a(i));
                 }
             }
         }

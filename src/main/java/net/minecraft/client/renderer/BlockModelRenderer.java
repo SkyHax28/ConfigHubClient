@@ -3,7 +3,7 @@ package net.minecraft.client.renderer;
 import java.util.*;
 
 import com.dew.DewCommon;
-import com.dew.system.module.modules.render.CaveFinder;
+import com.dew.system.module.modules.render.Xray;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -63,6 +63,10 @@ public class BlockModelRenderer
                 SVertexBuilder.pushEntity(blockStateIn, blockPosIn, blockAccessIn, worldRendererIn);
             }
 
+            if (DewCommon.moduleManager.getModule(Xray.class).isEnabled()) {
+                return this.renderModelAmbientOcclusion(blockAccessIn, modelIn, blockStateIn.getBlock(), blockPosIn, worldRendererIn, checkSides);
+            }
+
             RenderEnv renderenv = worldRendererIn.getRenderEnv(blockStateIn, blockPosIn);
             modelIn = BlockModelCustomizer.getRenderModel(modelIn, blockStateIn, renderenv);
             boolean flag1 = flag ? this.renderModelSmooth(blockAccessIn, modelIn, blockStateIn, blockPosIn, worldRendererIn, checkSides) : this.renderModelFlat(blockAccessIn, modelIn, blockStateIn, blockPosIn, worldRendererIn, checkSides);
@@ -77,10 +81,6 @@ public class BlockModelRenderer
                 SVertexBuilder.popEntity(worldRendererIn);
             }
 
-            if (DewCommon.moduleManager.getModule(CaveFinder.class).isEnabled()) {
-                return this.isCaveFloodFill(blockAccessIn, blockPosIn);
-            }
-
             return flag1;
         }
         catch (Throwable throwable)
@@ -91,32 +91,6 @@ public class BlockModelRenderer
             crashreportcategory.addCrashSection("Using AO", Boolean.valueOf(flag));
             throw new ReportedException(crashreport);
         }
-    }
-
-    private boolean isCaveFloodFill(IBlockAccess world, BlockPos origin) {
-        Set<BlockPos> visited = new HashSet<>();
-        Queue<BlockPos> queue = new LinkedList<>();
-        queue.add(origin);
-        int airCount = 0;
-
-        while (!queue.isEmpty() && airCount <= 40) {
-            BlockPos current = queue.poll();
-            if (!visited.add(current)) continue;
-
-            Block block = world.getBlockState(current).getBlock();
-            if (block != Blocks.air) continue;
-
-            airCount++;
-
-            for (EnumFacing dir : EnumFacing.values()) {
-                BlockPos neighbor = current.offset(dir);
-                if (!visited.contains(neighbor)) {
-                    queue.add(neighbor);
-                }
-            }
-        }
-
-        return airCount > 25;
     }
 
     public boolean renderModelAmbientOcclusion(IBlockAccess blockAccessIn, IBakedModel modelIn, Block blockIn, BlockPos blockPosIn, WorldRenderer worldRendererIn, boolean checkSides)

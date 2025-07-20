@@ -109,8 +109,6 @@ public class TileEntityRendererDispatcher
 
     public void renderTileEntity(TileEntity tileentityIn, float partialTicks, int destroyStage)
     {
-        if (DewCommon.moduleManager.getModule(Xray.class).isEnabled() && !DewCommon.moduleManager.getModule(Xray.class).getXrayBlocks().contains(tileentityIn.getBlockType())) return;
-
         if (tileentityIn.getDistanceSq(this.entityX, this.entityY, this.entityZ) < tileentityIn.getMaxRenderDistanceSquared())
         {
             boolean flag = true;

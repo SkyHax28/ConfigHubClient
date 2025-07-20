@@ -374,8 +374,9 @@ public class Block
 
     public boolean shouldSideBeRendered(IBlockAccess worldIn, BlockPos pos, EnumFacing side)
     {
-        if (DewCommon.moduleManager.getModule(Xray.class).isEnabled())
-            return DewCommon.moduleManager.getModule(Xray.class).getXrayBlocks().contains(this);
+        if (DewCommon.moduleManager.getModule(Xray.class).isEnabled() && DewCommon.moduleManager.getModule(Xray.class).getXrayBlocks().contains(this)) {
+            return true;
+        }
 
         return side == EnumFacing.DOWN && this.minY > 0.0D ? true : (side == EnumFacing.UP && this.maxY < 1.0D ? true : (side == EnumFacing.NORTH && this.minZ > 0.0D ? true : (side == EnumFacing.SOUTH && this.maxZ < 1.0D ? true : (side == EnumFacing.WEST && this.minX > 0.0D ? true : (side == EnumFacing.EAST && this.maxX < 1.0D ? true : !worldIn.getBlockState(pos).getBlock().isOpaqueCube())))));
     }
@@ -880,8 +881,9 @@ public class Block
 
     public float getAmbientOcclusionLightValue()
     {
-        if (DewCommon.moduleManager.getModule(Xray.class).isEnabled())
+        if (DewCommon.moduleManager.getModule(Xray.class).isEnabled()) {
             return 1.0F;
+        }
 
         return this.isBlockNormalCube() ? 0.2F : 1.0F;
     }
