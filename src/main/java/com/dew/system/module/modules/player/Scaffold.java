@@ -234,7 +234,7 @@ public class Scaffold extends Module {
             mc.thePlayer.setSprinting(false);
         }
 
-        if (this.isTelly() && jumpTicks <= 3) {
+        if (this.isTelly() && jumpTicks <= 3 && !mc.thePlayer.isPotionActive(Potion.moveSpeed) && !towered && !Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) && Keyboard.isKeyDown(mc.gameSettings.keyBindForward.getKeyCode()) && !MovementUtil.isBlockAbovePlayer(mc.thePlayer, 1)) {
             return;
         }
 
@@ -362,7 +362,7 @@ public class Scaffold extends Module {
 
     private void tellyFunction() {
         if (mode.get().equals("Telly") && !mc.thePlayer.isPotionActive(Potion.moveSpeed) && !towered && !Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) && Keyboard.isKeyDown(mc.gameSettings.keyBindForward.getKeyCode()) && !MovementUtil.isBlockAbovePlayer(mc.thePlayer, 1)) {
-            if (jumpTicks <= 3 || this.isBlockVeryCloseUnderPlayer()) {
+            if (jumpTicks <= 2 || this.isBlockVeryCloseUnderPlayer()) {
                 if (jumpTicks == 0 || this.isBlockVeryCloseUnderPlayer()) {
                     DewCommon.rotationManager.rotateToward((float) MovementUtil.getDirection(), 60f, 180f);
                 } else {

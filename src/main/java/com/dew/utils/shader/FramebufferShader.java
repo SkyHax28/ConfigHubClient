@@ -73,12 +73,15 @@ public abstract class FramebufferShader extends Shader {
     }
 
     public Framebuffer setupFrameBuffer(Framebuffer frameBuffer) {
-        if(frameBuffer != null)
+        if (frameBuffer != null && frameBuffer.framebufferWidth == mc.displayWidth && frameBuffer.framebufferHeight == mc.displayHeight) {
+            return frameBuffer;
+        }
+
+        if (frameBuffer != null) {
             frameBuffer.deleteFramebuffer();
+        }
 
-        frameBuffer = new Framebuffer(mc.displayWidth, mc.displayHeight, true);
-
-        return frameBuffer;
+        return new Framebuffer(mc.displayWidth, mc.displayHeight, false);
     }
 
     public void drawFramebuffer(final Framebuffer framebuffer) {

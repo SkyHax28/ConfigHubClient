@@ -3,6 +3,7 @@ package com.dew.system.module.modules.render;
 import com.dew.system.event.events.PreUpdateEvent;
 import com.dew.system.event.events.ReceivedPacketEvent;
 import com.dew.system.event.events.Render3DEvent;
+import com.dew.system.event.events.TickEvent;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
 import com.dew.system.settingsvalue.BooleanValue;
@@ -27,7 +28,7 @@ public class Ambience extends Module {
     }
 
     @Override
-    public void onRender3D(Render3DEvent event) {
+    public void onTick(TickEvent event) {
         if (mc.theWorld == null) return;
 
         this.update();

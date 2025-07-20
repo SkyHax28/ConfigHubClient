@@ -145,14 +145,27 @@ public class RotationManager {
     }
 
     public boolean faceBlockWithFacing(BlockPos pos, EnumFacing facing, float rotationSpeed) {
-        Vec3 hitVec = new Vec3(
+        Vec3 eyesPos = new Vec3(
+                mc.thePlayer.posX,
+                mc.thePlayer.posY + mc.thePlayer.getEyeHeight(),
+                mc.thePlayer.posZ
+        );
+
+        Vec3 targetVec = new Vec3(
                 pos.getX() + 0.5 + 0.5 * facing.getFrontOffsetX(),
                 pos.getY() + 0.5 + 0.5 * facing.getFrontOffsetY(),
                 pos.getZ() + 0.5 + 0.5 * facing.getFrontOffsetZ()
         );
 
-        float[] rotations = getRotationsTo(hitVec.xCoord, hitVec.yCoord, hitVec.zCoord);
-        rotateToward(rotations[0], rotations[1], rotationSpeed);
+        double dx = targetVec.xCoord - eyesPos.xCoord;
+        double dy = targetVec.yCoord - eyesPos.yCoord;
+        double dz = targetVec.zCoord - eyesPos.zCoord;
+
+        double distHorizontal = Math.sqrt(dx * dx + dz * dz);
+        float yaw = (float) Math.toDegrees(Math.atan2(dz, dx)) - 90.0F;
+        float pitch = (float) -Math.toDegrees(Math.atan2(dy, distHorizontal));
+
+        rotateToward(yaw, pitch, rotationSpeed);
         return canHitBlockAtRotation(pos, getClientYaw(), getClientPitch());
     }
 
@@ -184,13 +197,14 @@ public class RotationManager {
     }
 
     public void rotateToward(float targetYaw, float targetPitch, float rotationSpeed) {
-        rotationSpeed += (random.nextFloat() - 0.5f) * 10.0f;
+        float randomDelta = (random.nextFloat() - 0.5f) * 10.0f;
+        float adjustedSpeed = rotationSpeed + randomDelta;
 
         float yawDiff = MathHelper.wrapAngleTo180_float(targetYaw - this.clientYaw);
         float pitchDiff = MathHelper.wrapAngleTo180_float(targetPitch - this.clientPitch);
 
-        yawDiff = MathHelper.clamp_float(yawDiff, -rotationSpeed, rotationSpeed);
-        pitchDiff = MathHelper.clamp_float(pitchDiff, -rotationSpeed, rotationSpeed);
+        yawDiff = MathHelper.clamp_float(yawDiff, -adjustedSpeed, adjustedSpeed);
+        pitchDiff = MathHelper.clamp_float(pitchDiff, -adjustedSpeed, adjustedSpeed);
 
         setRotations(this.clientYaw + yawDiff, this.clientPitch + pitchDiff);
     }
