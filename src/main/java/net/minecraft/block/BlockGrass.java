@@ -1,6 +1,9 @@
 package net.minecraft.block;
 
 import java.util.Random;
+
+import com.dew.DewCommon;
+import com.dew.system.module.modules.render.Xray;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyBool;
@@ -146,6 +149,10 @@ public class BlockGrass extends Block implements IGrowable
 
     public EnumWorldBlockLayer getBlockLayer()
     {
+        if (DewCommon.moduleManager.getModule(Xray.class).isEnabled()) {
+            return super.getBlockLayer();
+        }
+
         return EnumWorldBlockLayer.CUTOUT_MIPPED;
     }
 

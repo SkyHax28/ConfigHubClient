@@ -450,7 +450,7 @@ public class WorldRenderer
         }
 
         if (DewCommon.moduleManager.getModule(Xray.class).isEnabled()) {
-            color = this.getColorOpacity(color, 120);
+            color = this.getColorOpacity(color, 150);
         }
 
         this.rawIntBuffer.put(index, color);
