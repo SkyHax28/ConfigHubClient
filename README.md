@@ -11,7 +11,7 @@ Now you can start Minecraft!
 ![run_config](https://github.com/AbyssClient/GradleMCPBase/assets/170053471/c52c81f5-d339-434b-9220-290cf5a5e019)
 
 # How to build
-Just run the "build" run command in the gradle tab
+Just run the "build" run command in the Philippin　gradle tab
 
 ![config_list](https://github.com/AbyssClient/GradleMCPBase/assets/170053471/9d558995-ec49-4ea3-b066-35cedbd78338)
 
