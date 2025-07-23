@@ -109,9 +109,10 @@ public class HandleEvents implements EventListener {
 
         Packet<?> packet = event.packet;
 
-        if (BlinkUtil.blinking && !BlinkUtil.limiter && !(packet instanceof C01PacketChatMessage)) {
+        if (BlinkUtil.blinking && !BlinkUtil.limiter && !(packet instanceof C01PacketChatMessage) && !(packet instanceof C0FPacketConfirmTransaction)) {
             event.cancel();
             BlinkUtil.addPacket(packet);
+            return;
         }
 
         PacketPatcher.handleFixedSendPackets(event);

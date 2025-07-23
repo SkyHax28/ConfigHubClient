@@ -369,7 +369,7 @@ public class Scaffold extends Module {
                     if (hypixelTellyBanFix.get()) {
                         DewCommon.rotationManager.faceBlockHypixelSafe(tellyPreRotationSpeed.get().floatValue(), false);
                     } else {
-                        DewCommon.rotationManager.rotateToward((float) (MovementUtil.getDirection() - 180f), 90f, tellyPreRotationSpeed.get().floatValue());
+                        DewCommon.rotationManager.rotateToward((float) (MovementUtil.getDirection() - 180f), 75f, tellyPreRotationSpeed.get().floatValue());
                     }
                 }
 
