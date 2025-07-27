@@ -18,7 +18,7 @@ public class Velocity extends Module {
         super("Velocity", ModuleCategory.COMBAT, Keyboard.KEY_NONE, false, true, true);
     }
 
-    private static final SelectionValue mode = new SelectionValue("Mode", "Normal", "Normal", "Hypixel", "Prediction", "Jump");
+    private static final SelectionValue mode = new SelectionValue("Mode", "Normal", "Normal", "Reverse", "Hypixel", "Prediction", "Jump");
 
     private int hypTick = 0;
 
@@ -56,8 +56,15 @@ public class Velocity extends Module {
                     event.cancel();
                     break;
 
+                case "reverse":
+                    mc.thePlayer.motionX = ((S12PacketEntityVelocity) packet).getMotionX() / -8000.0;
+                    mc.thePlayer.motionZ = ((S12PacketEntityVelocity) packet).getMotionZ() / -8000.0;
+                    mc.thePlayer.motionY = ((S12PacketEntityVelocity) packet).getMotionY() / 8000.0;
+                    event.cancel();
+                    break;
+
                 case "hypixel":
-                    if (!DewCommon.handleEvents.canRotation() || !DewCommon.moduleManager.getModule(SpeedModule.class).isEnabled() || hypTick >= 8 || mc.thePlayer.onGround) {
+                    if (!DewCommon.moduleManager.getModule(SpeedModule.class).isEnabled() || hypTick >= 8 || mc.thePlayer.onGround) {
                         mc.thePlayer.motionY = ((S12PacketEntityVelocity) packet).getMotionY() / 8000.0;
                     }
                     event.cancel();

@@ -28,7 +28,7 @@ public class Ambience extends Module {
     }
 
     @Override
-    public void onTick(TickEvent event) {
+    public void onRender3D(Render3DEvent event) {
         if (mc.theWorld == null) return;
 
         this.update();

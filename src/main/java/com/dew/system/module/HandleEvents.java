@@ -5,12 +5,14 @@ import com.dew.IMinecraft;
 import com.dew.system.event.EventListener;
 import com.dew.system.event.events.*;
 import com.dew.system.gui.ClickGuiScreen;
+import com.dew.system.gui.NewClickGuiScreen;
 import com.dew.system.module.modules.player.AutoTool;
 import com.dew.system.module.modules.render.ClickGui;
 import com.dew.system.viapatcher.PacketPatcher;
 import com.dew.utils.BlinkUtil;
 import com.dew.utils.LogUtil;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiChat;
 import net.minecraft.network.Packet;
 import net.minecraft.network.handshake.client.C00Handshake;
 import net.minecraft.network.play.client.*;
@@ -25,8 +27,6 @@ public class HandleEvents implements EventListener {
     private boolean worldFullLoaded = true;
     private boolean loadingWorld = false;
 
-    private int rotLockTick = 0;
-
     public HandleEvents() {
         DewCommon.eventManager.register(this);
 
@@ -37,16 +37,11 @@ public class HandleEvents implements EventListener {
         return this.worldFullLoaded && !this.loadingWorld;
     }
 
-    public boolean canRotation() {
-        return rotLockTick == 0;
-    }
-
     @Override
     public void onWorld(WorldEvent event) {
         DewCommon.clientConfigManager.save();
         worldFullLoaded = false;
         loadingWorld = true;
-        rotLockTick = 0;
 
         BlinkUtil.sync(true, true);
         BlinkUtil.stopBlink();
@@ -62,10 +57,6 @@ public class HandleEvents implements EventListener {
     @Override
     public void onPreUpdate(PreUpdateEvent event) {
         DewCommon.moduleManager.getModule(AutoTool.class).autoToolManager.tick();
-
-        if (rotLockTick > 0) {
-            rotLockTick--;
-        }
 
         if (loadingWorld && mc.thePlayer != null && mc.theWorld != null && mc.thePlayer.ticksExisted > 10f && mc.currentScreen == null) {
             worldFullLoaded = true;
@@ -109,6 +100,10 @@ public class HandleEvents implements EventListener {
 
         Packet<?> packet = event.packet;
 
+        if (packet instanceof C0DPacketCloseWindow && (mc.currentScreen instanceof ClickGuiScreen || mc.currentScreen instanceof NewClickGuiScreen || mc.currentScreen instanceof GuiChat)) {
+            event.cancel();
+        }
+
         if (BlinkUtil.blinking && !BlinkUtil.limiter && !(packet instanceof C01PacketChatMessage) && !(packet instanceof C0FPacketConfirmTransaction)) {
             event.cancel();
             BlinkUtil.addPacket(packet);
@@ -125,8 +120,7 @@ public class HandleEvents implements EventListener {
         Packet<?> packet = event.packet;
 
         if (packet instanceof S08PacketPlayerPosLook) {
-            DewCommon.rotationManager.resetRotationsInstantly();
-            rotLockTick = 3;
+            DewCommon.rotationManager.setRotationsInstantly(((S08PacketPlayerPosLook) packet).getYaw(), ((S08PacketPlayerPosLook) packet).getPitch());
         }
 
         PacketPatcher.handleFixedReceivePackets(event);

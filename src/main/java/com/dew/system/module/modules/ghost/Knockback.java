@@ -1,24 +1,21 @@
-package com.dew.system.module.modules.combat;
+package com.dew.system.module.modules.ghost;
 import com.dew.system.event.events.*;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
-import com.dew.system.settingsvalue.BooleanValue;
 import com.dew.system.settingsvalue.NumberValue;
 import com.dew.system.settingsvalue.SelectionValue;
 import com.dew.utils.Clock;
-import com.dew.utils.LogUtil;
 import com.dew.utils.PacketUtil;
 import com.dew.utils.RandomUtil;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.network.play.client.C0BPacketEntityAction;
-import net.optifine.Log;
 import org.lwjgl.input.Keyboard;
 
 public class Knockback extends Module {
 
     public Knockback() {
-        super("Knockback", ModuleCategory.COMBAT, Keyboard.KEY_NONE, false, true, true);
+        super("Knockback", ModuleCategory.GHOST, Keyboard.KEY_NONE, false, true, true);
     }
 
     private static final SelectionValue mode = new SelectionValue("Mode", "WTap", "WTap", "Legit", "Rapid", "Backtap", "Packet", "Init Packet", "Legit Packet", "Dual Packet");

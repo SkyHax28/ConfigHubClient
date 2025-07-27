@@ -21,7 +21,7 @@ public class RotationManager {
     private boolean isReturning = false;
 
     private static final long ROTATION_TIMEOUT = 600L;
-    private Random random = new Random();
+    private final Random random = new Random();
 
     public RotationManager() {
         this.clientYaw = 114514f;
@@ -57,8 +57,7 @@ public class RotationManager {
             yawDiff += (random.nextFloat() - 0.5f) * 2.0f;
             pitchDiff += (random.nextFloat() - 0.5f) * 2.0f;
 
-            this.prevClientYaw = this.clientYaw;
-            this.prevClientPitch = this.clientPitch;
+            this.updateRotations();
 
             this.clientYaw += applyGCDFix(yawDiff);
             this.clientPitch += applyGCDFix(pitchDiff);
@@ -69,8 +68,7 @@ public class RotationManager {
                 isReturning = false;
             }
         } else if (mc.thePlayer != null) {
-            this.prevClientYaw = this.clientYaw;
-            this.prevClientPitch = this.clientPitch;
+            this.updateRotations();
 
             this.clientYaw = mc.thePlayer.rotationYaw;
             this.clientPitch = mc.thePlayer.rotationPitch;
@@ -91,15 +89,15 @@ public class RotationManager {
         }
     }
 
+    public void setRotationsInstantly(float yaw, float pitch) {
+        this.updateRotations();
+        this.clientYaw = yaw;
+        this.clientPitch = pitch;
+    }
+
     private void updateRotations() {
         this.prevClientYaw = this.clientYaw;
         this.prevClientPitch = this.clientPitch;
-    }
-
-    private void setRotations(float yaw, float pitch) {
-        this.clientYaw = applyGCDFix(yaw);
-        this.clientPitch = MathHelper.clamp_float(applyGCDFix(pitch), -90.0f, 90.0f);
-        onRotationUpdated();
     }
 
     private float getGCDValue() {
@@ -113,9 +111,9 @@ public class RotationManager {
         return Math.round(delta / gcd) * gcd;
     }
 
-    public void facePosition(double x, double y, double z) {
+    public void facePosition(double x, double y, double z, float rotationSpeed) {
         float[] rotations = getRotationsTo(x, y, z);
-        setRotations(rotations[0], rotations[1]);
+        rotateToward(rotations[0], rotations[1], rotationSpeed);
     }
 
     public boolean faceEntity(Entity entity, float rotationSpeed) {
@@ -144,26 +142,46 @@ public class RotationManager {
         rotateToward(rotations[0], rotations[1], rotationSpeed);
     }
 
-    public boolean faceBlockWithFacing(BlockPos pos, EnumFacing facing, float rotationSpeed) {
-        Vec3 eyesPos = new Vec3(
-                mc.thePlayer.posX,
-                mc.thePlayer.posY + mc.thePlayer.getEyeHeight(),
-                mc.thePlayer.posZ
-        );
+    private float[] getStaticFacing(EnumFacing facing) {
+        if (mc.thePlayer == null) return new float[]{0f, 0f};
 
-        Vec3 targetVec = new Vec3(
+        float yaw = mc.thePlayer.rotationYaw;
+        switch (facing) {
+            case UP: return new float[]{yaw, -90f};
+            case DOWN: return new float[]{yaw, 90f};
+            case NORTH: return new float[]{180f, 0f};
+            case SOUTH: return new float[]{0f, 0f};
+            case WEST: return new float[]{90f, 0f};
+            case EAST: return new float[]{-90f, 0f};
+            default: return new float[]{yaw, mc.thePlayer.rotationPitch};
+        }
+    }
+
+    public boolean faceBlockWithFacing(BlockPos pos, EnumFacing facing, float rotationSpeed) {
+        Vec3 eyePos = mc.thePlayer.getPositionEyes(1.0f);
+
+        Vec3 faceCenter = new Vec3(
                 pos.getX() + 0.5 + 0.5 * facing.getFrontOffsetX(),
                 pos.getY() + 0.5 + 0.5 * facing.getFrontOffsetY(),
                 pos.getZ() + 0.5 + 0.5 * facing.getFrontOffsetZ()
         );
 
-        double dx = targetVec.xCoord - eyesPos.xCoord;
-        double dy = targetVec.yCoord - eyesPos.yCoord;
-        double dz = targetVec.zCoord - eyesPos.zCoord;
+        double dx = faceCenter.xCoord - eyePos.xCoord;
+        double dy = faceCenter.yCoord - eyePos.yCoord;
+        double dz = faceCenter.zCoord - eyePos.zCoord;
 
-        double distHorizontal = Math.sqrt(dx * dx + dz * dz);
-        float yaw = (float) Math.toDegrees(Math.atan2(dz, dx)) - 90.0F;
-        float pitch = (float) -Math.toDegrees(Math.atan2(dy, distHorizontal));
+        double distXZ = Math.sqrt(dx * dx + dz * dz);
+
+        boolean useStaticRotation = distXZ < 0.001 || eyePos.distanceTo(faceCenter) > 10.0;
+
+        float yaw = (float) Math.toDegrees(Math.atan2(dz, dx)) - 90.0f;
+        float pitch = (float) -Math.toDegrees(Math.atan2(dy, distXZ));
+
+        if (useStaticRotation) {
+            float[] rot = getStaticFacing(facing);
+            yaw = rot[0];
+            pitch = rot[1];
+        }
 
         rotateToward(yaw, pitch, rotationSpeed);
         return canHitBlockAtRotation(pos, getClientYaw(), getClientPitch());
@@ -179,7 +197,7 @@ public class RotationManager {
         float lowerOffset;
         float upperOffset;
 
-        if (Math.abs(snappedBase % 90.0f) < 0.001f) {
+        if (MathHelper.wrapAngleTo180_float(snappedBase) % 90f < 0.001f) {
             lowerOffset = 111f;
             upperOffset = 111f;
         } else {
@@ -206,7 +224,13 @@ public class RotationManager {
         yawDiff = MathHelper.clamp_float(yawDiff, -adjustedSpeed, adjustedSpeed);
         pitchDiff = MathHelper.clamp_float(pitchDiff, -adjustedSpeed, adjustedSpeed);
 
-        setRotations(this.clientYaw + yawDiff, this.clientPitch + pitchDiff);
+        yawDiff = applyGCDFix(yawDiff);
+        pitchDiff = applyGCDFix(pitchDiff);
+
+        this.clientYaw = this.clientYaw + yawDiff;
+        this.clientPitch = MathHelper.clamp_float(this.clientPitch + pitchDiff, -90.0f, 90.0f);
+        this.lastRotationUpdate = System.currentTimeMillis();
+        this.isRotating = true;
     }
 
     public boolean canHitEntityFromPlayer(Entity target, double reach, boolean throughWalls) {
@@ -294,17 +318,12 @@ public class RotationManager {
         return prevClientPitch + (clientPitch - prevClientPitch) * partialTicks;
     }
 
-    private void onRotationUpdated() {
-        this.lastRotationUpdate = System.currentTimeMillis();
-        this.isRotating = true;
-    }
-
     public boolean isRotating() {
-        return DewCommon.handleEvents.canRotation() && (isRotating || isReturning);
+        return isRotating || isReturning;
     }
 
     public boolean isReturning() {
-        return DewCommon.handleEvents.canRotation() && !isRotating && isReturning;
+        return !isRotating && isReturning;
     }
 
     public float getClientYaw() {

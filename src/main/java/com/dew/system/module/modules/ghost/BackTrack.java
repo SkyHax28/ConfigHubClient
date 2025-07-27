@@ -1,9 +1,10 @@
-package com.dew.system.module.modules.combat;
+package com.dew.system.module.modules.ghost;
 
 import com.dew.DewCommon;
 import com.dew.system.event.events.*;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
+import com.dew.system.module.modules.combat.Aura;
 import com.dew.system.settingsvalue.NumberValue;
 import com.dew.utils.RenderUtil;
 import net.minecraft.client.renderer.GlStateManager;
@@ -18,7 +19,7 @@ import java.util.*;
 public class BackTrack extends Module {
 
     public BackTrack() {
-        super("Back Track", ModuleCategory.COMBAT, Keyboard.KEY_NONE, false, true, true);
+        super("Back Track", ModuleCategory.GHOST, Keyboard.KEY_NONE, false, true, true);
     }
 
     public static final NumberValue ticksBack = new NumberValue("Ticks Back", 5.0, 1.0, 10.0, 1.0);

@@ -6,7 +6,7 @@ import com.dew.system.module.modules.combat.*;
 import com.dew.system.module.modules.exploit.AntiExploit;
 import com.dew.system.module.modules.exploit.Disabler;
 import com.dew.system.module.modules.exploit.SafetySwitchv2000;
-import com.dew.system.module.modules.ghost.Myau;
+import com.dew.system.module.modules.ghost.*;
 import com.dew.system.module.modules.movement.*;
 import com.dew.system.module.modules.movement.flight.FlightModule;
 import com.dew.system.module.modules.movement.speed.SpeedModule;
@@ -32,10 +32,10 @@ public class ModuleManager implements EventListener {
                 new Manager(), new Stealer(), new BackTrack(), new AutoPot(),
                 new AutoWalkAI(), new NoHurtCam(), new NoFireOverlay(), new Wings(),
                 new Sprint(), new TargetStrafe(), new AutoBlock(), new FastBow(),
-                new FastUse(), new Teams(), new HitSelect(), new LongJump(),
+                new FastUse(), new Teams(), new HitSelect(), new NoHitDelay(),
                 new Knockback(), new BloxdPhysics(), new Step(), new ItemPhysics(),
                 new Ambience(), new NoJumpDelay(), new SafetySwitchv2000(), new AntiExploit(),
-                new Myau()
+                new FastPlace()
         ));
 
         DewCommon.eventManager.register(this);

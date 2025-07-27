@@ -1,6 +1,5 @@
-package com.dew.system.module.modules.combat;
+package com.dew.system.module.modules.ghost;
 
-import com.dew.DewCommon;
 import com.dew.system.event.events.AttackEvent;
 import com.dew.system.event.events.PreUpdateEvent;
 import com.dew.system.event.events.WorldEvent;
@@ -8,14 +7,13 @@ import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
 import com.dew.system.settingsvalue.NumberValue;
 import com.dew.system.settingsvalue.SelectionValue;
-import net.minecraft.client.entity.EntityPlayerSP;
 import org.lwjgl.input.Keyboard;
 
 
 public class HitSelect extends Module {
 
     public HitSelect() {
-        super("Hit Select", ModuleCategory.COMBAT, Keyboard.KEY_NONE, false, true, true);
+        super("Hit Select", ModuleCategory.GHOST, Keyboard.KEY_NONE, false, true, true);
     }
 
     public static SelectionValue mode = new SelectionValue("Mode", "Active", "Active", "Pause");

@@ -2,8 +2,13 @@ package net.minecraft.client.gui;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Random;
 
+import com.dew.IMinecraft;
+import com.dew.system.altmanager.alt.SessionChanger;
+import com.dew.utils.RandomUtil;
 import com.dew.utils.ServerUtil;
+import de.florianmichael.vialoadingbase.ViaLoadingBase;
 import de.florianmichael.viamcp.gui.GuiProtocolSelector;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.IChatComponent;
@@ -35,6 +40,7 @@ public class GuiDisconnected extends GuiScreen
         this.buttonList.add(new GuiButton(0, this.width / 2 - 100, this.height / 2 + this.field_175353_i / 2 + this.fontRendererObj.FONT_HEIGHT, I18n.format("gui.toMenu", new Object[0])));
 
         this.buttonList.add(new GuiButton(1, this.width / 2 - 100, this.height / 2 + field_175353_i / 2 + this.fontRendererObj.FONT_HEIGHT + 22, 200, 20, "Reconnect to §7" + ServerUtil.serverData.serverIP));
+        this.buttonList.add(new GuiButton(2, this.width / 2 - 100, this.height / 2 + field_175353_i / 2 + this.fontRendererObj.FONT_HEIGHT + 44, 200, 20, "Set Random Cracked"));
         this.buttonList.add(new GuiButton(69, 5, this.height - 28, 90, 20, "Protocol"));
     }
 
@@ -45,6 +51,8 @@ public class GuiDisconnected extends GuiScreen
             this.mc.displayGuiScreen(this.parentScreen);
         } else if (button.id == 1) {
             ServerUtil.connectToLastServer();
+        } else if (button.id == 2) {
+            SessionChanger.getInstance().setUserOffline(RandomUtil.randomString(RandomUtil.nextInt(5, 14)));
         } else if (button.id == 69) {
             this.mc.displayGuiScreen(new GuiProtocolSelector(this));
         }
@@ -53,6 +61,7 @@ public class GuiDisconnected extends GuiScreen
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         this.drawDefaultBackground();
+        this.drawCenteredString(IMinecraft.mc.bitFontRendererObj, "Currently Logged Into: " + mc.session.getUsername(), width / 2, 5, 0xFFFFFF);
         this.drawCenteredString(this.fontRendererObj, this.reason, this.width / 2, this.height / 2 - this.field_175353_i / 2 - this.fontRendererObj.FONT_HEIGHT * 2, 11184810);
         int i = this.height / 2 - this.field_175353_i / 2;
 

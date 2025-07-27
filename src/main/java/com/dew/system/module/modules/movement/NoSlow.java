@@ -11,9 +11,7 @@ public class NoSlow extends Module {
         super("No Slow", ModuleCategory.MOVEMENT, Keyboard.KEY_NONE, false, true, true);
     }
 
-    private static final SelectionValue mode = new SelectionValue("Mode", "Vanilla", "Vanilla", "Hypixel");
-
-    private boolean hypJumped = false;
+    private static final SelectionValue mode = new SelectionValue("Mode", "Vanilla", "Vanilla");
 
     @Override
     public String tag() {
@@ -26,16 +24,8 @@ public class NoSlow extends Module {
             case "vanilla":
                 return true;
 
-            case "hypixel":
-                return hypJumped;
-
             default:
                 return false;
         }
-    }
-
-    @Override
-    public void onDisable() {
-        hypJumped = false;
     }
 }

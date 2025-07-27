@@ -83,8 +83,24 @@ public class Manager extends Module {
         if (moveToHotbar(bestShovel, 3)) return;
         if (searchAndMoveSelectedItemToHotbar(Items.golden_apple, 4)) return;
         if (searchAndMoveBlocksToHotbar(6)) return;
-        if (moveToHotbar(getBestPotionSlot(true), 7)) return;
-        if (moveToHotbar(getBestPotionSlot(false), 8)) return;
+
+        int bestSplashPotion = getBestPotionSlot(true);
+        if (bestSplashPotion != -1 && bestSplashPotion != 7) {
+            if (!(mc.thePlayer.inventory.mainInventory[7] != null &&
+                    mc.thePlayer.inventory.mainInventory[7].isItemEqual(mc.thePlayer.inventory.mainInventory[bestSplashPotion]) &&
+                    ItemPotion.isSplash(mc.thePlayer.inventory.mainInventory[7].getItemDamage()))) {
+                if (moveToHotbar(bestSplashPotion, 7)) return;
+            }
+        }
+
+        int bestDrinkPotion = getBestPotionSlot(false);
+        if (bestDrinkPotion != -1 && bestDrinkPotion != 8) {
+            if (!(mc.thePlayer.inventory.mainInventory[8] != null &&
+                    mc.thePlayer.inventory.mainInventory[8].isItemEqual(mc.thePlayer.inventory.mainInventory[bestDrinkPotion]) &&
+                    !ItemPotion.isSplash(mc.thePlayer.inventory.mainInventory[8].getItemDamage()))) {
+                if (moveToHotbar(bestDrinkPotion, 8)) return;
+            }
+        }
 
         for (int i = 0; i < 36; i++) {
             if (i == bestWeapon) continue;
@@ -278,7 +294,7 @@ public class Manager extends Module {
     }
 
     private int getBestSwordSlot() {
-        float bestDamage = 0.0f;
+        float bestDamage = -1.0f;
         int bestSlot = -1;
 
         for (int i = 0; i < 36; i++) {
@@ -297,7 +313,7 @@ public class Manager extends Module {
     }
 
     private int getBestToolSlot(Class<?> toolClass) {
-        float bestStrength = 0.0f;
+        float bestStrength = -1.0f;
         int bestSlot = -1;
 
         for (int i = 0; i < 36; i++) {

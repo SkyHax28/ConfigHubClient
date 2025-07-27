@@ -82,7 +82,7 @@ public class AutoPot extends Module {
             }
         }
 
-        if (mc.thePlayer.isUsingItem() || !DewCommon.handleEvents.canRotation() || stage == 0 && !MovementUtil.isBlockUnderPlayer(mc.thePlayer, 2, 0.2, false) || DewCommon.moduleManager.getModule(Scaffold.class).isEnabled()) {
+        if (mc.thePlayer.isUsingItem() || stage == 0 && !MovementUtil.isBlockUnderPlayer(mc.thePlayer, 2, 0.2, false) || DewCommon.moduleManager.getModule(Scaffold.class).isEnabled()) {
             tickDelayCounter = 0;
             return;
         }
