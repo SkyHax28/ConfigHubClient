@@ -2345,7 +2345,8 @@ public class Minecraft implements IThreadListener, IPlayerUsage
             this.thePlayer = null;
         }
 
-        System.gc();
+        // fast world loading
+        // System.gc();
         this.systemTime = 0L;
     }
 
