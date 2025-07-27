@@ -197,7 +197,7 @@ public class RotationManager {
         float lowerOffset;
         float upperOffset;
 
-        if (MathHelper.wrapAngleTo180_float(snappedBase) % 90f < 0.001f) {
+        if (Math.abs(snappedBase % 90.0f) < 0.001f) {
             lowerOffset = 111f;
             upperOffset = 111f;
         } else {

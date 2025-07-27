@@ -438,12 +438,12 @@ public class Scaffold extends Module {
         return new EnumFacing[]{EnumFacing.DOWN, EnumFacing.NORTH, EnumFacing.SOUTH, EnumFacing.EAST, EnumFacing.WEST, EnumFacing.UP};
     }
 
-    private boolean isNearEdge() {
+    public boolean isNearEdge() {
         double x = mc.thePlayer.posX;
         double z = mc.thePlayer.posZ;
         int y = (int) Math.floor(mc.thePlayer.posY) - 1;
 
-        double expand = 0.15;
+        double expand = mc.thePlayer.isPotionActive(Potion.moveSpeed) ? 0.26 : 0.15;
         for (double dx = -expand; dx <= expand; dx += expand) {
             for (double dz = -expand; dz <= expand; dz += expand) {
                 if (dx == 0 && dz == 0) continue;
@@ -521,16 +521,6 @@ public class Scaffold extends Module {
         SUCCESS, FAIL_ROTATION, FAIL_OTHER
     }
 
-    public int getTotalValidBlocksInHotbar() {
-        int total = 0;
-        for (int i = 0; i < 9; i++) {
-            ItemStack stack = mc.thePlayer.inventory.getStackInSlot(i);
-            if (this.isInvalidBlock(stack)) continue;
-            total += stack.stackSize;
-        }
-        return total;
-    }
-
     private int getValidBlockSlot() {
         if (!preferHighestStack.get()) {
             for (int i = 0; i < 9; i++) {
@@ -554,7 +544,7 @@ public class Scaffold extends Module {
         }
     }
 
-    private boolean isInvalidBlock(ItemStack stack) {
+    public boolean isInvalidBlock(ItemStack stack) {
         if (stack == null || !(stack.getItem() instanceof ItemBlock) || stack.stackSize == 0) {
             return true;
         }

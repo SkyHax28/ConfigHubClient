@@ -61,6 +61,13 @@ public class ESP extends Module {
 
         renderNameTags = true;
 
-        shader.stopDraw(Color.white, mode.get().equals("Glow") ? 3.5f : 1.5f, mode.get().equals("Glow") ? 0.4f : 0.8f);
+        shader.stopDraw(this.getRainbowColor(3f, 0f, 0.6f, 0.9f, 255), mode.get().equals("Glow") ? 3.5f : 1.5f, mode.get().equals("Glow") ? 0.4f : 0.8f);
+    }
+
+    private Color getRainbowColor(float speed, float offset, float saturation, float brightness, int alpha) {
+        float hue = ((System.currentTimeMillis() % (int)(speed * 1000)) / (speed * 1000)) + offset;
+        hue %= 1.0f;
+        Color baseColor = Color.getHSBColor(hue, saturation, brightness);
+        return new Color(baseColor.getRed(), baseColor.getGreen(), baseColor.getBlue(), alpha);
     }
 }

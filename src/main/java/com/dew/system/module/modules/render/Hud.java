@@ -5,6 +5,7 @@ import com.dew.system.event.events.Render2DEvent;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
 import com.dew.system.module.modules.combat.Aura;
+import com.dew.system.module.modules.ghost.BridgeAssist;
 import com.dew.system.module.modules.player.Scaffold;
 import com.dew.system.settingsvalue.BooleanValue;
 import com.dew.system.settingsvalue.MultiSelectionValue;
@@ -63,7 +64,7 @@ public class Hud extends Module {
         float fontSize = 0.35f;
 
         if (features.isSelected("Watermark")) {
-            String clientName = DewCommon.clientName + " Ultra 9 X3D Ti Super Pro MAX | " + Minecraft.getDebugFPS() + " fps";
+            String clientName = DewCommon.clientName + " | " + Minecraft.getDebugFPS() + " fps";
             String beforeWater = clientName.substring(0, 1);
             String afterWater = clientName.substring(1);
 
@@ -190,9 +191,8 @@ public class Hud extends Module {
             }
         }
 
-        Scaffold scaffoldModule = DewCommon.moduleManager.getModule(Scaffold.class);
-        if (scaffoldModule.isEnabled()) {
-            int totalBlocks = scaffoldModule.getTotalValidBlocksInHotbar();
+        if (DewCommon.moduleManager.getModule(Scaffold.class).isEnabled() || DewCommon.moduleManager.getModule(BridgeAssist.class).isEnabled() && DewCommon.moduleManager.getModule(BridgeAssist.class).isBridging()) {
+            int totalBlocks = this.getTotalValidBlocksInHotbar();
             String display = totalBlocks + " blocks";
 
             int x = sr.getScaledWidth() / 2 + 20;
@@ -283,6 +283,16 @@ public class Hud extends Module {
                 cumulativeY += displayHeight + 1;
             }
         }
+    }
+
+    public int getTotalValidBlocksInHotbar() {
+        int total = 0;
+        for (int i = 0; i < 9; i++) {
+            ItemStack stack = mc.thePlayer.inventory.getStackInSlot(i);
+            if (DewCommon.moduleManager.getModule(Scaffold.class).isInvalidBlock(stack)) continue;
+            total += stack.stackSize;
+        }
+        return total;
     }
 
     private static void drawBlurredBackground(double x, double y, double width, double height, int passes, int color) {
