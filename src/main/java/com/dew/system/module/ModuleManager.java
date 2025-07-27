@@ -35,7 +35,7 @@ public class ModuleManager implements EventListener {
                 new FastUse(), new Teams(), new HitSelect(), new NoHitDelay(),
                 new Knockback(), new BloxdPhysics(), new Step(), new ItemPhysics(),
                 new Ambience(), new NoJumpDelay(), new SafetySwitchv2000(), new AntiExploit(),
-                new FastPlace(), new BridgeAssist(), new AutoClicker()
+                new FastPlace(), new BridgeAssist(), new Clicker()
         ));
 
         DewCommon.eventManager.register(this);
