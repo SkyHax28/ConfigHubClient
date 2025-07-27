@@ -50,7 +50,7 @@ public class Clicker extends Module {
 
     @Override
     public void onRender3D(Render3DEvent event) {
-        if (mc.thePlayer == null) return;
+        if (mc.thePlayer == null || mc.currentScreen != null) return;
 
         if (mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {
             mc.gameSettings.keyBindAttack.setKeyDown(Mouse.isButtonDown(0));

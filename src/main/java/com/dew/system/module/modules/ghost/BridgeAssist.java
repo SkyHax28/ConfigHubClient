@@ -63,11 +63,21 @@ public class BridgeAssist extends Module {
 
         if (GameSettings.isKeyDown(mc.gameSettings.keyBindSneak)) return;
 
-        if (DewCommon.moduleManager.getModule(Scaffold.class).isNearEdge() && mc.thePlayer.getHeldItem() != null && mc.thePlayer.getHeldItem().getItem() instanceof ItemBlock && mc.thePlayer.rotationPitch >= 65f) {
-            mc.gameSettings.keyBindSneak.setKeyDown(true);
+        if (DewCommon.moduleManager.getModule(Scaffold.class).isNearEdge() && mc.thePlayer.getHeldItem() != null && mc.thePlayer.getHeldItem().getItem() instanceof ItemBlock) {
             mc.rightClickDelayTimer = 0;
-            bridging = true;
-            bridTick = -1;
+            if (mc.thePlayer.rotationPitch >= 72f) {
+                mc.gameSettings.keyBindSneak.setKeyDown(true);
+                bridging = true;
+                bridTick = -1;
+            } else {
+                if (resetTick >= maxSneakTime.get().intValue()) {
+                    mc.gameSettings.keyBindSneak.setKeyDown(false);
+                    bridTick = 1;
+                    resetTick = 0;
+                } else if (bridTick == -1) {
+                    resetTick++;
+                }
+            }
         } else {
             if (resetTick >= maxSneakTime.get().intValue()) {
                 mc.gameSettings.keyBindSneak.setKeyDown(false);
