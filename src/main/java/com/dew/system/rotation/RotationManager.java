@@ -1,6 +1,5 @@
 package com.dew.system.rotation;
 
-import com.dew.DewCommon;
 import com.dew.IMinecraft;
 import com.dew.utils.LogUtil;
 import com.dew.utils.MovementUtil;
@@ -308,6 +307,33 @@ public class RotationManager {
         pitch = mc.thePlayer.rotationPitch + MathHelper.wrapAngleTo180_float(pitch - mc.thePlayer.rotationPitch);
 
         return new float[]{yaw, pitch};
+    }
+
+    public float[] getAngleDifferenceTo(Entity entity) {
+        if (mc.thePlayer == null || entity == null) return new float[]{0f, 0f};
+
+        Vec3 eyePos = mc.thePlayer.getPositionEyes(1.0F);
+
+        double x = entity.posX;
+        double y = entity.posY + entity.getEyeHeight() / 2.0;
+        double z = entity.posZ;
+
+        double diffX = x - eyePos.xCoord;
+        double diffY = y - eyePos.yCoord;
+        double diffZ = z - eyePos.zCoord;
+
+        double distXZ = MathHelper.sqrt_double(diffX * diffX + diffZ * diffZ);
+
+        float targetYaw = (float) (Math.atan2(diffZ, diffX) * (180D / Math.PI)) - 90F;
+        float targetPitch = (float) -(Math.atan2(diffY, distXZ) * (180D / Math.PI));
+
+        float currentYaw = mc.thePlayer.rotationYaw;
+        float currentPitch = mc.thePlayer.rotationPitch;
+
+        float yawDiff = MathHelper.wrapAngleTo180_float(targetYaw - currentYaw);
+        float pitchDiff = MathHelper.wrapAngleTo180_float(targetPitch - currentPitch);
+
+        return new float[]{Math.abs(yawDiff), Math.abs(pitchDiff)};
     }
 
     public float getInterpolatedYaw(float partialTicks) {

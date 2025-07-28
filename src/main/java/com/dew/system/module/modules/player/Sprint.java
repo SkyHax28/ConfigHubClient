@@ -21,7 +21,7 @@ public class Sprint extends Module {
 
     public boolean shouldNotSprint() {
         float yawDiff = Math.abs(MovementUtil.getAngleDifference((float) MovementUtil.getDirection(), DewCommon.rotationManager.getClientYaw()));
-        return !MovementUtil.isMoving() || mc.thePlayer.isSneaking() || mc.thePlayer.isCollidedHorizontally || this.isEnabled() && !omni.get() && !mc.gameSettings.keyBindForward.isKeyDown() || (!this.isEnabled() || !omni.get()) && DewCommon.rotationManager.isRotating() && DewCommon.moduleManager.getModule(MoveFix.class).isEnabled() && yawDiff > 30F || mc.thePlayer.isUsingItem() && !DewCommon.moduleManager.getModule(NoSlow.class).canNoSlow() || DewCommon.moduleManager.getModule(Scaffold.class).isEnabled() && Scaffold.noSprint.get();
+        return !MovementUtil.isMoving() || mc.thePlayer.isSneaking() || mc.thePlayer.isCollidedHorizontally || this.isEnabled() && !omni.get() && !mc.gameSettings.keyBindForward.isKeyDown() || (!this.isEnabled() || !omni.get()) && DewCommon.rotationManager.isRotating() && DewCommon.moduleManager.getModule(MoveFix.class).isEnabled() && yawDiff >= 45F || mc.thePlayer.isUsingItem() && !DewCommon.moduleManager.getModule(NoSlow.class).canNoSlow() || DewCommon.moduleManager.getModule(Scaffold.class).isEnabled() && Scaffold.noSprint.get();
     }
 
     @Override
