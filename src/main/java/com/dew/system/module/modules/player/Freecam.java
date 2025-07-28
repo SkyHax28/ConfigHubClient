@@ -7,6 +7,8 @@ import com.mojang.authlib.GameProfile;
 import net.minecraft.client.entity.EntityOtherPlayerMP;
 import net.minecraft.entity.Entity;
 import net.minecraft.inventory.ContainerPlayer;
+import net.minecraft.network.Packet;
+import net.minecraft.network.play.client.C0BPacketEntityAction;
 import net.minecraft.util.Vec3;
 import org.lwjgl.input.Keyboard;
 
@@ -71,10 +73,24 @@ public class Freecam extends Module {
     }
 
     @Override
+    public void onSendPacket(SendPacketEvent event) {
+        if (mc.thePlayer == null || freeCamEntity == null) return;
+
+        Packet<?> packet = event.packet;
+
+        if (packet instanceof C0BPacketEntityAction && (((C0BPacketEntityAction) packet).getAction() == C0BPacketEntityAction.Action.STOP_SPRINTING || ((C0BPacketEntityAction) packet).getAction() == C0BPacketEntityAction.Action.START_SPRINTING)) {
+            event.cancel();
+        }
+    }
+
+    @Override
     public void onPreUpdate(PreUpdateEvent event) {
         if (mc.thePlayer == null || mc.theWorld == null) return;
 
         if (!loadable && freeCamEntity == null) {
+            if (mc.thePlayer.isSprinting()) {
+                mc.thePlayer.sendStopSprintingPacket();
+            }
             this.resetPlayerStateFirst();
             loadable = true;
             return;
