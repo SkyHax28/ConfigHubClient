@@ -773,7 +773,7 @@ public abstract class RendererLivingEntity<T extends EntityLivingBase> extends R
     protected boolean canRenderName(T entity)
     {
         ESP ESPModule = DewCommon.moduleManager.getModule(ESP.class);
-        if (ESPModule.isEnabled() && !ESPModule.isRenderNameTags()) {
+        if (ESPModule.isEnabled() && !ESPModule.isRenderNametagAndEnchantmentGlint()) {
             return false;
         }
 

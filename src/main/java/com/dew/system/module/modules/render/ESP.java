@@ -23,24 +23,24 @@ public class ESP extends Module {
 
     private static final SelectionValue mode = new SelectionValue("Mode", "Glow", "Glow", "Outline");
 
-    private boolean renderNameTags = true;
+    private boolean renderNametagAndEnchantmentGlint = true;
 
     private boolean shouldRender(Entity entity) {
         return entity instanceof EntityPlayer && (!(entity instanceof EntityPlayerSP) || mc.gameSettings.thirdPersonView != 0);
     }
 
-    public boolean isRenderNameTags() {
-        return this.renderNameTags;
+    public boolean isRenderNametagAndEnchantmentGlint() {
+        return this.renderNametagAndEnchantmentGlint;
     }
 
     @Override
     public void onDisable() {
-        renderNameTags = true;
+        renderNametagAndEnchantmentGlint = true;
     }
 
     @Override
     public void onWorld(WorldEvent event) {
-        renderNameTags = true;
+        renderNametagAndEnchantmentGlint = true;
     }
 
     @Override
@@ -49,7 +49,7 @@ public class ESP extends Module {
 
         shader.startDraw(event.partialTicks);
 
-        renderNameTags = false;
+        renderNametagAndEnchantmentGlint = false;
 
         try {
             for (final Entity entity : mc.theWorld.loadedEntityList) {
@@ -59,7 +59,7 @@ public class ESP extends Module {
         } catch (final Exception ignored) {
         }
 
-        renderNameTags = true;
+        renderNametagAndEnchantmentGlint = true;
 
         shader.stopDraw(this.getRainbowColor(3f, 0f, 0.6f, 0.9f, 255), mode.get().equals("Glow") ? 3.5f : 1.5f, mode.get().equals("Glow") ? 0.4f : 0.8f);
     }

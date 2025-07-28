@@ -120,7 +120,7 @@ public class Aura extends Module {
 
                         if (shouldTp) {
                             for (Vec3 vec : paths) {
-                                PacketUtil.sendPacket(new C03PacketPlayer.C04PacketPlayerPosition(vec.getX(), vec.getY(), vec.getZ(), true));
+                                PacketUtil.sendPacketAsSilent(new C03PacketPlayer.C04PacketPlayerPosition(vec.getX(), vec.getY(), vec.getZ(), true));
                             }
                         }
 
@@ -132,7 +132,7 @@ public class Aura extends Module {
                         if (shouldTp) {
                             Collections.reverse(paths);
                             for (Vec3 vec : paths) {
-                                PacketUtil.sendPacket(new C03PacketPlayer.C04PacketPlayerPosition(vec.getX(), vec.getY(), vec.getZ(), true));
+                                PacketUtil.sendPacketAsSilent(new C03PacketPlayer.C04PacketPlayerPosition(vec.getX(), vec.getY(), vec.getZ(), true));
                             }
                         }
                     }).start();

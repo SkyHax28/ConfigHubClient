@@ -2,6 +2,9 @@ package net.minecraft.client.renderer.entity;
 
 import java.util.List;
 import java.util.concurrent.Callable;
+
+import com.dew.DewCommon;
+import com.dew.system.module.modules.render.ESP;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockDirt;
 import net.minecraft.block.BlockDoublePlant;
@@ -216,6 +219,11 @@ public class RenderItem implements IResourceManagerReloadListener
 
     private void renderEffect(IBakedModel model)
     {
+        ESP ESPModule = DewCommon.moduleManager.getModule(ESP.class);
+        if (ESPModule.isEnabled() && !ESPModule.isRenderNametagAndEnchantmentGlint()) {
+            return;
+        }
+
         if (!Config.isCustomItems() || CustomItems.isUseGlint())
         {
             if (!Config.isShaders() || !Shaders.isShadowPass)
