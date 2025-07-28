@@ -44,7 +44,7 @@ public class SilentAimAssist extends Module {
             float yawDiff = diffs[0];
             float pitchDiff = diffs[1];
 
-            if (yawDiff <= angleDifference.get() && pitchDiff <= angleDifference.get()) {
+            if (yawDiff <= angleDifference.get() && pitchDiff <= angleDifference.get() * 2f) {
                 float totalDiff = yawDiff + pitchDiff;
                 if (totalDiff < minAngleDiff) {
                     minAngleDiff = totalDiff;
