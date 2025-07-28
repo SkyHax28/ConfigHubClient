@@ -622,7 +622,7 @@ public class EntityPlayerSP extends AbstractClientPlayer
 
     public void onLivingUpdate()
     {
-        if (DewCommon.moduleManager.getModule(InvMove.class).canMoveFreely() && mc.currentScreen != null) {
+        if (DewCommon.moduleManager.getModule(InvMove.class).canMoveFreely()) {
             List<KeyBinding> movementKeys = Arrays.asList(
                     mc.gameSettings.keyBindForward,
                     mc.gameSettings.keyBindBack,

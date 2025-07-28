@@ -55,7 +55,7 @@ public class BridgeAssist extends Module {
 
         if (bridTick >= 1 && resetTick == 0) {
             bridTick++;
-            if (bridTick >= 7) {
+            if (bridTick >= 8) {
                 bridging = false;
                 bridTick = 0;
             }
@@ -65,27 +65,25 @@ public class BridgeAssist extends Module {
 
         if (DewCommon.moduleManager.getModule(Scaffold.class).isNearEdge() && mc.thePlayer.getHeldItem() != null && mc.thePlayer.getHeldItem().getItem() instanceof ItemBlock) {
             mc.rightClickDelayTimer = 0;
-            if (mc.thePlayer.rotationPitch >= 72f) {
+            if (mc.thePlayer.rotationPitch >= 72f && mc.thePlayer.onGround) {
                 mc.gameSettings.keyBindSneak.setKeyDown(true);
                 bridging = true;
                 bridTick = -1;
             } else {
-                if (resetTick >= maxSneakTime.get().intValue()) {
-                    mc.gameSettings.keyBindSneak.setKeyDown(false);
-                    bridTick = 1;
-                    resetTick = 0;
-                } else if (bridTick == -1) {
-                    resetTick++;
-                }
+                this.resetFunction();
             }
         } else {
-            if (resetTick >= maxSneakTime.get().intValue()) {
-                mc.gameSettings.keyBindSneak.setKeyDown(false);
-                bridTick = 1;
-                resetTick = 0;
-            } else if (bridTick == -1) {
-                resetTick++;
-            }
+            this.resetFunction();
+        }
+    }
+
+    private void resetFunction() {
+        if (resetTick >= maxSneakTime.get().intValue()) {
+            mc.gameSettings.keyBindSneak.setKeyDown(false);
+            bridTick = 1;
+            resetTick = 0;
+        } else if (bridTick == -1) {
+            resetTick++;
         }
     }
 }
