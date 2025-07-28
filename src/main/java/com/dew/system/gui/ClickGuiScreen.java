@@ -15,6 +15,7 @@ import org.lwjgl.input.Mouse;
 
 import java.awt.*;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -61,7 +62,9 @@ public class ClickGuiScreen extends GuiScreen {
 
         drawRect(x + w - resizeHandleSize, y + h - resizeHandleSize, x + w, y + h, resizing || mouseX >= ClickGuiState.animatedX + ClickGuiState.animatedWidth - resizeHandleSize && mouseX <= ClickGuiState.animatedX + ClickGuiState.animatedWidth && mouseY >= ClickGuiState.animatedY + ClickGuiState.animatedHeight - resizeHandleSize && mouseY <= ClickGuiState.animatedY + ClickGuiState.animatedHeight ? new Color(255, 255, 255, 180).getRGB() : new Color(150, 150, 150, 180).getRGB());
 
-        ModuleCategory[] categories = ModuleCategory.values();
+        ModuleCategory[] categories = Arrays.stream(ModuleCategory.values())
+                .filter(category -> category != ModuleCategory.MODULE_CONFIG_MANAGER && category != ModuleCategory.BIND_CONFIG_MANAGER)
+                .toArray(ModuleCategory[]::new);
 
         for (int i = 0; i < categories.length; i++) {
             int tabX = (int) (ClickGuiState.animatedX + i * 60);
@@ -214,8 +217,12 @@ public class ClickGuiScreen extends GuiScreen {
             return;
         }
 
+        ModuleCategory[] categories = Arrays.stream(ModuleCategory.values())
+                .filter(category -> category != ModuleCategory.MODULE_CONFIG_MANAGER && category != ModuleCategory.BIND_CONFIG_MANAGER)
+                .toArray(ModuleCategory[]::new);
+
         if (mouseButton == 0) {
-            for (int i = 0; i < ModuleCategory.values().length; i++) {
+            for (int i = 0; i < categories.length; i++) {
                 int tabX = (int) ClickGuiState.animatedX + i * 60;
                 if (mouseX >= tabX && mouseX <= tabX + 60 && mouseY >= ClickGuiState.animatedY && mouseY <= ClickGuiState.animatedY + 15) {
                     ClickGuiState.selectedCategory = i;
@@ -233,7 +240,7 @@ public class ClickGuiScreen extends GuiScreen {
 
         int offsetY = (int) ClickGuiState.animatedY + 20 - ClickGuiState.scroll;
         List<Module> modules = com.dew.DewCommon.moduleManager.getModules().stream()
-                .filter(m -> m.category == ModuleCategory.values()[ClickGuiState.selectedCategory])
+                .filter(m -> m.category == categories[ClickGuiState.selectedCategory])
                 .collect(Collectors.toList());
 
         for (Module module : modules) {
@@ -360,8 +367,12 @@ public class ClickGuiScreen extends GuiScreen {
         if (scroll != 0) {
             int SCROLL_STEP = 20;
 
+            ModuleCategory[] categories = Arrays.stream(ModuleCategory.values())
+                    .filter(category -> category != ModuleCategory.MODULE_CONFIG_MANAGER && category != ModuleCategory.BIND_CONFIG_MANAGER)
+                    .toArray(ModuleCategory[]::new);
+
             List<Module> modules = DewCommon.moduleManager.getModules().stream()
-                    .filter(module -> module.category == ModuleCategory.values()[ClickGuiState.selectedCategory])
+                    .filter(module -> module.category == categories[ClickGuiState.selectedCategory])
                     .collect(Collectors.toList());
 
             int contentHeight = getContentHeight(modules);
