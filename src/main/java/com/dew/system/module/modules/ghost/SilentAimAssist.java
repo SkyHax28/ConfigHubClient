@@ -6,12 +6,14 @@ import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
 import com.dew.system.module.modules.combat.Teams;
 import com.dew.system.module.modules.player.Freecam;
+import com.dew.system.settingsvalue.BooleanValue;
 import com.dew.system.settingsvalue.NumberValue;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.MovingObjectPosition;
 import org.lwjgl.input.Keyboard;
+import org.lwjgl.input.Mouse;
 
 public class SilentAimAssist extends Module {
 
@@ -19,14 +21,17 @@ public class SilentAimAssist extends Module {
         super("Silent Aim Assist", ModuleCategory.GHOST, Keyboard.KEY_NONE, false, true, true);
     }
 
-    private static final NumberValue activateAngleDifference = new NumberValue("Activate Angle Difference", 25.0, 20.0, 90.0, 0.5);
+    private static final NumberValue angleDifference = new NumberValue("Angle Difference", 70.0, 20.0, 90.0, 0.5);
+    private static final BooleanValue onlyWhenClick = new BooleanValue("Only When Click", true);
 
     @Override
     public void onTick(TickEvent event) {
-        if (mc.thePlayer == null || mc.theWorld == null || mc.objectMouseOver == null || mc.objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.ENTITY) return;
+        if (mc.thePlayer == null || mc.theWorld == null) return;
+        if (!onlyWhenClick.get() && (mc.objectMouseOver == null || mc.objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.ENTITY)) return;
+        if (onlyWhenClick.get() && !Mouse.isButtonDown(0)) return;
 
         Entity closest = null;
-        float minAngleDiff = activateAngleDifference.get().floatValue();
+        float minAngleDiff = angleDifference.get().floatValue();
 
         for (Entity entity : mc.theWorld.loadedEntityList) {
             if (entity == null || entity == mc.thePlayer || entity.isDead || !(entity instanceof EntityPlayer)) continue;
@@ -39,7 +44,7 @@ public class SilentAimAssist extends Module {
             float yawDiff = diffs[0];
             float pitchDiff = diffs[1];
 
-            if (yawDiff <= activateAngleDifference.get() && pitchDiff <= activateAngleDifference.get()) {
+            if (yawDiff <= angleDifference.get() && pitchDiff <= angleDifference.get()) {
                 float totalDiff = yawDiff + pitchDiff;
                 if (totalDiff < minAngleDiff) {
                     minAngleDiff = totalDiff;
