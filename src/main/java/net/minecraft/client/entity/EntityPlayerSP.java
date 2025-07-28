@@ -2,8 +2,10 @@ package net.minecraft.client.entity;
 
 import com.dew.DewCommon;
 import com.dew.system.event.events.*;
+import com.dew.system.module.modules.movement.AutoWalkAI;
 import com.dew.system.module.modules.movement.InvMove;
 import com.dew.system.module.modules.movement.NoSlow;
+import com.dew.system.module.modules.player.Freecam;
 import com.dew.system.module.modules.player.Sprint;
 import com.dew.system.rotation.RotationManager;
 import com.dew.utils.LogUtil;
@@ -622,7 +624,7 @@ public class EntityPlayerSP extends AbstractClientPlayer
 
     public void onLivingUpdate()
     {
-        if (DewCommon.moduleManager.getModule(InvMove.class).canMoveFreely()) {
+        if (DewCommon.moduleManager.getModule(InvMove.class).canMoveFreely() && (!DewCommon.moduleManager.getModule(Freecam.class).isEnabled() && !DewCommon.moduleManager.getModule(AutoWalkAI.class).isEnabled() || mc.currentScreen != null)) {
             List<KeyBinding> movementKeys = Arrays.asList(
                     mc.gameSettings.keyBindForward,
                     mc.gameSettings.keyBindBack,

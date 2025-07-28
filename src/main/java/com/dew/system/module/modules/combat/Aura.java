@@ -2,13 +2,13 @@ package com.dew.system.module.modules.combat;
 
 import com.dew.DewCommon;
 import com.dew.system.event.events.AttackEvent;
-import com.dew.system.event.events.Render3DEvent;
 import com.dew.system.event.events.TickEvent;
 import com.dew.system.event.events.WorldEvent;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
 import com.dew.system.module.modules.exploit.SafetySwitchv2000;
 import com.dew.system.module.modules.player.Breaker;
+import com.dew.system.module.modules.player.Freecam;
 import com.dew.system.module.modules.player.Scaffold;
 import com.dew.system.module.modules.render.Animations;
 import com.dew.system.settingsvalue.BooleanValue;
@@ -16,11 +16,9 @@ import com.dew.system.settingsvalue.MultiSelectionValue;
 import com.dew.system.settingsvalue.NumberValue;
 import com.dew.system.settingsvalue.SelectionValue;
 import com.dew.utils.PacketUtil;
-import com.dew.utils.RenderUtil;
 import com.dew.utils.pathfinder.Vec3;
 import de.florianmichael.viamcp.fixes.AttackOrder;
 import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
@@ -28,9 +26,7 @@ import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.play.client.C03PacketPlayer;
-import net.minecraft.util.AxisAlignedBB;
 import org.lwjgl.input.Keyboard;
-import org.lwjgl.opengl.GL11;
 
 import java.util.*;
 
@@ -103,11 +99,11 @@ public class Aura extends Module {
     }
 
     private double getTargetRange() {
-        return targetRange.get() + (tpAura.get() ? tpExtendedRange.get() : 0.0);
+        return targetRange.get() + (tpAura.get() ? tpExtendedRange.get() : 0.0) + (mc.thePlayer.isSprinting() ? 0.02 : 0.0);
     }
 
     private double getAttackRange() {
-        return attackRange.get() + (tpAura.get() ? tpExtendedRange.get() : 0.0);
+        return attackRange.get() + (tpAura.get() ? tpExtendedRange.get() : 0.0) + (mc.thePlayer.isSprinting() ? 0.02 : 0.0);
     }
 
     private boolean attack(Entity entity, boolean canHit, long currentTime) {
@@ -258,7 +254,7 @@ public class Aura extends Module {
     }
 
     private boolean shouldNotAttack(Entity entity) {
-        if (entity == null) return true;
+        if (entity == null || DewCommon.moduleManager.getModule(Freecam.class).isEnabled() && DewCommon.moduleManager.getModule(Freecam.class).getFreeCamEntity() != null && DewCommon.moduleManager.getModule(Freecam.class).getFreeCamEntity() == entity) return true;
         if (!targets.isSelected("Teammate") && entity instanceof EntityLivingBase && DewCommon.moduleManager.getModule(Teams.class).isInYourTeam((EntityLivingBase) entity)) return true;
         if ((entity.isDead || entity instanceof EntityLiving && !entity.isEntityAlive()) && !entity.isDead && !targets.isSelected("Dead")) return true;
         return !(entity instanceof EntityPlayer && targets.isSelected("Player") || entity instanceof EntityMob && targets.isSelected("Mob") || entity instanceof EntityAnimal && targets.isSelected("Animal") || entity instanceof EntityLiving && targets.isSelected("Living"));
