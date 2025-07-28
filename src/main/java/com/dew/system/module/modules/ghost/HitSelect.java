@@ -25,6 +25,11 @@ public class HitSelect extends Module {
     private boolean currentShouldAttack = false;
 
     @Override
+    public String tag() {
+        return preference.get();
+    }
+
+    @Override
     public void onDisable() {
         this.resetState();
     }

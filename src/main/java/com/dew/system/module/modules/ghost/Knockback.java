@@ -27,6 +27,11 @@ public class Knockback extends Module {
     private float delay = 0f;
 
     @Override
+    public String tag() {
+        return mode.get();
+    }
+
+    @Override
     public void onDisable() {
         this.resetState();
     }

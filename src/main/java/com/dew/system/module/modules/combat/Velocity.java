@@ -7,6 +7,7 @@ import com.dew.system.event.events.WorldEvent;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
 import com.dew.system.module.modules.movement.speed.SpeedModule;
+import com.dew.system.settingsvalue.NumberValue;
 import com.dew.system.settingsvalue.SelectionValue;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S12PacketEntityVelocity;
@@ -18,7 +19,10 @@ public class Velocity extends Module {
         super("Velocity", ModuleCategory.COMBAT, Keyboard.KEY_NONE, false, true, true);
     }
 
-    private static final SelectionValue mode = new SelectionValue("Mode", "Normal", "Normal", "Reverse", "Hypixel", "Prediction", "Jump");
+    private static final SelectionValue mode = new SelectionValue("Mode", "Normal", "Normal", "Hypixel", "Prediction", "Jump");
+
+    private static final NumberValue horizontal = new NumberValue("Horizontal", 0.0, -1.0, 1.0, 0.05, () -> mode.get().equals("Normal"));
+    private static final NumberValue vertical = new NumberValue("Vertical", 0.0, -1.0, 1.0, 0.05, () -> mode.get().equals("Normal"));
 
     private int hypTick = 0;
 
@@ -53,13 +57,15 @@ public class Velocity extends Module {
         if (packet instanceof S12PacketEntityVelocity && mc.theWorld.getEntityByID(((S12PacketEntityVelocity) packet).getEntityID()) == mc.thePlayer) {
             switch (mode.get().toLowerCase()) {
                 case "normal":
-                    event.cancel();
-                    break;
+                    if (horizontal.get() != 0f) {
+                        mc.thePlayer.motionX = ((S12PacketEntityVelocity) packet).getMotionX() / (8000.0 / horizontal.get());
+                        mc.thePlayer.motionZ = ((S12PacketEntityVelocity) packet).getMotionZ() / (8000.0 / horizontal.get());
+                    }
 
-                case "reverse":
-                    mc.thePlayer.motionX = ((S12PacketEntityVelocity) packet).getMotionX() / -8000.0;
-                    mc.thePlayer.motionZ = ((S12PacketEntityVelocity) packet).getMotionZ() / -8000.0;
-                    mc.thePlayer.motionY = ((S12PacketEntityVelocity) packet).getMotionY() / 8000.0;
+                    if (vertical.get() != 0f) {
+                        mc.thePlayer.motionY = ((S12PacketEntityVelocity) packet).getMotionY() / (8000.0 / vertical.get());
+                    }
+
                     event.cancel();
                     break;
 
