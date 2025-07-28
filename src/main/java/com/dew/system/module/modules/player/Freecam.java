@@ -65,6 +65,9 @@ public class Freecam extends Module {
         mc.gameSettings.keyBindLeft.setKeyDown(false);
         mc.gameSettings.keyBindJump.setKeyDown(false);
         mc.gameSettings.keyBindSprint.setKeyDown(false);
+        mc.thePlayer.motionX = 0f;
+        mc.thePlayer.motionY = 0f;
+        mc.thePlayer.motionZ = 0f;
     }
 
     @Override
