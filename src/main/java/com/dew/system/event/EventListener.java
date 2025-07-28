@@ -62,4 +62,7 @@ public interface EventListener {
 
     default void onItemRender(ItemRenderEvent event){
     }
+
+    default void onGameLoop(GameLoopEvent event){
+    }
 }

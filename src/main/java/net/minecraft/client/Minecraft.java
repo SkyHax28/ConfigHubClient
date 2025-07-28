@@ -1,6 +1,7 @@
 package net.minecraft.client;
 
 import com.dew.DewCommon;
+import com.dew.system.event.events.GameLoopEvent;
 import com.dew.system.event.events.KeyboardEvent;
 import com.dew.system.event.events.TickEvent;
 import com.dew.system.event.events.WorldEvent;
@@ -1006,6 +1007,9 @@ public class Minecraft implements IThreadListener, IPlayerUsage
         }
 
         this.mcProfiler.startSection("scheduledExecutables");
+
+        GameLoopEvent event = new GameLoopEvent();
+        DewCommon.eventManager.call(event);
 
         synchronized (this.scheduledTasks)
         {

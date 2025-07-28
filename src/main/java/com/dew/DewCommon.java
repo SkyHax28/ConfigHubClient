@@ -60,6 +60,7 @@ public class DewCommon {
         initViaMCP();
         SessionChanger.previousSession = mc.session;
         eventManager = new EventManager();
+        rotationManager = new RotationManager();
         moduleConfigManager = new ModuleConfigManager();
         bindConfigManager = new BindConfigManager();
         clientConfigManager = new ClientConfigManager();
@@ -87,7 +88,6 @@ public class DewCommon {
         customFontRenderer = new CustomFontRenderer(font);
 
         altManager = new AltManager();
-        rotationManager = new RotationManager();
     }
 
     private static void initViaMCP() {

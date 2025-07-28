@@ -7,7 +7,17 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.AxisAlignedBB;
 import org.lwjgl.opengl.GL11;
 
+import java.awt.*;
+
 public class RenderUtil {
+
+    public static void glColor(int red, int green, int blue, int alpha) {
+        GL11.glColor4f(red / 255f, green / 255f, blue / 255f, alpha / 255f);
+    }
+
+    public static void glColor(Color color) {
+        glColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
+    }
 
     public static void drawFilledBox(AxisAlignedBB bb, float r, float g, float b, float a) {
         Tessellator tessellator = Tessellator.getInstance();
