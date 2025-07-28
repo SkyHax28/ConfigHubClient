@@ -16,14 +16,14 @@ public class SilentAimAssist extends Module {
         super("Silent Aim Assist", ModuleCategory.GHOST, Keyboard.KEY_NONE, false, true, true);
     }
 
-    private static final NumberValue triggerAngleDifference = new NumberValue("Trigger Angle Difference", 35.0, 20.0, 60.0, 0.5);
+    private static final NumberValue triggerAngleDifference = new NumberValue("Trigger Angle Difference", 35.0, 20.0, 90.0, 0.5);
 
     @Override
     public void onTick(TickEvent event) {
         if (mc.thePlayer == null || mc.theWorld == null || mc.objectMouseOver == null || mc.objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.ENTITY) return;
 
         Entity closest = null;
-        float minAngleDiff = 45f;
+        float minAngleDiff = triggerAngleDifference.get().floatValue();
 
         for (Entity entity : mc.theWorld.loadedEntityList) {
             if (entity == null || entity == mc.thePlayer || entity.isDead || !(entity instanceof EntityPlayer)) continue;

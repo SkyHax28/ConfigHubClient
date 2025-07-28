@@ -13,14 +13,16 @@ public class PreMotionEvent extends EventArgument {
     public float yaw;
     public float pitch;
     public boolean onGround;
+    public boolean forceC06;
 
-    public PreMotionEvent(double x, double y, double z, float yaw, float pitch, boolean onGround) {
+    public PreMotionEvent(double x, double y, double z, float yaw, float pitch, boolean onGround, boolean forceC06) {
         this.x = x;
         this.y = y;
         this.z = z;
         this.yaw = yaw;
         this.pitch = pitch;
         this.onGround = onGround;
+        this.forceC06 = forceC06;
     }
 
     @Override

@@ -146,7 +146,7 @@ public class EntityPlayerSP extends AbstractClientPlayer
         float baseYaw = rotationManager.isRotating() ? rotationManager.getClientYaw() : this.rotationYaw;
         float basePitch = rotationManager.isRotating() ? rotationManager.getClientPitch() : this.rotationPitch;
 
-        PreMotionEvent preMotionEvent = new PreMotionEvent(this.posX, this.getEntityBoundingBox().minY, this.posZ, baseYaw, basePitch, this.onGround);
+        PreMotionEvent preMotionEvent = new PreMotionEvent(this.posX, this.getEntityBoundingBox().minY, this.posZ, baseYaw, basePitch, this.onGround, false);
         DewCommon.eventManager.call(preMotionEvent);
         if (preMotionEvent.isCancelled()) return;
 
@@ -197,7 +197,7 @@ public class EntityPlayerSP extends AbstractClientPlayer
 
             if (this.ridingEntity == null)
             {
-                if (flag2 && flag3)
+                if (flag2 && flag3 || preMotionEvent.forceC06)
                 {
                     this.sendQueue.addToSendQueue(new C03PacketPlayer.C06PacketPlayerPosLook(preMotionEvent.x, preMotionEvent.y, preMotionEvent.z, yaw, pitch, preMotionEvent.onGround));
                 }
