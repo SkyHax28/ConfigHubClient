@@ -254,7 +254,7 @@ public class Aura extends Module {
     }
 
     private boolean shouldNotAttack(Entity entity) {
-        if (entity == null || DewCommon.moduleManager.getModule(Freecam.class).isEnabled() && DewCommon.moduleManager.getModule(Freecam.class).getFreeCamEntity() != null && DewCommon.moduleManager.getModule(Freecam.class).getFreeCamEntity() == entity) return true;
+        if (entity == null || DewCommon.moduleManager.getModule(Freecam.class).isEnabled() && mc.thePlayer == entity) return true;
         if (!targets.isSelected("Teammate") && entity instanceof EntityLivingBase && DewCommon.moduleManager.getModule(Teams.class).isInYourTeam((EntityLivingBase) entity)) return true;
         if ((entity.isDead || entity instanceof EntityLiving && !entity.isEntityAlive()) && !entity.isDead && !targets.isSelected("Dead")) return true;
         return !(entity instanceof EntityPlayer && targets.isSelected("Player") || entity instanceof EntityMob && targets.isSelected("Mob") || entity instanceof EntityAnimal && targets.isSelected("Animal") || entity instanceof EntityLiving && targets.isSelected("Living"));

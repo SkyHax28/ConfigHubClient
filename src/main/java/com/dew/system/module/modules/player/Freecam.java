@@ -26,10 +26,6 @@ public class Freecam extends Module {
     private long lastRenderTime = System.nanoTime();
     private boolean loadable = false;
 
-    public EntityOtherPlayerMP getFreeCamEntity() {
-        return this.freeCamEntity;
-    }
-
     @Override
     public void onEnable() {
         mc.renderGlobal.loadRenderers();
@@ -57,7 +53,7 @@ public class Freecam extends Module {
 
         Entity target = event.target;
 
-        if (target != null && target == freeCamEntity) {
+        if (target != null && target == mc.thePlayer) {
             event.cancel();
         }
     }
