@@ -292,7 +292,7 @@ public class CustomColors
 
     private static Pair<LightMapPack[], Integer> parseLightMapPacks()
     {
-        String s = "mcpatcher/lightmap/world";
+        String s = "CHANGED LIGHTMAP DIRECTION TO RANDOM BECAUSE FULLBRIGHT BROKEN"; // default is "mcpatcher/lightmap/world"
         String s1 = ".png";
         String[] astring = ResUtils.collectFiles(s, s1);
         Map<Integer, String> map = new HashMap();

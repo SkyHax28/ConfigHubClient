@@ -33,11 +33,14 @@ public class RotationManager {
 
     public void tick() {
         if (isRotating) {
+            if (System.currentTimeMillis() - lastRotationUpdate > 0) {
+                this.updateRotations();
+            }
+
             if (System.currentTimeMillis() - lastRotationUpdate > ROTATION_TIMEOUT) {
                 isRotating = false;
                 isReturning = true;
             } else {
-                this.updateRotations();
                 return;
             }
         }
@@ -56,15 +59,17 @@ public class RotationManager {
             yawDiff += (random.nextFloat() - 0.5f) * 2.0f;
             pitchDiff += (random.nextFloat() - 0.5f) * 2.0f;
 
-            this.updateRotations();
-
-            this.clientYaw += applyGCDFix(yawDiff);
-            this.clientPitch += applyGCDFix(pitchDiff);
-
             if (Math.abs(yawDiff) < 1f && Math.abs(pitchDiff) < 1f) {
+                this.updateRotations();
+
                 this.clientYaw = targetYaw;
                 this.clientPitch = targetPitch;
                 isReturning = false;
+            } else {
+                this.updateRotations();
+
+                this.clientYaw += applyGCDFix(yawDiff);
+                this.clientPitch += applyGCDFix(pitchDiff);
             }
         } else if (mc.thePlayer != null) {
             this.updateRotations();
@@ -80,16 +85,17 @@ public class RotationManager {
             isReturning = false;
 
             if (mc.thePlayer != null) {
+                this.updateRotations();
+
                 this.clientYaw = mc.thePlayer.rotationYaw;
                 this.clientPitch = mc.thePlayer.rotationPitch;
-                this.prevClientYaw = this.clientYaw;
-                this.prevClientPitch = this.clientPitch;
             }
         }
     }
 
     public void setRotationsInstantly(float yaw, float pitch) {
         this.updateRotations();
+
         this.clientYaw = yaw;
         this.clientPitch = pitch;
     }
@@ -225,6 +231,8 @@ public class RotationManager {
 
         yawDiff = applyGCDFix(yawDiff);
         pitchDiff = applyGCDFix(pitchDiff);
+
+        this.updateRotations();
 
         this.clientYaw = this.clientYaw + yawDiff;
         this.clientPitch = MathHelper.clamp_float(this.clientPitch + pitchDiff, -90.0f, 90.0f);

@@ -6,6 +6,7 @@ import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
 import com.dew.system.module.modules.exploit.SafetySwitchv2000;
 import com.dew.system.module.modules.movement.speed.SpeedModule;
+import com.dew.system.module.modules.render.Hud;
 import com.dew.system.settingsvalue.BooleanValue;
 import com.dew.system.settingsvalue.NumberValue;
 import com.dew.system.settingsvalue.SelectionValue;
@@ -59,7 +60,7 @@ public class Scaffold extends Module {
     private BlockPos lastPlacedPos = null;
 
     private boolean canTower() {
-        return Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) && MovementUtil.isBlockUnderPlayer(mc.thePlayer, 3, 2, false) && !MovementUtil.isBlockAbovePlayer(mc.thePlayer, 1) && holdingBlock;
+        return Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) && MovementUtil.isBlockUnderPlayer(mc.thePlayer, 3, 2, false) && !MovementUtil.isBlockAbovePlayer(mc.thePlayer, 1, 0.3) && DewCommon.moduleManager.getModule(Hud.class).getTotalValidBlocksInHotbar() > 0;
     }
 
     private boolean shouldUpdateKeepYState() {
@@ -128,7 +129,6 @@ public class Scaffold extends Module {
 
     @Override
     public void onTick(TickEvent event) {
-        this.scaffoldMainTick();
     }
 
     @Override
@@ -138,6 +138,7 @@ public class Scaffold extends Module {
         }
         delay++;
 
+        this.scaffoldMainTick();
         this.scaffoldSubTick();
     }
 
@@ -223,6 +224,12 @@ public class Scaffold extends Module {
             case "hypixel":
                 if (mc.thePlayer.ticksExisted % 2 == 0) {
                     DewCommon.rotationManager.faceBlockHypixelSafe(180f, true);
+                }
+                break;
+
+            case "telly":
+                if (mc.thePlayer.isPotionActive(Potion.moveSpeed) && (DewCommon.rotationManager.isReturning() || !holdingBlock)) {
+                    DewCommon.rotationManager.rotateToward((float) (MovementUtil.getDirection() - 180f), 83f, rotationSpeed.get().floatValue());
                 }
                 break;
 
@@ -364,12 +371,12 @@ public class Scaffold extends Module {
         if (mode.get().equals("Telly") && !mc.thePlayer.isPotionActive(Potion.moveSpeed) && !towered && !Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) && Keyboard.isKeyDown(mc.gameSettings.keyBindForward.getKeyCode()) && !MovementUtil.isBlockAbovePlayer(mc.thePlayer, 1)) {
             if (jumpTicks <= 3) {
                 if (jumpTicks == 0) {
-                    DewCommon.rotationManager.rotateToward((float) MovementUtil.getDirection(), 90f, 180f);
+                    DewCommon.rotationManager.rotateToward((float) MovementUtil.getDirection(), 80f, 180f);
                 } else {
                     if (hypixelTellyBanFix.get()) {
                         DewCommon.rotationManager.faceBlockHypixelSafe(tellyPreRotationSpeed.get().floatValue(), false);
                     } else {
-                        DewCommon.rotationManager.rotateToward((float) (MovementUtil.getDirection() - 180f), 90f, tellyPreRotationSpeed.get().floatValue());
+                        DewCommon.rotationManager.rotateToward((float) (MovementUtil.getDirection() + 135f), 80f, tellyPreRotationSpeed.get().floatValue());
                     }
                 }
 
@@ -431,7 +438,7 @@ public class Scaffold extends Module {
     }
 
     private boolean isTelly() {
-        return mode.get().equals("Telly") && !mc.thePlayer.isPotionActive(Potion.moveSpeed) && !towered && !Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) && Keyboard.isKeyDown(mc.gameSettings.keyBindForward.getKeyCode()) && !MovementUtil.isBlockAbovePlayer(mc.thePlayer, 1) && jumpTicks <= 2;
+        return mode.get().equals("Telly") && !mc.thePlayer.isPotionActive(Potion.moveSpeed) && !towered && !Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) && Keyboard.isKeyDown(mc.gameSettings.keyBindForward.getKeyCode()) && !MovementUtil.isBlockAbovePlayer(mc.thePlayer, 1) && jumpTicks <= 3;
     }
 
     private EnumFacing[] getFullPrioritizedFacings() {
@@ -550,6 +557,11 @@ public class Scaffold extends Module {
         }
 
         Block block = ((ItemBlock) stack.getItem()).getBlock();
+
+        if (block instanceof BlockGlass || block instanceof BlockStainedGlass || block instanceof BlockIce || block instanceof BlockPackedIce) {
+            return false;
+        }
+
         return !block.isFullBlock() || block instanceof BlockChest || block instanceof BlockEnderChest || block instanceof BlockWorkbench || block instanceof BlockFurnace || block instanceof BlockAnvil || block instanceof BlockFenceGate || block instanceof BlockTrapDoor || block instanceof BlockDoor || block.getMaterial().isReplaceable() || block instanceof BlockFalling || block instanceof BlockSlab || block instanceof BlockStairs || block instanceof BlockPane || block instanceof BlockWall || block instanceof BlockSign || block instanceof BlockButton || block instanceof BlockPressurePlate;
     }
 }

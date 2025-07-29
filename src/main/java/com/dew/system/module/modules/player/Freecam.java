@@ -134,6 +134,11 @@ public class Freecam extends Module {
                 }
             }
 
+            double length = motion.lengthVector();
+            if (length > 0) {
+                motion = new Vec3(motion.xCoord / length, motion.yCoord / length, motion.zCoord / length);
+            }
+
             float yawRad = (float) Math.toRadians(mc.thePlayer.rotationYaw);
             double sin = Math.sin(yawRad);
             double cos = Math.cos(yawRad);
