@@ -70,6 +70,7 @@ public class AutoBlock extends Module {
         if (auraModule.isInAutoBlockMode()) {
             switch (mode.get().toLowerCase()) {
                 case "vanilla":
+                case "prediction":
                     auraModule.doMainFunctions(true);
                     if (!block) {
                         PacketUtil.sendPacket(new C08PacketPlayerBlockPlacement(mc.thePlayer.getHeldItem()));
@@ -97,7 +98,6 @@ public class AutoBlock extends Module {
                     break;
 
                 case "hypixel":
-                case "prediction":
                     if (blinkAB) {
                         BlinkUtil.doBlink();
                         blink = true;
@@ -142,7 +142,7 @@ public class AutoBlock extends Module {
 
         Packet<?> packet = event.packet;
 
-        if (packet instanceof S12PacketEntityVelocity && mc.theWorld.getEntityByID(((S12PacketEntityVelocity) packet).getEntityID()) == mc.thePlayer && (mode.get().equals("Hypixel") || mode.get().equals("Prediction"))) {
+        if (packet instanceof S12PacketEntityVelocity && mc.theWorld.getEntityByID(((S12PacketEntityVelocity) packet).getEntityID()) == mc.thePlayer && mode.get().equals("Hypixel")) {
             if (DewCommon.moduleManager.getModule(Aura.class).isInAutoBlockMode()) {
                 BlinkUtil.sync(true, true);
                 BlinkUtil.stopBlink();
