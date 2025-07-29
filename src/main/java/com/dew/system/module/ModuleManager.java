@@ -3,10 +3,7 @@ package com.dew.system.module;
 import com.dew.DewCommon;
 import com.dew.system.event.EventListener;
 import com.dew.system.module.modules.combat.*;
-import com.dew.system.module.modules.exploit.AntiExploit;
-import com.dew.system.module.modules.exploit.Disabler;
-import com.dew.system.module.modules.exploit.FakeLag;
-import com.dew.system.module.modules.exploit.SafetySwitchv2000;
+import com.dew.system.module.modules.exploit.*;
 import com.dew.system.module.modules.ghost.*;
 import com.dew.system.module.modules.movement.*;
 import com.dew.system.module.modules.movement.flight.FlightModule;
@@ -37,7 +34,7 @@ public class ModuleManager implements EventListener {
                 new Knockback(), new BloxdPhysics(), new Step(), new ItemPhysics(),
                 new Ambience(), new NoJumpDelay(), new SafetySwitchv2000(), new AntiExploit(),
                 new FastPlace(), new BridgeAssist(), new Clicker(), new FakeLag(),
-                new SilentAimAssist(), new Freecam(), new Trajectories()
+                new SilentAimAssist(), new Freecam(), new Trajectories(), new PacketBlaster()
         ));
 
         DewCommon.eventManager.register(this);

@@ -370,13 +370,13 @@ public class Scaffold extends Module {
     private void tellyFunction() {
         if (mode.get().equals("Telly") && !mc.thePlayer.isPotionActive(Potion.moveSpeed) && !towered && !Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) && Keyboard.isKeyDown(mc.gameSettings.keyBindForward.getKeyCode()) && !MovementUtil.isBlockAbovePlayer(mc.thePlayer, 1)) {
             if (jumpTicks <= 3) {
-                if (jumpTicks == 0) {
+                if (jumpTicks == 0 || jumpTicks == 1 || jumpTicks == 2) {
                     DewCommon.rotationManager.rotateToward((float) MovementUtil.getDirection(), 80f, 180f);
                 } else {
                     if (hypixelTellyBanFix.get()) {
                         DewCommon.rotationManager.faceBlockHypixelSafe(tellyPreRotationSpeed.get().floatValue(), false);
                     } else {
-                        DewCommon.rotationManager.rotateToward((float) (MovementUtil.getDirection() + 135f), 80f, tellyPreRotationSpeed.get().floatValue());
+                        DewCommon.rotationManager.rotateToward((float) (MovementUtil.getDirection() + 180f), 80f, tellyPreRotationSpeed.get().floatValue());
                     }
                 }
 
