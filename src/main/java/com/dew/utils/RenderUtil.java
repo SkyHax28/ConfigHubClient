@@ -19,6 +19,13 @@ public class RenderUtil {
         glColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
     }
 
+    public Color getRainbowColor(float speed, float offset, float saturation, float brightness, int alpha) {
+        float hue = ((System.currentTimeMillis() % (int)(speed * 1000)) / (speed * 1000)) + offset;
+        hue %= 1.0f;
+        Color baseColor = Color.getHSBColor(hue, saturation, brightness);
+        return new Color(baseColor.getRed(), baseColor.getGreen(), baseColor.getBlue(), alpha);
+    }
+
     public static void drawFilledBox(AxisAlignedBB bb, float r, float g, float b, float a) {
         Tessellator tessellator = Tessellator.getInstance();
         WorldRenderer wr = tessellator.getWorldRenderer();

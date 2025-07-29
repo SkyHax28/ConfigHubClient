@@ -1,5 +1,7 @@
 package net.minecraft.client.renderer.entity.layers;
 
+import com.dew.DewCommon;
+import com.dew.system.module.modules.render.ESP;
 import com.google.common.collect.Maps;
 import java.util.Map;
 import net.minecraft.client.model.ModelBase;
@@ -155,6 +157,11 @@ public abstract class LayerArmorBase<T extends ModelBase> implements LayerRender
 
     private void renderGlint(EntityLivingBase entitylivingbaseIn, T modelbaseIn, float p_177183_3_, float p_177183_4_, float partialTicks, float p_177183_6_, float p_177183_7_, float p_177183_8_, float scale)
     {
+        ESP ESPModule = DewCommon.moduleManager.getModule(ESP.class);
+        if (ESPModule.isEnabled() && !ESPModule.isRenderNametagAndEnchantmentGlint()) {
+            return;
+        }
+
         if (!Config.isShaders() || !Shaders.isShadowPass)
         {
             float f = (float)entitylivingbaseIn.ticksExisted + partialTicks;
