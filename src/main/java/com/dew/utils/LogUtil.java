@@ -11,6 +11,7 @@ public class LogUtil {
     private static final Minecraft mc = IMinecraft.mc;
 
     public static void printChat(String message) {
+        if (mc.thePlayer == null) return;
         IChatComponent convertedString = textToIChatComponentString("> " + message);
         mc.thePlayer.addChatMessage(convertedString);
     }

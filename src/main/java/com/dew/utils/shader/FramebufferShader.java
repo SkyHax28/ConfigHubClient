@@ -30,15 +30,15 @@ public abstract class FramebufferShader extends Shader {
 
     public void startDraw(final float partialTicks) {
         GlStateManager.enableAlpha();
+
         GlStateManager.pushMatrix();
+        GlStateManager.pushAttrib();
 
         framebuffer = setupFrameBuffer(framebuffer);
         framebuffer.framebufferClear();
         framebuffer.bindFramebuffer(true);
-
         entityShadows = mc.gameSettings.entityShadows;
         mc.gameSettings.entityShadows = false;
-
         mc.entityRenderer.setupCameraTransform(partialTicks, 0);
     }
 
@@ -70,26 +70,30 @@ public abstract class FramebufferShader extends Shader {
     }
 
     public Framebuffer setupFrameBuffer(Framebuffer frameBuffer) {
-        if (frameBuffer == null || frameBuffer.framebufferWidth != mc.displayWidth || frameBuffer.framebufferHeight != mc.displayHeight) {
-            if (frameBuffer != null) {
-                frameBuffer.deleteFramebuffer();
-            }
-            frameBuffer = new Framebuffer(mc.displayWidth, mc.displayHeight, true);
+        if (frameBuffer != null && frameBuffer.framebufferWidth == mc.displayWidth && frameBuffer.framebufferHeight == mc.displayHeight) {
+            return frameBuffer;
         }
-        return frameBuffer;
+
+        if (frameBuffer != null) {
+            frameBuffer.deleteFramebuffer();
+        }
+
+        return new Framebuffer(mc.displayWidth, mc.displayHeight, false);
     }
 
     public void drawFramebuffer(final Framebuffer framebuffer) {
-        ScaledResolution scaledResolution = new ScaledResolution(mc);
-        int width = scaledResolution.getScaledWidth();
-        int height = scaledResolution.getScaledHeight();
-
+        final ScaledResolution scaledResolution = new ScaledResolution(mc);
         glBindTexture(GL_TEXTURE_2D, framebuffer.framebufferTexture);
         glBegin(GL_QUADS);
-        glTexCoord2f(0, 1); glVertex2f(0, 0);
-        glTexCoord2f(0, 0); glVertex2f(0, height);
-        glTexCoord2f(1, 0); glVertex2f(width, height);
-        glTexCoord2f(1, 1); glVertex2f(width, 0);
+        glTexCoord2d(0, 1);
+        glVertex2d(0, 0);
+        glTexCoord2d(0, 0);
+        glVertex2d(0, scaledResolution.getScaledHeight());
+        glTexCoord2d(1, 0);
+        glVertex2d(scaledResolution.getScaledWidth(), scaledResolution.getScaledHeight());
+        glTexCoord2d(1, 1);
+        glVertex2d(scaledResolution.getScaledWidth(), 0);
         glEnd();
+        glUseProgram(0);
     }
 }

@@ -311,6 +311,16 @@ public class MovementUtil {
         mc.thePlayer.motionZ = Math.cos(moveAngle) * speed;
     }
 
+    public static boolean isDiagonal(float threshold) {
+        double yaw = getDirection();
+        yaw = Math.abs(((yaw + 360) % 360));
+        boolean isNorth = Math.abs(yaw) < threshold || Math.abs(yaw - 360) < threshold;
+        boolean isSouth = Math.abs(yaw - 180) < threshold;
+        boolean isEast = Math.abs(yaw - 90) < threshold;
+        boolean isWest = Math.abs(yaw - 270) < threshold;
+        return (!isNorth && !isSouth && !isEast && !isWest);
+    }
+
     public static float getTargetStrafeYawDirection(Entity entity, double desiredDistance) {
         double distance = mc.thePlayer.getDistanceToEntityIgnoringY(entity);
         float baseYaw = DewCommon.rotationManager.getRotationsTo(entity.posX, entity.posY + (entity.getEyeHeight() / 2.0), entity.posZ)[0];
