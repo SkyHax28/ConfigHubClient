@@ -46,7 +46,9 @@ public class LayerCape implements LayerRenderer<AbstractClientPlayer>
             float f = entitylivingbaseIn.prevRenderYawOffset + (entitylivingbaseIn.renderYawOffset - entitylivingbaseIn.prevRenderYawOffset) * partialTicks;
 
             if (entitylivingbaseIn instanceof EntityPlayerSP) {
-                f = DewCommon.rotationManager.getPrevClientYaw() + (DewCommon.rotationManager.getClientYaw() - DewCommon.rotationManager.getPrevClientYaw()) * partialTicks;
+                float yaw = DewCommon.moduleManager.getModule(SilentView.class).isEnabled() ? DewCommon.rotationManager.getClientYaw() : entitylivingbaseIn.rotationYaw;
+                float prevYaw = DewCommon.moduleManager.getModule(SilentView.class).isEnabled() ? DewCommon.rotationManager.getPrevClientYaw() : entitylivingbaseIn.prevRotationYaw;
+                f = prevYaw + (yaw - prevYaw) * partialTicks;
             }
 
             double d3 = (double)MathHelper.sin(f * (float)Math.PI / 180.0F);
