@@ -8,6 +8,7 @@ import java.util.Objects;
 public class WorldEvent extends EventArgument {
     public String ip;
     public int port;
+
     public WorldEvent(String ip, int port){
         this.ip = ip;
         this.port = port;

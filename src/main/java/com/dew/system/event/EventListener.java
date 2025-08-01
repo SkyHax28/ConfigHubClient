@@ -27,9 +27,6 @@ public interface EventListener {
     default void onReceivedPacket(ReceivedPacketEvent event) {
     }
 
-    default void onWorld(WorldEvent event) {
-    }
-
     default void onMove(MoveEvent event) {
     }
 
@@ -67,6 +64,12 @@ public interface EventListener {
     }
 
     default void onTablistPlayerNameFetch(TablistPlayerNameFetchEvent event){
+    }
+
+    default void onWorld(WorldEvent event) {
+    }
+
+    default void onLoadWorld(WorldLoadEvent event) {
     }
 
     default void onLeaveWorld(LeaveWorldEvent event){

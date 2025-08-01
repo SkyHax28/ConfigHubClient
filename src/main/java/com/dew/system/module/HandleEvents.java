@@ -38,7 +38,7 @@ public class HandleEvents implements EventListener {
     }
 
     @Override
-    public void onWorld(WorldEvent event) {
+    public void onLoadWorld(WorldLoadEvent event) {
         DewCommon.clientConfigManager.save();
         worldFullLoaded = false;
         loadingWorld = true;

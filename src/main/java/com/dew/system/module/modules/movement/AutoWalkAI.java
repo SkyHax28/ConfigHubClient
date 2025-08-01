@@ -1,10 +1,7 @@
 package com.dew.system.module.modules.movement;
 
 import com.dew.DewCommon;
-import com.dew.system.event.events.AttackEvent;
-import com.dew.system.event.events.PreUpdateEvent;
-import com.dew.system.event.events.TickEvent;
-import com.dew.system.event.events.WorldEvent;
+import com.dew.system.event.events.*;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
 import com.dew.system.module.modules.combat.AutoBlock;
@@ -47,7 +44,7 @@ public class AutoWalkAI extends Module {
     }
 
     @Override
-    public void onWorld(WorldEvent event) {
+    public void onLoadWorld(WorldLoadEvent event) {
         this.setState(false);
     }
 

@@ -4,6 +4,7 @@ import com.dew.DewCommon;
 import com.dew.system.event.events.ReceivedPacketEvent;
 import com.dew.system.event.events.TickEvent;
 import com.dew.system.event.events.WorldEvent;
+import com.dew.system.event.events.WorldLoadEvent;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
 import com.dew.system.settingsvalue.SelectionValue;
@@ -50,7 +51,7 @@ public class AutoBlock extends Module {
     }
 
     @Override
-    public void onWorld(WorldEvent event) {
+    public void onLoadWorld(WorldLoadEvent event) {
         this.resetState();
     }
 

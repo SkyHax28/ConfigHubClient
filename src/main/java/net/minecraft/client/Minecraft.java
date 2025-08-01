@@ -2273,8 +2273,8 @@ public class Minecraft implements IThreadListener, IPlayerUsage
 
     public void loadWorld(WorldClient worldClientIn, String loadingMessage)
     {
-//        WorldEvent event = new WorldEvent(); old
-//        DewCommon.eventManager.call(event);
+        WorldLoadEvent event = new WorldLoadEvent();
+        DewCommon.eventManager.call(event);
 
         if (worldClientIn == null)
         {

@@ -32,7 +32,7 @@ public class BackTrack extends Module {
     }
 
     @Override
-    public void onWorld(WorldEvent event) {
+    public void onLoadWorld(WorldLoadEvent event) {
         backtrackPositions.clear();
     }
 
