@@ -5,7 +5,10 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.dew.DewCommon;
 import com.dew.IMinecraft;
+import com.dew.system.event.events.GuiConnectingEventActionPerformed;
+import com.dew.system.event.events.WorldEvent;
 import com.dew.utils.ServerUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
@@ -52,6 +55,8 @@ public class GuiConnecting extends GuiScreen
     {
         ServerUtil.serverData = new ServerData("", ip + ":" + port, false);
         logger.info("Connecting to " + ip + ", " + port);
+        WorldEvent worldEvent = new WorldEvent(ip, port);
+        DewCommon.eventManager.call(worldEvent);
         (new Thread("Server Connector #" + CONNECTION_ID.incrementAndGet())
         {
             public void run()
@@ -132,6 +137,8 @@ public class GuiConnecting extends GuiScreen
     {
         if (button.id == 0)
         {
+            GuiConnectingEventActionPerformed guiConnectingEventActionPerformed = new GuiConnectingEventActionPerformed();
+            DewCommon.eventManager.call(guiConnectingEventActionPerformed);
             this.cancel = true;
 
             if (this.networkManager != null)

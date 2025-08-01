@@ -1,10 +1,7 @@
 package net.minecraft.client;
 
 import com.dew.DewCommon;
-import com.dew.system.event.events.GameLoopEvent;
-import com.dew.system.event.events.KeyboardEvent;
-import com.dew.system.event.events.TickEvent;
-import com.dew.system.event.events.WorldEvent;
+import com.dew.system.event.events.*;
 import com.dew.system.module.modules.render.Animations;
 import com.dew.utils.McChanges;
 import com.dew.utils.PacketUtil;
@@ -2276,8 +2273,8 @@ public class Minecraft implements IThreadListener, IPlayerUsage
 
     public void loadWorld(WorldClient worldClientIn, String loadingMessage)
     {
-        WorldEvent event = new WorldEvent();
-        DewCommon.eventManager.call(event);
+//        WorldEvent event = new WorldEvent(); old
+//        DewCommon.eventManager.call(event);
 
         if (worldClientIn == null)
         {
@@ -2310,6 +2307,8 @@ public class Minecraft implements IThreadListener, IPlayerUsage
 
         if (worldClientIn == null && this.theWorld != null)
         {
+            LeaveWorldEvent leaveWorldEvent = new LeaveWorldEvent();
+            DewCommon.eventManager.call(leaveWorldEvent);
             this.mcResourcePackRepository.clearResourcePack();
             this.ingameGUI.resetPlayersOverlayFooterHeader();
             this.setServerData((ServerData)null);

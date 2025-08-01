@@ -1,5 +1,7 @@
 package net.minecraft.client.gui;
 
+import com.dew.DewCommon;
+import com.dew.system.event.events.TablistPlayerNameFetchEvent;
 import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.Ordering;
 import com.mojang.authlib.GameProfile;
@@ -38,7 +40,10 @@ public class GuiPlayerTabOverlay extends Gui
 
     public String getPlayerName(NetworkPlayerInfo networkPlayerInfoIn)
     {
-        return networkPlayerInfoIn.getDisplayName() != null ? networkPlayerInfoIn.getDisplayName().getFormattedText() : ScorePlayerTeam.formatPlayerName(networkPlayerInfoIn.getPlayerTeam(), networkPlayerInfoIn.getGameProfile().getName());
+        String oldName =  networkPlayerInfoIn.getDisplayName() != null ? networkPlayerInfoIn.getDisplayName().getFormattedText() : ScorePlayerTeam.formatPlayerName(networkPlayerInfoIn.getPlayerTeam(), networkPlayerInfoIn.getGameProfile().getName());
+        TablistPlayerNameFetchEvent tablistPlayerNameFetchEvent = new TablistPlayerNameFetchEvent(oldName);
+        DewCommon.eventManager.call(tablistPlayerNameFetchEvent);
+        return tablistPlayerNameFetchEvent.name;
     }
 
     public void updatePlayerList(boolean willBeRendered)
