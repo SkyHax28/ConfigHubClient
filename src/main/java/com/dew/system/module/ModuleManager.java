@@ -32,7 +32,7 @@ public class ModuleManager implements EventListener {
                 new Sprint(), new TargetStrafe(), new AutoBlock(), new FastBow(),
                 new FastUse(), new Teams(), new HitSelect(), new NoHitDelay(),
                 new Knockback(), new BloxdPhysics(), new Step(), new ItemPhysics(),
-                new Ambience(), new NoJumpDelay(), new SafetySwitchv2000(), new AntiExploit(),
+                new Ambience(), new NoJumpDelay(), new SafetySwitchv2000(),
                 new FastPlace(), new BridgeAssist(), new Clicker(), new FakeLag(),
                 new SilentAimAssist(), new Freecam(), new Trajectories(), new PacketBlaster(),
                 new ColorBlindnessAssistant()

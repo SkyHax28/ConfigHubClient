@@ -65,4 +65,16 @@ public interface EventListener {
 
     default void onGameLoop(GameLoopEvent event){
     }
+
+    default void onTablistPlayerNameFetch(TablistPlayerNameFetchEvent event){
+    }
+
+    default void onLeaveWorld(LeaveWorldEvent event){
+    }
+
+    default void onGuiDisconnected(GuiDisconnectedEvent event){
+    }
+
+    default void onGuiConnecting(GuiConnectingEventActionPerformed event){
+    }
 }

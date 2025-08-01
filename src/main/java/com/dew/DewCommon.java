@@ -9,6 +9,7 @@ import com.dew.system.event.EventManager;
 import com.dew.system.gui.NewClickGuiScreen;
 import com.dew.system.module.HandleEvents;
 import com.dew.system.module.ModuleManager;
+import com.dew.system.mongodb.MongoManager;
 import com.dew.system.rotation.RotationManager;
 import com.dew.utils.alt.SessionChanger;
 import com.dew.utils.LogUtil;
@@ -43,7 +44,7 @@ public class DewCommon {
     public static MainPathFinder pathFinder;
     public static SmartPlayerNavigator smartPlayerNavigator;
     public static NewClickGuiScreen clickGuiScreen;
-
+    public static MongoManager mongoManager;
     public static final File BASE_CFG_DIR = new File(mc.mcDataDir, "dew");
 
     public static void preInitClient() {
@@ -71,7 +72,7 @@ public class DewCommon {
         pathFinder = new MainPathFinder();
         smartPlayerNavigator = new SmartPlayerNavigator();
         clickGuiScreen = new NewClickGuiScreen();
-
+        mongoManager = new MongoManager();
         Font font;
         try {
             InputStream is = mc.getResourceManager()
