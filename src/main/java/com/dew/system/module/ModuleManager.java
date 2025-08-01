@@ -11,7 +11,6 @@ import com.dew.system.module.modules.movement.speed.SpeedModule;
 import com.dew.system.module.modules.player.*;
 import com.dew.system.module.modules.render.*;
 import com.dew.utils.LogUtil;
-
 import java.util.Arrays;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
