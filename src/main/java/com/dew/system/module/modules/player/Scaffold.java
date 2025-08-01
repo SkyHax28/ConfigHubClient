@@ -284,14 +284,11 @@ public class Scaffold extends Module {
         } else if (result == PlaceResult.FAIL_ROTATION) {
             return;
         } else {
-            EnumFacing[] facings = getFullPrioritizedFacings();
-            for (EnumFacing dir : facings) {
+            for (EnumFacing dir : getFullPrioritizedFacings()) {
                 BlockPos neighbor = below.offset(dir);
                 PlaceResult neighborResult = tryPlaceBlock(neighbor);
 
-                if (neighborResult == PlaceResult.FAIL_ROTATION) {
-                    return;
-                }
+                if (neighborResult == PlaceResult.FAIL_ROTATION) return;
 
                 if (neighborResult == PlaceResult.SUCCESS) {
                     lastPlacedPos = neighbor;
@@ -301,54 +298,52 @@ public class Scaffold extends Module {
             }
         }
 
-        Set<BlockPos> visited = new HashSet<>();
-
         if (!Boolean.TRUE.equals(placed) && clutchRange.get() > 1) {
-            List<BlockPos> searchOrder = new ArrayList<>();
             int range = clutchRange.get().intValue();
+            double maxDistanceSq = range * range;
 
-            for (int x = -range; x <= range; x++) {
-                for (int y = 0; y >= -1; y--) {
-                    for (int z = -range; z <= range; z++) {
-                        BlockPos pos = below.add(x, y, z);
-                        if (mc.thePlayer.getDistanceSqToCenter(pos) <= range * range) {
-                            searchOrder.add(pos);
+            PriorityQueue<BlockPos> searchQueue = new PriorityQueue<>(
+                    Comparator.comparingDouble(pos -> mc.thePlayer.getDistanceSqToCenter(pos))
+            );
+
+            for (int dx = -range; dx <= range; dx++) {
+                for (int dy = 0; dy >= -1; dy--) {
+                    for (int dz = -range; dz <= range; dz++) {
+                        BlockPos target = below.add(dx, dy, dz);
+                        if (mc.thePlayer.getDistanceSqToCenter(target) > maxDistanceSq) continue;
+
+                        IBlockState state = mc.theWorld.getBlockState(target);
+                        Block block = state.getBlock();
+                        if (!block.isReplaceable(mc.theWorld, target)) continue;
+
+                        AxisAlignedBB targetBB = new AxisAlignedBB(
+                                target.getX(), target.getY(), target.getZ(),
+                                target.getX() + 1, target.getY() + 1, target.getZ() + 1
+                        );
+
+                        if (mc.thePlayer.getEntityBoundingBox().intersectsWith(targetBB)) continue;
+
+                        boolean hasSupport = false;
+                        for (EnumFacing dir : EnumFacing.values()) {
+                            BlockPos support = target.offset(dir);
+                            if (!mc.theWorld.getBlockState(support).getBlock().isReplaceable(mc.theWorld, support)) {
+                                hasSupport = true;
+                                break;
+                            }
+                        }
+
+                        if (hasSupport) {
+                            searchQueue.add(target);
                         }
                     }
                 }
             }
 
-            searchOrder.sort(Comparator.comparingDouble(pos -> mc.thePlayer.getDistanceSqToCenter(pos)));
-
-            for (BlockPos target : searchOrder) {
-                if (visited.contains(target)) continue;
-                visited.add(target);
-
-                if (!mc.theWorld.getBlockState(target).getBlock().isReplaceable(mc.theWorld, target)) continue;
-
-                AxisAlignedBB targetBB = new AxisAlignedBB(
-                        target.getX(), target.getY(), target.getZ(),
-                        target.getX() + 1, target.getY() + 1, target.getZ() + 1
-                );
-
-                if (mc.thePlayer.getEntityBoundingBox().intersectsWith(targetBB)) continue;
-
-                boolean hasSupport = false;
-                for (EnumFacing dir : EnumFacing.values()) {
-                    BlockPos support = target.offset(dir);
-                    if (!mc.theWorld.getBlockState(support).getBlock().isReplaceable(mc.theWorld, support)) {
-                        hasSupport = true;
-                        break;
-                    }
-                }
-
-                if (!hasSupport) continue;
-
+            while (!searchQueue.isEmpty()) {
+                BlockPos target = searchQueue.poll();
                 PlaceResult clutchResult = tryPlaceBlock(target);
 
-                if (clutchResult == PlaceResult.FAIL_ROTATION) {
-                    return;
-                }
+                if (clutchResult == PlaceResult.FAIL_ROTATION) return;
 
                 if (clutchResult == PlaceResult.SUCCESS) {
                     lastPlacedPos = target;
@@ -479,15 +474,32 @@ public class Scaffold extends Module {
         }
     }
 
+    private final EnumFacing[] facingsArray = EnumFacing.values();
+
     private PlaceResult tryPlaceBlock(BlockPos pos) {
         if (!holdingBlock) return PlaceResult.FAIL_OTHER;
 
-        EnumFacing preferredFacing = facingFromRotation(DewCommon.rotationManager.getClientYaw(), DewCommon.rotationManager.getClientPitch());
-        List<EnumFacing> facings = new ArrayList<>(Arrays.asList(EnumFacing.values()));
-        facings.remove(preferredFacing);
-        facings.add(0, preferredFacing);
+        String modeValue = mode.get();
+        String clickValue = clickMode.get();
+        float rotationSpeedVal = modeValue.equals("Telly") && hypixelTellyBanFix.get() ? 30f : rotationSpeed.get().floatValue();
 
-        for (EnumFacing facing : facings) {
+        EnumFacing preferredFacing = facingFromRotation(
+                DewCommon.rotationManager.getClientYaw(),
+                DewCommon.rotationManager.getClientPitch()
+        );
+
+        for (EnumFacing facing : facingsArray) {
+            if (facing == preferredFacing) continue;
+        }
+
+        EnumFacing[] orderedFacings = new EnumFacing[6];
+        orderedFacings[0] = preferredFacing;
+        int idx = 1;
+        for (EnumFacing facing : facingsArray) {
+            if (facing != preferredFacing) orderedFacings[idx++] = facing;
+        }
+
+        for (EnumFacing facing : orderedFacings) {
             BlockPos neighbor = pos.offset(facing);
             IBlockState state = mc.theWorld.getBlockState(neighbor);
             Block block = state.getBlock();
@@ -495,20 +507,18 @@ public class Scaffold extends Module {
             if (!block.canCollideCheck(state, false)) continue;
 
             EnumFacing opposite = facing.getOpposite();
-            Vec3 hitVec = new Vec3(
-                    neighbor.getX() + 0.5 + 0.5 * opposite.getFrontOffsetX(),
-                    neighbor.getY() + 0.5 + 0.5 * opposite.getFrontOffsetY(),
-                    neighbor.getZ() + 0.5 + 0.5 * opposite.getFrontOffsetZ()
-            );
 
-            if (mode.get().equals("Normal") || mode.get().equals("Telly")) {
-                boolean canPlace = DewCommon.rotationManager.faceBlockWithFacing(neighbor, opposite, mode.get().equals("Telly") && hypixelTellyBanFix.get() ? 30f : rotationSpeed.get().floatValue());
-                if (!canPlace) {
-                    return PlaceResult.FAIL_ROTATION;
-                }
+            double hitX = neighbor.getX() + 0.5 + 0.5 * opposite.getFrontOffsetX();
+            double hitY = neighbor.getY() + 0.5 + 0.5 * opposite.getFrontOffsetY();
+            double hitZ = neighbor.getZ() + 0.5 + 0.5 * opposite.getFrontOffsetZ();
+            Vec3 hitVec = new Vec3(hitX, hitY, hitZ);
+
+            if (modeValue.equals("Normal") || modeValue.equals("Telly")) {
+                boolean canPlace = DewCommon.rotationManager.faceBlockWithFacing(neighbor, opposite, rotationSpeedVal);
+                if (!canPlace) return PlaceResult.FAIL_ROTATION;
             }
 
-            if (clickMode.get().equals("Normal")) {
+            if (clickValue.equals("Normal")) {
                 if (mc.playerController.onPlayerRightClick(mc.thePlayer, mc.theWorld, mc.thePlayer.getHeldItem(), neighbor, opposite, hitVec)) {
                     PacketUtil.sendPacket(new C0APacketAnimation());
                     delay = 0;
