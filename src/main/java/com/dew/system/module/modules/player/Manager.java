@@ -3,6 +3,7 @@ package com.dew.system.module.modules.player;
 import com.dew.DewCommon;
 import com.dew.system.event.events.PreUpdateEvent;
 import com.dew.system.event.events.WorldEvent;
+import com.dew.system.event.events.WorldLoadEvent;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
 import com.dew.system.module.modules.exploit.Disabler;
@@ -46,7 +47,7 @@ public class Manager extends Module {
     }
 
     @Override
-    public void onWorld(WorldEvent event) {
+    public void onLoadWorld(WorldLoadEvent event) {
         if (DewCommon.moduleManager.getModule(SafetySwitchv2000.class).isEnabled()) {
             this.setState(false);
         }

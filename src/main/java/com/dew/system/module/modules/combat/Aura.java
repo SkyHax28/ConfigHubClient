@@ -4,6 +4,7 @@ import com.dew.DewCommon;
 import com.dew.system.event.events.AttackEvent;
 import com.dew.system.event.events.TickEvent;
 import com.dew.system.event.events.WorldEvent;
+import com.dew.system.event.events.WorldLoadEvent;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
 import com.dew.system.module.modules.exploit.SafetySwitchv2000;
@@ -73,7 +74,7 @@ public class Aura extends Module {
     }
 
     @Override
-    public void onWorld(WorldEvent event) {
+    public void onLoadWorld(WorldLoadEvent event) {
         if (DewCommon.moduleManager.getModule(SafetySwitchv2000.class).isEnabled()) {
             this.setState(false);
         }

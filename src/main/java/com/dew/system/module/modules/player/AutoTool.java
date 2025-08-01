@@ -1,9 +1,6 @@
 package com.dew.system.module.modules.player;
 
-import com.dew.system.event.events.AttackEvent;
-import com.dew.system.event.events.SendPacketEvent;
-import com.dew.system.event.events.PreUpdateEvent;
-import com.dew.system.event.events.WorldEvent;
+import com.dew.system.event.events.*;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
 import com.dew.system.settingsvalue.BooleanValue;
@@ -30,7 +27,7 @@ public class AutoTool extends Module {
     }
 
     @Override
-    public void onWorld(WorldEvent event) {
+    public void onLoadWorld(WorldLoadEvent event) {
         currentBlock = null;
     }
 

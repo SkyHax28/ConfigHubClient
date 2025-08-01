@@ -80,7 +80,7 @@ public class Scaffold extends Module {
     }
 
     @Override
-    public void onWorld(WorldEvent event) {
+    public void onLoadWorld(WorldLoadEvent event) {
         if (DewCommon.moduleManager.getModule(SafetySwitchv2000.class).isEnabled()) {
             this.setState(false);
         }
@@ -298,8 +298,8 @@ public class Scaffold extends Module {
             }
         }
 
-        if (!Boolean.TRUE.equals(placed) && clutchRange.get() > 1) {
-            int range = clutchRange.get().intValue();
+        int range = clutchRange.get().intValue();
+        if (!Boolean.TRUE.equals(placed) && range > 1) {
             double maxDistanceSq = range * range;
 
             PriorityQueue<BlockPos> searchQueue = new PriorityQueue<>(
@@ -307,34 +307,32 @@ public class Scaffold extends Module {
             );
 
             for (int dx = -range; dx <= range; dx++) {
-                for (int dy = 0; dy >= -1; dy--) {
-                    for (int dz = -range; dz <= range; dz++) {
-                        BlockPos target = below.add(dx, dy, dz);
-                        if (mc.thePlayer.getDistanceSqToCenter(target) > maxDistanceSq) continue;
+                for (int dz = -range; dz <= range; dz++) {
+                    BlockPos target = below.add(dx, 0, dz);
+                    if (mc.thePlayer.getDistanceSqToCenter(target) > maxDistanceSq) continue;
 
-                        IBlockState state = mc.theWorld.getBlockState(target);
-                        Block block = state.getBlock();
-                        if (!block.isReplaceable(mc.theWorld, target)) continue;
+                    IBlockState state = mc.theWorld.getBlockState(target);
+                    Block block = state.getBlock();
+                    if (!block.isReplaceable(mc.theWorld, target)) continue;
 
-                        AxisAlignedBB targetBB = new AxisAlignedBB(
-                                target.getX(), target.getY(), target.getZ(),
-                                target.getX() + 1, target.getY() + 1, target.getZ() + 1
-                        );
+                    AxisAlignedBB targetBB = new AxisAlignedBB(
+                            target.getX(), target.getY(), target.getZ(),
+                            target.getX() + 1, target.getY() + 1, target.getZ() + 1
+                    );
 
-                        if (mc.thePlayer.getEntityBoundingBox().intersectsWith(targetBB)) continue;
+                    if (mc.thePlayer.getEntityBoundingBox().intersectsWith(targetBB)) continue;
 
-                        boolean hasSupport = false;
-                        for (EnumFacing dir : EnumFacing.values()) {
-                            BlockPos support = target.offset(dir);
-                            if (!mc.theWorld.getBlockState(support).getBlock().isReplaceable(mc.theWorld, support)) {
-                                hasSupport = true;
-                                break;
-                            }
+                    boolean hasSupport = false;
+                    for (EnumFacing dir : EnumFacing.values()) {
+                        BlockPos support = target.offset(dir);
+                        if (!mc.theWorld.getBlockState(support).getBlock().isReplaceable(mc.theWorld, support)) {
+                            hasSupport = true;
+                            break;
                         }
+                    }
 
-                        if (hasSupport) {
-                            searchQueue.add(target);
-                        }
+                    if (hasSupport) {
+                        searchQueue.add(target);
                     }
                 }
             }

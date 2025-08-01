@@ -4,6 +4,7 @@ import com.dew.DewCommon;
 import com.dew.system.event.events.PreMotionEvent;
 import com.dew.system.event.events.StrafeEvent;
 import com.dew.system.event.events.WorldEvent;
+import com.dew.system.event.events.WorldLoadEvent;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
 import com.dew.system.rotation.RotationManager;
@@ -37,7 +38,7 @@ public class Step extends Module {
     }
 
     @Override
-    public void onWorld(WorldEvent event) {
+    public void onLoadWorld(WorldLoadEvent event) {
         this.resetState();
     }
 

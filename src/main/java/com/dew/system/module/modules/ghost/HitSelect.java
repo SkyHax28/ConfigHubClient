@@ -3,6 +3,7 @@ package com.dew.system.module.modules.ghost;
 import com.dew.system.event.events.AttackEvent;
 import com.dew.system.event.events.PreUpdateEvent;
 import com.dew.system.event.events.WorldEvent;
+import com.dew.system.event.events.WorldLoadEvent;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
 import com.dew.system.settingsvalue.NumberValue;
@@ -35,7 +36,7 @@ public class HitSelect extends Module {
     }
 
     @Override
-    public void onWorld(WorldEvent event) {
+    public void onLoadWorld(WorldLoadEvent event) {
         this.resetState();
     }
 

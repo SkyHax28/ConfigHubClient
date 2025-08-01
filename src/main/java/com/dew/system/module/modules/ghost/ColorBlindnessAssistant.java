@@ -1,9 +1,6 @@
 package com.dew.system.module.modules.ghost;
 
-import com.dew.system.event.events.PreUpdateEvent;
-import com.dew.system.event.events.ReceivedPacketEvent;
-import com.dew.system.event.events.Render3DEvent;
-import com.dew.system.event.events.WorldEvent;
+import com.dew.system.event.events.*;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
 import com.dew.utils.LogUtil;
@@ -38,7 +35,7 @@ public class ColorBlindnessAssistant extends Module {
     }
 
     @Override
-    public void onWorld(WorldEvent event) {
+    public void onLoadWorld(WorldLoadEvent event) {
         this.resetState();
     }
 

@@ -19,64 +19,86 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @SuppressWarnings("ALL")
 public class MongoManager implements IMinecraft, EventListener {
 
-    private MongoCollection<Document> collection;
+    private final MongoClient mongoClient;
+    private final MongoCollection<Document> collection;
     private final String uri;
-    public MongoManager(){
+
+    public MongoManager() {
         DewCommon.eventManager.register(this);
-        LogUtil.infoLog("init MongoManager");
         this.uri = "mongodb+srv://dewclientuser:TcZn7M4gtdoI8QyD@cluster0.rejop8c.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
-        init();
-    }
-
-
-    public void init() {
-        MongoClient mongoClient = MongoClients.create(uri);
+        this.mongoClient = MongoClients.create(uri);
         MongoDatabase database = mongoClient.getDatabase("client_data1");
-        collection = database.getCollection("server_users1");
+        this.collection = database.getCollection("server_users1");
+
+        LogUtil.infoLog("init mongoManager");
     }
 
     public void addUserToServer(String serverIP, String username) {
-        Document query = new Document("server_ip", serverIP)
-                .append("username", username);
+        new Thread(() -> {
+            try {
+                Document query = new Document("server_ip", serverIP)
+                        .append("username", username);
 
-        collection.insertOne(query);
-        LogUtil.infoLog("Added {} to {}".format(username, serverIP));
-        connected = true;
+                collection.insertOne(query);
+                LogUtil.infoLog("Added {} to {}".format(username, serverIP));
+                connected = true;
+            } catch (Exception e) {
+                LogUtil.infoLog("Failed to add user: " + e.getMessage());
+            }
+        }).start();
     }
 
     public void removeUserFromServer(String serverIP, String username) {
-        Document query = new Document("server_ip", serverIP)
-                .append("username", username);
+        new Thread(() -> {
+            try {
+                Document query = new Document("server_ip", serverIP)
+                        .append("username", username);
 
-        collection.deleteOne(query);
-        LogUtil.infoLog("Removed {} from {}".format(username, serverIP));
-        connected = false;
+                collection.deleteOne(query);
+                LogUtil.infoLog("Removed {} from {}".format(username, serverIP));
+                connected = false;
+            } catch (Exception e) {
+                LogUtil.infoLog("Failed to remove user: " + e.getMessage());
+            }
+        }).start();
     }
 
     public void removeUserFromAllServers(String username) {
-        Document query = new Document("username", username);
-        collection.deleteMany(query);
-        LogUtil.infoLog("Removed {} from all servers".format(username));
-        connected = false;
+        new Thread(() -> {
+            try {
+                Document query = new Document("username", username);
+                collection.deleteMany(query);
+                LogUtil.infoLog("Removed {} from all servers".format(username));
+                connected = false;
+            } catch (Exception e) {
+                LogUtil.infoLog("Failed to remove from all servers: " + e.getMessage());
+            }
+        }).start();
     }
 
     public List<String> getUsersOnServer(String serverIP) {
         List<String> usernames = new ArrayList<>();
-        FindIterable<Document> results = collection.find(Filters.eq("server_ip", serverIP));
-
-        for (Document doc : results) {
-            usernames.add(doc.getString("username"));
+        try {
+            FindIterable<Document> results = collection.find(Filters.eq("server_ip", serverIP));
+            for (Document doc : results) {
+                usernames.add(doc.getString("username"));
+            }
+        } catch (Exception e) {
+            LogUtil.infoLog("getUsersOnServer failed: " + e.getMessage());
         }
-
         return usernames;
     }
 
     public boolean isUserOnServer(String serverIP, String username) {
-        Document query = new Document("server_ip", serverIP)
-                .append("username", username);
-
-        LogUtil.infoLog("Looking for {} on {}".format(username, serverIP));
-        return collection.find(query).first() != null;
+        try {
+            Document query = new Document("server_ip", serverIP)
+                    .append("username", username);
+            LogUtil.infoLog("Looking for {} on {}".format(username, serverIP));
+            return collection.find(query).first() != null;
+        } catch (Exception e) {
+            LogUtil.infoLog("isUserOnServer failed: " + e.getMessage());
+            return false;
+        }
     }
 
     private boolean connected = false;
@@ -117,7 +139,7 @@ public class MongoManager implements IMinecraft, EventListener {
                     }
                     tickTimer.reset();
                 } catch (Exception e) {
-                    LogUtil.infoLog(e.getMessage());
+                    LogUtil.infoLog("Tick Mongo Update failed: " + e.getMessage());
                 }
             }).start();
         }

@@ -137,8 +137,8 @@ public class GuiConnecting extends GuiScreen
     {
         if (button.id == 0)
         {
-            GuiConnectingEventActionPerformed guiConnectingEventActionPerformed = new GuiConnectingEventActionPerformed();
-            DewCommon.eventManager.call(guiConnectingEventActionPerformed);
+            GuiConnectingEventActionPerformed event = new GuiConnectingEventActionPerformed();
+            DewCommon.eventManager.call(event);
             this.cancel = true;
 
             if (this.networkManager != null)

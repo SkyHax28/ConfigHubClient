@@ -41,7 +41,7 @@ public class AutoPot extends Module {
     }
 
     @Override
-    public void onWorld(WorldEvent event) {
+    public void onLoadWorld(WorldLoadEvent event) {
         this.resetState();
     }
 

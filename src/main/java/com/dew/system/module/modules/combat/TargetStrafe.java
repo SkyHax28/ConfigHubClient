@@ -4,6 +4,7 @@ import com.dew.DewCommon;
 import com.dew.system.event.events.PreUpdateEvent;
 import com.dew.system.event.events.StrafeEvent;
 import com.dew.system.event.events.WorldEvent;
+import com.dew.system.event.events.WorldLoadEvent;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
 import com.dew.system.module.modules.movement.flight.FlightModule;
@@ -37,7 +38,7 @@ public class TargetStrafe extends Module {
     }
 
     @Override
-    public void onWorld(WorldEvent event) {
+    public void onLoadWorld(WorldLoadEvent event) {
         direction = 0;
     }
 
