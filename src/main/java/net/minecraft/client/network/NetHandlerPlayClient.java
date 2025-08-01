@@ -1,7 +1,7 @@
 package net.minecraft.client.network;
 
 import com.dew.DewCommon;
-import com.dew.system.module.modules.exploit.AntiExploit;
+//import com.dew.system.module.modules.exploit.AntiExploit;
 import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -1572,9 +1572,9 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient
 
     public void handleResourcePack(S48PacketResourcePackSend packetIn)
     {
-        if (DewCommon.moduleManager.getModule(AntiExploit.class).isEnabled() && !this.validateResourcePackUrl(packetIn)) {
-            return;
-        }
+//        if (DewCommon.moduleManager.getModule(AntiExploit.class).isEnabled() && !this.validateResourcePackUrl(packetIn)) {
+//            return;
+//        }
 
         final String s = packetIn.getURL();
         final String s1 = packetIn.getHash();
