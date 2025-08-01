@@ -39,7 +39,7 @@ public class Scaffold extends Module {
     private static final NumberValue clutchRange = new NumberValue("Clutch Range", 3.0, 1.0, 5.0, 1.0);
     private static final NumberValue rotationSpeed = new NumberValue("Rotation Speed", 60.0, 0.0, 180.0, 5.0, () -> mode.get().equals("Normal") || mode.get().equals("Telly") && !hypixelTellyBanFix.get());
     private static final NumberValue tellyPreRotationSpeed = new NumberValue("Telly Pre Rotation Speed", 35.0, 0.0, 180.0, 5.0, () -> mode.get().equals("Telly") && !hypixelTellyBanFix.get());
-    private static final NumberValue placeDelay = new NumberValue("Place Delay", 0.0, 0.0, 3.0, 0.1, () -> mode.get().equals("Normal") || mode.get().equals("Telly"));
+    private static final NumberValue placeDelay = new NumberValue("Place Delay", 0.0, 0.0, 3.0, 1.0, () -> mode.get().equals("Normal") || mode.get().equals("Telly"));
     private static final SelectionValue edgeSafeMode = new SelectionValue("Edge Safe Mode", "OFF", "OFF", "Safewalk", "Sneak");
     private static final SelectionValue clickMode = new SelectionValue("Click Mode", "Normal", "Normal", "Legit");
     public static final BooleanValue preferHighestStack = new BooleanValue("Prefer Highest Stack", true);
@@ -249,7 +249,7 @@ public class Scaffold extends Module {
             this.updateKeepY();
         }
 
-        if (delay <= placeDelay.get()) return;
+        if (delay <= placeDelay.get().intValue()) return;
 
         if (holdingBlock && (mc.thePlayer.getHeldItem() == null || !(mc.thePlayer.getHeldItem().getItem() instanceof ItemBlock) || mc.thePlayer.getHeldItem().stackSize == 0)) {
             this.resetState();
@@ -487,10 +487,6 @@ public class Scaffold extends Module {
                 DewCommon.rotationManager.getClientYaw(),
                 DewCommon.rotationManager.getClientPitch()
         );
-
-        for (EnumFacing facing : facingsArray) {
-            if (facing == preferredFacing) continue;
-        }
 
         EnumFacing[] orderedFacings = new EnumFacing[6];
         orderedFacings[0] = preferredFacing;
