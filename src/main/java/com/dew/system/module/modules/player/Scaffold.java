@@ -41,7 +41,6 @@ public class Scaffold extends Module {
     private static final NumberValue tellyPreRotationSpeed = new NumberValue("Telly Pre Rotation Speed", 35.0, 0.0, 180.0, 5.0, () -> mode.get().equals("Telly") && !hypixelTellyBanFix.get());
     private static final NumberValue placeDelay = new NumberValue("Place Delay", 0.0, 0.0, 3.0, 1.0, () -> mode.get().equals("Normal") || mode.get().equals("Telly"));
     private static final SelectionValue edgeSafeMode = new SelectionValue("Edge Safe Mode", "OFF", "OFF", "Safewalk", "Sneak");
-    private static final SelectionValue clickMode = new SelectionValue("Click Mode", "Normal", "Normal", "Legit");
     public static final BooleanValue preferHighestStack = new BooleanValue("Prefer Highest Stack", true);
     public static final BooleanValue noSprint = new BooleanValue("No Sprint", false);
 
@@ -229,7 +228,7 @@ public class Scaffold extends Module {
 
             case "telly":
                 if (mc.thePlayer.isPotionActive(Potion.moveSpeed) && (DewCommon.rotationManager.isReturning() || !holdingBlock)) {
-                    DewCommon.rotationManager.rotateToward((float) (MovementUtil.getDirection() - 180f), 83f, hypixelTellyBanFix.get() ? 30f : rotationSpeed.get().floatValue());
+                    DewCommon.rotationManager.rotateToward((float) (MovementUtil.getDirection() - 180f), 83f, hypixelTellyBanFix.get() ? 60f : tellyPreRotationSpeed.get().floatValue());
                 }
                 break;
 
@@ -237,7 +236,7 @@ public class Scaffold extends Module {
                 break;
         }
 
-        if (noSprint.get()) {
+        if (noSprint.get() || mode.get().equals("Telly") && Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode())) {
             mc.thePlayer.setSprinting(false);
         }
 
@@ -251,7 +250,7 @@ public class Scaffold extends Module {
 
         if (delay <= placeDelay.get().intValue()) return;
 
-        if (holdingBlock && (mc.thePlayer.getHeldItem() == null || !(mc.thePlayer.getHeldItem().getItem() instanceof ItemBlock) || mc.thePlayer.getHeldItem().stackSize == 0)) {
+        if (holdingBlock && (mc.thePlayer.inventory.getCurrentItem() == null || !(mc.thePlayer.inventory.getCurrentItem().getItem() instanceof ItemBlock) || mc.thePlayer.inventory.getCurrentItem().stackSize == 0)) {
             this.resetState();
             return;
         }
@@ -478,7 +477,6 @@ public class Scaffold extends Module {
         if (!holdingBlock) return PlaceResult.FAIL_OTHER;
 
         String modeValue = mode.get();
-        String clickValue = clickMode.get();
         float rotationSpeedVal = modeValue.equals("Telly") && hypixelTellyBanFix.get() ? 30f : rotationSpeed.get().floatValue();
 
         EnumFacing preferredFacing = facingFromRotation(
@@ -512,14 +510,8 @@ public class Scaffold extends Module {
                 if (!canPlace) return PlaceResult.FAIL_ROTATION;
             }
 
-            if (clickValue.equals("Normal")) {
-                if (mc.playerController.onPlayerRightClick(mc.thePlayer, mc.theWorld, mc.thePlayer.getHeldItem(), neighbor, opposite, hitVec)) {
-                    PacketUtil.sendPacket(new C0APacketAnimation());
-                    delay = 0;
-                    return PlaceResult.SUCCESS;
-                }
-            } else {
-                mc.placeBlockWithRightClickFunctions();
+            if (mc.playerController.onPlayerRightClick(mc.thePlayer, mc.theWorld, mc.thePlayer.inventory.getCurrentItem(), neighbor, opposite, hitVec)) {
+                PacketUtil.sendPacket(new C0APacketAnimation());
                 delay = 0;
                 return PlaceResult.SUCCESS;
             }

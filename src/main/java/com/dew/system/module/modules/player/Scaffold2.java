@@ -78,7 +78,7 @@ public class Scaffold2 extends Module {
             if (mc.playerController.onPlayerRightClick(
                     mc.thePlayer,
                     mc.theWorld,
-                    mc.thePlayer.getHeldItem(),
+                    mc.thePlayer.inventory.getCurrentItem(),
                     target,
                     opposite,
                     hitVec

@@ -6,6 +6,8 @@ import com.dew.utils.MovementUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.*;
+import org.bouncycastle.crypto.prng.RandomGenerator;
+import org.bouncycastle.crypto.prng.VMPCRandomGenerator;
 
 import java.util.Random;
 
@@ -20,13 +22,17 @@ public class RotationManager {
     private boolean isReturning = false;
 
     private static final long ROTATION_TIMEOUT = 600L;
-    private final Random random = new Random();
+    private RandomGenerator randomGenerator;
 
     public RotationManager() {
         this.clientYaw = 114514f;
         this.clientPitch = 114514f;
         this.prevClientYaw = 114514f;
         this.prevClientPitch = 114514f;
+
+        randomGenerator = new VMPCRandomGenerator();
+        byte[] seed = System.nanoTime() < 0 ? new byte[8] : new byte[16];
+        randomGenerator.addSeedMaterial(seed);
 
         LogUtil.infoLog("init rotationManager");
     }
@@ -56,14 +62,20 @@ public class RotationManager {
             yawDiff = MathHelper.clamp_float(yawDiff, -returnSpeed, returnSpeed);
             pitchDiff = MathHelper.clamp_float(pitchDiff, -returnSpeed, returnSpeed);
 
-            yawDiff += (random.nextFloat() - 0.5f) * 2.0f;
-            pitchDiff += (random.nextFloat() - 0.5f) * 2.0f;
+            yawDiff += getSecureRandom() * 0.3f;
+            pitchDiff += getSecureRandom() * 0.3f;
 
-            if (Math.abs(yawDiff) < 1f && Math.abs(pitchDiff) < 1f) {
+            if (Math.abs(yawDiff) < 1f && Math.abs(pitchDiff) < 15f) {
                 this.updateRotations();
 
-                this.clientYaw = targetYaw;
-                this.clientPitch = targetPitch;
+                mc.thePlayer.prevRenderArmYaw = this.clientYaw;
+                mc.thePlayer.renderArmYaw = this.clientYaw;
+
+                mc.thePlayer.rotationYaw = this.clientYaw;
+
+                this.clientYaw = mc.thePlayer.rotationYaw;
+                this.clientPitch = mc.thePlayer.rotationPitch;
+
                 isReturning = false;
             } else {
                 this.updateRotations();
@@ -77,6 +89,12 @@ public class RotationManager {
             this.clientYaw = mc.thePlayer.rotationYaw;
             this.clientPitch = mc.thePlayer.rotationPitch;
         }
+    }
+
+    private float getSecureRandom() {
+        byte[] randomBytes = new byte[4];
+        randomGenerator.nextBytes(randomBytes);
+        return (float) (((randomBytes[0] & 0xFF) / 255.0) - 0.5);
     }
 
     public void resetRotationsInstantly() {
@@ -220,11 +238,14 @@ public class RotationManager {
     }
 
     public void rotateToward(float targetYaw, float targetPitch, float rotationSpeed) {
-        float randomDelta = (random.nextFloat() - 0.5f) * 10.0f;
+        float randomDelta = getSecureRandom() * 0.5f;
         float adjustedSpeed = rotationSpeed + randomDelta;
 
         float yawDiff = MathHelper.wrapAngleTo180_float(targetYaw - this.clientYaw);
         float pitchDiff = MathHelper.wrapAngleTo180_float(targetPitch - this.clientPitch);
+
+        yawDiff += getSecureRandom() * 0.3f;
+        pitchDiff += getSecureRandom() * 0.3f;
 
         yawDiff = MathHelper.clamp_float(yawDiff, -adjustedSpeed, adjustedSpeed);
         pitchDiff = MathHelper.clamp_float(pitchDiff, -adjustedSpeed, adjustedSpeed);
