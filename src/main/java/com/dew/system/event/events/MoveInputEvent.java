@@ -2,7 +2,9 @@ package com.dew.system.event.events;
 
 import com.dew.system.event.EventArgument;
 import com.dew.system.event.EventListener;
+
 import java.util.Objects;
+
 public class MoveInputEvent extends EventArgument {
 
     public float forward;

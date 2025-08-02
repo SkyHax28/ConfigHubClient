@@ -1,7 +1,9 @@
 package com.dew.system.module.modules.ghost;
 
 import com.dew.DewCommon;
-import com.dew.system.event.events.*;
+import com.dew.system.event.events.PreUpdateEvent;
+import com.dew.system.event.events.Render3DEvent;
+import com.dew.system.event.events.WorldLoadEvent;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
 import com.dew.system.module.modules.combat.Aura;
@@ -18,13 +20,12 @@ import java.util.*;
 
 public class BackTrack extends Module {
 
+    public static final NumberValue ticksBack = new NumberValue("Ticks Back", 5.0, 1.0, 10.0, 1.0);
+    private final Map<UUID, Deque<Vec3>> backtrackPositions = new HashMap<>();
+
     public BackTrack() {
         super("Back Track", ModuleCategory.GHOST, Keyboard.KEY_NONE, false, true, true);
     }
-
-    public static final NumberValue ticksBack = new NumberValue("Ticks Back", 5.0, 1.0, 10.0, 1.0);
-
-    private final Map<UUID, Deque<Vec3>> backtrackPositions = new HashMap<>();
 
     @Override
     public void onDisable() {
@@ -54,7 +55,8 @@ public class BackTrack extends Module {
 
     @Override
     public void onRender3D(Render3DEvent event) {
-        if (mc.thePlayer == null || mc.theWorld == null || !DewCommon.moduleManager.getModule(Aura.class).isEnabled() || DewCommon.moduleManager.getModule(Aura.class).target == null) return;
+        if (mc.thePlayer == null || mc.theWorld == null || !DewCommon.moduleManager.getModule(Aura.class).isEnabled() || DewCommon.moduleManager.getModule(Aura.class).target == null)
+            return;
 
         double renderX = mc.getRenderManager().viewerPosX;
         double renderY = mc.getRenderManager().viewerPosY;
@@ -70,7 +72,8 @@ public class BackTrack extends Module {
         GlStateManager.tryBlendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
 
         for (EntityPlayer player : mc.theWorld.playerEntities) {
-            if (player == mc.thePlayer || player.isDead || DewCommon.moduleManager.getModule(Aura.class).target != player) continue;
+            if (player == mc.thePlayer || player.isDead || DewCommon.moduleManager.getModule(Aura.class).target != player)
+                continue;
 
             Deque<Vec3> history = backtrackPositions.get(player.getUniqueID());
             if (history == null || history.size() < 2) continue;

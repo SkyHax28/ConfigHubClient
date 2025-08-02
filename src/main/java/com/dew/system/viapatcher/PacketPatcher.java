@@ -44,6 +44,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class PacketPatcher {
 
     private static final Minecraft mc = IMinecraft.mc;
+    private static final Queue<PacketWrapper> confirmations = new ConcurrentLinkedQueue<>();
 
     public static void handleFixedSendPackets(SendPacketEvent event) {
         Packet<?> packet = event.packet;
@@ -68,7 +69,8 @@ public class PacketPatcher {
                 Vec3 hitVec = c02.getHitVec();
                 Entity entity = c02.getEntityFromWorld(mc.theWorld);
 
-                if (hitVec == null || entity == null || entity instanceof EntityItemFrame || entity instanceof EntityFireball) return;
+                if (hitVec == null || entity == null || entity instanceof EntityItemFrame || entity instanceof EntityFireball)
+                    return;
 
                 float w = entity.width;
                 float h = entity.height;
@@ -97,11 +99,10 @@ public class PacketPatcher {
     public static void handleFixedReceivePackets(ReceivedPacketEvent event) {
         Packet<?> packet = event.packet;
 
-        if (event.isCancelled()) return;
+        if (event.isCancelled()) {
+        }
 
     }
-
-    private static final Queue<PacketWrapper> confirmations = new ConcurrentLinkedQueue<>();
 
     public static void applyNibblesPatches() {
         ProtocolManager protocolManager = Via.getManager().getProtocolManager();

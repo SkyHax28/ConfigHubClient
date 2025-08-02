@@ -2,7 +2,6 @@ package com.dew.system.module.modules.player;
 
 import com.dew.DewCommon;
 import com.dew.system.event.events.LivingUpdateEvent;
-import com.dew.system.event.events.PreUpdateEvent;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
 import com.dew.system.module.modules.movement.MoveFix;
@@ -13,11 +12,11 @@ import org.lwjgl.input.Keyboard;
 
 public class Sprint extends Module {
 
+    public static final BooleanValue omni = new BooleanValue("Omni", true);
+
     public Sprint() {
         super("Sprint", ModuleCategory.PLAYER, Keyboard.KEY_NONE, false, true, true);
     }
-
-    public static final BooleanValue omni = new BooleanValue("Omni", true);
 
     public boolean shouldNotSprint() {
         float yawDiff = Math.abs(MovementUtil.getAngleDifference((float) MovementUtil.getDirection(), DewCommon.rotationManager.getClientYaw()));

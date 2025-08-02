@@ -24,39 +24,38 @@ import net.minecraft.util.*;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.PriorityQueue;
 
 public class Scaffold extends Module {
 
-    public Scaffold() {
-        super("Scaffold", ModuleCategory.PLAYER, Keyboard.KEY_NONE, false, true, true);
-    }
-
+    public static final BooleanValue preferHighestStack = new BooleanValue("Prefer Highest Stack", true);
+    public static final BooleanValue noSprint = new BooleanValue("No Sprint", false);
     private static final SelectionValue mode = new SelectionValue("Mode", "Normal", "Normal", "Telly", "Hypixel");
     public static final BooleanValue hypixelTellyBanFix = new BooleanValue("Hypixel Telly Ban Fix", false, () -> mode.get().equals("Telly"));
+    private static final NumberValue rotationSpeed = new NumberValue("Rotation Speed", 60.0, 0.0, 180.0, 5.0, () -> mode.get().equals("Normal") || mode.get().equals("Telly") && !hypixelTellyBanFix.get());
+    private static final NumberValue tellyPreRotationSpeed = new NumberValue("Telly Pre Rotation Speed", 35.0, 0.0, 180.0, 5.0, () -> mode.get().equals("Telly") && !hypixelTellyBanFix.get());
     private static final BooleanValue tellyDiagonalDegrees = new BooleanValue("Telly Diagonal Degrees", false, () -> mode.get().equals("Telly"));
     private static final SelectionValue towerMode = new SelectionValue("Tower Mode", "OFF", "OFF", "Vanilla", "Hypixel");
     private static final NumberValue clutchRange = new NumberValue("Clutch Range", 3.0, 1.0, 5.0, 1.0);
-    private static final NumberValue rotationSpeed = new NumberValue("Rotation Speed", 60.0, 0.0, 180.0, 5.0, () -> mode.get().equals("Normal") || mode.get().equals("Telly") && !hypixelTellyBanFix.get());
-    private static final NumberValue tellyPreRotationSpeed = new NumberValue("Telly Pre Rotation Speed", 35.0, 0.0, 180.0, 5.0, () -> mode.get().equals("Telly") && !hypixelTellyBanFix.get());
     private static final NumberValue placeDelay = new NumberValue("Place Delay", 0.0, 0.0, 3.0, 1.0, () -> mode.get().equals("Normal") || mode.get().equals("Telly"));
     private static final SelectionValue edgeSafeMode = new SelectionValue("Edge Safe Mode", "OFF", "OFF", "Safewalk", "Sneak");
-    public static final BooleanValue preferHighestStack = new BooleanValue("Prefer Highest Stack", true);
-    public static final BooleanValue noSprint = new BooleanValue("No Sprint", false);
-
+    private final EnumFacing[] facingsArray = EnumFacing.values();
+    public boolean holdingBlock = false;
+    public boolean jumped = false;
     private int keepY = -1;
     private int originalSlot = -1;
-    public boolean holdingBlock = false;
     private boolean isSneaking = false;
-
     private int jumpTicks = 0;
     private int towerTicks = 0;
     private boolean hypGroundCheck = false;
     private boolean towered = false;
-
     private int delay = 0;
-    public boolean jumped = false;
     private BlockPos lastPlacedPos = null;
+
+    public Scaffold() {
+        super("Scaffold", ModuleCategory.PLAYER, Keyboard.KEY_NONE, false, true, true);
+    }
 
     private boolean canTower() {
         return Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) && MovementUtil.isBlockUnderPlayer(mc.thePlayer, 3, 2, false) && !MovementUtil.isBlockAbovePlayer(mc.thePlayer, 1, 0.3) && DewCommon.moduleManager.getModule(Hud.class).getTotalValidBlocksInHotbar() > 0;
@@ -460,15 +459,17 @@ public class Scaffold extends Module {
         int direction = MathHelper.floor_float((yaw / 90.0F) + 0.5F) & 3;
 
         switch (direction) {
-            case 0: return EnumFacing.SOUTH;
-            case 1: return EnumFacing.WEST;
-            case 3: return EnumFacing.EAST;
+            case 0:
+                return EnumFacing.SOUTH;
+            case 1:
+                return EnumFacing.WEST;
+            case 3:
+                return EnumFacing.EAST;
             case 2:
-            default: return EnumFacing.NORTH;
+            default:
+                return EnumFacing.NORTH;
         }
     }
-
-    private final EnumFacing[] facingsArray = EnumFacing.values();
 
     private PlaceResult tryPlaceBlock(BlockPos pos) {
         if (!holdingBlock) return PlaceResult.FAIL_OTHER;
@@ -517,10 +518,6 @@ public class Scaffold extends Module {
         return PlaceResult.FAIL_OTHER;
     }
 
-    private enum PlaceResult {
-        SUCCESS, FAIL_ROTATION, FAIL_OTHER
-    }
-
     private int getValidBlockSlot() {
         if (!preferHighestStack.get()) {
             for (int i = 0; i < 9; i++) {
@@ -556,5 +553,9 @@ public class Scaffold extends Module {
         }
 
         return !block.isFullBlock() || block instanceof BlockChest || block instanceof BlockEnderChest || block instanceof BlockWorkbench || block instanceof BlockFurnace || block instanceof BlockAnvil || block instanceof BlockFenceGate || block instanceof BlockTrapDoor || block instanceof BlockDoor || block.getMaterial().isReplaceable() || block instanceof BlockFalling || block instanceof BlockSlab || block instanceof BlockStairs || block instanceof BlockPane || block instanceof BlockWall || block instanceof BlockSign || block instanceof BlockButton || block instanceof BlockPressurePlate;
+    }
+
+    private enum PlaceResult {
+        SUCCESS, FAIL_ROTATION, FAIL_OTHER
     }
 }

@@ -3,7 +3,6 @@ package com.dew.system.module.modules.combat;
 import com.dew.DewCommon;
 import com.dew.system.event.events.ReceivedPacketEvent;
 import com.dew.system.event.events.TickEvent;
-import com.dew.system.event.events.WorldEvent;
 import com.dew.system.event.events.WorldLoadEvent;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
@@ -22,19 +21,17 @@ import org.lwjgl.input.Keyboard;
 
 public class AutoBlock extends Module {
 
-    public AutoBlock() {
-        super("Auto Block", ModuleCategory.COMBAT, Keyboard.KEY_NONE, false, true, true);
-    }
-
     private static final SelectionValue mode = new SelectionValue("Mode", "Hypixel", "Vanilla", "Legit", "Hypixel", "Prediction");
-
     private boolean blinkAB = true;
     private boolean block = false;
     private boolean blink = false;
     private boolean swapped = false;
     private int serverSlot = -1;
-
     private long legitBlockEndTime = 0L;
+
+    public AutoBlock() {
+        super("Auto Block", ModuleCategory.COMBAT, Keyboard.KEY_NONE, false, true, true);
+    }
 
     public String getMode() {
         return mode.get();
@@ -71,7 +68,14 @@ public class AutoBlock extends Module {
         if (auraModule.isInAutoBlockMode()) {
             switch (mode.get().toLowerCase()) {
                 case "vanilla":
-                case "prediction":
+                    auraModule.doMainFunctions(true);
+                    if (!block) {
+                        PacketUtil.sendPacket(new C08PacketPlayerBlockPlacement(mc.thePlayer.getHeldItem()));
+                        block = true;
+                    }
+                    break;
+
+                case "prediction": // auto BANs (maybe)
                     auraModule.doMainFunctions(true);
                     if (!block) {
                         PacketUtil.sendPacket(new C08PacketPlayerBlockPlacement(mc.thePlayer.getHeldItem()));
@@ -157,12 +161,12 @@ public class AutoBlock extends Module {
 
     public void unblock() {
         if (block) {
-            block = false;
             if (mode.get().equals("Legit")) {
                 mc.gameSettings.keyBindUseItem.setKeyDown(false);
             } else {
                 PacketUtil.sendPacket(new C07PacketPlayerDigging(C07PacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN));
             }
+            block = false;
         }
 
         if (blink) {

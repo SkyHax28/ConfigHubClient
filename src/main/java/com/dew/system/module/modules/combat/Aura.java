@@ -3,7 +3,6 @@ package com.dew.system.module.modules.combat;
 import com.dew.DewCommon;
 import com.dew.system.event.events.AttackEvent;
 import com.dew.system.event.events.TickEvent;
-import com.dew.system.event.events.WorldEvent;
 import com.dew.system.event.events.WorldLoadEvent;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
@@ -33,10 +32,6 @@ import java.util.*;
 
 public class Aura extends Module {
 
-    public Aura() {
-        super("Aura", ModuleCategory.COMBAT, Keyboard.KEY_NONE, false, true, true);
-    }
-
     private static final SelectionValue mode = new SelectionValue("Mode", "Single", "Single", "Multi");
     private static final NumberValue maxTargets = new NumberValue("Max Targets", 3.0, 2.0, 8.0, 1.0, () -> mode.get().equals("Multi"));
     private static final NumberValue targetRange = new NumberValue("Target Range", 6.0, 0.1, 10.0, 0.1);
@@ -50,13 +45,14 @@ public class Aura extends Module {
     private static final BooleanValue visualAutoBlock = new BooleanValue("Visual Auto Block", true);
     private static final BooleanValue tpAura = new BooleanValue("TP Aura", false);
     private static final NumberValue tpExtendedRange = new NumberValue("TP Extended Range", 50.0, 0.0, 100.0, 1.0, tpAura::get);
-
     private final Random random = new Random();
+    public Entity target = null;
     private long lastAttackTime = 0L;
     private long nextAttackDelay = 0L;
-
-    public Entity target = null;
     private boolean targeted = false;
+    public Aura() {
+        super("Aura", ModuleCategory.COMBAT, Keyboard.KEY_NONE, false, true, true);
+    }
 
     public boolean isInAutoBlockMode() {
         AutoBlock autoBlockModule = DewCommon.moduleManager.getModule(AutoBlock.class);
@@ -255,9 +251,12 @@ public class Aura extends Module {
     }
 
     private boolean shouldNotAttack(Entity entity) {
-        if (entity == null || DewCommon.moduleManager.getModule(Freecam.class).isEnabled() && mc.thePlayer == entity) return true;
-        if (!targets.isSelected("Teammate") && entity instanceof EntityLivingBase && DewCommon.moduleManager.getModule(Teams.class).isInYourTeam((EntityLivingBase) entity)) return true;
-        if ((entity.isDead || entity instanceof EntityLiving && !entity.isEntityAlive()) && !entity.isDead && !targets.isSelected("Dead")) return true;
+        if (entity == null || DewCommon.moduleManager.getModule(Freecam.class).isEnabled() && mc.thePlayer == entity)
+            return true;
+        if (!targets.isSelected("Teammate") && entity instanceof EntityLivingBase && DewCommon.moduleManager.getModule(Teams.class).isInYourTeam((EntityLivingBase) entity))
+            return true;
+        if ((entity.isDead || entity instanceof EntityLiving && !entity.isEntityAlive()) && !entity.isDead && !targets.isSelected("Dead"))
+            return true;
         return !(entity instanceof EntityPlayer && targets.isSelected("Player") || entity instanceof EntityMob && targets.isSelected("Mob") || entity instanceof EntityAnimal && targets.isSelected("Animal") || entity instanceof EntityLiving && targets.isSelected("Living"));
     }
 }

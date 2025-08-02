@@ -29,9 +29,9 @@ public class HttpUtils {
 
     public static class BUILDER {
         private final Request.Builder requestBuilder;
+        private final String url;
         private String method = "GET";
         private RequestBody body = null;
-        private final String url;
 
         public BUILDER(String url) {
             this.url = url;
@@ -105,14 +105,12 @@ public class HttpUtils {
             }
         }
 
-        // ヘッダーから Content-Type を推測して MediaType を返す
         private MediaType guessMediaType() {
             String contentType = requestBuilder.build().header("Content-Type");
             if (contentType == null) contentType = "text/plain";
             return MediaType.parse(contentType);
         }
 
-        // GET, DELETE はボディ不要
         private boolean needsBody(String method) {
             return method.equals("POST") || method.equals("PUT");
         }

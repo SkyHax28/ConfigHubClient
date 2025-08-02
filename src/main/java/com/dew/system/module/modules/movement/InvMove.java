@@ -12,11 +12,11 @@ import org.lwjgl.input.Keyboard;
 
 public class InvMove extends Module {
 
+    private static final SelectionValue mode = new SelectionValue("Mode", "Normal", "Normal", "No Chests", "Save Keys");
+
     public InvMove() {
         super("Inv Move", ModuleCategory.MOVEMENT, Keyboard.KEY_NONE, false, true, true);
     }
-
-    private static final SelectionValue mode = new SelectionValue("Mode", "Normal", "Normal", "No Chests", "Save Keys");
 
     @Override
     public String tag() {

@@ -1,6 +1,9 @@
 package com.dew.system.module.modules.player;
 
-import com.dew.system.event.events.*;
+import com.dew.system.event.events.AttackEvent;
+import com.dew.system.event.events.PreUpdateEvent;
+import com.dew.system.event.events.SendPacketEvent;
+import com.dew.system.event.events.WorldLoadEvent;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
 import com.dew.system.settingsvalue.BooleanValue;
@@ -12,14 +15,12 @@ import org.lwjgl.input.Keyboard;
 
 public class AutoTool extends Module {
 
+    private static final BooleanValue autoSword = new BooleanValue("Auto Sword", true);
+    public final AutoToolManager autoToolManager = new AutoToolManager();
+    private BlockPos currentBlock = null;
     public AutoTool() {
         super("Auto Tool", ModuleCategory.PLAYER, Keyboard.KEY_NONE, false, true, true);
     }
-
-    private static final BooleanValue autoSword = new BooleanValue("Auto Sword", true);
-
-    public final AutoToolManager autoToolManager = new AutoToolManager();
-    private BlockPos currentBlock = null;
 
     @Override
     public void onDisable() {

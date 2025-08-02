@@ -1,7 +1,6 @@
 package com.dew.system.module.modules.render;
 
 import com.dew.system.event.events.Render2DEvent;
-import com.dew.system.event.events.WorldEvent;
 import com.dew.system.event.events.WorldLoadEvent;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
@@ -18,13 +17,12 @@ import java.awt.*;
 
 public class ESP extends Module {
 
+    private static final SelectionValue mode = new SelectionValue("Mode", "Glow", "Glow", "Outline");
+    private boolean renderNametagAndEnchantmentGlint = true;
+
     public ESP() {
         super("ESP", ModuleCategory.RENDER, Keyboard.KEY_NONE, false, false, true);
     }
-
-    private static final SelectionValue mode = new SelectionValue("Mode", "Glow", "Glow", "Outline");
-
-    private boolean renderNametagAndEnchantmentGlint = true;
 
     private boolean shouldRender(Entity entity) {
         return entity instanceof EntityPlayer && (!(entity instanceof EntityPlayerSP) || mc.gameSettings.thirdPersonView != 0);

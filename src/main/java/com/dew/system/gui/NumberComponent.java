@@ -1,14 +1,12 @@
 package com.dew.system.gui;
 
 import com.dew.DewCommon;
-import com.dew.IMinecraft;
 import com.dew.system.settingsvalue.NumberValue;
 import net.minecraft.client.gui.Gui;
 
 import java.awt.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.text.DecimalFormat;
 
 public class NumberComponent implements ValueComponent {
     private final NumberValue value;

@@ -4,19 +4,18 @@ import com.dew.system.event.events.PreUpdateEvent;
 import com.dew.system.event.events.ReceivedPacketEvent;
 import com.dew.system.event.events.SendPacketEvent;
 import com.dew.system.module.modules.movement.flight.FlightMode;
-import com.dew.utils.*;
+import com.dew.utils.BlinkUtil;
+import com.dew.utils.LogUtil;
 import net.minecraft.network.Packet;
-import net.minecraft.network.play.client.*;
 import net.minecraft.network.play.server.S08PacketPlayerPosLook;
-import net.minecraft.network.status.server.S01PacketPong;
 
 public class HypixelPredictionFlight implements FlightMode {
+    private int boostSpeed = 0;
+
     @Override
     public String getName() {
         return "Hypixel Prediction";
     }
-
-    private int boostSpeed = 0;
 
     @Override
     public void onEnable() {

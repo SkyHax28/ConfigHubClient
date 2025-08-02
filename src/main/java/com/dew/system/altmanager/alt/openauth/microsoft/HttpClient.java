@@ -6,31 +6,29 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.net.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
-public class HttpClient
-{
+public class HttpClient {
     public static final String MIME_TYPE_JSON = "application/json";
     public static final String MIME_TYPE_URLENCODED_FORM = "application/x-www-form-urlencoded";
 
 
     private final Gson gson;
 
-    public HttpClient()
-    {
+    public HttpClient() {
         this.gson = new Gson();
     }
 
 
-    public String getText(String url, Map<String, String> params) throws MicrosoftAuthenticationException
-    {
+    public String getText(String url, Map<String, String> params) throws MicrosoftAuthenticationException {
         return readResponse(createConnection(url + '?' + buildParams(params)));
     }
 
-    public <T> T getJson(String url, String token, Class<T> responseClass) throws MicrosoftAuthenticationException
-    {
+    public <T> T getJson(String url, String token, Class<T> responseClass) throws MicrosoftAuthenticationException {
         HttpURLConnection connection = createConnection(url);
         connection.addRequestProperty("Authorization", "Bearer " + token);
         connection.addRequestProperty("Accept", MIME_TYPE_JSON);
@@ -38,25 +36,21 @@ public class HttpClient
         return readJson(connection, responseClass);
     }
 
-    public HttpURLConnection postForm(String url, Map<String, String> params) throws MicrosoftAuthenticationException
-    {
+    public HttpURLConnection postForm(String url, Map<String, String> params) throws MicrosoftAuthenticationException {
         return post(url, MIME_TYPE_URLENCODED_FORM, "*/*", buildParams(params));
     }
 
-    public <T> T postJson(String url, Object request, Class<T> responseClass) throws MicrosoftAuthenticationException
-    {
+    public <T> T postJson(String url, Object request, Class<T> responseClass) throws MicrosoftAuthenticationException {
         HttpURLConnection connection = post(url, MIME_TYPE_JSON, MIME_TYPE_JSON, gson.toJson(request));
         return readJson(connection, responseClass);
     }
 
-    public <T> T postFormGetJson(String url, Map<String, String> params, Class<T> responseClass) throws MicrosoftAuthenticationException
-    {
+    public <T> T postFormGetJson(String url, Map<String, String> params, Class<T> responseClass) throws MicrosoftAuthenticationException {
         return readJson(postForm(url, params), responseClass);
     }
 
 
-    protected HttpURLConnection post(String url, String contentType, String accept, String data) throws MicrosoftAuthenticationException
-    {
+    protected HttpURLConnection post(String url, String contentType, String accept, String data) throws MicrosoftAuthenticationException {
         HttpURLConnection connection = createConnection(url);
         connection.setDoOutput(true);
         connection.addRequestProperty("Content-Type", contentType);
@@ -72,13 +66,11 @@ public class HttpClient
         return connection;
     }
 
-    protected <T> T readJson(HttpURLConnection connection, Class<T> responseType) throws MicrosoftAuthenticationException
-    {
+    protected <T> T readJson(HttpURLConnection connection, Class<T> responseType) throws MicrosoftAuthenticationException {
         return gson.fromJson(readResponse(connection), responseType);
     }
 
-    protected String readResponse(HttpURLConnection connection) throws MicrosoftAuthenticationException
-    {
+    protected String readResponse(HttpURLConnection connection) throws MicrosoftAuthenticationException {
         String redirection = connection.getHeaderField("Location");
         if (redirection != null) {
             return readResponse(createConnection(redirection));
@@ -97,8 +89,7 @@ public class HttpClient
         return response.toString();
     }
 
-    protected HttpURLConnection followRedirects(HttpURLConnection connection) throws MicrosoftAuthenticationException
-    {
+    protected HttpURLConnection followRedirects(HttpURLConnection connection) throws MicrosoftAuthenticationException {
         String redirection = connection.getHeaderField("Location");
         if (redirection != null) {
             connection = followRedirects(createConnection(redirection));
@@ -107,8 +98,7 @@ public class HttpClient
         return connection;
     }
 
-    protected String buildParams(Map<String, String> params)
-    {
+    protected String buildParams(Map<String, String> params) {
         StringBuilder query = new StringBuilder();
         params.forEach((key, value) -> {
             if (query.length() > 0) {
@@ -125,8 +115,7 @@ public class HttpClient
         return query.toString();
     }
 
-    protected HttpURLConnection createConnection(String url) throws MicrosoftAuthenticationException
-    {
+    protected HttpURLConnection createConnection(String url) throws MicrosoftAuthenticationException {
         HttpURLConnection connection;
         try {
             connection = (HttpURLConnection) new URL(url).openConnection();

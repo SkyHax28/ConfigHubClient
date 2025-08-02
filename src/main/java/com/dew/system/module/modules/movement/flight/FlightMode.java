@@ -8,10 +8,16 @@ import net.minecraft.client.Minecraft;
 
 public interface FlightMode {
     Minecraft mc = IMinecraft.mc;
+
     String getName();
+
     void onEnable();
+
     void onDisable();
+
     void onPreUpdate(PreUpdateEvent event);
+
     void onSendPacket(SendPacketEvent event);
+
     void onReceivedPacket(ReceivedPacketEvent event);
 }

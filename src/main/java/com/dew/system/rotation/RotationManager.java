@@ -9,20 +9,15 @@ import net.minecraft.util.*;
 import org.bouncycastle.crypto.prng.RandomGenerator;
 import org.bouncycastle.crypto.prng.VMPCRandomGenerator;
 
-import java.util.Random;
-
 public class RotationManager {
+    private static final long ROTATION_TIMEOUT = 600L;
     private final Minecraft mc = IMinecraft.mc;
-
     private float clientYaw, clientPitch;
     private float prevClientYaw, prevClientPitch;
-
     private long lastRotationUpdate = 0L;
     private boolean isRotating = false;
     private boolean isReturning = false;
-
-    private static final long ROTATION_TIMEOUT = 600L;
-    private RandomGenerator randomGenerator;
+    private final RandomGenerator randomGenerator;
 
     public RotationManager() {
         this.clientYaw = 114514f;
@@ -170,13 +165,20 @@ public class RotationManager {
 
         float yaw = mc.thePlayer.rotationYaw;
         switch (facing) {
-            case UP: return new float[]{yaw, -90f};
-            case DOWN: return new float[]{yaw, 90f};
-            case NORTH: return new float[]{180f, 0f};
-            case SOUTH: return new float[]{0f, 0f};
-            case WEST: return new float[]{90f, 0f};
-            case EAST: return new float[]{-90f, 0f};
-            default: return new float[]{yaw, mc.thePlayer.rotationPitch};
+            case UP:
+                return new float[]{yaw, -90f};
+            case DOWN:
+                return new float[]{yaw, 90f};
+            case NORTH:
+                return new float[]{180f, 0f};
+            case SOUTH:
+                return new float[]{0f, 0f};
+            case WEST:
+                return new float[]{90f, 0f};
+            case EAST:
+                return new float[]{-90f, 0f};
+            default:
+                return new float[]{yaw, mc.thePlayer.rotationPitch};
         }
     }
 
@@ -335,7 +337,7 @@ public class RotationManager {
 
         float x = -MathHelper.cos(pitchRad) * MathHelper.sin(yawRad);
         float y = -MathHelper.sin(pitchRad);
-        float z =  MathHelper.cos(pitchRad) * MathHelper.cos(yawRad);
+        float z = MathHelper.cos(pitchRad) * MathHelper.cos(yawRad);
 
         return new Vec3(x, y, z);
     }

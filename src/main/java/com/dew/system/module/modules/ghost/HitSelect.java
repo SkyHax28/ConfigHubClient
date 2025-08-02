@@ -2,7 +2,6 @@ package com.dew.system.module.modules.ghost;
 
 import com.dew.system.event.events.AttackEvent;
 import com.dew.system.event.events.PreUpdateEvent;
-import com.dew.system.event.events.WorldEvent;
 import com.dew.system.event.events.WorldLoadEvent;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
@@ -13,17 +12,15 @@ import org.lwjgl.input.Keyboard;
 
 public class HitSelect extends Module {
 
+    private static final NumberValue chance = new NumberValue("Chance", 80.0, 10.0, 100.0, 1.0);
+    private static final NumberValue threshold = new NumberValue("Threshold", 400.0, 300.0, 500.0, 1.0);
+    public static SelectionValue mode = new SelectionValue("Mode", "Active", "Active", "Pause");
+    public static SelectionValue preference = new SelectionValue("Preference", "Reduce", "Movement", "Reduce", "Critical");
+    private long lastAttackTime = -1;
+    private boolean currentShouldAttack = false;
     public HitSelect() {
         super("Hit Select", ModuleCategory.GHOST, Keyboard.KEY_NONE, false, true, true);
     }
-
-    public static SelectionValue mode = new SelectionValue("Mode", "Active", "Active", "Pause");
-    public static SelectionValue preference = new SelectionValue("Preference", "Reduce", "Movement", "Reduce", "Critical");
-    private static final NumberValue chance = new NumberValue("Chance", 80.0, 10.0, 100.0, 1.0);
-    private static final NumberValue threshold = new NumberValue("Threshold", 400.0, 300.0, 500.0, 1.0);
-
-    private long lastAttackTime = -1;
-    private boolean currentShouldAttack = false;
 
     @Override
     public String tag() {

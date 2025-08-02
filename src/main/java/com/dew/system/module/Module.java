@@ -15,13 +15,12 @@ public abstract class Module implements EventListener {
 
     public final String name;
     public final ModuleCategory category;
+    private final List<Value<?>> values = new ArrayList<>();
     public int key;
-    private boolean enabled;
     public boolean showOnArray;
     public boolean canBeEnabled;
     public boolean guiExpanded = false;
-
-    private final List<Value<?>> values = new ArrayList<>();
+    private boolean enabled;
 
     public Module(String name, ModuleCategory category, int key, boolean enabled, boolean showOnArray, boolean canBeEnabled) {
         this.name = name;

@@ -18,11 +18,11 @@ import java.util.stream.Collectors;
 
 public class CapeStealer extends Module {
 
+    private final Clock clock = new Clock();
+
     public CapeStealer() {
         super("Cape Stealer", ModuleCategory.EXPLOIT, Keyboard.KEY_NONE, false, true, true);
     }
-
-    private final Clock clock = new Clock();
 
     @Override
     public void onPreUpdate(PreUpdateEvent event) {

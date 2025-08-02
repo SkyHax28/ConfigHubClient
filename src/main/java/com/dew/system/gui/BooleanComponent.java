@@ -1,7 +1,6 @@
 package com.dew.system.gui;
 
 import com.dew.DewCommon;
-import com.dew.IMinecraft;
 import com.dew.system.settingsvalue.BooleanValue;
 import net.minecraft.client.gui.Gui;
 

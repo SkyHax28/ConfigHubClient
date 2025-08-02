@@ -7,11 +7,11 @@ import org.lwjgl.input.Keyboard;
 
 public class NoSlow extends Module {
 
+    private static final SelectionValue mode = new SelectionValue("Mode", "Vanilla", "Vanilla");
+
     public NoSlow() {
         super("No Slow", ModuleCategory.MOVEMENT, Keyboard.KEY_NONE, false, true, true);
     }
-
-    private static final SelectionValue mode = new SelectionValue("Mode", "Vanilla", "Vanilla");
 
     @Override
     public String tag() {

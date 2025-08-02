@@ -2,32 +2,24 @@ package com.dew.system.module.modules.ghost;
 
 import com.dew.DewCommon;
 import com.dew.system.event.events.PreUpdateEvent;
-import com.dew.system.event.events.TickEvent;
-import com.dew.system.event.events.WorldEvent;
 import com.dew.system.event.events.WorldLoadEvent;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
 import com.dew.system.module.modules.player.Scaffold;
 import com.dew.system.settingsvalue.NumberValue;
-import com.dew.utils.LogUtil;
 import net.minecraft.client.settings.GameSettings;
-import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemBlock;
-import net.minecraft.potion.Potion;
-import net.minecraft.util.BlockPos;
 import org.lwjgl.input.Keyboard;
 
 public class BridgeAssist extends Module {
 
-    public BridgeAssist() {
-        super("Bridge Assist", ModuleCategory.GHOST, Keyboard.KEY_NONE, false, true, true);
-    }
-
     private static final NumberValue maxSneakTime = new NumberValue("Max Sneak Time", 1.0, 1.0, 5.0, 1.0);
-
     private int resetTick = 0;
     private int bridTick = 0;
     private boolean bridging = false;
+    public BridgeAssist() {
+        super("Bridge Assist", ModuleCategory.GHOST, Keyboard.KEY_NONE, false, true, true);
+    }
 
     public boolean isBridging() {
         return this.bridging;

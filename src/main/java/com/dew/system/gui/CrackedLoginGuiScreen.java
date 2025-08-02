@@ -2,7 +2,10 @@ package com.dew.system.gui;
 
 import com.dew.DewCommon;
 import com.dew.system.altmanager.alt.SessionChanger;
-import net.minecraft.client.gui.*;
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.GuiTextField;
+import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.resources.I18n;
 import org.lwjgl.input.Keyboard;
 
@@ -26,7 +29,7 @@ public class CrackedLoginGuiScreen extends GuiScreen {
         this.drawDefaultBackground();
         final ScaledResolution sr = new ScaledResolution(this.mc);
         this.username.drawTextBox();
-        drawCenteredString(this.mc.fontRendererObj, "Username", (int)(this.width / 2), sr.getScaledHeight() / 2 - 65, -1);
+        drawCenteredString(this.mc.fontRendererObj, "Username", this.width / 2, sr.getScaledHeight() / 2 - 65, -1);
         super.drawScreen(x2, y2, z2);
     }
 
@@ -34,7 +37,7 @@ public class CrackedLoginGuiScreen extends GuiScreen {
     public void initGui() {
         final ScaledResolution sr = new ScaledResolution(this.mc);
         this.buttonList.clear();
-        this.buttonList.add(new GuiButton(0, this.width / 2 - 50 - 10, this.height / 2 - 20, 120, 20, I18n.format("Login (Cracked)", new Object[0])));
+        this.buttonList.add(new GuiButton(0, this.width / 2 - 50 - 10, this.height / 2 - 20, 120, 20, I18n.format("Login (Cracked)")));
         (this.username = new GuiTextField(100, this.fontRendererObj, this.width / 2 - 50 - 10, sr.getScaledHeight() / 2 - 50, 120, 20)).setFocused(true);
         Keyboard.enableRepeatEvents(true);
     }
@@ -57,8 +60,7 @@ public class CrackedLoginGuiScreen extends GuiScreen {
     protected void mouseClicked(final int x2, final int y2, final int button) {
         try {
             super.mouseClicked(x2, y2, button);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
         this.username.mouseClicked(x2, y2, button);

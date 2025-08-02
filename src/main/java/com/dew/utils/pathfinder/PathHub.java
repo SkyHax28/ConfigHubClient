@@ -22,35 +22,35 @@ public class PathHub {
         return this.loc;
     }
 
-    public ArrayList<Vec3> getPathway() {
-        return this.pathway;
-    }
-
-    public double getSqDist() {
-        return this.sqDist;
-    }
-
-    public double getCurrentCost() {
-        return this.currentCost;
-    }
-
     public void setLoc(final Vec3 loc) {
         this.loc = loc;
     }
 
-    public void setParentPathHub(final PathHub parentPathHub) {
+    public ArrayList<Vec3> getPathway() {
+        return this.pathway;
     }
 
     public void setPathway(final ArrayList<Vec3> pathway) {
         this.pathway = pathway;
     }
 
+    public double getSqDist() {
+        return this.sqDist;
+    }
+
     public void setSqDist(final double sqDist) {
         this.sqDist = sqDist;
     }
 
+    public double getCurrentCost() {
+        return this.currentCost;
+    }
+
     public void setCurrentCost(final double currentCost) {
         this.currentCost = currentCost;
+    }
+
+    public void setParentPathHub(final PathHub parentPathHub) {
     }
 
     public double getMaxCost() {

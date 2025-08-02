@@ -22,6 +22,9 @@ public class MongoManager implements IMinecraft, EventListener {
     private final MongoClient mongoClient;
     private final MongoCollection<Document> collection;
     private final String uri;
+    private final Timer tickTimer = new Timer();
+    private final List<EntityPlayer> online = new CopyOnWriteArrayList<>();
+    private boolean connected = false;
 
     public MongoManager() {
         DewCommon.eventManager.register(this);
@@ -100,10 +103,6 @@ public class MongoManager implements IMinecraft, EventListener {
             return false;
         }
     }
-
-    private boolean connected = false;
-    private final Timer tickTimer = new Timer();
-    private final List<EntityPlayer> online = new CopyOnWriteArrayList<>();
 
     @Override
     public void onTablistPlayerNameFetch(TablistPlayerNameFetchEvent event) {

@@ -2,7 +2,6 @@ package com.dew.system.module.modules.player;
 
 import com.dew.DewCommon;
 import com.dew.system.event.events.PreUpdateEvent;
-import com.dew.system.event.events.WorldEvent;
 import com.dew.system.event.events.WorldLoadEvent;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
@@ -19,15 +18,13 @@ import java.util.List;
 
 public class Stealer extends Module {
 
+    private static final NumberValue stealDelay = new NumberValue("Steal Delay", 2.0, 0.0, 10.0, 0.1);
+    private static final NumberValue closeDelay = new NumberValue("Close Delay", 1.5, 0.0, 10.0, 0.1);
+    private int tickDelayCounter = 0;
+    private int closeTickCounter = 0;
     public Stealer() {
         super("Stealer", ModuleCategory.PLAYER, Keyboard.KEY_NONE, false, true, true);
     }
-
-    private static final NumberValue stealDelay = new NumberValue("Steal Delay", 2.0, 0.0, 10.0, 0.1);
-    private static final NumberValue closeDelay = new NumberValue("Close Delay", 1.5, 0.0, 10.0, 0.1);
-
-    private int tickDelayCounter = 0;
-    private int closeTickCounter = 0;
 
     @Override
     public void onDisable() {

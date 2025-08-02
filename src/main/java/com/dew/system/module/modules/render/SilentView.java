@@ -2,7 +2,6 @@ package com.dew.system.module.modules.render;
 
 import com.dew.DewCommon;
 import com.dew.system.event.events.PostMotionEvent;
-import com.dew.system.event.events.WorldEvent;
 import com.dew.system.event.events.WorldLoadEvent;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
@@ -12,14 +11,12 @@ import org.lwjgl.input.Keyboard;
 
 public class SilentView extends Module {
 
+    public static final SelectionValue mode = new SelectionValue("Mode", "Normal", "Normal", "GameSense");
+    private float prevHeadPitch = 0f;
+    private float headPitch = 0f;
     public SilentView() {
         super("Silent View", ModuleCategory.RENDER, Keyboard.KEY_NONE, true, true, true);
     }
-
-    public static final SelectionValue mode = new SelectionValue("Mode", "Normal", "Normal", "GameSense");
-
-    private float prevHeadPitch = 0f;
-    private float headPitch = 0f;
 
     public float getHeadPitch() {
         return headPitch;

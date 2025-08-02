@@ -10,9 +10,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 class SelectionComponent implements ValueComponent {
+    private static final Map<SelectionValue, Boolean> expandedMap = new HashMap<>();
     private final SelectionValue value;
     private float animatedHeight = 16f;
-    private static final Map<SelectionValue, Boolean> expandedMap = new HashMap<>();
 
     public SelectionComponent(SelectionValue value) {
         this.value = value;

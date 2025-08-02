@@ -3,7 +3,6 @@ package com.dew.system.module.modules.combat;
 import com.dew.DewCommon;
 import com.dew.system.event.events.PreUpdateEvent;
 import com.dew.system.event.events.StrafeEvent;
-import com.dew.system.event.events.WorldEvent;
 import com.dew.system.event.events.WorldLoadEvent;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
@@ -16,13 +15,12 @@ import org.lwjgl.input.Keyboard;
 
 public class TargetStrafe extends Module {
 
+    private static final NumberValue distance = new NumberValue("Distance", 1.2, 0.0, 5.0, 0.1);
+    private int direction = 0;
+
     public TargetStrafe() {
         super("Target Strafe", ModuleCategory.COMBAT, Keyboard.KEY_NONE, false, true, true);
     }
-
-    private static final NumberValue distance = new NumberValue("Distance", 1.2, 0.0, 5.0, 0.1);
-
-    private int direction = 0;
 
     public int getDirection() {
         return this.direction;
@@ -53,7 +51,8 @@ public class TargetStrafe extends Module {
 
     @Override
     public void onStrafe(StrafeEvent event) {
-        if (mc.thePlayer == null || !DewCommon.moduleManager.getModule(Aura.class).isEnabled() || !DewCommon.moduleManager.getModule(FlightModule.class).isEnabled() && !DewCommon.moduleManager.getModule(SpeedModule.class).isEnabled()) return;
+        if (mc.thePlayer == null || !DewCommon.moduleManager.getModule(Aura.class).isEnabled() || !DewCommon.moduleManager.getModule(FlightModule.class).isEnabled() && !DewCommon.moduleManager.getModule(SpeedModule.class).isEnabled())
+            return;
 
         float forward = 0f;
         if (mc.gameSettings.keyBindForward.isKeyDown()) forward += 1f;

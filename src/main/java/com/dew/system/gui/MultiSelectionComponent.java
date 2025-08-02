@@ -1,7 +1,6 @@
 package com.dew.system.gui;
 
 import com.dew.DewCommon;
-import com.dew.IMinecraft;
 import com.dew.system.settingsvalue.MultiSelectionValue;
 import com.dew.utils.Lerper;
 import net.minecraft.client.gui.Gui;
@@ -11,9 +10,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class MultiSelectionComponent implements ValueComponent {
+    private static final Map<MultiSelectionValue, Boolean> expandedMap = new HashMap<>();
     private final MultiSelectionValue value;
     private float animatedHeight = 16f;
-    private static final Map<MultiSelectionValue, Boolean> expandedMap = new HashMap<>();
 
     public MultiSelectionComponent(MultiSelectionValue value) {
         this.value = value;

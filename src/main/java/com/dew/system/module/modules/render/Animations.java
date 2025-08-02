@@ -12,17 +12,16 @@ import java.util.Arrays;
 
 public class Animations extends Module {
 
-    public Animations() {
-        super("Animations", ModuleCategory.RENDER, Keyboard.KEY_NONE, true, false, true);
-    }
-
-    public static final SelectionValue blockAnimation = new SelectionValue("Block Animation", "Legacy", "Vanilla", "Legacy", "Wag",  "Strike", "Phong", "Div", "Elegant", "Dash", "Exhibition Push", "Exhibition Swang", "Exhibition Swonk");
+    public static final SelectionValue blockAnimation = new SelectionValue("Block Animation", "Legacy", "Vanilla", "Legacy", "Wag", "Strike", "Phong", "Div", "Elegant", "Dash", "Exhibition Push", "Exhibition Swang", "Exhibition Swonk");
     public static final MultiSelectionValue oldAnimations = new MultiSelectionValue("1.7 Animations", Arrays.asList("Food", "Potion", "Bow", "Third Person", "Punching During Usage"), "Food", "Potion", "Bow", "Third Person", "Punching During Usage");
     private static final BooleanValue customSwingSpeed = new BooleanValue("Custom Swing Speed", false);
     private static final NumberValue swingSpeed = new NumberValue("Swing Speed", 9.0, -5.0, 20.0, 1.0, customSwingSpeed::get);
     private static final NumberValue itemScale = new NumberValue("Item Scale", 0.0, -2.0, 2.0, 0.5);
-
     private boolean visualBlocking = false;
+
+    public Animations() {
+        super("Animations", ModuleCategory.RENDER, Keyboard.KEY_NONE, true, false, true);
+    }
 
     public boolean isVisualBlocking() {
         return this.visualBlocking;

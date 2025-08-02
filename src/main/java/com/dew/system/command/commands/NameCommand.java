@@ -8,9 +8,10 @@ import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 
 public class NameCommand extends Command {
-    public NameCommand(){
+    public NameCommand() {
         super("name");
     }
+
     @Override
     public void execute(String[] args) {
         String username = mc.thePlayer.getName();

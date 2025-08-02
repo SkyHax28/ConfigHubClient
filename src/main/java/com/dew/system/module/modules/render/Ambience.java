@@ -1,9 +1,7 @@
 package com.dew.system.module.modules.render;
 
-import com.dew.system.event.events.PreUpdateEvent;
 import com.dew.system.event.events.ReceivedPacketEvent;
 import com.dew.system.event.events.Render3DEvent;
-import com.dew.system.event.events.TickEvent;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
 import com.dew.system.settingsvalue.BooleanValue;
@@ -15,12 +13,11 @@ import org.lwjgl.input.Keyboard;
 
 public class Ambience extends Module {
 
+    private static final SelectionValue mode = new SelectionValue("Mode", "Midnight", "Day", "Noon", "Dusk", "Night", "Midnight");
+    private static final BooleanValue clearWeather = new BooleanValue("Clear Weather", true);
     public Ambience() {
         super("Ambience", ModuleCategory.RENDER, Keyboard.KEY_NONE, false, true, true);
     }
-
-    private static final SelectionValue mode = new SelectionValue("Mode", "Midnight", "Day", "Noon", "Dusk", "Night", "Midnight");
-    private static final BooleanValue clearWeather = new BooleanValue("Clear Weather", true);
 
     @Override
     public String tag() {

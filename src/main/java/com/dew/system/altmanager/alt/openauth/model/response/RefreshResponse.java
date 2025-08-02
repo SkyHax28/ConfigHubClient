@@ -5,37 +5,34 @@ import com.dew.system.altmanager.alt.openauth.model.AuthProfile;
 /**
  * JSON Model of an refresh response
  *
- * @version 1.0.4
  * @author Litarvan
+ * @version 1.0.4
  */
 public class RefreshResponse {
 
     /**
      * The access token (not the same as the one given by the request)
      */
-    private String accessToken;
+    private final String accessToken;
 
     /**
      * The client token (same as the one given by the request)
      */
-    private String clientToken;
+    private final String clientToken;
 
     /**
      * The selected profile
      */
-    private AuthProfile selectedProfile;
+    private final AuthProfile selectedProfile;
 
     /**
      * Refresh Response constructor
      *
-     * @param accessToken
-     *            The access token (not the same as the one given by the request)
-     * @param clientToken
-     *            The client token (same as the one given by the request)
-     * @param selectedProfile
-     *            The profile selected (depending of the sent AuthAgent) containing
-     *            more information about the agent (the game) selected, like the
-     *            username for Minecraft
+     * @param accessToken     The access token (not the same as the one given by the request)
+     * @param clientToken     The client token (same as the one given by the request)
+     * @param selectedProfile The profile selected (depending of the sent AuthAgent) containing
+     *                        more information about the agent (the game) selected, like the
+     *                        username for Minecraft
      */
     public RefreshResponse(String accessToken, String clientToken, AuthProfile selectedProfile) {
         this.accessToken = accessToken;

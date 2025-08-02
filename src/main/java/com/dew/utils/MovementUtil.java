@@ -105,6 +105,10 @@ public class MovementUtil {
         return (float) getSpeed(mc.thePlayer.motionX, mc.thePlayer.motionZ);
     }
 
+    public static void setSpeed(double moveSpeed) {
+        setSpeed(moveSpeed, mc.thePlayer.rotationYaw, mc.thePlayer.movementInput.moveStrafe, mc.thePlayer.movementInput.moveForward);
+    }
+
     public static double getSpeed(double velocityX, double velocityZ) {
         return Math.sqrt(velocityX * velocityX + velocityZ * velocityZ);
     }
@@ -342,10 +346,11 @@ public class MovementUtil {
             return baseYaw + (direction == 1 ? 85f : -85f);
         }
     }
+
     public static void setSpeed(double moveSpeed, float yaw, double strafe, double forward) {
         if (forward != 0.0D) {
             yaw += (strafe > 0.0D) ? (forward > 0.0D ? -45 : 45) : (strafe < 0.0D) ? (forward > 0.0D ? 45 : -45) : 0;
-            strafe = 0.0D; // Reset strafe after adjusting yaw
+            strafe = 0.0D;
             forward = (forward > 0.0D) ? 1.0D : -1.0D;
         }
         if (strafe != 0.0D) {
@@ -356,9 +361,5 @@ public class MovementUtil {
         double sinYaw = Math.sin(radianYaw);
         mc.thePlayer.motionX = forward * moveSpeed * cosYaw + strafe * moveSpeed * sinYaw;
         mc.thePlayer.motionZ = forward * moveSpeed * sinYaw - strafe * moveSpeed * cosYaw;
-    }
-
-    public static void setSpeed(double moveSpeed) {
-        setSpeed(moveSpeed, mc.thePlayer.rotationYaw, mc.thePlayer.movementInput.moveStrafe, mc.thePlayer.movementInput.moveForward);
     }
 }

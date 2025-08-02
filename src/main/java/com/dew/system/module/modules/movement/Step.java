@@ -1,13 +1,9 @@
 package com.dew.system.module.modules.movement;
 
-import com.dew.DewCommon;
 import com.dew.system.event.events.PreMotionEvent;
-import com.dew.system.event.events.StrafeEvent;
-import com.dew.system.event.events.WorldEvent;
 import com.dew.system.event.events.WorldLoadEvent;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
-import com.dew.system.rotation.RotationManager;
 import com.dew.system.settingsvalue.NumberValue;
 import com.dew.system.settingsvalue.SelectionValue;
 import com.dew.utils.MovementUtil;
@@ -17,15 +13,14 @@ import net.minecraft.network.play.client.C03PacketPlayer;
 import org.lwjgl.input.Keyboard;
 
 public class Step extends Module {
-    public Step() {
-        super("Step", ModuleCategory.MOVEMENT, Keyboard.KEY_NONE, false, true, true);
-    }
-
     private static final SelectionValue mode = new SelectionValue("Mode", "Normal", "Normal", "NCP");
     private static final NumberValue height = new NumberValue("Height", 1.5, 1.0, 10.0, 0.5);
     private static final NumberValue timerSpeed = new NumberValue("Timer Speed", 0.7, 0.1, 2.0, 0.1);
-
     private int ticksSinceLastStep = -1;
+
+    public Step() {
+        super("Step", ModuleCategory.MOVEMENT, Keyboard.KEY_NONE, false, true, true);
+    }
 
     @Override
     public String tag() {

@@ -45,25 +45,25 @@ public interface EventListener {
     default void onLivingUpdate(LivingUpdateEvent event) {
     }
 
-    default void onMoveInput(MoveInputEvent event){
+    default void onMoveInput(MoveInputEvent event) {
     }
 
-    default void onMoveForward(MoveForwardEvent event){
+    default void onMoveForward(MoveForwardEvent event) {
     }
 
-    default void onPostSprint(PostSprintEvent event){
+    default void onPostSprint(PostSprintEvent event) {
     }
 
-    default void onPreSprint(PreSprintEvent event){
+    default void onPreSprint(PreSprintEvent event) {
     }
 
-    default void onItemRender(ItemRenderEvent event){
+    default void onItemRender(ItemRenderEvent event) {
     }
 
-    default void onGameLoop(GameLoopEvent event){
+    default void onGameLoop(GameLoopEvent event) {
     }
 
-    default void onTablistPlayerNameFetch(TablistPlayerNameFetchEvent event){
+    default void onTablistPlayerNameFetch(TablistPlayerNameFetchEvent event) {
     }
 
     default void onWorld(WorldEvent event) {
@@ -72,12 +72,12 @@ public interface EventListener {
     default void onLoadWorld(WorldLoadEvent event) {
     }
 
-    default void onLeaveWorld(LeaveWorldEvent event){
+    default void onLeaveWorld(LeaveWorldEvent event) {
     }
 
-    default void onGuiDisconnected(GuiDisconnectedEvent event){
+    default void onGuiDisconnected(GuiDisconnectedEvent event) {
     }
 
-    default void onGuiConnecting(GuiConnectingEventActionPerformed event){
+    default void onGuiConnecting(GuiConnectingEventActionPerformed event) {
     }
 }

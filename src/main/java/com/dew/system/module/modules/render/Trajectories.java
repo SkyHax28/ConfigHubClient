@@ -53,7 +53,7 @@ public class Trajectories extends Module {
 
             int maxUseDuration = heldItem.getMaxItemUseDuration();
             int count = DewCommon.moduleManager.getModule(FastBow.class).isEnabled() ? 25 : mc.thePlayer.getItemInUseCount();
-            float useTicks = (float)(maxUseDuration - count) + partialTicks;
+            float useTicks = (float) (maxUseDuration - count) + partialTicks;
 
             float power = useTicks / 20.0F;
             power = (power * power + power * 2.0F) / 3.0F;

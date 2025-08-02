@@ -55,7 +55,7 @@ public class ClickEffectHandler {
             long elapsed = System.currentTimeMillis() - lastClickTime;
             if (elapsed < 300) {
                 float alpha = 1.0f - (elapsed / 300.0f);
-                drawCircleEffect(lastSlotX, lastSlotY, elapsed / 12.5f, new Color(255, 255, 255, (int)(alpha * 255)));
+                drawCircleEffect(lastSlotX, lastSlotY, elapsed / 12.5f, new Color(255, 255, 255, (int) (alpha * 255)));
             }
         }
     }

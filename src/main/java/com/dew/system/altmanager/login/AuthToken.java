@@ -8,27 +8,27 @@ import com.google.gson.JsonParseException;
  */
 public class AuthToken {
 
-	public final String accessToken;
-	public final String refreshToken;
+    public final String accessToken;
+    public final String refreshToken;
 
-	public AuthToken(String accessToken, String refreshToken) {
-		this.accessToken = accessToken;
-		this.refreshToken = refreshToken;
-	}
+    public AuthToken(String accessToken, String refreshToken) {
+        this.accessToken = accessToken;
+        this.refreshToken = refreshToken;
+    }
 
-	/**
-	 * Returns an instance of an AuthToken from JSON text.
-	 * 
-	 * @param json JSON text to parse.
-	 * @return AuthToken object with properties filled from JSON.
-	 */
-	public static AuthToken fromJson(JsonObject json) {
-		try {
-			String accessToken = json.get("access_token").getAsString();
-			String refreshToken = json.get("refresh_token").getAsString();
-			return new AuthToken(accessToken, refreshToken);
-		} catch (Throwable t) {
-			throw new JsonParseException("Unable to parse Device Auth Code: " + json, t);
-		}
-	}
+    /**
+     * Returns an instance of an AuthToken from JSON text.
+     *
+     * @param json JSON text to parse.
+     * @return AuthToken object with properties filled from JSON.
+     */
+    public static AuthToken fromJson(JsonObject json) {
+        try {
+            String accessToken = json.get("access_token").getAsString();
+            String refreshToken = json.get("refresh_token").getAsString();
+            return new AuthToken(accessToken, refreshToken);
+        } catch (Throwable t) {
+            throw new JsonParseException("Unable to parse Device Auth Code: " + json, t);
+        }
+    }
 }

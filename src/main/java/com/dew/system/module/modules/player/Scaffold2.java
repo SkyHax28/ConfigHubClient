@@ -1,7 +1,7 @@
 package com.dew.system.module.modules.player;
 
 import com.dew.DewCommon;
-import com.dew.system.event.events.*;
+import com.dew.system.event.events.PreUpdateEvent;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
 import com.dew.system.settingsvalue.BooleanValue;
@@ -12,25 +12,27 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.client.C0APacketAnimation;
-import net.minecraft.util.*;
+import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Vec3;
 import org.lwjgl.input.Keyboard;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.PriorityQueue;
 
 public class Scaffold2 extends Module {
-
-    public Scaffold2() {
-        super("Scaffold2", ModuleCategory.PLAYER, Keyboard.KEY_NONE, false, true, true);
-    }
 
     private static final NumberValue rangeSetting = new NumberValue("Range", 3.0, 1.0, 6.0, 1.0);
     private static final NumberValue placeDelay = new NumberValue("Place Delay", 0.0, 0.0, 5.0, 1.0);
     private static final BooleanValue preferHighestStack = new BooleanValue("Prefer Highest Stack", true);
-
     private int delay = 0;
     private int lastBlockSlot = -1;
     private BlockPos lastPlaced = null;
     private int keepY = -1;
+    public Scaffold2() {
+        super("Scaffold2", ModuleCategory.PLAYER, Keyboard.KEY_NONE, false, true, true);
+    }
 
     @Override
     public void onDisable() {
@@ -117,7 +119,8 @@ public class Scaffold2 extends Module {
         if (mc.thePlayer.getEntityBoundingBox().intersectsWith(box)) return false;
 
         for (EnumFacing facing : EnumFacing.values()) {
-            if (!mc.theWorld.getBlockState(pos.offset(facing)).getBlock().isReplaceable(mc.theWorld, pos.offset(facing))) return true;
+            if (!mc.theWorld.getBlockState(pos.offset(facing)).getBlock().isReplaceable(mc.theWorld, pos.offset(facing)))
+                return true;
         }
         return false;
     }

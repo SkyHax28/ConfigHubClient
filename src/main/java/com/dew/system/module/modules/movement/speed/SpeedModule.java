@@ -1,7 +1,10 @@
 package com.dew.system.module.modules.movement.speed;
 
 import com.dew.DewCommon;
-import com.dew.system.event.events.*;
+import com.dew.system.event.events.PreMotionEvent;
+import com.dew.system.event.events.PreUpdateEvent;
+import com.dew.system.event.events.ReceivedPacketEvent;
+import com.dew.system.event.events.WorldLoadEvent;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
 import com.dew.system.module.modules.exploit.SafetySwitchv2000;
@@ -16,10 +19,13 @@ import java.util.Map;
 
 public class SpeedModule extends Module {
 
+    public static final SelectionValue mode = new SelectionValue("Mode", "Vanilla", "Vanilla", "Hypixel", "Hypixel Prediction", "BlocksMC", "Bloxd", "Test");
+    public static final BooleanValue autoBHop = new BooleanValue("Auto BHop", true, () -> mode.get().equals("Vanilla"));
+    public static final NumberValue speed = new NumberValue("Speed", 1, 0.1, 5.0, 0.1, () -> mode.get().equals("Vanilla"));
+    public static final SelectionValue hypixelLowHopMode = new SelectionValue("Hypixel Lowhop Mode", "More Strafe", () -> mode.get().equals("Hypixel"), "More Strafe", "7 Tick");
     private final Map<String, SpeedMode> modes = new HashMap<>();
     private SpeedMode currentMode = null;
     private String lastModeName = null;
-
     public SpeedModule() {
         super("Speed", ModuleCategory.MOVEMENT, Keyboard.KEY_NONE, false, true, true);
 
@@ -30,11 +36,6 @@ public class SpeedModule extends Module {
         modes.put("Bloxd", new BloxdSpeed());
         modes.put("Test", new TestSpeed());
     }
-
-    public static final SelectionValue mode = new SelectionValue("Mode", "Vanilla", "Vanilla", "Hypixel", "Hypixel Prediction", "BlocksMC", "Bloxd", "Test");
-    public static final BooleanValue autoBHop = new BooleanValue("Auto BHop", true, () -> mode.get().equals("Vanilla"));
-    public static final NumberValue speed = new NumberValue("Speed", 1, 0.1, 5.0, 0.1, () -> mode.get().equals("Vanilla"));
-    public static final SelectionValue hypixelLowHopMode = new SelectionValue("Hypixel Lowhop Mode", "More Strafe", () -> mode.get().equals("Hypixel"), "More Strafe", "7 Tick");
 
     @Override
     public String tag() {

@@ -1,7 +1,9 @@
 package com.dew.system.module.modules.combat;
 
 import com.dew.DewCommon;
-import com.dew.system.event.events.*;
+import com.dew.system.event.events.ItemRenderEvent;
+import com.dew.system.event.events.TickEvent;
+import com.dew.system.event.events.WorldLoadEvent;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
 import com.dew.system.module.modules.player.Scaffold;
@@ -20,16 +22,14 @@ import org.lwjgl.input.Keyboard;
 
 public class AutoPot extends Module {
 
-    public AutoPot() {
-        super("Auto Pot", ModuleCategory.COMBAT, Keyboard.KEY_NONE, false, true, true);
-    }
-
     private static final NumberValue throwDelay = new NumberValue("Throw Delay", 15.0, 0.0, 20.0, 0.1);
-
     private int tickDelayCounter = 0;
     private int stage = 0;
     private int prevSlot = -1;
     private int targetSlot = -1;
+    public AutoPot() {
+        super("Auto Pot", ModuleCategory.COMBAT, Keyboard.KEY_NONE, false, true, true);
+    }
 
     public boolean isThrowing() {
         return stage != 0;

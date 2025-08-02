@@ -27,8 +27,8 @@ import static com.dew.IMinecraft.mc;
 
 public class DewCommon {
 
+    public static final File BASE_CFG_DIR = new File(mc.mcDataDir, "dew");
     public static String clientName = "Dew";
-
     public static EventManager eventManager;
     public static ModuleManager moduleManager;
     public static CommandManager commandManager;
@@ -44,7 +44,6 @@ public class DewCommon {
     public static SmartPlayerNavigator smartPlayerNavigator;
     public static NewClickGuiScreen clickGuiScreen;
     public static MongoManager mongoManager;
-    public static final File BASE_CFG_DIR = new File(mc.mcDataDir, "dew");
 
     public static void preInitClient() {
         LogUtil.infoLog("(PRE) Initializing " + clientName + " Client...");

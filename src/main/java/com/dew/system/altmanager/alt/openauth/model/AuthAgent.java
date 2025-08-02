@@ -3,8 +3,8 @@ package com.dew.system.altmanager.alt.openauth.model;
 /**
  * JSON model of an auth agent
  *
- * @version 1.0.4
  * @author Litarvan
+ * @version 1.0.4
  */
 public class AuthAgent {
 
@@ -31,24 +31,12 @@ public class AuthAgent {
     /**
      * Agent constructor
      *
-     * @param name
-     *            The name of the agent
-     * @param version
-     *            The version of the agent (1 by default)
+     * @param name    The name of the agent
+     * @param version The version of the agent (1 by default)
      */
     public AuthAgent(String name, int version) {
         this.name = name;
         this.version = version;
-    }
-
-    /**
-     * Sets a new name
-     *
-     * @param name
-     *            The new name
-     */
-    public void setName(String name) {
-        this.name = name;
     }
 
     /**
@@ -61,13 +49,12 @@ public class AuthAgent {
     }
 
     /**
-     * Sets a new version
+     * Sets a new name
      *
-     * @param version
-     *            The new version
+     * @param name The new name
      */
-    public void setVersion(int version) {
-        this.version = version;
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
@@ -77,6 +64,15 @@ public class AuthAgent {
      */
     public int getVersion() {
         return this.version;
+    }
+
+    /**
+     * Sets a new version
+     *
+     * @param version The new version
+     */
+    public void setVersion(int version) {
+        this.version = version;
     }
 
 }

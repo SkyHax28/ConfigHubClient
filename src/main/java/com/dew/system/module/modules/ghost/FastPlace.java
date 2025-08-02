@@ -1,6 +1,6 @@
 package com.dew.system.module.modules.ghost;
 
-import com.dew.system.event.events.*;
+import com.dew.system.event.events.TickEvent;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
 import org.lwjgl.input.Keyboard;

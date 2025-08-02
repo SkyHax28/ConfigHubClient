@@ -7,6 +7,7 @@ import java.util.function.Supplier;
 
 public class MultiSelectionValue extends Value<List<String>> {
     private final List<String> options;
+    private boolean expanded = false;
 
     public MultiSelectionValue(String name, List<String> defaultSelected, String... options) {
         super(name, new ArrayList<>(defaultSelected));
@@ -54,8 +55,11 @@ public class MultiSelectionValue extends Value<List<String>> {
         }
     }
 
-    private boolean expanded = false;
+    public void toggleExpanded() {
+        expanded = !expanded;
+    }
 
-    public void toggleExpanded() { expanded = !expanded; }
-    public boolean isExpanded() { return expanded; }
+    public boolean isExpanded() {
+        return expanded;
+    }
 }

@@ -4,7 +4,7 @@ import com.dew.DewCommon;
 import com.dew.IMinecraft;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
-import com.dew.system.settingsvalue.*;
+import com.dew.system.settingsvalue.Value;
 import com.dew.utils.font.CustomFontRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
@@ -65,13 +65,13 @@ public class ClickGuiDropdownScreen extends GuiScreen {
 
     private class CategoryWindow {
         private final ModuleCategory category;
-        private int x, y;
-        private int width = 110, height;
-        private boolean dragging;
-        private int dragOffsetX, dragOffsetY;
-
         private final List<Module> modules;
         private final Set<Module> expanded = new HashSet<>();
+        private int x, y;
+        private final int width = 110;
+        private int height;
+        private boolean dragging;
+        private int dragOffsetX, dragOffsetY;
 
         public CategoryWindow(ModuleCategory category, int x, int y) {
             this.category = category;

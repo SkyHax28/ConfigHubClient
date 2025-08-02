@@ -1,6 +1,8 @@
 package com.dew.system.module.modules.player;
 
-import com.dew.system.event.events.*;
+import com.dew.system.event.events.PreMotionEvent;
+import com.dew.system.event.events.PreUpdateEvent;
+import com.dew.system.event.events.WorldLoadEvent;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
 import com.dew.system.settingsvalue.SelectionValue;
@@ -12,13 +14,12 @@ import org.lwjgl.input.Keyboard;
 
 public class NoFall extends Module {
 
+    private static final SelectionValue mode = new SelectionValue("Mode", "Packet", "Packet", "Spoof", "No Ground", "Hypixel", "Add Packet");
+    private int hypTick = 0;
+
     public NoFall() {
         super("No Fall", ModuleCategory.PLAYER, Keyboard.KEY_NONE, false, true, true);
     }
-
-    private static final SelectionValue mode = new SelectionValue("Mode", "Packet", "Packet", "Spoof", "No Ground", "Hypixel", "Add Packet");
-
-    private int hypTick = 0;
 
     @Override
     public String tag() {

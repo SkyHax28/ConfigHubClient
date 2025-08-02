@@ -2,10 +2,8 @@ package com.dew.system.gui;
 
 import com.dew.DewCommon;
 import com.dew.IMinecraft;
-import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
 import com.dew.utils.LogUtil;
-import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
 
 import java.awt.*;
@@ -15,17 +13,16 @@ import java.util.Random;
 import java.util.stream.Collectors;
 
 public class CategoryWindow {
+    private static final Random random = new Random();
     private final ModuleCategory category;
     private final List<ModuleButton> moduleButtons = new ArrayList<>();
+    private final List<String> moduleConfigList;
+    private final List<String> bindConfigList;
+    private final int configButtonHeight = 14;
     public int x, y, headerHeight = 16;
     public boolean open;
     private boolean dragging;
     private int dragX, dragY;
-
-    private final List<String> moduleConfigList;
-    private final List<String> bindConfigList;
-    private final int configButtonHeight = 14;
-    private static final Random random = new Random();
 
     public CategoryWindow(ModuleCategory category, int x, int y) {
         this.category = category;

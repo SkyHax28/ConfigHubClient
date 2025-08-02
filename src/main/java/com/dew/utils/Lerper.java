@@ -4,6 +4,8 @@ import net.minecraft.util.Vec3;
 
 public class Lerper {
 
+    public static float deltaTime = 1.0F;
+
     public static float lerp(float from, float to, float speed) {
         return from + (to - from) * speed;
     }
@@ -15,12 +17,10 @@ public class Lerper {
     public static float animate(float target, float current, float speed) {
         float diff = target - current;
 
-        // 終了条件：十分近いなら完全に目標値へスナップ
         if (Math.abs(diff) < 0.1f) {
             return target;
         }
 
-        // 線形補間
         return current + diff * Math.min(speed, 1f);
     }
 
@@ -35,8 +35,6 @@ public class Lerper {
                 from.zCoord + (to.zCoord - from.zCoord) * tickDelta
         );
     }
-
-    public static float deltaTime = 1.0F;
 
     public static double deltaTimeNormalized(int ticks) {
         if (ticks <= 0) ticks = 1;

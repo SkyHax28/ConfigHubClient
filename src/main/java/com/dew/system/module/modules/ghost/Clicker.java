@@ -1,7 +1,6 @@
 package com.dew.system.module.modules.ghost;
 
 import com.dew.system.event.events.Render3DEvent;
-import com.dew.system.event.events.WorldEvent;
 import com.dew.system.event.events.WorldLoadEvent;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
@@ -15,18 +14,15 @@ import java.util.Random;
 
 public class Clicker extends Module {
 
+    private static final NumberValue maxCps = new NumberValue("Max CPS", 20.0, 0.0, 20.0, 1.0);
+    private static final NumberValue minCps = new NumberValue("Min CPS", 8.0, 0.0, 20.0, 1.0);
+    private final Random random = new Random();
+    private long nextClickTime = 0;
+    private double lastInterval = 0;
+    private long lastRestTime = 0;
     public Clicker() {
         super("Clicker", ModuleCategory.GHOST, Keyboard.KEY_NONE, false, true, true);
     }
-
-    private static final NumberValue maxCps = new NumberValue("Max CPS", 20.0, 0.0, 20.0, 1.0);
-    private static final NumberValue minCps = new NumberValue("Min CPS", 8.0, 0.0, 20.0, 1.0);
-
-    private long nextClickTime = 0;
-    private final Random random = new Random();
-
-    private double lastInterval = 0;
-    private long lastRestTime = 0;
 
     @Override
     public void onDisable() {

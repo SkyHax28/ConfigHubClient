@@ -27,16 +27,14 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class NewBacktrackBeta extends Module {
 
-    public NewBacktrackBeta() {
-        super("NewbacktrackBeta", ModuleCategory.COMBAT, Keyboard.KEY_NONE, false, true, true);
-    }
-
     private final List<PacketEntry> packetQueue = new CopyOnWriteArrayList<>();
     private final List<PosEntry> positions = new CopyOnWriteArrayList<>();
     private PosEntry latestServerPos = null;
-
     private EntityLivingBase target;
-    private long lastDelay = 80;
+    private final long lastDelay = 80;
+    public NewBacktrackBeta() {
+        super("NewbacktrackBeta", ModuleCategory.COMBAT, Keyboard.KEY_NONE, false, true, true);
+    }
 
     @Override
     public void onEnable() {

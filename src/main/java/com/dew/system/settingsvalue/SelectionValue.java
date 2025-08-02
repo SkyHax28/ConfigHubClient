@@ -6,6 +6,7 @@ import java.util.function.Supplier;
 
 public class SelectionValue extends Value<String> {
     private final List<String> options;
+    private boolean expanded = false;
 
     public SelectionValue(String name, String defaultValue, String... options) {
         super(name, defaultValue);
@@ -51,8 +52,11 @@ public class SelectionValue extends Value<String> {
         }
     }
 
-    private boolean expanded = false;
+    public void toggleExpanded() {
+        expanded = !expanded;
+    }
 
-    public void toggleExpanded() { expanded = !expanded; }
-    public boolean isExpanded() { return expanded; }
+    public boolean isExpanded() {
+        return expanded;
+    }
 }

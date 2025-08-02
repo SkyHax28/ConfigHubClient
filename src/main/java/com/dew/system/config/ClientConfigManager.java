@@ -2,15 +2,14 @@ package com.dew.system.config;
 
 import com.dew.DewCommon;
 import com.dew.system.gui.ClickGuiState;
-import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
-import com.dew.system.settingsvalue.*;
 
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.*;
+import java.util.Map;
+import java.util.Properties;
 
 public class ClientConfigManager {
 

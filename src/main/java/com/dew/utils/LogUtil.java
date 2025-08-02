@@ -1,6 +1,5 @@
 package com.dew.utils;
 
-import com.dew.DewCommon;
 import com.dew.IMinecraft;
 import com.google.gson.JsonObject;
 import net.minecraft.client.Minecraft;

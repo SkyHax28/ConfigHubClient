@@ -8,10 +8,16 @@ import net.minecraft.client.Minecraft;
 
 public interface SpeedMode {
     Minecraft mc = IMinecraft.mc;
+
     String getName();
+
     void onEnable();
+
     void onDisable();
+
     void onPreUpdate(PreUpdateEvent event);
+
     void onPreMotion(PreMotionEvent event);
+
     void onReceivedPacket(ReceivedPacketEvent event);
 }

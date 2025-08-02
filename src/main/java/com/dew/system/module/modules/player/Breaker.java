@@ -1,12 +1,14 @@
 package com.dew.system.module.modules.player;
 
 import com.dew.DewCommon;
-import com.dew.system.event.events.*;
+import com.dew.system.event.events.Render3DEvent;
+import com.dew.system.event.events.SendPacketEvent;
+import com.dew.system.event.events.TickEvent;
+import com.dew.system.event.events.WorldLoadEvent;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
 import com.dew.system.settingsvalue.BooleanValue;
 import com.dew.system.settingsvalue.NumberValue;
-import com.dew.utils.LogUtil;
 import com.dew.utils.PacketUtil;
 import com.dew.utils.RenderUtil;
 import net.minecraft.block.Block;
@@ -30,16 +32,14 @@ import java.util.List;
 
 public class Breaker extends Module {
 
+    private static final NumberValue range = new NumberValue("Range", 3.0, 1.0, 6.0, 1.0);
+    private static final BooleanValue breakOpposite = new BooleanValue("Break Opposite", false);
+    private static final NumberValue rotationSpeed = new NumberValue("Rotation Speed", 60.0, 0.0, 180.0, 5.0);
+    public boolean isBreaking = false;
+    private BlockPos currentTarget = null;
     public Breaker() {
         super("Breaker", ModuleCategory.PLAYER, Keyboard.KEY_NONE, false, true, true);
     }
-
-    private static final NumberValue breakRange = new NumberValue("Break Range", 4.0, 1.0, 6.0, 1.0);
-    private static final BooleanValue breakOpposite = new BooleanValue("Break Opposite", false);
-    private static final NumberValue rotationSpeed = new NumberValue("Rotation Speed", 60.0, 0.0, 180.0, 5.0);
-
-    public boolean isBreaking = false;
-    private BlockPos currentTarget = null;
 
     @Override
     public void onDisable() {
@@ -99,13 +99,12 @@ public class Breaker extends Module {
     public void onTick(TickEvent event) {
         if (mc.thePlayer == null || mc.theWorld == null) return;
 
-        int range = breakRange.get().intValue();
         BlockPos playerPos = new BlockPos(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ);
         List<BlockPos> bedPositions = new ArrayList<>();
 
-        for (int x = -range; x <= range; x++) {
-            for (int y = -range; y <= range; y++) {
-                for (int z = -range; z <= range; z++) {
+        for (int x = -range.get().intValue(); x <= range.get().intValue(); x++) {
+            for (int y = -range.get().intValue(); y <= range.get().intValue(); y++) {
+                for (int z = -range.get().intValue(); z <= range.get().intValue(); z++) {
                     BlockPos pos = playerPos.add(x, y, z);
                     IBlockState state = mc.theWorld.getBlockState(pos);
                     Block block = mc.theWorld.getBlockState(pos).getBlock();
@@ -195,19 +194,14 @@ public class Breaker extends Module {
         DewCommon.rotationManager.faceBlock(pos, rotationSpeed.get().floatValue());
     }
 
-    private void sendClickBlockToController(BlockPos pos, EnumFacing facing, boolean leftClick)
-    {
-        if (!leftClick)
-        {
+    private void sendClickBlockToController(BlockPos pos, EnumFacing facing, boolean leftClick) {
+        if (!leftClick) {
             mc.leftClickCounter = 0;
         }
 
-        if (mc.leftClickCounter <= 0 && !mc.thePlayer.isUsingItem())
-        {
-            if (leftClick)
-            {
-                if (mc.theWorld.getBlockState(pos).getBlock().getMaterial() != Material.air && mc.playerController.onPlayerDamageBlock(pos, facing))
-                {
+        if (mc.leftClickCounter <= 0 && !mc.thePlayer.isUsingItem()) {
+            if (leftClick) {
+                if (mc.theWorld.getBlockState(pos).getBlock().getMaterial() != Material.air && mc.playerController.onPlayerDamageBlock(pos, facing)) {
                     mc.effectRenderer.addBlockHitEffects(pos, facing);
                     PacketUtil.sendPacket(new C0APacketAnimation());
                 }

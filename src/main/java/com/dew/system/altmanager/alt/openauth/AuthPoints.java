@@ -4,11 +4,11 @@ package com.dew.system.altmanager.alt.openauth;
  * The server Auth Points
  *
  * <p>
- *     Contains the pages url of a server
+ * Contains the pages url of a server
  * </p>
  *
- * @version 1.0.4
  * @author Litarvan
+ * @version 1.0.4
  */
 public class AuthPoints {
 
@@ -20,41 +20,36 @@ public class AuthPoints {
     /**
      * The server authenticate point
      */
-    private String authenticatePoint;
+    private final String authenticatePoint;
 
     /**
      * The server refresh point
      */
-    private String refreshPoint;
+    private final String refreshPoint;
 
     /**
      * The server validate point
      */
-    private String validatePoint;
+    private final String validatePoint;
 
     /**
      * The server signout point
      */
-    private String signoutPoint;
+    private final String signoutPoint;
 
     /**
      * The server invalidate point
      */
-    private String invalidatePoint;
+    private final String invalidatePoint;
 
     /**
      * AuthPoints constructor
      *
-     * @param authenticatePoint
-     *            Authenticate point
-     * @param refreshPoint
-     *            Refresh point
-     * @param validatePoint
-     *            Validate point
-     * @param signoutPoint
-     *            Signout point
-     * @param invalidatePoint
-     *            Invalidate point
+     * @param authenticatePoint Authenticate point
+     * @param refreshPoint      Refresh point
+     * @param validatePoint     Validate point
+     * @param signoutPoint      Signout point
+     * @param invalidatePoint   Invalidate point
      */
     public AuthPoints(String authenticatePoint, String refreshPoint, String validatePoint, String signoutPoint, String invalidatePoint) {
         this.authenticatePoint = authenticatePoint;

@@ -3,8 +3,8 @@ package com.dew.system.altmanager.alt.openauth.model.request;
 /**
  * JSON Model of an validate request
  *
- * @version 1.0.4
  * @author Litarvan
+ * @version 1.0.4
  */
 public class ValidateRequest {
 
@@ -16,20 +16,9 @@ public class ValidateRequest {
     /**
      * Validate Request constructor
      *
-     * @param accessToken
-     *            The access token that you want to validate
+     * @param accessToken The access token that you want to validate
      */
     public ValidateRequest(String accessToken) {
-        this.accessToken = accessToken;
-    }
-
-    /**
-     * Sets a new access token
-     *
-     * @param accessToken
-     *            The new access token
-     */
-    public void setAccessToken(String accessToken) {
         this.accessToken = accessToken;
     }
 
@@ -40,6 +29,15 @@ public class ValidateRequest {
      */
     public String getAccessToken() {
         return accessToken;
+    }
+
+    /**
+     * Sets a new access token
+     *
+     * @param accessToken The new access token
+     */
+    public void setAccessToken(String accessToken) {
+        this.accessToken = accessToken;
     }
 
 }

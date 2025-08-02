@@ -10,9 +10,9 @@ import java.util.Comparator;
 import java.util.Objects;
 
 public class PathFinder {
-    private final Minecraft mc = IMinecraft.mc;
     private static final Vec3[] directions = new Vec3[]{new Vec3(1.0, 0.0, 0.0), new Vec3(-1.0, 0.0, 0.0),
             new Vec3(0.0, 0.0, 1.0), new Vec3(0.0, 0.0, -1.0)};
+    private final Minecraft mc = IMinecraft.mc;
     private final Vec3 startVec3Path;
     private final Vec3 endVec3Path;
     private final ArrayList<PathHub> pathHubs = new ArrayList<>();

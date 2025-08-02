@@ -11,6 +11,7 @@ import com.dew.system.module.modules.movement.speed.SpeedModule;
 import com.dew.system.module.modules.player.*;
 import com.dew.system.module.modules.render.*;
 import com.dew.utils.LogUtil;
+
 import java.util.Arrays;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -34,7 +35,7 @@ public class ModuleManager implements EventListener {
                 new Ambience(), new NoJumpDelay(), new SafetySwitchv2000(), new AntiExploit(),
                 new FastPlace(), new BridgeAssist(), new Clicker(), new FakeLag(),
                 new SilentAimAssist(), new Freecam(), new Trajectories(), new PacketBlaster(),
-                new ColorBlindnessAssistant(), new Scaffold2()
+                new ColorBlindnessAssistant(), new Scaffold2(), new CivBreak()
         ));
 
         DewCommon.eventManager.register(this);

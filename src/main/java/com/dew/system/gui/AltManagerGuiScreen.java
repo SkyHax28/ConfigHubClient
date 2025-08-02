@@ -13,13 +13,12 @@ import java.io.IOException;
 import java.util.List;
 
 public class AltManagerGuiScreen extends GuiScreen {
-    private Alt selectedAlt;
-    private int selectedAltIndex = -1;
-
-    private int scrollOffset = 0;
     private final int entryHeight = 20;
     private final int listTop = 55;
     private final int listBottomPadding = 100;
+    private Alt selectedAlt;
+    private int selectedAltIndex = -1;
+    private int scrollOffset = 0;
 
     @Override
     public void initGui() {

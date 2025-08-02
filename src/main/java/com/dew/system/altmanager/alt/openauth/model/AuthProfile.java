@@ -3,20 +3,20 @@ package com.dew.system.altmanager.alt.openauth.model;
 /**
  * JSON model of a profile
  *
- * @version 1.0.4
  * @author Litarvan
+ * @version 1.0.4
  */
 public class AuthProfile {
 
     /**
      * The profile name
      */
-    private String name;
+    private final String name;
 
     /**
      * The profile UUID
      */
-    private String id;
+    private final String id;
 
     /**
      * Blank auth profile
@@ -29,10 +29,8 @@ public class AuthProfile {
     /**
      * Normal auth profile
      *
-     * @param name
-     *            The profile name
-     * @param id
-     *            The profile UUID
+     * @param name The profile name
+     * @param id   The profile UUID
      */
     public AuthProfile(String name, String id) {
         this.name = name;

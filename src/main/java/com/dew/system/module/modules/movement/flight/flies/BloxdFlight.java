@@ -5,17 +5,15 @@ import com.dew.system.event.events.ReceivedPacketEvent;
 import com.dew.system.event.events.SendPacketEvent;
 import com.dew.system.module.modules.movement.flight.FlightMode;
 import com.dew.utils.BlinkUtil;
-import com.dew.utils.LogUtil;
 import net.minecraft.network.Packet;
-import net.minecraft.network.play.server.S08PacketPlayerPosLook;
 
 public class BloxdFlight implements FlightMode {
+    private int boostSpeed = 0;
+
     @Override
     public String getName() {
         return "Bloxd";
     }
-
-    private int boostSpeed = 0;
 
     @Override
     public void onEnable() {
@@ -30,7 +28,8 @@ public class BloxdFlight implements FlightMode {
 
     @Override
     public void onPreUpdate(PreUpdateEvent event) {
-        if (mc.thePlayer == null) return;
+        if (mc.thePlayer == null) {
+        }
 
 
     }

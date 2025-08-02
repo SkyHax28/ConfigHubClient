@@ -5,21 +5,20 @@ import com.dew.system.altmanager.alt.openauth.model.AuthError;
 /**
  * Authentication exceptions
  *
- * @version 1.0.4
  * @author Litarvan
+ * @version 1.0.4
  */
 public class AuthenticationException extends Exception {
 
     /**
      * The given JSON model instance of the error
      */
-    private AuthError model;
+    private final AuthError model;
 
     /**
      * Create a new Authentication Exception
      *
-     * @param model
-     *            The given JSON model instance of the error
+     * @param model The given JSON model instance of the error
      */
     public AuthenticationException(AuthError model) {
         super(model.getErrorMessage());

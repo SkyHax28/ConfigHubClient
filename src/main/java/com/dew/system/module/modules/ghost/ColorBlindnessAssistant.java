@@ -1,17 +1,14 @@
 package com.dew.system.module.modules.ghost;
 
-import com.dew.system.event.events.*;
+import com.dew.system.event.events.PreUpdateEvent;
+import com.dew.system.event.events.Render3DEvent;
+import com.dew.system.event.events.WorldLoadEvent;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
-import com.dew.utils.LogUtil;
 import com.dew.utils.RenderUtil;
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
-import net.minecraft.block.BlockHardenedClay;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.Packet;
-import net.minecraft.network.play.server.*;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
 import org.lwjgl.input.Keyboard;
@@ -22,12 +19,11 @@ import java.util.List;
 
 public class ColorBlindnessAssistant extends Module {
 
+    private final List<BlockPos> renderBlocks = new ArrayList<>();
+    private int targetColorMeta = -1;
     public ColorBlindnessAssistant() {
         super("Color Blindness Assistant", ModuleCategory.GHOST, Keyboard.KEY_NONE, false, true, true);
     }
-
-    private final List<BlockPos> renderBlocks = new ArrayList<>();
-    private int targetColorMeta = -1;
 
     @Override
     public void onDisable() {
@@ -98,7 +94,7 @@ public class ColorBlindnessAssistant extends Module {
             double z = pos.getZ() - mc.getRenderManager().viewerPosZ;
 
             AxisAlignedBB box = new AxisAlignedBB(x, y, z, x + 1, y + 1, z + 1);
-            RenderUtil.drawFilledBox(box, 0f, 0f, 0f, 255f / 255f);
+            RenderUtil.drawFilledBox(box, 0f, 0f, 0f, 1.0f);
         }
 
         GlStateManager.enableCull();

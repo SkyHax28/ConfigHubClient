@@ -11,12 +11,11 @@ import java.awt.image.DataBufferInt;
 import java.nio.ByteBuffer;
 
 public class CustomFontRenderer {
+    private static final int TEX_WIDTH = 512;
+    private static final int TEX_HEIGHT = 512;
     private final Font font;
     private final CharData[] charData = new CharData[256];
     private int texId;
-
-    private static final int TEX_WIDTH = 512;
-    private static final int TEX_HEIGHT = 512;
 
     public CustomFontRenderer(Font font) {
         this.font = font;
@@ -160,7 +159,7 @@ public class CustomFontRenderer {
         int shadowColor = (color & 0xFF000000);
         float shadowAlpha = ((color >> 24) & 0xFF) / 255f * 0.5f;
 
-        drawString(text, x + 1, y + 1, (shadowColor & 0x00FFFFFF) | ((int)(shadowAlpha * 255) << 24), size);
+        drawString(text, x + 1, y + 1, (shadowColor & 0x00FFFFFF) | ((int) (shadowAlpha * 255) << 24), size);
         drawString(text, x, y, color, size);
     }
 

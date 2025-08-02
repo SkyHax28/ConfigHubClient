@@ -1,15 +1,11 @@
 package com.dew.system.gui;
 
 import com.dew.DewCommon;
-import com.dew.IMinecraft;
 import com.dew.system.module.ModuleCategory;
 import com.dew.utils.Lerper;
-import com.dew.utils.LogUtil;
 import net.minecraft.client.gui.GuiScreen;
-import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 

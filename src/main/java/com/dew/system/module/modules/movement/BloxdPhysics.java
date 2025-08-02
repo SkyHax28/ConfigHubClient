@@ -1,45 +1,35 @@
 package com.dew.system.module.modules.movement;
 
-import com.dew.DewCommon;
-import com.dew.system.event.events.PreUpdateEvent;
 import com.dew.system.event.events.ReceivedPacketEvent;
 import com.dew.system.event.events.StrafeEvent;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
-import com.dew.system.module.modules.movement.flight.FlightModule;
-import com.dew.system.module.modules.movement.speed.SpeedModule;
 import com.dew.utils.LogUtil;
 import com.dew.utils.MovementUtil;
-import com.dew.utils.PacketUtil;
 import com.dew.utils.TimerUtil;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.network.Packet;
-import net.minecraft.network.play.client.C0CPacketInput;
-import org.lwjgl.input.Keyboard;
 import net.minecraft.network.play.server.S12PacketEntityVelocity;
 import net.minecraft.network.play.server.S3FPacketCustomPayload;
-import io.netty.buffer.ByteBuf;
+import org.lwjgl.input.Keyboard;
 
 public class BloxdPhysics extends Module {
 
-    public BloxdPhysics() {
-        super("Bloxd Physics", ModuleCategory.MOVEMENT, Keyboard.KEY_NONE, false, true, true);
-    }
-
+    public static boolean canSpider = false;
     private final double DELTA = 1.0 / 30.0;
     private final double GRAVITY_Y = -10.0;
     private final double JUMP_MOTION = 0.41999998688697815;
-
-    private int groundTicks = 0;
-    private int bhopJumps = 0;
-    private long knockbackEndTime = 0;
-
-    public static boolean canSpider = false;
-    private boolean wasClimbing = false;
-
     private final Vector3 impulseVector = new Vector3(0, 0, 0);
     private final Vector3 forceVector = new Vector3(0, 0, 0);
     private final Vector3 velocityVector = new Vector3(0, 0, 0);
     private final Vector3 gravityVector = new Vector3(0, GRAVITY_Y, 0);
+    private int groundTicks = 0;
+    private int bhopJumps = 0;
+    private long knockbackEndTime = 0;
+    private boolean wasClimbing = false;
+    public BloxdPhysics() {
+        super("Bloxd Physics", ModuleCategory.MOVEMENT, Keyboard.KEY_NONE, false, true, true);
+    }
 
     @Override
     public void onDisable() {

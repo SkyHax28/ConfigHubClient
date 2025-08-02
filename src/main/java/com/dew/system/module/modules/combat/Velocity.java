@@ -3,7 +3,6 @@ package com.dew.system.module.modules.combat;
 import com.dew.DewCommon;
 import com.dew.system.event.events.PreUpdateEvent;
 import com.dew.system.event.events.ReceivedPacketEvent;
-import com.dew.system.event.events.WorldEvent;
 import com.dew.system.event.events.WorldLoadEvent;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
@@ -16,16 +15,14 @@ import org.lwjgl.input.Keyboard;
 
 public class Velocity extends Module {
 
+    private static final SelectionValue mode = new SelectionValue("Mode", "Normal", "Normal", "Hypixel", "Prediction", "Jump");
+    private static final NumberValue horizontal = new NumberValue("Horizontal", 0.0, -1.0, 1.0, 0.05, () -> mode.get().equals("Normal"));
+    private static final NumberValue vertical = new NumberValue("Vertical", 0.0, -1.0, 1.0, 0.05, () -> mode.get().equals("Normal"));
+    private int hypTick = 0;
+
     public Velocity() {
         super("Velocity", ModuleCategory.COMBAT, Keyboard.KEY_NONE, false, true, true);
     }
-
-    private static final SelectionValue mode = new SelectionValue("Mode", "Normal", "Normal", "Hypixel", "Prediction", "Jump");
-
-    private static final NumberValue horizontal = new NumberValue("Horizontal", 0.0, -1.0, 1.0, 0.05, () -> mode.get().equals("Normal"));
-    private static final NumberValue vertical = new NumberValue("Vertical", 0.0, -1.0, 1.0, 0.05, () -> mode.get().equals("Normal"));
-
-    private int hypTick = 0;
 
     @Override
     public String tag() {

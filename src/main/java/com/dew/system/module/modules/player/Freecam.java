@@ -18,15 +18,14 @@ import java.util.UUID;
 
 public class Freecam extends Module {
 
-    public Freecam() {
-        super("Freecam", ModuleCategory.PLAYER, Keyboard.KEY_F8, false, true, true);
-    }
-
     private final Map<Integer, Vec3> movementKeys = new HashMap<>();
     private EntityOtherPlayerMP freeCamEntity = null;
     private double camX, camY, camZ;
     private long lastRenderTime = System.nanoTime();
     private boolean loadable = false;
+    public Freecam() {
+        super("Freecam", ModuleCategory.PLAYER, Keyboard.KEY_F8, false, true, true);
+    }
 
     @Override
     public void onEnable() {

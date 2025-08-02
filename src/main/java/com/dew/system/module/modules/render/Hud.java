@@ -34,15 +34,44 @@ import java.util.stream.Collectors;
 
 public class Hud extends Module {
 
+    private static final MultiSelectionValue features = new MultiSelectionValue("Features", Arrays.asList("Watermark", "Module List", "Armor Hud", "Potion Hud", "Target Hud", "Hotbar"), "Watermark", "Module List", "Armor Hud", "Potion Hud", "Target Hud", "Hotbar");
+    private static final BooleanValue disableAchievementsNotification = new BooleanValue("Disable Achievements Notification", true);
+    private final Map<Module, Float> animationProgress = new HashMap<>();
+    private long lastRenderTime = System.nanoTime();
     public Hud() {
         super("Hud", ModuleCategory.RENDER, Keyboard.KEY_NONE, true, false, true);
     }
 
-    private static final MultiSelectionValue features = new MultiSelectionValue("Features", Arrays.asList("Watermark", "Module List", "Armor Hud", "Potion Hud", "Target Hud", "Hotbar"), "Watermark", "Module List", "Armor Hud", "Potion Hud", "Target Hud", "Hotbar");
-    private static final BooleanValue disableAchievementsNotification = new BooleanValue("Disable Achievements Notification", true);
+    private static void drawBlurredBackground(double x, double y, double width, double height, int passes, int color) {
+        GlStateManager.pushMatrix();
+        GlStateManager.enableBlend();
+        GlStateManager.disableTexture2D();
+        GlStateManager.tryBlendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
 
-    private final Map<Module, Float> animationProgress = new HashMap<>();
-    private long lastRenderTime = System.nanoTime();
+        for (int i = 0; i < passes; i++) {
+            double offset = i * 0.5;
+            drawRect(x - offset, y - offset, x + width + offset, y + height + offset, color);
+        }
+
+        GlStateManager.enableTexture2D();
+        GlStateManager.disableBlend();
+        GlStateManager.popMatrix();
+    }
+
+    private static void drawRect(double left, double top, double right, double bottom, int color) {
+        float alpha = (color >> 24 & 255) / 255.0F;
+        float red = (color >> 16 & 255) / 255.0F;
+        float green = (color >> 8 & 255) / 255.0F;
+        float blue = (color & 255) / 255.0F;
+
+        GlStateManager.color(red, green, blue, alpha);
+        GL11.glBegin(GL11.GL_QUADS);
+        GL11.glVertex2d(left, top);
+        GL11.glVertex2d(left, bottom);
+        GL11.glVertex2d(right, bottom);
+        GL11.glVertex2d(right, top);
+        GL11.glEnd();
+    }
 
     public boolean disableAchievementsUI() {
         return disableAchievementsNotification.get();
@@ -161,10 +190,10 @@ public class Hud extends Module {
                 float maxHealth = target.getMaxHealth();
                 float healthRatio = health / maxHealth;
                 healthRatio = Math.max(0.0f, Math.min(1.0f, healthRatio));
-                int healthBarWidth = (int)(healthRatio * (width - 50));
+                int healthBarWidth = (int) (healthRatio * (width - 50));
                 Color healthColor = new Color(
-                        (int)(255 * Math.min(1.0f, (1.0f - healthRatio) * 2)),
-                        (int)(255 * Math.min(1.0f, healthRatio * 2)),
+                        (int) (255 * Math.min(1.0f, (1.0f - healthRatio) * 2)),
+                        (int) (255 * Math.min(1.0f, healthRatio * 2)),
                         0
                 );
 
@@ -250,7 +279,7 @@ public class Hud extends Module {
                 int alpha = Math.max(0, Math.min(255, (int) (255 * interpolated)));
                 Color bgColor = new Color(10, 10, 10, Math.max(0, Math.min(255, (int) (170 * interpolated))));
 
-                int softAlpha = (int)(alpha * 0.22);
+                int softAlpha = (int) (alpha * 0.22);
                 softAlpha = Math.min(softAlpha, 100);
 
                 drawBlurredBackground(
@@ -295,52 +324,21 @@ public class Hud extends Module {
         return total;
     }
 
-    private static void drawBlurredBackground(double x, double y, double width, double height, int passes, int color) {
-        GlStateManager.pushMatrix();
-        GlStateManager.enableBlend();
-        GlStateManager.disableTexture2D();
-        GlStateManager.tryBlendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
-
-        for (int i = 0; i < passes; i++) {
-            double offset = i * 0.5;
-            drawRect(x - offset, y - offset, x + width + offset, y + height + offset, color);
-        }
-
-        GlStateManager.enableTexture2D();
-        GlStateManager.disableBlend();
-        GlStateManager.popMatrix();
-    }
-
-    private static void drawRect(double left, double top, double right, double bottom, int color) {
-        float alpha = (color >> 24 & 255) / 255.0F;
-        float red = (color >> 16 & 255) / 255.0F;
-        float green = (color >> 8 & 255) / 255.0F;
-        float blue = (color & 255) / 255.0F;
-
-        GlStateManager.color(red, green, blue, alpha);
-        GL11.glBegin(GL11.GL_QUADS);
-        GL11.glVertex2d(left, top);
-        GL11.glVertex2d(left, bottom);
-        GL11.glVertex2d(right, bottom);
-        GL11.glVertex2d(right, top);
-        GL11.glEnd();
-    }
-
     private Color getSmoothPurpleGradient(float progress) {
         progress = progress % 1.0f;
         float segment = progress * 3;
 
         if (segment < 1) {
-            int red = (int)(255 - 127 * segment);
+            int red = (int) (255 - 127 * segment);
             return new Color(red, 0, 255);
         } else if (segment < 2) {
             float t = segment - 1;
-            int green = (int)(64 * t);
+            int green = (int) (64 * t);
             return new Color(128, green, 255);
         } else {
             float t = segment - 2;
-            int red = (int)(128 + 127 * t);
-            int green = (int)(64 * (1 - t));
+            int red = (int) (128 + 127 * t);
+            int green = (int) (64 * (1 - t));
             return new Color(red, green, 255);
         }
     }

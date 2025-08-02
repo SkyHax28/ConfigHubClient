@@ -1,30 +1,25 @@
 package com.dew.system.module.modules.combat;
 
-import com.dew.system.event.events.PreMotionEvent;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
 import com.dew.system.settingsvalue.BooleanValue;
 import com.dew.system.settingsvalue.NumberValue;
-import com.dew.utils.LogUtil;
-import com.dew.utils.PacketUtil;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.*;
-import net.minecraft.network.play.client.C03PacketPlayer;
-import net.minecraft.util.IChatComponent;
+import net.minecraft.item.ItemArmor;
+import net.minecraft.item.ItemStack;
 import org.lwjgl.input.Keyboard;
 
 public class Teams extends Module {
-
-    public Teams() {
-        super("Teams", ModuleCategory.COMBAT, Keyboard.KEY_NONE, false, true, true);
-    }
 
     private static final BooleanValue scoreboard = new BooleanValue("Scoreboard", true);
     private static final BooleanValue color = new BooleanValue("Color", false);
     private static final BooleanValue nameColor = new BooleanValue("Name Color", false);
     private static final BooleanValue armorColor = new BooleanValue("Armor Color", false);
     private static final NumberValue armorIndex = new NumberValue("Armor Index", 3.0, 0.0, 3.0, 1.0, armorColor::get);
+    public Teams() {
+        super("Teams", ModuleCategory.COMBAT, Keyboard.KEY_NONE, false, true, true);
+    }
 
     public boolean isInYourTeam(EntityLivingBase entity) {
         if (mc.thePlayer == null || !this.isEnabled()) return false;

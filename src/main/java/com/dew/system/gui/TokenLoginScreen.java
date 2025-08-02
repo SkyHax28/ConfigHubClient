@@ -1,14 +1,19 @@
 package com.dew.system.gui;
 
 import com.dew.utils.alt.APIUtils;
-import net.minecraft.client.gui.*;
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.util.Session;
 import org.lwjgl.input.Keyboard;
+
 import java.io.IOException;
+
 public class TokenLoginScreen extends GuiScreen {
+    public GuiScreen previousScreen;
     private GuiTextField tokenField;
     private String status = "Not logged in";
-    public GuiScreen previousScreen;
+
     @Override
     public void initGui() {
         Keyboard.enableRepeatEvents(true);
@@ -21,6 +26,7 @@ public class TokenLoginScreen extends GuiScreen {
 
         this.buttonList.add(new GuiButton(1, centerX - 50, this.height / 2 + 20, 100, 20, "Login"));
     }
+
     @Override
     protected void actionPerformed(GuiButton button) throws IOException {
         if (button.id == 1) {
@@ -42,6 +48,7 @@ public class TokenLoginScreen extends GuiScreen {
             }
         }
     }
+
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         this.drawDefaultBackground();
@@ -53,6 +60,7 @@ public class TokenLoginScreen extends GuiScreen {
         this.tokenField.drawTextBox();
         super.drawScreen(mouseX, mouseY, partialTicks);
     }
+
     @Override
     protected void keyTyped(char typedChar, int keyCode) throws IOException {
         if (keyCode == Keyboard.KEY_ESCAPE) {
@@ -62,11 +70,13 @@ public class TokenLoginScreen extends GuiScreen {
         this.tokenField.textboxKeyTyped(typedChar, keyCode);
         super.keyTyped(typedChar, keyCode);
     }
+
     @Override
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
         this.tokenField.mouseClicked(mouseX, mouseY, mouseButton);
         super.mouseClicked(mouseX, mouseY, mouseButton);
     }
+
     @Override
     public void onGuiClosed() {
         Keyboard.enableRepeatEvents(false);

@@ -70,7 +70,7 @@ public class MainPathFinder {
     }
 
     public ArrayList<Vec3> computePath(Vec3 topFrom, final Vec3 to) {
-        long startTime = System.nanoTime(); // 処理開始時間を記録
+        long startTime = System.nanoTime();
 
         if (!canPassThrough(new BlockPos(topFrom.mc()))) {
             topFrom = topFrom.addVector(0.0, 1.0, 0.0);
@@ -86,8 +86,6 @@ public class MainPathFinder {
         final ArrayList<Vec3> pathFinderPath = pathfinder.getPath();
 
         for (final Vec3 pathElm : pathFinderPath) {
-
-            // 処理時間監視：100ミリ秒(100_000_000ns)以上かかったらnull返却
             if (System.nanoTime() - startTime > 100_000_000L) {
                 return null;
             }
@@ -123,7 +121,6 @@ public class MainPathFinder {
                                 }
                                 z++;
 
-                                // 処理時間監視（内側ループもカバー）
                                 if (System.nanoTime() - startTime > 100_000_000L) {
                                     return null;
                                 }

@@ -18,10 +18,12 @@ import java.util.Map;
 
 public class FlightModule extends Module {
 
+    public static final SelectionValue mode = new SelectionValue("Mode", "Vanilla", "Vanilla", "Hypixel Prediction", "Bloxd", "Test");
+    public static final NumberValue horizontalSpeed = new NumberValue("Horizontal Speed", 3, 0.1, 10.0, 0.1, () -> mode.get().equals("Vanilla"));
+    public static final NumberValue verticalSpeed = new NumberValue("Vertical Speed", 2, 0.1, 10.0, 0.1, () -> mode.get().equals("Vanilla"));
     private final Map<String, FlightMode> modes = new HashMap<>();
     private FlightMode currentMode = null;
     private String lastModeName = null;
-
     public FlightModule() {
         super("Flight", ModuleCategory.MOVEMENT, Keyboard.KEY_NONE, false, true, true);
 
@@ -30,10 +32,6 @@ public class FlightModule extends Module {
         modes.put("Bloxd", new BloxdFlight());
         modes.put("Test", new TestFlight());
     }
-
-    public static final SelectionValue mode = new SelectionValue("Mode", "Vanilla", "Vanilla", "Hypixel Prediction", "Bloxd", "Test");
-    public static final NumberValue horizontalSpeed = new NumberValue("Horizontal Speed", 3, 0.1, 10.0, 0.1, () -> mode.get().equals("Vanilla"));
-    public static final NumberValue verticalSpeed = new NumberValue("Vertical Speed", 2, 0.1, 10.0, 0.1, () -> mode.get().equals("Vanilla"));
 
     @Override
     public String tag() {

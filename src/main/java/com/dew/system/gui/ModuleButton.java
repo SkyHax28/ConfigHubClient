@@ -60,16 +60,6 @@ public class ModuleButton {
         throw new IllegalArgumentException("Unknown Value type: " + v.getClass());
     }
 
-    private static class ValueComponentHolder {
-        final Value<?> value;
-        final ValueComponent component;
-
-        ValueComponentHolder(Value<?> value, ValueComponent component) {
-            this.value = value;
-            this.component = component;
-        }
-    }
-
     public void draw(int x, int y, int width, int mouseX, int mouseY) {
         updateVisibleComponents();
 
@@ -96,16 +86,16 @@ public class ModuleButton {
         if (module.isEnabled()) {
             glowProgress += 0.02f;
 
-            float phase = (float)Math.sin(glowProgress);
+            float phase = (float) Math.sin(glowProgress);
             int barHeight = 2;
 
             for (int i = 0; i < width; i++) {
-                float fade = (float)(Math.sin((i / (float)width + glowProgress) * Math.PI * 2) * 0.5 + 0.5);
-                int alpha = (int)(fade * 50);
+                float fade = (float) (Math.sin((i / (float) width + glowProgress) * Math.PI * 2) * 0.5 + 0.5);
+                int alpha = (int) (fade * 50);
 
                 Color c = new Color(255, 200, 150, alpha);
 
-                Gui.drawRect(x + i, y + (int)(16 + phase * 1.5f), x + i + 1, y + (int)(16 + phase * 1.5f) + barHeight, c.getRGB());
+                Gui.drawRect(x + i, y + (int) (16 + phase * 1.5f), x + i + 1, y + (int) (16 + phase * 1.5f) + barHeight, c.getRGB());
             }
         } else {
             glowProgress = 0f;
@@ -187,6 +177,16 @@ public class ModuleButton {
             int alpha = (int) (color.getAlpha() * (1f - (i / 6f)));
             Color blurred = new Color(color.getRed(), color.getGreen(), color.getBlue(), alpha);
             Gui.drawRect(left - i, top - i, right + i, bottom + i, blurred.getRGB());
+        }
+    }
+
+    private static class ValueComponentHolder {
+        final Value<?> value;
+        final ValueComponent component;
+
+        ValueComponentHolder(Value<?> value, ValueComponent component) {
+            this.value = value;
+            this.component = component;
         }
     }
 }

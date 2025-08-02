@@ -1,14 +1,18 @@
 package com.dew.system.config;
 
 import com.dew.DewCommon;
-import com.dew.IMinecraft;
 import com.dew.system.module.Module;
 import com.dew.system.settingsvalue.*;
 
 import java.awt.*;
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
+import java.util.Queue;
 
 public class ModuleConfigManager {
     private final File configFolder;

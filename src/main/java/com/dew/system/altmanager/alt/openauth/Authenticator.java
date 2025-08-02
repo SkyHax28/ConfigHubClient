@@ -1,14 +1,5 @@
 package com.dew.system.altmanager.alt.openauth;
 
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-
 import com.dew.system.altmanager.alt.openauth.model.AuthAgent;
 import com.dew.system.altmanager.alt.openauth.model.AuthError;
 import com.dew.system.altmanager.alt.openauth.model.request.*;
@@ -16,15 +7,20 @@ import com.dew.system.altmanager.alt.openauth.model.response.AuthResponse;
 import com.dew.system.altmanager.alt.openauth.model.response.RefreshResponse;
 import com.google.gson.Gson;
 
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+
 /**
  * The Authenticator
  *
  * <p>
- *     The main class of the lib, use it to authenticate a user !
+ * The main class of the lib, use it to authenticate a user !
  * </p>
  *
- * @version 1.0.4
  * @author Litarvan
+ * @version 1.0.4
  */
 public class Authenticator {
 
@@ -36,21 +32,18 @@ public class Authenticator {
     /**
      * The auth server URL
      */
-    private String authURL;
+    private final String authURL;
 
     /**
      * The server auth points
      */
-    private AuthPoints authPoints;
+    private final AuthPoints authPoints;
 
     /**
      * Create an authenticator
      *
-     * @param authURL
-     *            The auth server URL
-     *
-     * @param authPoints
-     *            The URIs of the multiple requests
+     * @param authURL    The auth server URL
+     * @param authPoints The URIs of the multiple requests
      */
     public Authenticator(String authURL, AuthPoints authPoints) {
         this.authURL = authURL;
@@ -60,18 +53,12 @@ public class Authenticator {
     /**
      * Authenticates an user using his password.
      *
-     * @param agent
-     *            The auth agent (optional)
-     * @param username
-     *            User mojang account name
-     * @param password
-     *            User mojang account password
-     * @param clientToken
-     *            The client token (optional, like a key for the access token)
-     *
-     * @throws AuthenticationException If the server returned an error as a JSON
-     *
+     * @param agent       The auth agent (optional)
+     * @param username    User mojang account name
+     * @param password    User mojang account password
+     * @param clientToken The client token (optional, like a key for the access token)
      * @return The response sent by the server (parsed from a JSON)
+     * @throws AuthenticationException If the server returned an error as a JSON
      */
     public AuthResponse authenticate(AuthAgent agent, String username, String password, String clientToken) throws AuthenticationException {
         AuthRequest request = new AuthRequest(agent, username, password, clientToken);
@@ -82,14 +69,10 @@ public class Authenticator {
      * Refresh a valid access token. It can be uses to keep a user logged in between gaming sessions
      * and is preferred over storing the user's password in a file.
      *
-     * @param accessToken
-     *            The saved access token
-     * @param clientToken
-     *            The saved client token (need to be the same used when authenticated to get the acces token)
-     *
-     * @throws AuthenticationException If the server returned an error as a JSON
-     *
+     * @param accessToken The saved access token
+     * @param clientToken The saved client token (need to be the same used when authenticated to get the acces token)
      * @return The response sent by the server (parsed from a JSON)
+     * @throws AuthenticationException If the server returned an error as a JSON
      */
     public RefreshResponse refresh(String accessToken, String clientToken) throws AuthenticationException {
         RefreshRequest request = new RefreshRequest(accessToken, clientToken);
@@ -104,9 +87,7 @@ public class Authenticator {
      * NOT to auth that a particular session token is valid for authentication purposes.
      * To authenticate a user by session token, use the refresh verb and catch resulting errors.
      *
-     * @param accessToken
-     *            The access token to check
-     *
+     * @param accessToken The access token to check
      * @throws AuthenticationException If the server returned an error as a JSON
      */
     public void validate(String accessToken) throws AuthenticationException {
@@ -117,11 +98,8 @@ public class Authenticator {
     /**
      * Invalidates accessTokens using an account's username and password
      *
-     * @param username
-     *            User mojang account name
-     * @param password
-     *            User mojang account password
-     *
+     * @param username User mojang account name
+     * @param password User mojang account password
      * @throws AuthenticationException If the server returned an error as a JSON
      */
     public void signout(String username, String password) throws AuthenticationException {
@@ -132,11 +110,8 @@ public class Authenticator {
     /**
      * Invalidates accessTokens using a client/access token pair
      *
-     * @param accessToken
-     *            Valid access token to invalidate
-     * @param clientToken
-     *            Client token used when authenticated to get the access token
-     *
+     * @param accessToken Valid access token to invalidate
+     * @param clientToken Client token used when authenticated to get the access token
      * @throws AuthenticationException If the server returned an error as a JSON
      */
     public void invalidate(String accessToken, String clientToken) throws AuthenticationException {
@@ -147,18 +122,12 @@ public class Authenticator {
     /**
      * Send a request to the auth server
      *
-     * @param request
-     *            The auth request to send
-     * @param model
-     *            The model of the reponse
-     * @param authPoint
-     *            The auth point of the request
-     * @throws AuthenticationException
-     *            If it returned an error or the request failed
-     *
-     * @throws AuthenticationException If the server returned an error as a JSON
-     *
+     * @param request   The auth request to send
+     * @param model     The model of the reponse
+     * @param authPoint The auth point of the request
      * @return Instance of the given reponse model if it not null
+     * @throws AuthenticationException If it returned an error or the request failed
+     * @throws AuthenticationException If the server returned an error as a JSON
      */
     private Object sendRequest(Object request, Class<?> model, String authPoint) throws AuthenticationException {
         Gson gson = new Gson();
@@ -170,7 +139,7 @@ public class Authenticator {
             throw new AuthenticationException(new AuthError("Can't send the request : " + e.getClass().getName(), e.getMessage(), "Unknown"));
         }
 
-        if(model != null)
+        if (model != null)
             return gson.fromJson(response, model);
         else
             return null;
@@ -179,16 +148,11 @@ public class Authenticator {
     /**
      * Sends a post request of a json
      *
-     * @param url
-     *            The url to send the request
-     * @param json
-     *            The json to send
-     * @throws IOException
-     *            If it failed
-     *
-     * @throws AuthenticationException If the request returned an error JSON or not a JSON
-     *
+     * @param url  The url to send the request
+     * @param json The json to send
      * @return The request response
+     * @throws IOException             If it failed
+     * @throws AuthenticationException If the request returned an error JSON or not a JSON
      */
     private String sendPostRequest(String url, String json) throws AuthenticationException, IOException {
         byte[] jsonBytes = json.getBytes(StandardCharsets.UTF_8);
@@ -210,13 +174,13 @@ public class Authenticator {
 
         int responseCode = connection.getResponseCode();
 
-        if(responseCode == 204) {
+        if (responseCode == 204) {
             connection.disconnect();
             return null;
         }
 
         InputStream is;
-        if(responseCode == 200)
+        if (responseCode == 200)
             is = connection.getInputStream();
         else
             is = connection.getErrorStream();

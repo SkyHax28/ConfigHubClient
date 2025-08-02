@@ -2,7 +2,6 @@ package com.dew.system.module.modules.player;
 
 import com.dew.DewCommon;
 import com.dew.system.event.events.PreUpdateEvent;
-import com.dew.system.event.events.WorldEvent;
 import com.dew.system.event.events.WorldLoadEvent;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
@@ -23,19 +22,24 @@ import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import org.lwjgl.input.Keyboard;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
 
 public class Manager extends Module {
+
+    private static final NumberValue delay = new NumberValue("Delay", 4.0, 0.0, 10.0, 0.1);
+    private static final BooleanValue inventoryOnly = new BooleanValue("Inventory Only", false);
+    private static final List<Integer> POSITIVE_PRIORITY = Arrays.asList(
+            Potion.moveSpeed.id,
+            Potion.regeneration.id,
+            Potion.heal.id
+    );
+    private int tickDelayCounter = 0;
+    private boolean cleaning = false;
 
     public Manager() {
         super("Manager", ModuleCategory.PLAYER, Keyboard.KEY_NONE, false, true, true);
     }
-
-    private static final NumberValue delay = new NumberValue("Delay", 4.0, 0.0, 10.0, 0.1);
-    private static final BooleanValue inventoryOnly = new BooleanValue("Inventory Only", false);
-
-    private int tickDelayCounter = 0;
-    private boolean cleaning = false;
 
     public boolean isCleaning() {
         return this.cleaning;
@@ -166,12 +170,6 @@ public class Manager extends Module {
         addManageDelay();
         return true;
     }
-
-    private static final List<Integer> POSITIVE_PRIORITY = Arrays.asList(
-            Potion.moveSpeed.id,
-            Potion.regeneration.id,
-            Potion.heal.id
-    );
 
     private int getBestPotionSlot(boolean splashOnly) {
         int bestSlot = -1;

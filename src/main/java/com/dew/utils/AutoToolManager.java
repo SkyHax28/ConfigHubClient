@@ -2,21 +2,17 @@ package com.dew.utils;
 
 import com.dew.IMinecraft;
 import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
 import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.entity.EnumCreatureAttribute;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemSword;
 import net.minecraft.util.BlockPos;
 
 public class AutoToolManager {
+    private static final int RETURN_DELAY_TICKS = 8;
     private final Minecraft mc = IMinecraft.mc;
-
     public int originalSlot = -1;
     private int switchBackTicks = -1;
-
-    private static final int RETURN_DELAY_TICKS = 8;
 
     public void switchToBestSword() {
         if (mc.thePlayer == null) return;
@@ -49,7 +45,8 @@ public class AutoToolManager {
     }
 
     public void start(BlockPos pos) {
-        if (mc.thePlayer == null || mc.theWorld == null || pos == null || mc.thePlayer.capabilities.isCreativeMode) return;
+        if (mc.thePlayer == null || mc.theWorld == null || pos == null || mc.thePlayer.capabilities.isCreativeMode)
+            return;
 
         Block block = mc.theWorld.getBlockState(pos).getBlock();
         if (block.getMaterial().isReplaceable()) return;

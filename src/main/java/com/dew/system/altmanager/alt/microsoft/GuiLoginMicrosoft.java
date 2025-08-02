@@ -1,7 +1,10 @@
 package com.dew.system.altmanager.alt.microsoft;
 
 import com.dew.system.altmanager.alt.SessionChanger;
-import net.minecraft.client.gui.*;
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.GuiTextField;
+import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.resources.I18n;
 import org.lwjgl.input.Keyboard;
 
@@ -13,7 +16,7 @@ public class GuiLoginMicrosoft extends GuiScreen {
     @Override
     protected void actionPerformed(final GuiButton button) {
         if (button.id == 0) {
-            if(this.username.getText().equals("")) {
+            if (this.username.getText().equals("")) {
                 this.mc.displayGuiScreen(new GuiLoginMicrosoft());
             } else {
                 SessionChanger.getInstance().setUserMicrosoft(this.username.getText(), this.password.getText());
@@ -27,7 +30,7 @@ public class GuiLoginMicrosoft extends GuiScreen {
         final ScaledResolution sr = new ScaledResolution(this.mc);
         this.username.drawTextBox();
         this.password.drawTextBox();
-        drawCenteredString(this.mc.fontRendererObj, "Email & Password", (int)(this.width / 2), (int)(sr.getScaledHeight() / 2 - 65), -1);
+        drawCenteredString(this.mc.fontRendererObj, "Email & Password", this.width / 2, sr.getScaledHeight() / 2 - 65, -1);
         super.drawScreen(x2, y2, z2);
     }
 
@@ -35,7 +38,7 @@ public class GuiLoginMicrosoft extends GuiScreen {
     public void initGui() {
         final ScaledResolution sr = new ScaledResolution(this.mc);
         this.buttonList.clear();
-        this.buttonList.add(new GuiButton(0, this.width / 2 - 50 - 10, this.height / 2, 120, 20, I18n.format("Login Microsoft", new Object[0])));
+        this.buttonList.add(new GuiButton(0, this.width / 2 - 50 - 10, this.height / 2, 120, 20, I18n.format("Login Microsoft")));
         (this.username = new GuiTextField(100, this.fontRendererObj, this.width / 2 - 50 - 10, sr.getScaledHeight() / 2 - 50, 120, 20)).setFocused(true);
         (this.password = new GuiTextField(100, this.fontRendererObj, this.width / 2 - 50 - 10, sr.getScaledHeight() / 2 - 25, 120, 20)).setFocused(false);
         Keyboard.enableRepeatEvents(true);
@@ -46,8 +49,7 @@ public class GuiLoginMicrosoft extends GuiScreen {
     protected void keyTyped(final char character, final int key) {
         try {
             super.keyTyped(character, key);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
         if (character == '\t' && !this.username.isFocused()) {
@@ -69,8 +71,7 @@ public class GuiLoginMicrosoft extends GuiScreen {
     protected void mouseClicked(final int x2, final int y2, final int button) {
         try {
             super.mouseClicked(x2, y2, button);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
         this.username.mouseClicked(x2, y2, button);

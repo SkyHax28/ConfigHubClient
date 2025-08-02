@@ -12,10 +12,6 @@ import java.util.List;
 
 public class Xray extends Module {
 
-    public Xray() {
-        super("Xray", ModuleCategory.RENDER, Keyboard.KEY_F7, false, true, true);
-    }
-
     private final List<Block> XRAY_BLOCKS = new ArrayList<>(Arrays.asList(
             // 鉱石
             Blocks.coal_ore,
@@ -59,6 +55,10 @@ public class Xray extends Module {
             // その他
             Blocks.anvil
     ));
+
+    public Xray() {
+        super("Xray", ModuleCategory.RENDER, Keyboard.KEY_F7, false, true, true);
+    }
 
     public List<Block> getXrayBlocks() {
         return this.XRAY_BLOCKS;

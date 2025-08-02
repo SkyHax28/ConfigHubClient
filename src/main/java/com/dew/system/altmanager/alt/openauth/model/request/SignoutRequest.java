@@ -3,8 +3,8 @@ package com.dew.system.altmanager.alt.openauth.model.request;
 /**
  * JSON Model of an signout request
  *
- * @version 1.0.4
  * @author Litarvan
+ * @version 1.0.4
  */
 public class SignoutRequest {
 
@@ -21,24 +21,12 @@ public class SignoutRequest {
     /**
      * Signout Request constructor
      *
-     * @param username
-     *            The username of the player that you want to signout
-     * @param password
-     *            The password of the player that you want to signout
+     * @param username The username of the player that you want to signout
+     * @param password The password of the player that you want to signout
      */
     public SignoutRequest(String username, String password) {
         this.username = username;
         this.password = password;
-    }
-
-    /**
-     * Sets a new username (Of the player that you want to signout)
-     *
-     * @param username
-     *            The new username
-     */
-    public void setUsername(String username) {
-        this.username = username;
     }
 
     /**
@@ -51,13 +39,12 @@ public class SignoutRequest {
     }
 
     /**
-     * Sets a new password (Of the player that you want to signout)
+     * Sets a new username (Of the player that you want to signout)
      *
-     * @param password
-     *            The new password
+     * @param username The new username
      */
-    public void setPassword(String password) {
-        this.password = password;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     /**
@@ -67,6 +54,15 @@ public class SignoutRequest {
      */
     public String getPassword() {
         return password;
+    }
+
+    /**
+     * Sets a new password (Of the player that you want to signout)
+     *
+     * @param password The new password
+     */
+    public void setPassword(String password) {
+        this.password = password;
     }
 
 }

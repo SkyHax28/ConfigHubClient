@@ -1,5 +1,6 @@
 package com.dew.utils.alt;
 // Credits: https://github.com/schubilegend/SchubiAuthV2/blob/main/src/main/java/dev/schubilegend/Utils/APIUtils.java
+
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.minecraft.client.Minecraft;
@@ -11,6 +12,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
@@ -26,6 +28,7 @@ public class APIUtils {
         String UUID = jsonObject.get("id").getAsString();
         return new String[]{IGN, UUID};
     }
+
     public static Boolean validateSession(String token) throws IOException {
         try {
             String[] profileInfo = getProfileInfo(token);
@@ -36,8 +39,8 @@ public class APIUtils {
             return false;
         }
     }
-    public static Boolean checkOnline(String UUID)
-    {
+
+    public static Boolean checkOnline(String UUID) {
         try {
             CloseableHttpClient client = HttpClients.createDefault();
             HttpGet requests = new HttpGet("https://api.slothpixel.me/api/players/" + UUID);
@@ -50,14 +53,16 @@ public class APIUtils {
             return false;
         }
     }
-    public static int changeName(String newName,String token) throws IOException{
+
+    public static int changeName(String newName, String token) throws IOException {
         CloseableHttpClient client = HttpClients.createDefault();
         HttpPut request = new HttpPut("https://api.minecraftservices.com/minecraft/profile/name/" + newName);
         request.setHeader("Authorization", "Bearer " + token);
         CloseableHttpResponse response = client.execute(request);
         return response.getStatusLine().getStatusCode();
     }
-    public static int changeSkin(String url,String token) throws IOException{
+
+    public static int changeSkin(String url, String token) throws IOException {
         CloseableHttpClient client = HttpClients.createDefault();
         HttpPost request = new HttpPost("https://api.minecraftservices.com/minecraft/profile/skins");
         request.setHeader("Authorization", "Bearer " + token);

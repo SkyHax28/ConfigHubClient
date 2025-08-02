@@ -8,15 +8,17 @@ import com.dew.system.module.modules.exploit.Disabler;
 import com.dew.system.module.modules.movement.speed.SpeedMode;
 import com.dew.system.module.modules.movement.speed.SpeedModule;
 import com.dew.system.module.modules.player.Scaffold;
-import com.dew.utils.LogUtil;
 import com.dew.utils.MovementUtil;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S08PacketPlayerPosLook;
 import net.minecraft.potion.Potion;
-import org.lwjgl.input.Keyboard;
 
 public class HypixelSpeed implements SpeedMode {
+    private int preUpdateEventTicks = 0;
+    private int preMotionEventTicks = 0;
+    private boolean allowLow = false;
+
     @Override
     public String getName() {
         return "Hypixel";
@@ -31,10 +33,6 @@ public class HypixelSpeed implements SpeedMode {
         MovementUtil.mcJumpNoBoost = false;
         this.resetState();
     }
-
-    private int preUpdateEventTicks = 0;
-    private int preMotionEventTicks = 0;
-    private boolean allowLow = false;
 
     private void resetState() {
         preUpdateEventTicks = 0;

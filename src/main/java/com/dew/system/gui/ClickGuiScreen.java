@@ -21,16 +21,35 @@ import java.util.stream.Collectors;
 
 public class ClickGuiScreen extends GuiScreen {
     private final Minecraft mc = IMinecraft.mc;
-
-    private boolean resizing = false;
     private final int resizeHandleSize = 10;
     private final int minWidth = 400, minHeight = 120;
-
+    private final CustomFontRenderer fontRenderer = DewCommon.customFontRenderer;
+    private boolean resizing = false;
     private int dragOffsetX, dragOffsetY;
     private boolean dragging = false;
-    private final CustomFontRenderer fontRenderer = DewCommon.customFontRenderer;
-
     private long lastTime = System.nanoTime();
+
+    private static int getContentHeight(List<Module> modules) {
+        int contentHeight = 0;
+        for (Module module : modules) {
+            contentHeight += 14;
+            if (ClickGuiState.expandedModules.contains(module)) {
+                for (Value<?> value : module.getValues()) {
+                    if (!value.isVisible()) continue;
+                    if (value instanceof BooleanValue || value instanceof SelectionValue) {
+                        contentHeight += 12;
+                    } else if (value instanceof NumberValue) {
+                        contentHeight += 21;
+                    } else if (value instanceof MultiSelectionValue) {
+                        MultiSelectionValue listVal = (MultiSelectionValue) value;
+                        contentHeight += 12;
+                        if (listVal.isExpanded()) contentHeight += 12 * listVal.getOptions().size();
+                    }
+                }
+            }
+        }
+        return contentHeight;
+    }
 
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
@@ -155,7 +174,7 @@ public class ClickGuiScreen extends GuiScreen {
 
                         if (Mouse.isButtonDown(0) && !dragging && !resizing) {
                             if (mouseX >= sliderX && mouseX <= sliderX + sliderWidth && mouseY >= sliderY && mouseY <= sliderY + sliderHeight) {
-                                double clickPercent = (double)(mouseX - sliderX) / sliderWidth;
+                                double clickPercent = (double) (mouseX - sliderX) / sliderWidth;
                                 double rawValue = min + (max - min) * clickPercent;
 
                                 numVal.set(rawValue);
@@ -383,28 +402,6 @@ public class ClickGuiScreen extends GuiScreen {
             ClickGuiState.scroll -= Integer.signum(scroll) * SCROLL_STEP;
             ClickGuiState.scroll = Math.max(0, Math.min(ClickGuiState.scroll, maxScroll));
         }
-    }
-
-    private static int getContentHeight(List<Module> modules) {
-        int contentHeight = 0;
-        for (Module module : modules) {
-            contentHeight += 14;
-            if (ClickGuiState.expandedModules.contains(module)) {
-                for (Value<?> value : module.getValues()) {
-                    if (!value.isVisible()) continue;
-                    if (value instanceof BooleanValue || value instanceof SelectionValue) {
-                        contentHeight += 12;
-                    } else if (value instanceof NumberValue) {
-                        contentHeight += 21;
-                    } else if (value instanceof MultiSelectionValue) {
-                        MultiSelectionValue listVal = (MultiSelectionValue) value;
-                        contentHeight += 12;
-                        if (listVal.isExpanded()) contentHeight += 12 * listVal.getOptions().size();
-                    }
-                }
-            }
-        }
-        return contentHeight;
     }
 
     @Override
