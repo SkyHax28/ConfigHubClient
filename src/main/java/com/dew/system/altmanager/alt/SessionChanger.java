@@ -2,6 +2,7 @@ package com.dew.system.altmanager.alt;
 
 import java.util.UUID;
 
+import com.dew.IMinecraft;
 import com.dew.system.altmanager.alt.openauth.microsoft.MicrosoftAuthResult;
 import com.dew.system.altmanager.alt.openauth.microsoft.MicrosoftAuthenticationException;
 import com.dew.system.altmanager.alt.openauth.microsoft.MicrosoftAuthenticator;
@@ -45,8 +46,7 @@ public class SessionChanger {
 			this.auth.setPassword(password);
 			try {
 				this.auth.logIn();
-				Session session = new Session(this.auth.getSelectedProfile().getName(), UUIDTypeAdapter.fromUUID(auth.getSelectedProfile().getId()), this.auth.getAuthenticatedToken(), this.auth.getUserType().getName());
-				setSession(session);
+				IMinecraft.mc.session = new Session(this.auth.getSelectedProfile().getName(), UUIDTypeAdapter.fromUUID(auth.getSelectedProfile().getId()), this.auth.getAuthenticatedToken(), this.auth.getUserType().getName());
 			} 
 			catch (Exception e) {
 				e.printStackTrace();
@@ -67,18 +67,11 @@ public class SessionChanger {
 		}
 	}
 
-	//Sets the session.
-	//You need to make this public, and remove the final modifier on the session Object.
-	private void setSession(Session session) {
-		Minecraft.getMinecraft().session = session;
-	}
-
 	//Login offline mode
 	//Just like MCP does
 	public void setUserOffline(String username) {
 		this.auth.logOut();
-		Session session = new Session(username, username, "0", "legacy");
-		setSession(session);
+		IMinecraft.mc.session = new Session(username, username, "0", "legacy");
 	}
 
 }

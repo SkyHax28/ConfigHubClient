@@ -8,6 +8,7 @@ import com.dew.IMinecraft;
 import com.dew.system.altmanager.alt.SessionChanger;
 import com.dew.utils.RandomUtil;
 import com.dew.utils.ServerUtil;
+import com.dew.utils.VPNUtil;
 import de.florianmichael.vialoadingbase.ViaLoadingBase;
 import de.florianmichael.viamcp.gui.GuiProtocolSelector;
 import net.minecraft.client.resources.I18n;
@@ -41,6 +42,7 @@ public class GuiDisconnected extends GuiScreen
 
         this.buttonList.add(new GuiButton(1, this.width / 2 - 100, this.height / 2 + field_175353_i / 2 + this.fontRendererObj.FONT_HEIGHT + 22, 200, 20, "Reconnect to §7" + ServerUtil.serverData.serverIP));
         this.buttonList.add(new GuiButton(2, this.width / 2 - 100, this.height / 2 + field_175353_i / 2 + this.fontRendererObj.FONT_HEIGHT + 44, 200, 20, "Set Random Cracked"));
+        this.buttonList.add(new GuiButton(3, this.width / 2 - 100, this.height / 2 + field_175353_i / 2 + this.fontRendererObj.FONT_HEIGHT + 66, 200, 20, "Reconnect Mullvad"));
         this.buttonList.add(new GuiButton(69, 5, this.height - 28, 90, 20, "Protocol"));
     }
 
@@ -53,6 +55,8 @@ public class GuiDisconnected extends GuiScreen
             ServerUtil.connectToLastServer();
         } else if (button.id == 2) {
             SessionChanger.getInstance().setUserOffline(RandomUtil.randomString(RandomUtil.nextInt(5, 14)));
+        } else if (button.id == 3) {
+            VPNUtil.reconnectMullvad();
         } else if (button.id == 69) {
             this.mc.displayGuiScreen(new GuiProtocolSelector(this));
         }

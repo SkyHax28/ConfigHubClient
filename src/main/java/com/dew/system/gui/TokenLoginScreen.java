@@ -2,9 +2,9 @@ package com.dew.system.gui;
 
 import com.dew.utils.alt.APIUtils;
 import net.minecraft.client.gui.*;
+import net.minecraft.util.Session;
 import org.lwjgl.input.Keyboard;
 import java.io.IOException;
-import static com.dew.utils.alt.SessionChanger.setSession;
 public class TokenLoginScreen extends GuiScreen {
     private GuiTextField tokenField;
     private String status = "Not logged in";
@@ -27,10 +27,13 @@ public class TokenLoginScreen extends GuiScreen {
             String token = tokenField.getText().trim();
             if (!token.isEmpty()) {
                 try {
+                    if (token.contains("|")) {
+                        token = token.split("\\|")[0];
+                    }
                     String[] profile = APIUtils.getProfileInfo(token);
                     String username = profile[0];
                     String uuid = profile[1];
-                    setSession(username, uuid, token, "mojang");
+                    mc.session = new Session(username, uuid, token, "legacy");
                     status = "Logged in as: " + username;
                 } catch (Exception e) {
                     status = "Invalid token!";

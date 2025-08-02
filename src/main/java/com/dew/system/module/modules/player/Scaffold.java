@@ -227,7 +227,7 @@ public class Scaffold extends Module {
                 break;
 
             case "telly":
-                if (mc.thePlayer.isPotionActive(Potion.moveSpeed) && (DewCommon.rotationManager.isReturning() || !holdingBlock)) {
+                if ((mc.thePlayer.isPotionActive(Potion.moveSpeed) || mc.thePlayer.isPotionActive(Potion.jump)) && (DewCommon.rotationManager.isReturning() || !holdingBlock)) {
                     DewCommon.rotationManager.rotateToward((float) (MovementUtil.getDirection() - 180f), 83f, hypixelTellyBanFix.get() ? 60f : tellyPreRotationSpeed.get().floatValue());
                 }
                 break;
@@ -236,7 +236,7 @@ public class Scaffold extends Module {
                 break;
         }
 
-        if (noSprint.get() || mode.get().equals("Telly") && (Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) || !Keyboard.isKeyDown(mc.gameSettings.keyBindForward.getKeyCode()) || mc.thePlayer.isPotionActive(Potion.moveSpeed) || MovementUtil.isBlockAbovePlayer(mc.thePlayer, 1))) {
+        if (noSprint.get() || mode.get().equals("Telly") && (Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) || !Keyboard.isKeyDown(mc.gameSettings.keyBindForward.getKeyCode()) || mc.thePlayer.isPotionActive(Potion.moveSpeed) || mc.thePlayer.isPotionActive(Potion.jump) || MovementUtil.isBlockAbovePlayer(mc.thePlayer, 1))) {
             mc.thePlayer.setSprinting(false);
         }
 
@@ -360,7 +360,7 @@ public class Scaffold extends Module {
     }
 
     private void tellyFunction() {
-        if (mode.get().equals("Telly") && !mc.thePlayer.isPotionActive(Potion.moveSpeed) && !towered && !Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) && Keyboard.isKeyDown(mc.gameSettings.keyBindForward.getKeyCode()) && !MovementUtil.isBlockAbovePlayer(mc.thePlayer, 1)) {
+        if (mode.get().equals("Telly") && !mc.thePlayer.isPotionActive(Potion.moveSpeed) && !mc.thePlayer.isPotionActive(Potion.jump) && !towered && !Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) && Keyboard.isKeyDown(mc.gameSettings.keyBindForward.getKeyCode()) && !MovementUtil.isBlockAbovePlayer(mc.thePlayer, 1)) {
             if (jumpTicks <= 3) {
                 if (jumpTicks == 0 || jumpTicks == 1 || jumpTicks == 2) {
                     DewCommon.rotationManager.rotateToward((float) MovementUtil.getDirection(), 80f, 180f);
@@ -430,7 +430,7 @@ public class Scaffold extends Module {
     }
 
     private boolean isTelly() {
-        return mode.get().equals("Telly") && !mc.thePlayer.isPotionActive(Potion.moveSpeed) && !towered && !Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) && Keyboard.isKeyDown(mc.gameSettings.keyBindForward.getKeyCode()) && !MovementUtil.isBlockAbovePlayer(mc.thePlayer, 1) && jumpTicks <= 3;
+        return mode.get().equals("Telly") && !mc.thePlayer.isPotionActive(Potion.moveSpeed) && !mc.thePlayer.isPotionActive(Potion.jump) && !towered && !Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) && Keyboard.isKeyDown(mc.gameSettings.keyBindForward.getKeyCode()) && !MovementUtil.isBlockAbovePlayer(mc.thePlayer, 1) && jumpTicks <= 3;
     }
 
     private EnumFacing[] getFullPrioritizedFacings() {
@@ -477,7 +477,7 @@ public class Scaffold extends Module {
         if (!holdingBlock) return PlaceResult.FAIL_OTHER;
 
         String modeValue = mode.get();
-        float rotationSpeedVal = modeValue.equals("Telly") && (Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) || !Keyboard.isKeyDown(mc.gameSettings.keyBindForward.getKeyCode()) || mc.thePlayer.isPotionActive(Potion.moveSpeed) || MovementUtil.isBlockAbovePlayer(mc.thePlayer, 1)) && hypixelTellyBanFix.get() ? 60f : modeValue.equals("Telly") && (Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) || !Keyboard.isKeyDown(mc.gameSettings.keyBindForward.getKeyCode()) || mc.thePlayer.isPotionActive(Potion.moveSpeed) || MovementUtil.isBlockAbovePlayer(mc.thePlayer, 1)) ? tellyPreRotationSpeed.get().floatValue() : modeValue.equals("Telly") && hypixelTellyBanFix.get() ? 30f : rotationSpeed.get().floatValue();
+        float rotationSpeedVal = modeValue.equals("Telly") && (Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) || !Keyboard.isKeyDown(mc.gameSettings.keyBindForward.getKeyCode()) || mc.thePlayer.isPotionActive(Potion.moveSpeed) || mc.thePlayer.isPotionActive(Potion.jump) || MovementUtil.isBlockAbovePlayer(mc.thePlayer, 1)) && hypixelTellyBanFix.get() ? 60f : modeValue.equals("Telly") && (Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) || !Keyboard.isKeyDown(mc.gameSettings.keyBindForward.getKeyCode()) || mc.thePlayer.isPotionActive(Potion.moveSpeed) || mc.thePlayer.isPotionActive(Potion.jump) || MovementUtil.isBlockAbovePlayer(mc.thePlayer, 1)) ? tellyPreRotationSpeed.get().floatValue() : modeValue.equals("Telly") && hypixelTellyBanFix.get() ? 30f : rotationSpeed.get().floatValue();
 
         EnumFacing preferredFacing = facingFromRotation(
                 DewCommon.rotationManager.getClientYaw(),

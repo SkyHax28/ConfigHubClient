@@ -5,6 +5,7 @@ import com.dew.system.altmanager.alt.SessionChanger;
 import com.dew.system.gui.AltManagerGuiScreen;
 import com.dew.utils.RandomUtil;
 import com.dew.utils.ServerUtil;
+import com.dew.utils.VPNUtil;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import java.io.BufferedReader;
@@ -252,7 +253,8 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
 
         this.buttonList.add(this.accountManagerButton = new GuiButton(14, this.width / 2 - 100, p_73969_1_ + p_73969_2_ * 2, 98, 20, "Alt Manager"));
         this.buttonList.add(new GuiButton(69, this.width / 2 + 2, p_73969_1_ + p_73969_2_ * 2, 98, 20, "Protocol"));
-        this.buttonList.add(new GuiButton(80, this.width / 2 + 104, p_73969_1_ + p_73969_2_ * 2, 98, 20, "Random Crack"));
+        this.buttonList.add(new GuiButton(80, this.width / 2 + 104, p_73969_1_ + p_73969_2_, 98, 20, "Random Crack"));
+        this.buttonList.add(new GuiButton(90, this.width / 2 + 104, p_73969_1_ + p_73969_2_ * 2, 98, 20, "Reconnect Mullvad"));
 
         if (Reflector.GuiModList_Constructor.exists())
         {
@@ -337,6 +339,10 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
 
         if (button.id == 80) {
             SessionChanger.getInstance().setUserOffline(RandomUtil.randomString(RandomUtil.nextInt(5, 14)));
+        }
+
+        if (button.id == 90) {
+            VPNUtil.reconnectMullvad();
         }
     }
 
