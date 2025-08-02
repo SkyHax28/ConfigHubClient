@@ -16,7 +16,6 @@ import com.dew.utils.RenderUtil;
 import net.minecraft.block.*;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.client.C0APacketAnimation;
@@ -35,6 +34,7 @@ public class Scaffold extends Module {
 
     private static final SelectionValue mode = new SelectionValue("Mode", "Normal", "Normal", "Telly", "Hypixel");
     public static final BooleanValue hypixelTellyBanFix = new BooleanValue("Hypixel Telly Ban Fix", false, () -> mode.get().equals("Telly"));
+    private static final BooleanValue tellyDiagonalDegrees = new BooleanValue("Telly Diagonal Degrees", false, () -> mode.get().equals("Telly"));
     private static final SelectionValue towerMode = new SelectionValue("Tower Mode", "OFF", "OFF", "Vanilla", "Hypixel");
     private static final NumberValue clutchRange = new NumberValue("Clutch Range", 3.0, 1.0, 5.0, 1.0);
     private static final NumberValue rotationSpeed = new NumberValue("Rotation Speed", 60.0, 0.0, 180.0, 5.0, () -> mode.get().equals("Normal") || mode.get().equals("Telly") && !hypixelTellyBanFix.get());
@@ -124,10 +124,6 @@ public class Scaffold extends Module {
         if (originalSlot != -1) {
             event.itemToRender = mc.thePlayer.inventory.getStackInSlot(originalSlot);
         }
-    }
-
-    @Override
-    public void onTick(TickEvent event) {
     }
 
     @Override
@@ -363,7 +359,8 @@ public class Scaffold extends Module {
         if (mode.get().equals("Telly") && !mc.thePlayer.isPotionActive(Potion.moveSpeed) && !mc.thePlayer.isPotionActive(Potion.jump) && !towered && !Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) && Keyboard.isKeyDown(mc.gameSettings.keyBindForward.getKeyCode()) && !MovementUtil.isBlockAbovePlayer(mc.thePlayer, 1)) {
             if (jumpTicks <= 3) {
                 if (jumpTicks == 0 || jumpTicks == 1 || jumpTicks == 2) {
-                    DewCommon.rotationManager.rotateToward((float) MovementUtil.getDirection(), 80f, 180f);
+                    float yaw = tellyDiagonalDegrees.get() ? DewCommon.rotationManager.tellySwap((float) MovementUtil.getDirection()) : (float) MovementUtil.getDirection();
+                    DewCommon.rotationManager.rotateToward(yaw, 80f, 180f);
                 } else {
                     if (hypixelTellyBanFix.get()) {
                         DewCommon.rotationManager.faceBlockHypixelSafe(60f, false);

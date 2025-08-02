@@ -214,6 +214,26 @@ public class RotationManager {
         rotateToward(snapToHypYaw((float) MovementUtil.getDirection(), slowdown), 80f, rotationSpeed);
     }
 
+    public float tellySwap(float yaw) {
+        float snappedBase = Math.round(yaw / 45.0f) * 45.0f;
+
+        float lowerOffset;
+        float upperOffset;
+
+        if (Math.abs(snappedBase % 90.0f) < 0.001f) {
+            lowerOffset = 0f;
+            upperOffset = 0f;
+        } else {
+            lowerOffset = 45f;
+            upperOffset = 45f;
+        }
+
+        float lowerCandidate = snappedBase - lowerOffset;
+        float upperCandidate = snappedBase + upperOffset;
+
+        return Math.abs(yaw - lowerCandidate) <= Math.abs(upperCandidate - yaw) ? lowerCandidate : upperCandidate;
+    }
+
     private float snapToHypYaw(float yaw, boolean slowdown) {
         float snappedBase = Math.round(yaw / 45.0f) * 45.0f;
 
