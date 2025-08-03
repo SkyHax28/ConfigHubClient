@@ -33,8 +33,8 @@ import java.util.List;
 public class Breaker extends Module {
 
     private static final NumberValue range = new NumberValue("Range", 3.0, 1.0, 6.0, 1.0);
-    private static final BooleanValue breakOpposite = new BooleanValue("Break Opposite", false);
     private static final NumberValue rotationSpeed = new NumberValue("Rotation Speed", 60.0, 0.0, 180.0, 5.0);
+    private static final BooleanValue breakOpposite = new BooleanValue("Break Opposite", false);
     public boolean isBreaking = false;
     private BlockPos currentTarget = null;
     public Breaker() {

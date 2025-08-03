@@ -22,7 +22,7 @@ import org.lwjgl.input.Keyboard;
 
 public class AutoPot extends Module {
 
-    private static final NumberValue throwDelay = new NumberValue("Throw Delay", 15.0, 0.0, 20.0, 0.1);
+    private static final NumberValue throwDelay = new NumberValue("Throw Delay", 15.0, 0.0, 20.0, 1.0);
     private int tickDelayCounter = 0;
     private int stage = 0;
     private int prevSlot = -1;
@@ -134,7 +134,7 @@ public class AutoPot extends Module {
                 }
 
                 this.resetState();
-                tickDelayCounter = (int) Math.max(1, throwDelay.get());
+                tickDelayCounter = (int) Math.max(1, throwDelay.get().intValue());
                 break;
         }
     }

@@ -89,7 +89,7 @@ public class RotationManager {
     private float getSecureRandom() {
         byte[] randomBytes = new byte[4];
         randomGenerator.nextBytes(randomBytes);
-        return (float) (((randomBytes[0] & 0xFF) / 255.0) - 0.5);
+        return (float) ((randomBytes[0] & 0xFF) / 255.0);
     }
 
     public void resetRotationsInstantly() {
@@ -160,56 +160,26 @@ public class RotationManager {
         rotateToward(rotations[0], rotations[1], rotationSpeed);
     }
 
-    private float[] getStaticFacing(EnumFacing facing) {
-        if (mc.thePlayer == null) return new float[]{0f, 0f};
-
-        float yaw = mc.thePlayer.rotationYaw;
-        switch (facing) {
-            case UP:
-                return new float[]{yaw, -90f};
-            case DOWN:
-                return new float[]{yaw, 90f};
-            case NORTH:
-                return new float[]{180f, 0f};
-            case SOUTH:
-                return new float[]{0f, 0f};
-            case WEST:
-                return new float[]{90f, 0f};
-            case EAST:
-                return new float[]{-90f, 0f};
-            default:
-                return new float[]{yaw, mc.thePlayer.rotationPitch};
-        }
-    }
-
     public boolean faceBlockWithFacing(BlockPos pos, EnumFacing facing, float rotationSpeed) {
         Vec3 eyePos = mc.thePlayer.getPositionEyes(1.0f);
 
-        Vec3 faceCenter = new Vec3(
-                pos.getX() + 0.5 + 0.5 * facing.getFrontOffsetX(),
-                pos.getY() + 0.5 + 0.5 * facing.getFrontOffsetY(),
-                pos.getZ() + 0.5 + 0.5 * facing.getFrontOffsetZ()
+        Vec3 facePoint = new Vec3(
+                pos.getX() + 0.5 + facing.getFrontOffsetX() * 0.501,
+                pos.getY() + 0.5 + facing.getFrontOffsetY() * 0.501,
+                pos.getZ() + 0.5 + facing.getFrontOffsetZ() * 0.501
         );
 
-        double dx = faceCenter.xCoord - eyePos.xCoord;
-        double dy = faceCenter.yCoord - eyePos.yCoord;
-        double dz = faceCenter.zCoord - eyePos.zCoord;
+        double dx = facePoint.xCoord - eyePos.xCoord;
+        double dy = facePoint.yCoord - eyePos.yCoord;
+        double dz = facePoint.zCoord - eyePos.zCoord;
 
         double distXZ = Math.sqrt(dx * dx + dz * dz);
 
-        boolean useStaticRotation = distXZ < 0.001 || eyePos.distanceTo(faceCenter) > 10.0;
+        float targetYaw = (float) Math.toDegrees(Math.atan2(dz, dx)) - 90.0f;
+        float targetPitch = (float) -Math.toDegrees(Math.atan2(dy, distXZ));
 
-        float yaw = (float) Math.toDegrees(Math.atan2(dz, dx)) - 90.0f;
-        float pitch = (float) -Math.toDegrees(Math.atan2(dy, distXZ));
-
-        if (useStaticRotation) {
-            float[] rot = getStaticFacing(facing);
-            yaw = rot[0];
-            pitch = rot[1];
-        }
-
-        rotateToward(yaw, pitch, rotationSpeed);
-        return canHitBlockAtRotation(pos, getClientYaw(), getClientPitch());
+        rotateToward(targetYaw, targetPitch, rotationSpeed);
+        return canHitBlockAtRotation(pos, facing, getClientYaw(), getClientPitch());
     }
 
     public void faceBlockHypixelSafe(float rotationSpeed, boolean slowdown) {
@@ -295,7 +265,10 @@ public class RotationManager {
                 (targetBox.minZ + targetBox.maxZ) / 2.0
         );
 
-        if (eyePos.distanceTo(targetCenter) > reach) return false;
+        double distance = eyePos.distanceTo(targetCenter);
+        if (distance > reach) return false;
+
+        if (distance < 0.9 && mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.ENTITY) return true;
 
         MovingObjectPosition blockHit = mc.theWorld.rayTraceBlocks(eyePos, targetCenter, false, true, false);
         if (!throughWalls && blockHit != null && blockHit.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {
@@ -319,7 +292,7 @@ public class RotationManager {
         return hit != null;
     }
 
-    public boolean canHitBlockAtRotation(BlockPos targetPos, float yaw, float pitch) {
+    public boolean canHitBlockAtRotation(BlockPos targetPos, EnumFacing facing, float yaw, float pitch) {
         double reach = mc.playerController.getBlockReachDistance();
 
         Vec3 eyePos = mc.thePlayer.getPositionEyes(1.0f);
@@ -328,7 +301,7 @@ public class RotationManager {
 
         MovingObjectPosition hit = mc.theWorld.rayTraceBlocks(eyePos, reachVec, false, false, false);
 
-        return hit != null && hit.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK && hit.getBlockPos().equals(targetPos);
+        return hit != null && hit.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK && hit.getBlockPos().equals(targetPos) && hit.sideHit == facing;
     }
 
     private Vec3 getLookVecFromRotations(float yaw, float pitch) {

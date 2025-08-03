@@ -24,8 +24,8 @@ import org.lwjgl.opengl.GL11;
 public class CivBreak extends Module {
 
     private static final NumberValue range = new NumberValue("Range", 3.0, 0.1, 6.0, 0.1);
-    private static final NumberValue breakDelay = new NumberValue("Break Delay", 1.0, 1.0, 10.0, 1.0);
     private static final NumberValue rotationSpeed = new NumberValue("Rotation Speed", 60.0, 0.0, 180.0, 5.0);
+    private static final NumberValue breakDelay = new NumberValue("Break Delay", 1.0, 1.0, 10.0, 1.0);
     private BlockPos currentBlock = null;
 
     public CivBreak() {
