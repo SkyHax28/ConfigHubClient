@@ -2,6 +2,7 @@ package net.minecraft.client.network;
 
 import com.dew.DewCommon;
 import com.dew.system.module.modules.exploit.AntiExploit;
+import com.dew.utils.LogUtil;
 import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -1553,21 +1554,24 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient
                 return true;
             }
 
-            url = URLDecoder.decode(url.substring("level://".length()), StandardCharsets.UTF_8.toString());
+            if (isLevelProtocol) {
+                if (!url.toLowerCase().startsWith("level://") || url.length() <= "level://".length()) {
+                    return false;
+                }
 
-            if (isLevelProtocol && (url.contains("..") || !url.endsWith("/resources.zip"))) {
-                throw new URISyntaxException(url, "Invalid levelstorage resourcepack path");
+                String path = url.substring("level://".length());
+                path = URLDecoder.decode(path, StandardCharsets.UTF_8.name());
+
+                if (path.contains("..") || !path.endsWith("/resources.zip")) {
+                    throw new URISyntaxException(path, "Invalid levelstorage resourcepack path");
+                }
             }
 
             return true;
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            LogUtil.infoLog(e.getMessage());
             return false;
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
         }
-
-        return true;
     }
 
     public void handleResourcePack(S48PacketResourcePackSend packetIn)
