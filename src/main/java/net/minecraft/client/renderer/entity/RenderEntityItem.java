@@ -4,6 +4,7 @@ import java.util.*;
 
 import com.dew.DewCommon;
 import com.dew.system.module.modules.render.ItemPhysics;
+import com.dew.utils.RandomUtil;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.texture.TextureMap;
@@ -61,10 +62,11 @@ public class RenderEntityItem extends Render<EntityItem>
                 float deltaTimeSec = (currentTime - lastTime) / 1_000_000_000.0f;
                 lastUpdateTimeMap.put(entityId, currentTime);
 
-                float currentPitch = pitchRotationMap.getOrDefault(entityId, 0f);
+                float randomized = 720f * deltaTimeSec;
+                float currentPitch = pitchRotationMap.getOrDefault(entityId, RandomUtil.nextFloat() * 90f + randomized);
 
                 if (!onGround && !landedItems.contains(entityId)) {
-                    currentPitch += 720f * deltaTimeSec;
+                    currentPitch += randomized;
                     pitchRotationMap.put(entityId, currentPitch);
                 } else {
                     landedItems.add(entityId);

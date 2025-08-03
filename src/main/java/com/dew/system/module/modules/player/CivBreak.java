@@ -11,6 +11,7 @@ import com.dew.system.settingsvalue.NumberValue;
 import com.dew.utils.BlockUtil;
 import com.dew.utils.PacketUtil;
 import com.dew.utils.RenderUtil;
+import net.minecraft.block.BlockAir;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.C07PacketPlayerDigging;
@@ -66,7 +67,7 @@ public class CivBreak extends Module {
                 x, y, z,
                 x + 1, y + 1, z + 1
         );
-        if (BlockUtil.getCenterDistance(currentBlock) > range.get()) {
+        if (BlockUtil.getCenterDistance(currentBlock) > range.get() || mc.theWorld.getBlockState(currentBlock).getBlock() instanceof BlockAir) {
             RenderUtil.drawFilledBox(bb, 0f, 1f, 0f, 0.2f);
         } else {
             RenderUtil.drawFilledBox(bb, 1f, 0f, 0f, 0.2f);
@@ -82,8 +83,8 @@ public class CivBreak extends Module {
 
     @Override
     public void onPreMotion(PreMotionEvent event) {
-        if (mc.thePlayer == null || currentBlock == null) return;
-        if (BlockUtil.getCenterDistance(currentBlock) > range.get()) return;
+        if (mc.thePlayer == null || mc.theWorld == null || currentBlock == null) return;
+        if (BlockUtil.getCenterDistance(currentBlock) > range.get() || mc.theWorld.getBlockState(currentBlock).getBlock() instanceof BlockAir) return;
 
         DewCommon.rotationManager.faceBlock(currentBlock, rotationSpeed.get().floatValue());
 
