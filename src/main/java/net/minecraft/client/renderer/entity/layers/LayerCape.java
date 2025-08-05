@@ -31,7 +31,7 @@ public class LayerCape implements LayerRenderer<AbstractClientPlayer>
         if (entitylivingbaseIn.hasPlayerInfo() && !entitylivingbaseIn.isInvisible() && entitylivingbaseIn.isWearing(EnumPlayerModelParts.CAPE) && entitylivingbaseIn.getLocationCape() != null || capeModule.isEnabled() && entitylivingbaseIn instanceof EntityPlayerSP) {
             GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 
-            if (capeModule.isEnabled() && entitylivingbaseIn instanceof EntityPlayerSP) {
+            if (capeModule.isEnabled() && entitylivingbaseIn instanceof EntityPlayerSP && DewCommon.mongoManager.isConnected()) {
                 ResourceLocation customCapeLocation = new ResourceLocation("minecraft", "dew/cape.png");
                 this.playerRenderer.bindTexture(customCapeLocation);
             } else {

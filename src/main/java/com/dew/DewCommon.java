@@ -69,7 +69,7 @@ public class DewCommon {
         pathFinder = new MainPathFinder();
         smartPlayerNavigator = new SmartPlayerNavigator();
         clickGuiScreen = new NewClickGuiScreen();
-        //mongoManager = new MongoManager();
+        mongoManager = new MongoManager();
         Font font;
         try {
             InputStream is = mc.getResourceManager()

@@ -36,6 +36,10 @@ public class MongoManager implements IMinecraft, EventListener {
         LogUtil.infoLog("init mongoManager");
     }
 
+    public boolean isConnected() {
+        return this.connected;
+    }
+
     public void addUserToServer(String serverIP, String username) {
         new Thread(() -> {
             try {
