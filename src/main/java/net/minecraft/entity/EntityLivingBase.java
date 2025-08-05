@@ -1375,7 +1375,16 @@ public abstract class EntityLivingBase extends Entity
             Entity target = DewCommon.moduleManager.getModule(Aura.class).target;
             boolean doTargetStrafe = DewCommon.moduleManager.getModule(TargetStrafe.class).isEnabled() && DewCommon.moduleManager.getModule(Aura.class).isEnabled() && (DewCommon.moduleManager.getModule(FlightModule.class).isEnabled() || DewCommon.moduleManager.getModule(SpeedModule.class).isEnabled()) && target != null && forward == 1f && strafe == 0f && IMinecraft.mc.gameSettings.keyBindJump.isKeyDown();
 
-            float yaw = doTargetStrafe ? MovementUtil.getTargetStrafeYawDirection(target, DewCommon.moduleManager.getModule(TargetStrafe.class).getDistance()) : DewCommon.moduleManager.getModule(Sprint.class).isEnabled() && Sprint.omni.get() && this instanceof EntityPlayerSP ? (float) MovementUtil.getDirection() : DewCommon.moduleManager.getModule(MoveFix.class).isEnabled() && DewCommon.rotationManager.isRotating() && this instanceof EntityPlayerSP ? DewCommon.rotationManager.getClientYaw() : this.rotationYaw;
+            float yaw;
+            if (doTargetStrafe) {
+                yaw = MovementUtil.getTargetStrafeYawDirection(target, DewCommon.moduleManager.getModule(TargetStrafe.class).getDistance());
+            } else if (DewCommon.moduleManager.getModule(Sprint.class).isEnabled() && Sprint.omni.get() && this instanceof EntityPlayerSP) {
+                yaw = (float) MovementUtil.getDirection();
+            } else if (DewCommon.moduleManager.getModule(MoveFix.class).isEnabled() && DewCommon.rotationManager.isRotating() && this instanceof EntityPlayerSP) {
+                yaw = DewCommon.rotationManager.getClientYaw();
+            } else {
+                yaw = this.rotationYaw;
+            }
 
             float f = yaw * 0.017453292F;
             if (!MovementUtil.mcJumpNoBoost) {

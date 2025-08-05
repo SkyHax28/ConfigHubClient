@@ -21,7 +21,7 @@ import org.lwjgl.input.Keyboard;
 
 public class AutoBlock extends Module {
 
-    private static final SelectionValue mode = new SelectionValue("Mode", "Hypixel", "Vanilla", "Legit", "Hypixel", "Prediction");
+    private static final SelectionValue mode = new SelectionValue("Mode", "Hypixel", "Vanilla", "Legit", "Hypixel");
     private boolean blinkAB = true;
     private boolean block = false;
     private boolean blink = false;
@@ -68,14 +68,6 @@ public class AutoBlock extends Module {
         if (auraModule.isInAutoBlockMode()) {
             switch (mode.get().toLowerCase()) {
                 case "vanilla":
-                    auraModule.doMainFunctions(true);
-                    if (!block) {
-                        PacketUtil.sendPacket(new C08PacketPlayerBlockPlacement(mc.thePlayer.getHeldItem()));
-                        block = true;
-                    }
-                    break;
-
-                case "prediction": // auto BANs (maybe)
                     auraModule.doMainFunctions(true);
                     if (!block) {
                         PacketUtil.sendPacket(new C08PacketPlayerBlockPlacement(mc.thePlayer.getHeldItem()));
