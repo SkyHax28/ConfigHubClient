@@ -41,13 +41,14 @@ public class MongoManager implements IMinecraft, EventListener {
     }
 
     public void addUserToServer(String serverIP, String username) {
+        if (collection == null || serverIP == null || username == null) return;
         new Thread(() -> {
             try {
                 Document query = new Document("server_ip", serverIP)
                         .append("username", username);
 
                 collection.insertOne(query);
-                LogUtil.infoLog("Added {} to {}".format(username, serverIP));
+                LogUtil.infoLog(String.format("Added %s to %s", username, serverIP));
                 connected = true;
             } catch (Exception e) {
                 LogUtil.infoLog("Failed to add user: " + e.getMessage());
@@ -56,13 +57,14 @@ public class MongoManager implements IMinecraft, EventListener {
     }
 
     public void removeUserFromServer(String serverIP, String username) {
+        if (collection == null || serverIP == null || username == null) return;
         new Thread(() -> {
             try {
                 Document query = new Document("server_ip", serverIP)
                         .append("username", username);
 
                 collection.deleteOne(query);
-                LogUtil.infoLog("Removed {} from {}".format(username, serverIP));
+                LogUtil.infoLog(String.format("Removed %s from %s", username, serverIP));
                 connected = false;
             } catch (Exception e) {
                 LogUtil.infoLog("Failed to remove user: " + e.getMessage());
@@ -71,11 +73,12 @@ public class MongoManager implements IMinecraft, EventListener {
     }
 
     public void removeUserFromAllServers(String username) {
+        if (collection == null || username == null) return;
         new Thread(() -> {
             try {
                 Document query = new Document("username", username);
                 collection.deleteMany(query);
-                LogUtil.infoLog("Removed {} from all servers".format(username));
+                LogUtil.infoLog(String.format("Removed %s from all servers", username));
                 connected = false;
             } catch (Exception e) {
                 LogUtil.infoLog("Failed to remove from all servers: " + e.getMessage());
@@ -110,62 +113,77 @@ public class MongoManager implements IMinecraft, EventListener {
 
     @Override
     public void onTablistPlayerNameFetch(TablistPlayerNameFetchEvent event) {
-        if (connected && mc.theWorld != null && mc.thePlayer != null) {
-            final ServerData serverData = mc.getCurrentServerData();
+        if (!connected || mc == null || mc.theWorld == null || mc.thePlayer == null) return;
+        ServerData serverData = mc.getCurrentServerData();
+        if (serverData == null) return;
 
-            if (serverData != null) {
-                for (EntityPlayer player : online) {
-                    if (event.name.contains(player.getName())) {
-                        event.name = "§n§b[Dew] §r" + player.getName();
-                    }
-                }
+        for (EntityPlayer player : online) {
+            if (player != null && event.name != null && player.getName() != null && event.name.contains(player.getName())) {
+                event.name = "§n§b[Dew] §r" + player.getName();
             }
         }
     }
 
     @Override
     public void onTick(TickEvent event) {
-        if (connected && tickTimer.hasElapsed(5000) && mc.theWorld != null && mc.thePlayer != null && mc.inGameHasFocus) {
-            new Thread(() -> {
-                try {
-                    final ServerData serverData = mc.getCurrentServerData();
+        if (!connected || mc == null || mc.theWorld == null || mc.thePlayer == null || !mc.inGameHasFocus) return;
+        if (!tickTimer.hasElapsed(5000)) return;
 
-                    if (serverData != null) {
-                        List<String> users = getUsersOnServer(serverData.serverIP);
+        new Thread(() -> {
+            try {
+                ServerData serverData = mc.getCurrentServerData();
+                if (serverData == null || collection == null) return;
 
-                        for (EntityPlayer player : mc.theWorld.playerEntities) {
-                            if (users.contains(player.getName())) {
-                                online.remove(player);
-                                online.add(player);
-                            }
-                        }
+                List<String> users = getUsersOnServer(serverData.serverIP);
+                if (users == null) return;
+
+                for (EntityPlayer player : mc.theWorld.playerEntities) {
+                    if (player != null && users.contains(player.getName())) {
+                        online.remove(player);
+                        online.add(player);
                     }
-                    tickTimer.reset();
-                } catch (Exception e) {
-                    LogUtil.infoLog("Tick Mongo Update failed: " + e.getMessage());
                 }
-            }).start();
-        }
+                tickTimer.reset();
+            } catch (Exception e) {
+                LogUtil.infoLog("Tick Mongo Update failed: " + e.getMessage());
+            }
+        }).start();
     }
 
     @Override
     public void onWorld(WorldEvent event) {
-        removeUserFromAllServers(mc.getSession().getUsername());
-        addUserToServer(event.ip, mc.getSession().getUsername());
+        if (mc == null || mc.getSession() == null || event == null || event.ip == null) return;
+        String username = mc.getSession().getUsername();
+        if (username == null) return;
+
+        removeUserFromAllServers(username);
+        addUserToServer(event.ip, username);
     }
 
     @Override
     public void onLeaveWorld(LeaveWorldEvent event) {
-        removeUserFromAllServers(mc.getSession().getUsername());
+        if (mc == null || mc.getSession() == null) return;
+        String username = mc.getSession().getUsername();
+        if (username == null) return;
+
+        removeUserFromAllServers(username);
     }
 
     @Override
     public void onGuiDisconnected(GuiDisconnectedEvent event) {
-        removeUserFromAllServers(mc.getSession().getUsername());
+        if (mc == null || mc.getSession() == null) return;
+        String username = mc.getSession().getUsername();
+        if (username == null) return;
+
+        removeUserFromAllServers(username);
     }
 
     @Override
     public void onGuiConnecting(GuiConnectingEventActionPerformed event) {
-        removeUserFromAllServers(mc.getSession().getUsername());
+        if (mc == null || mc.getSession() == null) return;
+        String username = mc.getSession().getUsername();
+        if (username == null) return;
+
+        removeUserFromAllServers(username);
     }
 }
