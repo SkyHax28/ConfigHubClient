@@ -42,7 +42,7 @@ public class ItemRenderer
     private static final ResourceLocation RES_MAP_BACKGROUND = new ResourceLocation("textures/map/map_background.png");
     private static final ResourceLocation RES_UNDERWATER_OVERLAY = new ResourceLocation("textures/misc/underwater.png");
     private final Minecraft mc;
-    private ItemStack itemToRender;
+    public ItemStack itemToRender;
     private float equippedProgress;
     private float prevEquippedProgress;
     private final RenderManager renderManager;

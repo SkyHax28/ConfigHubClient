@@ -7,12 +7,14 @@ import com.dew.system.event.events.*;
 import com.dew.system.gui.ClickGuiScreen;
 import com.dew.system.gui.NewClickGuiScreen;
 import com.dew.system.module.modules.player.AutoTool;
+import com.dew.system.module.modules.render.Animations;
 import com.dew.system.module.modules.render.ClickGui;
 import com.dew.system.viapatcher.PacketPatcher;
 import com.dew.utils.BlinkUtil;
 import com.dew.utils.LogUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiChat;
+import net.minecraft.item.ItemSword;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.C01PacketChatMessage;
 import net.minecraft.network.play.client.C0DPacketCloseWindow;
@@ -60,6 +62,10 @@ public class HandleEvents implements EventListener {
         if (loadingWorld && mc.thePlayer != null && mc.theWorld != null && mc.thePlayer.ticksExisted > 10f && mc.currentScreen == null) {
             worldFullLoaded = true;
             loadingWorld = false;
+        }
+
+        if (DewCommon.moduleManager.getModule(Animations.class).isEnabled() && mc.thePlayer != null && mc.thePlayer.isSwingInProgress && mc.getItemRenderer().itemToRender != null && mc.getItemRenderer().itemToRender.getItem() instanceof ItemSword && (mc.thePlayer.isBlocking() || DewCommon.moduleManager.getModule(Animations.class).isVisualBlocking())) {
+            mc.thePlayer.renderArmPitch = mc.thePlayer.rotationPitch - 60f;
         }
     }
 
