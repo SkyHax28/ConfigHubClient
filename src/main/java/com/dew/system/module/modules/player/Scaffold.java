@@ -10,7 +10,6 @@ import com.dew.system.module.modules.render.Hud;
 import com.dew.system.settingsvalue.BooleanValue;
 import com.dew.system.settingsvalue.NumberValue;
 import com.dew.system.settingsvalue.SelectionValue;
-import com.dew.utils.LogUtil;
 import com.dew.utils.MovementUtil;
 import com.dew.utils.PacketUtil;
 import com.dew.utils.RenderUtil;
@@ -138,10 +137,6 @@ public class Scaffold extends Module {
 
     @Override
     public void onPreMotion(PreMotionEvent event) {
-        this.jumpCheck();
-    }
-
-    private void jumpCheck() {
         if (mc.thePlayer == null || mc.theWorld == null) return;
 
         if (!mc.thePlayer.onGround && !jumped) {
@@ -193,7 +188,7 @@ public class Scaffold extends Module {
             if (mc.thePlayer.posY > 0.0D) {
                 mc.thePlayer.jump();
             }
-            keepY = (int) mc.thePlayer.posY + 1;
+            this.updateKeepY(1);
             return;
         }
 
@@ -205,7 +200,7 @@ public class Scaffold extends Module {
                 }
 
                 if (mc.thePlayer.onGround) {
-                    this.updateKeepY();
+                    this.updateKeepY(0);
                 }
 
                 if (mc.thePlayer.posY > 0.0D && (mc.thePlayer.isSprinting() || noSprint.get()) && jumpTicks == 0 || isNearEdge()) {
@@ -261,7 +256,7 @@ public class Scaffold extends Module {
         }
 
         if (shouldUpdateKeepYState()) {
-            this.updateKeepY();
+            this.updateKeepY(0);
         }
 
         if (delay <= placeDelay.get().intValue()) return;
@@ -396,8 +391,8 @@ public class Scaffold extends Module {
         }
     }
 
-    private void updateKeepY() {
-        keepY = (int) mc.thePlayer.posY;
+    private void updateKeepY(int distance) {
+        keepY = (int) mc.thePlayer.posY + distance;
     }
 
     private void towerFunction() {
