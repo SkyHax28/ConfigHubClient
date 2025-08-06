@@ -40,7 +40,6 @@ public class Spider extends Module {
         BlinkUtil.sync(true, true);
         BlinkUtil.stopBlink();
         TimerUtil.resetTimerSpeed();
-        mc.gameSettings.keyBindJump.setKeyDown(Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()));
         hypTick = -1;
     }
 
@@ -49,7 +48,6 @@ public class Spider extends Module {
         BlinkUtil.sync(true, true);
         BlinkUtil.stopBlink();
         TimerUtil.resetTimerSpeed();
-        mc.gameSettings.keyBindJump.setKeyDown(Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()));
         hypTick = -1;
     }
 
@@ -58,19 +56,21 @@ public class Spider extends Module {
         if (mc.thePlayer == null) return;
 
         if (mode.get().equals("Prediction Infinite")) {
-            if (MovementUtil.isBlockUnderPlayer(mc.thePlayer, 1, false) && mc.gameSettings.keyBindJump.isKeyDown()) {
-                if (hypTick >= 3) {
-                    BlinkUtil.sync(true, true);
-                    BlinkUtil.stopBlink();
-                    TimerUtil.resetTimerSpeed();
-                    hypTick--;
-                } else {
+            if ((MovementUtil.isBlockUnderPlayer(mc.thePlayer, 2, 0.5, false) || mc.thePlayer.isCollidedHorizontally) && mc.gameSettings.keyBindJump.isKeyDown()) {
+                if (hypTick >= 2) {
+                    event.forceC06 = true;
                     BlinkUtil.doBlink();
-                    TimerUtil.setTimerSpeed(0.3f);
-                    mc.thePlayer.motionY = 0.0;
+                    TimerUtil.setTimerSpeed(0.22f);
                     MovementUtil.fakeJump();
                     event.onGround = true;
                     mc.thePlayer.onGround = true;
+                    hypTick = -1;
+                } else if (hypTick >= -1) {
+                    BlinkUtil.sync(true, true);
+                    BlinkUtil.stopBlink();
+                    MovementUtil.fakeJump();
+                    event.onGround = false;
+                    TimerUtil.setTimerSpeed(2.7f);
                     hypTick++;
                 }
             } else {

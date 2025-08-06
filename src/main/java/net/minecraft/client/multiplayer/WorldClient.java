@@ -1,5 +1,8 @@
 package net.minecraft.client.multiplayer;
 
+import com.dew.DewCommon;
+import com.dew.system.module.modules.combat.Aura;
+import com.dew.system.module.modules.exploit.BarrierVision;
 import com.google.common.collect.Sets;
 import java.util.Random;
 import java.util.Set;
@@ -278,7 +281,7 @@ public class WorldClient extends World
         int i = 16;
         Random random = new Random();
         ItemStack itemstack = this.mc.thePlayer.getHeldItem();
-        boolean flag = this.mc.playerController.getCurrentGameType() == WorldSettings.GameType.CREATIVE && itemstack != null && Block.getBlockFromItem(itemstack.getItem()) == Blocks.barrier;
+        boolean flag = this.mc.playerController.getCurrentGameType() == WorldSettings.GameType.CREATIVE && itemstack != null && Block.getBlockFromItem(itemstack.getItem()) == Blocks.barrier || DewCommon.moduleManager.getModule(BarrierVision.class).isEnabled();
         BlockPos.MutableBlockPos blockpos$mutableblockpos = new BlockPos.MutableBlockPos();
 
         for (int j = 0; j < 1000; ++j)

@@ -2,6 +2,7 @@ package net.minecraft.client.renderer.entity;
 
 import com.dew.DewCommon;
 import com.dew.IMinecraft;
+import com.dew.system.module.modules.exploit.MurdererDetector;
 import com.dew.system.module.modules.render.NameTags;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
@@ -332,6 +333,10 @@ public abstract class Render<T extends Entity> implements IEntityRenderer
 
     protected void renderLivingLabel(T entityIn, String str, double x, double y, double z, int maxDistance, boolean throughWalls) {
         double d0 = entityIn.getDistanceSqToEntity(this.renderManager.livingPlayer);
+        MurdererDetector murdererDetector = DewCommon.moduleManager.getModule(MurdererDetector.class);
+        if (murdererDetector.isEnabled() && entityIn instanceof EntityPlayer && murdererDetector.getMurderers().contains(entityIn)) {
+            str = "[Murderer] " + str;
+        }
         if (!throughWalls) {
             if (d0 <= (double) (maxDistance * maxDistance)) {
                 FontRenderer fontrenderer = this.getFontRendererFromRenderManager();

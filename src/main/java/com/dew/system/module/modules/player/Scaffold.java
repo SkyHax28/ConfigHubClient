@@ -51,6 +51,7 @@ public class Scaffold extends Module {
     private boolean hypGroundCheck = false;
     private boolean towered = false;
     private int delay = 0;
+    private boolean alreadyRotatedInThisTick = false;
     private BlockPos lastPlacedPos = null;
 
     public Scaffold() {
@@ -75,6 +76,7 @@ public class Scaffold extends Module {
         this.resetState();
         keepY = -1;
         lastPlacedPos = null;
+        alreadyRotatedInThisTick = false;
     }
 
     @Override
@@ -183,23 +185,17 @@ public class Scaffold extends Module {
     }
 
     private void doMainFunctions() {
-        if (mode.get().equals("Telly") && mc.thePlayer.onGround && keepY == -1 && !mc.thePlayer.isPotionActive(Potion.jump)) {
-            mc.thePlayer.setSprinting(false);
-            if (mc.thePlayer.posY > 0.0D) {
-                mc.thePlayer.jump();
-            }
-            this.updateKeepY(1);
-            return;
-        }
+        alreadyRotatedInThisTick = false;
 
         if (mode.get().equals("Telly") && !mc.thePlayer.isPotionActive(Potion.moveSpeed) && !mc.thePlayer.isPotionActive(Potion.jump) && !towered && !Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) && Keyboard.isKeyDown(mc.gameSettings.keyBindForward.getKeyCode()) && !MovementUtil.isBlockAbovePlayer(mc.thePlayer, 1)) {
             if (jumpTicks <= 3) {
                 if (jumpTicks == 0 || jumpTicks == 1 || jumpTicks == 2) {
                     float yaw = tellyDiagonalDegrees.get() ? DewCommon.rotationManager.tellySwap((float) MovementUtil.getDirection()) : (float) MovementUtil.getDirection();
                     DewCommon.rotationManager.rotateToward(yaw, 80f, 180f);
+                    alreadyRotatedInThisTick = true;
                 }
 
-                if (mc.thePlayer.posY > 0.0D && (mc.thePlayer.isSprinting() || noSprint.get()) && jumpTicks == 0 || this.isTellyEdge() && mc.thePlayer.onGround) {
+                if (mc.thePlayer.posY > 0.0D && (mc.thePlayer.isSprinting() || noSprint.get()) && jumpTicks == 0 || MovementUtil.isDiagonal(5f) && mc.thePlayer.onGround) {
                     mc.thePlayer.jump();
                 }
 
@@ -249,6 +245,7 @@ public class Scaffold extends Module {
 
         if (this.isTelly() && jumpTicks != 0) {
             this.searchAndPlaceBlockAndRotation(below, tellyPreRotationSpeed.get().floatValue(), false);
+            alreadyRotatedInThisTick = true;
             return;
         }
 
@@ -303,6 +300,7 @@ public class Scaffold extends Module {
         }
 
         this.searchAndPlaceBlockAndRotation(below, rotSpeed, true);
+        alreadyRotatedInThisTick = true;
     }
 
     private void searchAndPlaceBlockAndRotation(BlockPos below, float rotSpeed, boolean doPlace) {
@@ -446,25 +444,6 @@ public class Scaffold extends Module {
         return mode.get().equals("Telly") && !mc.thePlayer.isPotionActive(Potion.moveSpeed) && !mc.thePlayer.isPotionActive(Potion.jump) && !towered && !Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) && Keyboard.isKeyDown(mc.gameSettings.keyBindForward.getKeyCode()) && !MovementUtil.isBlockAbovePlayer(mc.thePlayer, 1) && jumpTicks <= 3;
     }
 
-    public boolean isTellyEdge() {
-        double x = mc.thePlayer.posX;
-        double z = mc.thePlayer.posZ;
-        int y = keepY - 1;
-
-        double expand = 0.2;
-        for (double dx = -expand; dx <= expand; dx += expand) {
-            for (double dz = -expand; dz <= expand; dz += expand) {
-                if (dx == 0 && dz == 0) continue;
-
-                BlockPos pos = new BlockPos(x + dx, y, z + dz);
-                if (!mc.theWorld.getBlockState(pos).getBlock().isFullBlock()) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
     public boolean isNearEdge() {
         double x = mc.thePlayer.posX;
         double z = mc.thePlayer.posZ;
@@ -504,6 +483,7 @@ public class Scaffold extends Module {
     }
 
     private PlaceResult tryPlaceBlockAndRotation(BlockPos pos, float rotSpeed, boolean doPlace) {
+        if (alreadyRotatedInThisTick) return PlaceResult.FAIL_ROTATION;
         if (!holdingBlock) return PlaceResult.FAIL_OTHER;
 
         String modeValue = mode.get();
@@ -539,7 +519,7 @@ public class Scaffold extends Module {
             }
 
             if (!doPlace) {
-                return PlaceResult.FAIL_ROTATION;
+                return PlaceResult.SUCCESS;
             }
 
             if (mc.playerController.onPlayerRightClick(mc.thePlayer, mc.theWorld, mc.thePlayer.inventory.getCurrentItem(), neighbor, opposite, hitVec)) {

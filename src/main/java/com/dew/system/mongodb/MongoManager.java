@@ -23,7 +23,7 @@ public class MongoManager implements IMinecraft, EventListener {
     private final MongoCollection<Document> collection;
     private final String uri;
     private final Timer tickTimer = new Timer();
-    private final List<EntityPlayer> online = new CopyOnWriteArrayList<>();
+    public final List<EntityPlayer> online = new CopyOnWriteArrayList<>();
     private boolean connected = false;
 
     public MongoManager() {
