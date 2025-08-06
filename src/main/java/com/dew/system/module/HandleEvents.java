@@ -9,6 +9,7 @@ import com.dew.system.gui.NewClickGuiScreen;
 import com.dew.system.module.modules.player.AutoTool;
 import com.dew.system.module.modules.render.Animations;
 import com.dew.system.module.modules.render.ClickGui;
+import com.dew.system.rotation.RotationManager;
 import com.dew.system.viapatcher.PacketPatcher;
 import com.dew.utils.BlinkUtil;
 import com.dew.utils.LogUtil;

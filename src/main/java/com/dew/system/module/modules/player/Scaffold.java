@@ -141,12 +141,6 @@ public class Scaffold extends Module {
         this.jumpCheck();
     }
 
-    private void scaffoldMainTick() {
-    }
-
-    private void scaffoldSubTick() {
-    }
-
     private void jumpCheck() {
         if (mc.thePlayer == null || mc.theWorld == null) return;
 
@@ -199,7 +193,7 @@ public class Scaffold extends Module {
             if (mc.thePlayer.posY > 0.0D) {
                 mc.thePlayer.jump();
             }
-            this.updateKeepY();
+            keepY = (int) mc.thePlayer.posY + 1;
             return;
         }
 
@@ -214,7 +208,7 @@ public class Scaffold extends Module {
                     this.updateKeepY();
                 }
 
-                if (mc.thePlayer.posY > 0.0D && (mc.thePlayer.isSprinting() || noSprint.get()) && jumpTicks == 0) {
+                if (mc.thePlayer.posY > 0.0D && (mc.thePlayer.isSprinting() || noSprint.get()) && jumpTicks == 0 || isNearEdge()) {
                     mc.thePlayer.jump();
                 }
 
@@ -261,7 +255,7 @@ public class Scaffold extends Module {
 
         BlockPos below = new BlockPos(mc.thePlayer.posX, keepY - 1.0, mc.thePlayer.posZ);
 
-        if (this.isTelly() && jumpTicks != 0 && jumpTicks <= 3) {
+        if (this.isTelly() && jumpTicks != 0) {
             this.searchAndPlaceBlockAndRotation(below, tellyPreRotationSpeed.get().floatValue(), false);
             return;
         }
@@ -406,9 +400,6 @@ public class Scaffold extends Module {
         keepY = (int) mc.thePlayer.posY;
     }
 
-    private void tellyFunction() {
-    }
-
     private void towerFunction() {
         if (this.canTower() && !towerMode.get().equals("OFF") || towerMode.get().equals("Hypixel") && hypGroundCheck && !DewCommon.moduleManager.getModule(SpeedModule.class).isEnabled()) {
             MovementUtil.mcJumpNoBoost = true;
@@ -541,7 +532,7 @@ public class Scaffold extends Module {
 
             if (!doPlace) {
                 delay = 0;
-                return PlaceResult.FAIL_OTHER;
+                return PlaceResult.SUCCESS;
             }
 
             if (mc.playerController.onPlayerRightClick(mc.thePlayer, mc.theWorld, mc.thePlayer.inventory.getCurrentItem(), neighbor, opposite, hitVec)) {

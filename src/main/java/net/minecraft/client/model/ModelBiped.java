@@ -157,7 +157,7 @@ public class ModelBiped extends ModelBase
         SilentView silentViewModule = DewCommon.moduleManager.getModule(SilentView.class);
         RotationManager rotationManager = DewCommon.rotationManager;
         if (entityIn instanceof EntityPlayer && entityIn.equals(IMinecraft.mc.thePlayer) && silentViewModule.isEnabled() && rotationManager.isRotating() && SilentView.mode.get().equals("Normal")) {
-            bipedHead.rotateAngleX = (float) Math.toRadians(Lerper.lerp(silentViewModule.getPrevHeadPitch(), silentViewModule.getHeadPitch(), IMinecraft.mc.timer.renderPartialTicks));
+            bipedHead.rotateAngleX = (float) Math.toRadians(rotationManager.getInterpolatedPitch(IMinecraft.mc.timer.renderPartialTicks));
         }
 
         if (this.swingProgress > -9990.0F)

@@ -1,6 +1,8 @@
 package com.dew.system.rotation;
 
+import com.dew.DewCommon;
 import com.dew.IMinecraft;
+import com.dew.system.event.events.PostMotionEvent;
 import com.dew.utils.LogUtil;
 import com.dew.utils.MovementUtil;
 import net.minecraft.client.Minecraft;
@@ -14,6 +16,8 @@ public class RotationManager {
     private final Minecraft mc = IMinecraft.mc;
     private float clientYaw, clientPitch;
     private float prevClientYaw, prevClientPitch;
+    private float prevRenderYaw, renderYaw;
+    private float prevRenderHeadPitch, renderHeadPitch;
     private long lastRotationUpdate = 0L;
     private boolean isRotating = false;
     private boolean isReturning = false;
@@ -24,6 +28,10 @@ public class RotationManager {
         this.clientPitch = 114514f;
         this.prevClientYaw = 114514f;
         this.prevClientPitch = 114514f;
+        this.renderYaw = 114514f;
+        this.renderHeadPitch = 114514f;
+        this.prevRenderYaw = 114514f;
+        this.prevRenderHeadPitch = 114514f;
 
         randomGenerator = new VMPCRandomGenerator();
         byte[] seed = System.nanoTime() < 0 ? new byte[8] : new byte[16];
@@ -84,6 +92,28 @@ public class RotationManager {
             this.clientYaw = mc.thePlayer.rotationYaw;
             this.clientPitch = mc.thePlayer.rotationPitch;
         }
+    }
+
+    public void postMotionVisualTick() {
+        if (!this.isRotating()) {
+            if (mc.thePlayer == null) {
+                prevRenderHeadPitch = 0f;
+                renderHeadPitch = 0f;
+                prevRenderYaw = 0f;
+                renderYaw = 0f;
+            } else {
+                prevRenderHeadPitch = renderHeadPitch;
+                renderHeadPitch = mc.thePlayer.rotationPitch;
+                prevRenderYaw = renderYaw;
+                renderYaw = mc.thePlayer.rotationYaw;
+            }
+            return;
+        }
+
+        prevRenderHeadPitch = renderHeadPitch;
+        renderHeadPitch = this.getClientPitch();
+        prevRenderYaw = renderYaw;
+        renderYaw = this.getClientYaw();
     }
 
     private float getSecureRandom() {
@@ -361,11 +391,11 @@ public class RotationManager {
     }
 
     public float getInterpolatedYaw(float partialTicks) {
-        return prevClientYaw + (clientYaw - prevClientYaw) * partialTicks;
+        return prevRenderYaw + (renderYaw - prevRenderYaw) * partialTicks;
     }
 
     public float getInterpolatedPitch(float partialTicks) {
-        return prevClientPitch + (clientPitch - prevClientPitch) * partialTicks;
+        return prevRenderHeadPitch + (renderHeadPitch - prevRenderHeadPitch) * partialTicks;
     }
 
     public boolean isRotating() {

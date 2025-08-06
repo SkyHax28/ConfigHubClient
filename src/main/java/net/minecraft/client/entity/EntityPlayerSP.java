@@ -237,6 +237,7 @@ public class EntityPlayerSP extends AbstractClientPlayer
             }
         }
 
+        rotationManager.postMotionVisualTick();
         PostMotionEvent postMotionEvent = new PostMotionEvent(this.posX, this.getEntityBoundingBox().minY, this.posZ, yaw, pitch, this.onGround);
         DewCommon.eventManager.call(postMotionEvent);
     }
