@@ -350,6 +350,7 @@ public class Manager extends Module {
                 item == Items.snowball ||
                 item == Items.flower_pot ||
                 item == Items.bucket ||
+                item == Items.experience_bottle ||
                 item == Item.getItemFromBlock(Blocks.chest) ||
                 item == Item.getItemFromBlock(Blocks.ender_chest) ||
                 item == Item.getItemFromBlock(Blocks.trapped_chest) ||

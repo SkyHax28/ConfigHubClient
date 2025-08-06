@@ -97,7 +97,7 @@ public class Breaker extends Module {
 
     @Override
     public void onTick(TickEvent event) {
-        if (mc.thePlayer == null || mc.theWorld == null) return;
+        if (mc.thePlayer == null || mc.theWorld == null || DewCommon.moduleManager.getModule(Scaffold.class).isEnabled()) return;
 
         BlockPos playerPos = new BlockPos(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ);
         List<BlockPos> bedPositions = new ArrayList<>();

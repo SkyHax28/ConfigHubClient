@@ -199,15 +199,12 @@ public class Scaffold extends Module {
                     DewCommon.rotationManager.rotateToward(yaw, 80f, 180f);
                 }
 
-                if (mc.thePlayer.onGround) {
-                    this.updateKeepY(0);
-                }
-
-                if (mc.thePlayer.posY > 0.0D && (mc.thePlayer.isSprinting() || noSprint.get()) && jumpTicks == 0 || isNearEdge()) {
+                if (mc.thePlayer.posY > 0.0D && (mc.thePlayer.isSprinting() || noSprint.get()) && jumpTicks == 0 || this.isTellyEdge() && mc.thePlayer.onGround) {
                     mc.thePlayer.jump();
                 }
 
                 if (jumpTicks == 0) {
+                    this.updateKeepY(0);
                     return;
                 }
             }
@@ -319,7 +316,7 @@ public class Scaffold extends Module {
         } else if (result == PlaceResult.FAIL_ROTATION) {
             return;
         } else {
-            for (EnumFacing dir : getFullPrioritizedFacings()) {
+            for (EnumFacing dir : EnumFacing.values()) {
                 BlockPos neighbor = below.offset(dir);
                 PlaceResult neighborResult = tryPlaceBlockAndRotation(neighbor, rotSpeed, doPlace);
 
@@ -359,6 +356,7 @@ public class Scaffold extends Module {
 
                     boolean hasSupport = false;
                     for (EnumFacing dir : EnumFacing.values()) {
+                        if (dir == EnumFacing.DOWN) continue;
                         BlockPos support = target.offset(dir);
                         if (!mc.theWorld.getBlockState(support).getBlock().isReplaceable(mc.theWorld, support)) {
                             hasSupport = true;
@@ -448,8 +446,23 @@ public class Scaffold extends Module {
         return mode.get().equals("Telly") && !mc.thePlayer.isPotionActive(Potion.moveSpeed) && !mc.thePlayer.isPotionActive(Potion.jump) && !towered && !Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) && Keyboard.isKeyDown(mc.gameSettings.keyBindForward.getKeyCode()) && !MovementUtil.isBlockAbovePlayer(mc.thePlayer, 1) && jumpTicks <= 3;
     }
 
-    private EnumFacing[] getFullPrioritizedFacings() {
-        return new EnumFacing[]{EnumFacing.NORTH, EnumFacing.SOUTH, EnumFacing.EAST, EnumFacing.WEST};
+    public boolean isTellyEdge() {
+        double x = mc.thePlayer.posX;
+        double z = mc.thePlayer.posZ;
+        int y = (int) Math.floor(mc.thePlayer.posY) - 1;
+
+        double expand = 0.01;
+        for (double dx = -expand; dx <= expand; dx += expand) {
+            for (double dz = -expand; dz <= expand; dz += expand) {
+                if (dx == 0 && dz == 0) continue;
+
+                BlockPos pos = new BlockPos(x + dx, y, z + dz);
+                if (!mc.theWorld.getBlockState(pos).getBlock().isFullBlock()) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     public boolean isNearEdge() {
@@ -526,8 +539,7 @@ public class Scaffold extends Module {
             }
 
             if (!doPlace) {
-                delay = 0;
-                return PlaceResult.SUCCESS;
+                return PlaceResult.FAIL_ROTATION;
             }
 
             if (mc.playerController.onPlayerRightClick(mc.thePlayer, mc.theWorld, mc.thePlayer.inventory.getCurrentItem(), neighbor, opposite, hitVec)) {
