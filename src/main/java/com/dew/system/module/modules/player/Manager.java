@@ -27,7 +27,7 @@ import java.util.List;
 
 public class Manager extends Module {
 
-    private static final NumberValue delay = new NumberValue("Delay", 4.0, 0.0, 10.0, 0.1);
+    private static final NumberValue delay = new NumberValue("Delay", 4.0, 0.0, 10.0, 1.0);
     private static final BooleanValue inventoryOnly = new BooleanValue("Inventory Only", false);
     private static final List<Integer> POSITIVE_PRIORITY = Arrays.asList(
             Potion.moveSpeed.id,
@@ -158,7 +158,7 @@ public class Manager extends Module {
     }
 
     private void addManageDelay() {
-        tickDelayCounter = (int) Math.max(1, delay.get());
+        tickDelayCounter = Math.max(1, delay.get().intValue());
     }
 
     private boolean moveToHotbar(int fromInvSlot, int toHotbarIndex) {
