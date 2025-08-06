@@ -4,6 +4,7 @@ import com.dew.system.event.events.PreMotionEvent;
 import com.dew.system.event.events.PreUpdateEvent;
 import com.dew.system.event.events.ReceivedPacketEvent;
 import com.dew.system.module.modules.movement.speed.SpeedMode;
+import com.dew.utils.LogUtil;
 import com.dew.utils.MovementUtil;
 import com.dew.utils.TimerUtil;
 
@@ -19,17 +20,13 @@ public class HypixelPredictionSpeed implements SpeedMode {
 
     @Override
     public void onDisable() {
-        MovementUtil.mcJumpNoBoost = false;
-        TimerUtil.resetTimerSpeed();
     }
 
     @Override
     public void onPreUpdate(PreUpdateEvent event) {
-        if (mc.thePlayer == null || mc.thePlayer.isInWater()) return;
+        if (mc.thePlayer == null) return;
 
-        if (mc.thePlayer.onGround && mc.thePlayer.posY > 0.0D) {
-            mc.thePlayer.jump();
-        }
+        LogUtil.printChat("NOT WORKING! OH NO!");
     }
 
     @Override

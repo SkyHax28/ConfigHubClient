@@ -183,7 +183,7 @@ public class Scaffold extends Module {
     }
 
     private void doMainFunctions() {
-        if (mode.get().equals("Telly") && mc.thePlayer.onGround && keepY == -1 && !(mc.thePlayer.isPotionActive(Potion.moveSpeed) || mc.thePlayer.isPotionActive(Potion.jump))) {
+        if (mode.get().equals("Telly") && mc.thePlayer.onGround && keepY == -1 && !mc.thePlayer.isPotionActive(Potion.jump)) {
             mc.thePlayer.setSprinting(false);
             if (mc.thePlayer.posY > 0.0D) {
                 mc.thePlayer.jump();
@@ -449,9 +449,9 @@ public class Scaffold extends Module {
     public boolean isTellyEdge() {
         double x = mc.thePlayer.posX;
         double z = mc.thePlayer.posZ;
-        int y = (int) Math.floor(mc.thePlayer.posY) - 1;
+        int y = keepY - 1;
 
-        double expand = 0.01;
+        double expand = 0.2;
         for (double dx = -expand; dx <= expand; dx += expand) {
             for (double dz = -expand; dz <= expand; dz += expand) {
                 if (dx == 0 && dz == 0) continue;
