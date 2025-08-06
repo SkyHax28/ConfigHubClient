@@ -304,7 +304,7 @@ public class MovementUtil {
 
         float yaw = mc.thePlayer.rotationYaw;
 
-        if (forward == 1f && strafe == 0f && mc.gameSettings.keyBindJump.isKeyDown() && DewCommon.moduleManager.getModule(TargetStrafe.class).isEnabled() && DewCommon.moduleManager.getModule(Aura.class).isEnabled() && DewCommon.moduleManager.getModule(Aura.class).target != null) {
+        if (DewCommon.moduleManager.getModule(TargetStrafe.class).isEnabled() && DewCommon.moduleManager.getModule(TargetStrafe.class).shouldActivate() && DewCommon.moduleManager.getModule(Aura.class).isEnabled() && DewCommon.moduleManager.getModule(Aura.class).target != null) {
             yaw = getTargetStrafeYawDirection(DewCommon.moduleManager.getModule(Aura.class).target, DewCommon.moduleManager.getModule(TargetStrafe.class).getDistance());
         }
 

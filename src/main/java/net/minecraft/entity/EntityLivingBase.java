@@ -1364,16 +1364,8 @@ public abstract class EntityLivingBase extends Entity
 
         if (this.isSprinting())
         {
-            float forward = 0f;
-            if (IMinecraft.mc.gameSettings.keyBindForward.isKeyDown()) forward += 1f;
-            if (IMinecraft.mc.gameSettings.keyBindBack.isKeyDown()) forward -= 1f;
-
-            float strafe = 0f;
-            if (IMinecraft.mc.gameSettings.keyBindRight.isKeyDown()) strafe -= 1f;
-            if (IMinecraft.mc.gameSettings.keyBindLeft.isKeyDown()) strafe += 1f;
-
             Entity target = DewCommon.moduleManager.getModule(Aura.class).target;
-            boolean doTargetStrafe = DewCommon.moduleManager.getModule(TargetStrafe.class).isEnabled() && DewCommon.moduleManager.getModule(Aura.class).isEnabled() && (DewCommon.moduleManager.getModule(FlightModule.class).isEnabled() || DewCommon.moduleManager.getModule(SpeedModule.class).isEnabled()) && target != null && forward == 1f && strafe == 0f && IMinecraft.mc.gameSettings.keyBindJump.isKeyDown();
+            boolean doTargetStrafe = DewCommon.moduleManager.getModule(TargetStrafe.class).isEnabled() && DewCommon.moduleManager.getModule(Aura.class).isEnabled() && (DewCommon.moduleManager.getModule(FlightModule.class).isEnabled() || DewCommon.moduleManager.getModule(SpeedModule.class).isEnabled()) && target != null && DewCommon.moduleManager.getModule(TargetStrafe.class).shouldActivate();
 
             float yaw;
             if (doTargetStrafe) {
