@@ -14,6 +14,9 @@ import com.sun.net.httpserver.HttpServer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.Session;
 
+import java.awt.*;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.URI;
@@ -62,6 +65,10 @@ public class MicrosoftAuth {
 
             MCAuthToken mcAuthToken = getMCAuthToken(xblToken, xstsToken);
             DewCommon.altManager.status = "Got MCAuth token";
+
+            Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+            StringSelection stringSelection = new StringSelection(mcAuthToken.accessToken);
+            clipboard.setContents(stringSelection, null);
 
             LogUtil.infoLog("5");
 

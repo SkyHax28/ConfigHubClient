@@ -1,5 +1,6 @@
 package com.dew.system.module.modules.movement.flight.flies;
 
+import com.dew.system.event.events.PreMotionEvent;
 import com.dew.system.event.events.PreUpdateEvent;
 import com.dew.system.event.events.ReceivedPacketEvent;
 import com.dew.system.event.events.SendPacketEvent;
@@ -37,6 +38,10 @@ public class VanillaFlight implements FlightMode {
 
         MovementUtil.strafe(FlightModule.horizontalSpeed.get());
         mc.thePlayer.motionY = yMotion;
+    }
+
+    @Override
+    public void onPreMotion(PreMotionEvent event) {
     }
 
     @Override

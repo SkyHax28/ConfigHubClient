@@ -1,5 +1,6 @@
 package com.dew.system.module.modules.movement.flight;
 
+import com.dew.system.event.events.PreMotionEvent;
 import com.dew.system.event.events.PreUpdateEvent;
 import com.dew.system.event.events.ReceivedPacketEvent;
 import com.dew.system.event.events.SendPacketEvent;
@@ -68,6 +69,12 @@ public class FlightModule extends Module {
 
         if (currentMode != null)
             currentMode.onPreUpdate(event);
+    }
+
+    @Override
+    public void onPreMotion(PreMotionEvent event) {
+        if (currentMode != null)
+            currentMode.onPreMotion(event);
     }
 
     @Override

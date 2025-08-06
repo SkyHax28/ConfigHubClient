@@ -1,5 +1,6 @@
 package com.dew.system.module.modules.movement.flight.flies;
 
+import com.dew.system.event.events.PreMotionEvent;
 import com.dew.system.event.events.PreUpdateEvent;
 import com.dew.system.event.events.ReceivedPacketEvent;
 import com.dew.system.event.events.SendPacketEvent;
@@ -21,6 +22,10 @@ public class TestFlight implements FlightMode {
 
     @Override
     public void onPreUpdate(PreUpdateEvent event) {
+    }
+
+    @Override
+    public void onPreMotion(PreMotionEvent event) {
     }
 
     @Override
