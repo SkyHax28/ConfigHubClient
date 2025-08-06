@@ -90,8 +90,12 @@ public class CivBreak extends Module {
 
         if (mc.thePlayer.ticksExisted % breakDelay.get().intValue() == 0) {
             PacketUtil.sendPacket(new C0APacketAnimation());
-            for (int i = 0; i < 2; i++) {
-                PacketUtil.sendPacketAsSilent(new C07PacketPlayerDigging(C07PacketPlayerDigging.Action.STOP_DESTROY_BLOCK, currentBlock, EnumFacing.DOWN));
+            if (mc.thePlayer.capabilities.isCreativeMode) {
+                PacketUtil.sendPacketAsSilent(new C07PacketPlayerDigging(C07PacketPlayerDigging.Action.START_DESTROY_BLOCK, currentBlock, EnumFacing.DOWN));
+            } else {
+                for (int i = 0; i < 2; i++) {
+                    PacketUtil.sendPacketAsSilent(new C07PacketPlayerDigging(C07PacketPlayerDigging.Action.STOP_DESTROY_BLOCK, currentBlock, EnumFacing.DOWN));
+                }
             }
         }
     }
