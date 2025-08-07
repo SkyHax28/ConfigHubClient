@@ -55,19 +55,20 @@ public class Spider extends Module {
 
         if (mode.get().equals("Prediction Infinite")) {
             if ((MovementUtil.isBlockUnderPlayer(mc.thePlayer, 2, 0.5, false) || mc.thePlayer.isCollidedHorizontally) && mc.gameSettings.keyBindJump.isKeyDown()) {
-                if (hypTimer.hasTimePassed(220)) {
+                if (hypTimer.hasTimePassed(275)) {
                     event.forceC06 = true;
                     BlinkUtil.doBlink();
-                    TimerUtil.setTimerSpeed(0.3f);
+                    TimerUtil.setTimerSpeed(0.22f);
                     MovementUtil.fakeJump();
                     event.onGround = true;
                     mc.thePlayer.onGround = true;
-                    PacketUtil.sendPacket(new C03PacketPlayer.C06PacketPlayerPosLook(event.x, event.y, event.z, event.yaw, event.pitch, true));
                     hypTimer.reset();
                 } else {
                     BlinkUtil.sync(true, true);
                     BlinkUtil.stopBlink();
                     MovementUtil.fakeJump();
+                    event.onGround = false;
+                    mc.thePlayer.onGround = false;
                     TimerUtil.resetTimerSpeed();
                 }
             } else {

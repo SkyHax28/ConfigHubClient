@@ -334,6 +334,9 @@ public abstract class Render<T extends Entity> implements IEntityRenderer
     protected void renderLivingLabel(T entityIn, String str, double x, double y, double z, int maxDistance, boolean throughWalls) {
         double d0 = entityIn.getDistanceSqToEntity(this.renderManager.livingPlayer);
         MurdererDetector murdererDetector = DewCommon.moduleManager.getModule(MurdererDetector.class);
+        if (entityIn instanceof EntityPlayer && DewCommon.mongoManager.online.contains(entityIn)) {
+            str = "[Dew] " + str;
+        }
         if (murdererDetector.isEnabled() && entityIn instanceof EntityPlayer && murdererDetector.getMurderers().contains(entityIn)) {
             str = "[Murderer] " + str;
         }
