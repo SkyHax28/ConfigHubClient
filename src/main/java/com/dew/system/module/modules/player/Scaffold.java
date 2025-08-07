@@ -34,7 +34,6 @@ public class Scaffold extends Module {
     private static final SelectionValue towerMode = new SelectionValue("Tower Mode", "OFF", "OFF", "Vanilla", "Hypixel");
     private static final NumberValue rotationSpeed = new NumberValue("Rotation Speed", 60.0, 0.0, 180.0, 5.0, () -> mode.get().equals("Normal") || mode.get().equals("Telly") && !hypixelTellyBanFix.get());
     private static final NumberValue tellyPreRotationSpeed = new NumberValue("Telly Pre Rotation Speed", 35.0, 0.0, 180.0, 5.0, () -> mode.get().equals("Telly") && !hypixelTellyBanFix.get());
-    private static final BooleanValue tellyDiagonalDegrees = new BooleanValue("Telly Diagonal Degrees", false, () -> mode.get().equals("Telly"));
     private static final NumberValue clutchRange = new NumberValue("Clutch Range", 3.0, 1.0, 5.0, 1.0);
     private static final NumberValue placeDelay = new NumberValue("Place Delay", 0.0, 0.0, 3.0, 1.0, () -> mode.get().equals("Normal") || mode.get().equals("Telly"));
     private static final SelectionValue edgeSafeMode = new SelectionValue("Edge Safe Mode", "OFF", "OFF", "Safewalk", "Sneak");
@@ -187,26 +186,36 @@ public class Scaffold extends Module {
     private void doMainFunctions() {
         alreadyRotatedInThisTick = false;
 
-        if (mode.get().equals("Telly") && !mc.thePlayer.isPotionActive(Potion.moveSpeed) && !mc.thePlayer.isPotionActive(Potion.jump) && !towered && !Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) && Keyboard.isKeyDown(mc.gameSettings.keyBindForward.getKeyCode()) && !MovementUtil.isBlockAbovePlayer(mc.thePlayer, 1)) {
+        boolean isTelly = mode.get().equals("Telly");
+        boolean isJumping = Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode());
+        boolean isNotMovingForward = !Keyboard.isKeyDown(mc.gameSettings.keyBindForward.getKeyCode());
+        boolean hasSpeedPotion = mc.thePlayer.isPotionActive(Potion.moveSpeed);
+        boolean hasJumpPotion = mc.thePlayer.isPotionActive(Potion.jump);
+        boolean isDiagonal = MovementUtil.isDiagonal(5f);
+        boolean blockAbove = MovementUtil.isBlockAbovePlayer(mc.thePlayer, 1);
+        boolean banFixEnabled = hypixelTellyBanFix.get();
+
+        boolean conditionA = isTelly && (isJumping || isNotMovingForward || hasSpeedPotion || hasJumpPotion || blockAbove || isDiagonal);
+
+        if (mode.get().equals("Telly") && !mc.thePlayer.isPotionActive(Potion.moveSpeed) && !MovementUtil.isDiagonal(5f) && !mc.thePlayer.isPotionActive(Potion.jump) && !towered && !Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) && Keyboard.isKeyDown(mc.gameSettings.keyBindForward.getKeyCode()) && !MovementUtil.isBlockAbovePlayer(mc.thePlayer, 1)) {
             if (jumpTicks <= 3) {
                 if (jumpTicks == 0 || jumpTicks == 1 || jumpTicks == 2) {
-                    float yaw = tellyDiagonalDegrees.get() ? DewCommon.rotationManager.tellySwap((float) MovementUtil.getDirection()) : (float) MovementUtil.getDirection();
-                    DewCommon.rotationManager.rotateToward(yaw, 80f, 180f);
+                    DewCommon.rotationManager.rotateToward((float) MovementUtil.getDirection(), 80f, 180f);
                     alreadyRotatedInThisTick = true;
                 }
 
-                if (mc.thePlayer.posY > 0.0D && (mc.thePlayer.isSprinting() || noSprint.get()) && jumpTicks == 0 || MovementUtil.isDiagonal(5f) && mc.thePlayer.onGround) {
+                if (mc.thePlayer.posY > 0.0D && (mc.thePlayer.isSprinting() || noSprint.get()) && jumpTicks == 0) {
                     mc.thePlayer.jump();
                 }
 
                 if (jumpTicks == 0) {
-                    this.updateKeepY(0);
+                    this.updateKeepY();
                     return;
                 }
             }
         }
 
-        if (edgeSafeMode.get().equals("Sneak") && this.isNearEdge()) {
+        if ((edgeSafeMode.get().equals("Sneak") || mode.get().equals("Telly") && conditionA) && this.isNearEdge()) {
             mc.gameSettings.keyBindSneak.setKeyDown(true);
             isSneaking = true;
         } else if (isSneaking) {
@@ -228,7 +237,7 @@ public class Scaffold extends Module {
                 break;
 
             case "telly":
-                if ((mc.thePlayer.isPotionActive(Potion.moveSpeed) || mc.thePlayer.isPotionActive(Potion.jump)) && (DewCommon.rotationManager.isReturning() || !holdingBlock)) {
+                if ((mc.thePlayer.isPotionActive(Potion.moveSpeed) || mc.thePlayer.isPotionActive(Potion.jump) || MovementUtil.isDiagonal(5f)) && (DewCommon.rotationManager.isReturning() || !holdingBlock)) {
                     DewCommon.rotationManager.rotateToward((float) (MovementUtil.getDirection() - 180f), 83f, hypixelTellyBanFix.get() ? 60f : tellyPreRotationSpeed.get().floatValue());
                 }
                 break;
@@ -250,7 +259,7 @@ public class Scaffold extends Module {
         }
 
         if (shouldUpdateKeepYState()) {
-            this.updateKeepY(0);
+            this.updateKeepY();
         }
 
         if (delay <= placeDelay.get().intValue()) return;
@@ -276,18 +285,7 @@ public class Scaffold extends Module {
             holdingBlock = true;
         }
 
-        String modeValue = mode.get();
-
         float rotSpeed;
-        boolean isTelly = modeValue.equals("Telly");
-        boolean isJumping = Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode());
-        boolean isNotMovingForward = !Keyboard.isKeyDown(mc.gameSettings.keyBindForward.getKeyCode());
-        boolean hasSpeedPotion = mc.thePlayer.isPotionActive(Potion.moveSpeed);
-        boolean hasJumpPotion = mc.thePlayer.isPotionActive(Potion.jump);
-        boolean blockAbove = MovementUtil.isBlockAbovePlayer(mc.thePlayer, 1);
-        boolean banFixEnabled = hypixelTellyBanFix.get();
-
-        boolean conditionA = isTelly && (isJumping || isNotMovingForward || hasSpeedPotion || hasJumpPotion || blockAbove);
 
         if (conditionA && banFixEnabled) {
             rotSpeed = 60f;
@@ -315,6 +313,7 @@ public class Scaffold extends Module {
             return;
         } else {
             for (EnumFacing dir : EnumFacing.values()) {
+                if (dir == EnumFacing.DOWN || dir == EnumFacing.UP) continue;
                 BlockPos neighbor = below.offset(dir);
                 PlaceResult neighborResult = tryPlaceBlockAndRotation(neighbor, rotSpeed, doPlace);
 
@@ -354,7 +353,7 @@ public class Scaffold extends Module {
 
                     boolean hasSupport = false;
                     for (EnumFacing dir : EnumFacing.values()) {
-                        if (dir == EnumFacing.DOWN) continue;
+                        if (dir == EnumFacing.DOWN || dir == EnumFacing.UP) continue;
                         BlockPos support = target.offset(dir);
                         if (!mc.theWorld.getBlockState(support).getBlock().isReplaceable(mc.theWorld, support)) {
                             hasSupport = true;
@@ -387,8 +386,8 @@ public class Scaffold extends Module {
         }
     }
 
-    private void updateKeepY(int distance) {
-        keepY = (int) mc.thePlayer.posY + distance;
+    private void updateKeepY() {
+        keepY = (int) mc.thePlayer.posY;
     }
 
     private void towerFunction() {
@@ -441,7 +440,7 @@ public class Scaffold extends Module {
     }
 
     private boolean isTelly() {
-        return mode.get().equals("Telly") && !mc.thePlayer.isPotionActive(Potion.moveSpeed) && !mc.thePlayer.isPotionActive(Potion.jump) && !towered && !Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) && Keyboard.isKeyDown(mc.gameSettings.keyBindForward.getKeyCode()) && !MovementUtil.isBlockAbovePlayer(mc.thePlayer, 1) && jumpTicks <= 3;
+        return mode.get().equals("Telly") && !mc.thePlayer.isPotionActive(Potion.moveSpeed) && !mc.thePlayer.isPotionActive(Potion.jump) && !MovementUtil.isDiagonal(5f) && !towered && !Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) && Keyboard.isKeyDown(mc.gameSettings.keyBindForward.getKeyCode()) && !MovementUtil.isBlockAbovePlayer(mc.thePlayer, 1) && jumpTicks <= 3;
     }
 
     public boolean isNearEdge() {
