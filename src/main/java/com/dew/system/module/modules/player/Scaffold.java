@@ -207,9 +207,9 @@ public class Scaffold extends Module {
         }
 
         if (mode.get().equals("Telly") && !mc.thePlayer.isPotionActive(Potion.moveSpeed) && !mc.thePlayer.isPotionActive(Potion.jump) && !towered && !Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) && Keyboard.isKeyDown(mc.gameSettings.keyBindForward.getKeyCode()) && !MovementUtil.isBlockAbovePlayer(mc.thePlayer, 1)) {
-            if (jumpTicks <= 1) {
+            if (jumpTicks <= 2) {
                 if (!MovementUtil.isDiagonal(10f)) {
-                    DewCommon.rotationManager.rotateToward((float) MovementUtil.getDirection(), 70f, 180f);
+                    DewCommon.rotationManager.rotateToward((float) MovementUtil.getDirection(), 72f, 180f);
                     alreadyRotatedInThisTick = true;
                 }
 
