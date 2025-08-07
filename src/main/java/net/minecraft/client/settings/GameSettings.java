@@ -680,7 +680,7 @@ public class GameSettings
                 return this.enableVsync;
 
             case USE_VBO:
-                return this.useVbo;
+                return false;
 
             case TOUCHSCREEN:
                 return this.touchscreen;

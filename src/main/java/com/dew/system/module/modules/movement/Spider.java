@@ -8,17 +8,15 @@ import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
 import com.dew.system.rotation.RotationManager;
 import com.dew.system.settingsvalue.SelectionValue;
-import com.dew.utils.BlinkUtil;
-import com.dew.utils.LogUtil;
-import com.dew.utils.MovementUtil;
-import com.dew.utils.TimerUtil;
+import com.dew.utils.*;
 import net.minecraft.client.settings.GameSettings;
+import net.minecraft.network.play.client.C03PacketPlayer;
 import org.lwjgl.input.Keyboard;
 
 public class Spider extends Module {
 
     private static final SelectionValue mode = new SelectionValue("Mode", "Prediction Infinite", "Prediction Infinite");
-    private int hypTick = -1;
+    private final Clock hypTimer = new Clock();
     public Spider() {
         super("Spider", ModuleCategory.MOVEMENT, Keyboard.KEY_NONE, false, true, true);
     }
@@ -40,7 +38,7 @@ public class Spider extends Module {
         BlinkUtil.sync(true, true);
         BlinkUtil.stopBlink();
         TimerUtil.resetTimerSpeed();
-        hypTick = -1;
+        hypTimer.reset();
     }
 
     @Override
@@ -48,7 +46,7 @@ public class Spider extends Module {
         BlinkUtil.sync(true, true);
         BlinkUtil.stopBlink();
         TimerUtil.resetTimerSpeed();
-        hypTick = -1;
+        hypTimer.reset();
     }
 
     @Override
@@ -57,27 +55,26 @@ public class Spider extends Module {
 
         if (mode.get().equals("Prediction Infinite")) {
             if ((MovementUtil.isBlockUnderPlayer(mc.thePlayer, 2, 0.5, false) || mc.thePlayer.isCollidedHorizontally) && mc.gameSettings.keyBindJump.isKeyDown()) {
-                if (hypTick >= 2) {
+                if (hypTimer.hasTimePassed(220)) {
                     event.forceC06 = true;
                     BlinkUtil.doBlink();
-                    TimerUtil.setTimerSpeed(0.22f);
+                    TimerUtil.setTimerSpeed(0.3f);
                     MovementUtil.fakeJump();
                     event.onGround = true;
                     mc.thePlayer.onGround = true;
-                    hypTick = -1;
-                } else if (hypTick >= -1) {
+                    PacketUtil.sendPacket(new C03PacketPlayer.C06PacketPlayerPosLook(event.x, event.y, event.z, event.yaw, event.pitch, true));
+                    hypTimer.reset();
+                } else {
                     BlinkUtil.sync(true, true);
                     BlinkUtil.stopBlink();
                     MovementUtil.fakeJump();
-                    event.onGround = false;
-                    TimerUtil.setTimerSpeed(2.7f);
-                    hypTick++;
+                    TimerUtil.resetTimerSpeed();
                 }
             } else {
                 BlinkUtil.sync(true, true);
                 BlinkUtil.stopBlink();
                 TimerUtil.resetTimerSpeed();
-                hypTick = -1;
+                hypTimer.reset();
             }
         }
     }
