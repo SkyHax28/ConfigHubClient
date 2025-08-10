@@ -4,12 +4,14 @@ import com.dew.DewCommon;
 import com.dew.IMinecraft;
 import com.dew.system.event.EventListener;
 import com.dew.system.event.events.*;
+import com.dew.system.userdata.DataSaver;
 import com.dew.utils.LogUtil;
 import com.dew.utils.Timer;
 import com.mongodb.client.*;
 import com.mongodb.client.model.Filters;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.entity.player.EntityPlayer;
+import org.apache.commons.lang3.tuple.Pair;
 import org.bson.Document;
 
 import java.util.ArrayList;
@@ -23,7 +25,7 @@ public class MongoManager implements IMinecraft, EventListener {
     private final MongoCollection<Document> collection;
     private final String uri;
     private final Timer tickTimer = new Timer();
-    public final List<EntityPlayer> online = new CopyOnWriteArrayList<>();
+    public final List<Pair<EntityPlayer, String>> online = new CopyOnWriteArrayList<>();
     private boolean connected = false;
 
     public MongoManager() {
@@ -117,9 +119,12 @@ public class MongoManager implements IMinecraft, EventListener {
         ServerData serverData = mc.getCurrentServerData();
         if (serverData == null) return;
 
-        for (EntityPlayer player : online) {
-            if (player != null && event.name != null && player.getName() != null && event.name.contains(player.getName())) {
-                event.name = "§n§b[Dew] §r" + player.getName();
+        for (Pair<EntityPlayer, String> entry : online) {
+            EntityPlayer mcUserEntity = entry.getLeft();
+            String clientUsername = entry.getRight();
+
+            if (mcUserEntity != null && event.name != null && mcUserEntity.getName() != null && event.name.contains(mcUserEntity.getName())) {
+                event.name = "§n§b[" + clientUsername + "] §r" + mcUserEntity.getName();
             }
         }
     }
@@ -137,12 +142,26 @@ public class MongoManager implements IMinecraft, EventListener {
                 List<String> users = getUsersOnServer(serverData.serverIP);
                 if (users == null) return;
 
-                for (EntityPlayer player : mc.theWorld.playerEntities) {
-                    if (player != null && users.contains(player.getName())) {
-                        online.remove(player);
-                        online.add(player);
+                for (String unformattedName : users) {
+                    if (unformattedName == null) continue;
+
+                    String mcUsername = "";
+                    String clientUsername = "";
+
+                    if (unformattedName.contains("~~--~~")) {
+                        String[] parts = unformattedName.split("~~--~~", 2);
+                        mcUsername = parts[0] != null ? parts[0] : "";
+                        clientUsername = parts.length > 1 && parts[1] != null ? parts[1] : "";
+
+                        for (EntityPlayer player : mc.theWorld.playerEntities) {
+                            if (player != null && mcUsername.contains(player.getName())) {
+                                online.remove(Pair.of(player, clientUsername));
+                                online.add(Pair.of(player, clientUsername));
+                            }
+                        }
                     }
                 }
+
                 tickTimer.reset();
             } catch (Exception e) {
                 LogUtil.infoLog("Tick Mongo Update failed: " + e.getMessage());
@@ -153,7 +172,7 @@ public class MongoManager implements IMinecraft, EventListener {
     @Override
     public void onWorld(WorldEvent event) {
         if (mc == null || mc.getSession() == null || event == null || event.ip == null) return;
-        String username = mc.getSession().getUsername();
+        String username = mc.getSession().getUsername() + "~~--~~" + DataSaver.userName;
         if (username == null) return;
 
         removeUserFromAllServers(username);
@@ -163,7 +182,7 @@ public class MongoManager implements IMinecraft, EventListener {
     @Override
     public void onLeaveWorld(LeaveWorldEvent event) {
         if (mc == null || mc.getSession() == null) return;
-        String username = mc.getSession().getUsername();
+        String username = mc.getSession().getUsername() + "~~--~~" + DataSaver.userName;
         if (username == null) return;
 
         removeUserFromAllServers(username);
@@ -172,7 +191,7 @@ public class MongoManager implements IMinecraft, EventListener {
     @Override
     public void onGuiDisconnected(GuiDisconnectedEvent event) {
         if (mc == null || mc.getSession() == null) return;
-        String username = mc.getSession().getUsername();
+        String username = mc.getSession().getUsername() + "~~--~~" + DataSaver.userName;
         if (username == null) return;
 
         removeUserFromAllServers(username);
@@ -181,7 +200,7 @@ public class MongoManager implements IMinecraft, EventListener {
     @Override
     public void onGuiConnecting(GuiConnectingEventActionPerformed event) {
         if (mc == null || mc.getSession() == null) return;
-        String username = mc.getSession().getUsername();
+        String username = mc.getSession().getUsername() + "~~--~~" + DataSaver.userName;
         if (username == null) return;
 
         removeUserFromAllServers(username);

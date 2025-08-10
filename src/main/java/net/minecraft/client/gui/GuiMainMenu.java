@@ -3,6 +3,7 @@ package net.minecraft.client.gui;
 import com.dew.IMinecraft;
 import com.dew.system.altmanager.alt.SessionChanger;
 import com.dew.system.gui.AltManagerGuiScreen;
+import com.dew.system.userdata.DataSaver;
 import com.dew.utils.RandomUtil;
 import com.dew.utils.ServerUtil;
 import com.dew.utils.VPNUtil;
@@ -643,9 +644,6 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
             this.drawString(this.fontRendererObj, s, 2, this.height - 10, -1);
         }
 
-        String s2 = "Copyright Mojang AB. Do not distribute!";
-        this.drawString(this.fontRendererObj, s2, this.width - this.fontRendererObj.getStringWidth(s2) - 2, this.height - 10, -1);
-
         if (this.openGLWarning1 != null && this.openGLWarning1.length() > 0)
         {
             drawRect(this.field_92022_t - 2, this.field_92021_u - 2, this.field_92020_v + 2, this.field_92019_w - 1, 1428160512);
@@ -666,6 +664,8 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
         }
 
         this.drawCenteredString(IMinecraft.mc.bitFontRendererObj, "Currently Logged Into: " + mc.session.getUsername(), width / 2, 5, 0xFFFFFF);
+        String s3 = "Welcome, " + DataSaver.userName;
+        this.drawString(this.fontRendererObj, s3, this.width - this.fontRendererObj.getStringWidth(s3) - 2, this.height - 10, -1);
     }
 
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException

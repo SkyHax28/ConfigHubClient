@@ -27,6 +27,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.optifine.entity.model.IEntityRenderer;
 import net.optifine.shaders.Shaders;
+import org.apache.commons.lang3.tuple.Pair;
 import org.lwjgl.opengl.GL11;
 
 public abstract class Render<T extends Entity> implements IEntityRenderer
@@ -334,8 +335,13 @@ public abstract class Render<T extends Entity> implements IEntityRenderer
     protected void renderLivingLabel(T entityIn, String str, double x, double y, double z, int maxDistance, boolean throughWalls) {
         double d0 = entityIn.getDistanceSqToEntity(this.renderManager.livingPlayer);
         MurdererDetector murdererDetector = DewCommon.moduleManager.getModule(MurdererDetector.class);
-        if (entityIn instanceof EntityPlayer && DewCommon.mongoManager.online.contains(entityIn)) {
-            str = "[Dew] " + str;
+        if (entityIn instanceof EntityPlayer) {
+            for (Pair<EntityPlayer, String> entry : DewCommon.mongoManager.online) {
+                if (entry.getLeft().equals(entityIn)) {
+                    str = "[" + entry.getRight() + "] " + str;
+                    break;
+                }
+            }
         }
         if (murdererDetector.isEnabled() && entityIn instanceof EntityPlayer && murdererDetector.getMurderers().contains(entityIn)) {
             str = "[Murderer] " + str;
