@@ -37,23 +37,13 @@ public class LayerCape implements LayerRenderer<AbstractClientPlayer>
         MongoManager mongoManager = DewCommon.mongoManager;
         boolean semiVisible = rotationManager.isRotating() && silentViewModule.isEnabled() && SilentView.mode.get().equals("GameSense") && entitylivingbaseIn instanceof EntityPlayerSP;
         if (semiVisible) return;
-        if (entitylivingbaseIn.hasPlayerInfo() && !entitylivingbaseIn.isInvisible() && entitylivingbaseIn.isWearing(EnumPlayerModelParts.CAPE) && entitylivingbaseIn.getLocationCape() != null || capeModule.isEnabled() && entitylivingbaseIn instanceof EntityPlayerSP || mongoManager.online.contains(entitylivingbaseIn)) {
+        if (entitylivingbaseIn.hasPlayerInfo() && !entitylivingbaseIn.isInvisible() && entitylivingbaseIn.isWearing(EnumPlayerModelParts.CAPE) && entitylivingbaseIn.getLocationCape() != null || capeModule.isEnabled() && entitylivingbaseIn instanceof EntityPlayerSP || mongoManager.online.stream().anyMatch(p -> p.getLeft().equals(entitylivingbaseIn))) {
             GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 
-            boolean capeReplaced = false;
-
-            for (Pair<EntityPlayer, String> entry : mongoManager.online) {
-                if (entry.getLeft().equals(entitylivingbaseIn)) {
-                    ResourceLocation customCapeLocation = new ResourceLocation("minecraft", "dew/cape.png");
-                    this.playerRenderer.bindTexture(customCapeLocation);
-                    capeReplaced = true;
-                }
-            }
-
-            if (capeModule.isEnabled() && entitylivingbaseIn instanceof EntityPlayerSP) {
+            if (capeModule.isEnabled() && entitylivingbaseIn instanceof EntityPlayerSP || mongoManager.online.stream().anyMatch(p -> p.getLeft().equals(entitylivingbaseIn))) {
                 ResourceLocation customCapeLocation = new ResourceLocation("minecraft", "dew/cape.png");
                 this.playerRenderer.bindTexture(customCapeLocation);
-            } else if (!capeReplaced) {
+            } else {
                 this.playerRenderer.bindTexture(entitylivingbaseIn.getLocationCape());
             }
 
