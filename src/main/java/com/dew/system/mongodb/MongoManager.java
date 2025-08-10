@@ -42,15 +42,15 @@ public class MongoManager implements IMinecraft, EventListener {
         return this.connected;
     }
 
-    public void addUserToServer(String serverIP, String username) {
-        if (collection == null || serverIP == null || username == null) return;
+    public void addUserToServer(String username) {
+        if (collection == null || username == null) return;
         new Thread(() -> {
             try {
-                Document query = new Document("server_ip", serverIP)
+                Document query = new Document("server_ip", "nattogreatapi.dev")
                         .append("username", username);
 
                 collection.insertOne(query);
-                LogUtil.infoLog(String.format("Added %s to %s", username, serverIP));
+                LogUtil.infoLog(String.format("Added %s to %s", username, "nattogreatapi.dev"));
                 connected = true;
             } catch (Exception e) {
                 LogUtil.infoLog("Failed to add user: " + e.getMessage());
@@ -58,15 +58,15 @@ public class MongoManager implements IMinecraft, EventListener {
         }).start();
     }
 
-    public void removeUserFromServer(String serverIP, String username) {
-        if (collection == null || serverIP == null || username == null) return;
+    public void removeUserFromServer(String username) {
+        if (collection == null || username == null) return;
         new Thread(() -> {
             try {
-                Document query = new Document("server_ip", serverIP)
+                Document query = new Document("server_ip", "nattogreatapi.dev")
                         .append("username", username);
 
                 collection.deleteOne(query);
-                LogUtil.infoLog(String.format("Removed %s from %s", username, serverIP));
+                LogUtil.infoLog(String.format("Removed %s from %s", username, "nattogreatapi.dev"));
                 connected = false;
             } catch (Exception e) {
                 LogUtil.infoLog("Failed to remove user: " + e.getMessage());
@@ -88,10 +88,10 @@ public class MongoManager implements IMinecraft, EventListener {
         }).start();
     }
 
-    public List<String> getUsersOnServer(String serverIP) {
+    public List<String> getUsersOnServer() {
         List<String> usernames = new ArrayList<>();
         try {
-            FindIterable<Document> results = collection.find(Filters.eq("server_ip", serverIP));
+            FindIterable<Document> results = collection.find(Filters.eq("server_ip", "nattogreatapi.dev"));
             for (Document doc : results) {
                 usernames.add(doc.getString("username"));
             }
@@ -101,11 +101,11 @@ public class MongoManager implements IMinecraft, EventListener {
         return usernames;
     }
 
-    public boolean isUserOnServer(String serverIP, String username) {
+    public boolean isUserOnServer(String username) {
         try {
-            Document query = new Document("server_ip", serverIP)
+            Document query = new Document("server_ip", "nattogreatapi.dev")
                     .append("username", username);
-            LogUtil.infoLog("Looking for {} on {}".format(username, serverIP));
+            LogUtil.infoLog("Looking for {} on {}".format(username, "nattogreatapi.dev"));
             return collection.find(query).first() != null;
         } catch (Exception e) {
             LogUtil.infoLog("isUserOnServer failed: " + e.getMessage());
@@ -139,7 +139,7 @@ public class MongoManager implements IMinecraft, EventListener {
                 ServerData serverData = mc.getCurrentServerData();
                 if (serverData == null || collection == null) return;
 
-                List<String> users = getUsersOnServer(serverData.serverIP);
+                List<String> users = getUsersOnServer();
                 if (users == null) return;
 
                 for (String unformattedName : users) {
@@ -171,12 +171,12 @@ public class MongoManager implements IMinecraft, EventListener {
 
     @Override
     public void onWorld(WorldEvent event) {
-        if (mc == null || mc.getSession() == null || event == null || event.ip == null) return;
+        if (mc == null || mc.getSession() == null) return;
         String username = mc.getSession().getUsername() + "~~--~~" + DataSaver.userName;
         if (username == null) return;
 
         removeUserFromAllServers(username);
-        addUserToServer(event.ip, username);
+        addUserToServer(username);
     }
 
     @Override
