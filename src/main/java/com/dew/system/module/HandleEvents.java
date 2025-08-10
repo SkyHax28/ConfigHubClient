@@ -65,9 +65,9 @@ public class HandleEvents implements EventListener {
             loadingWorld = false;
         }
 
-        if (DewCommon.moduleManager.getModule(Animations.class).isEnabled() && mc.thePlayer != null && mc.thePlayer.isSwingInProgress && mc.getItemRenderer().itemToRender != null && mc.getItemRenderer().itemToRender.getItem() instanceof ItemSword && (mc.thePlayer.isBlocking() || DewCommon.moduleManager.getModule(Animations.class).isVisualBlocking())) {
+        /*if (DewCommon.moduleManager.getModule(Animations.class).isEnabled() && mc.thePlayer != null && mc.thePlayer.isSwingInProgress && mc.getItemRenderer().itemToRender != null && mc.getItemRenderer().itemToRender.getItem() instanceof ItemSword && (mc.thePlayer.isBlocking() || DewCommon.moduleManager.getModule(Animations.class).isVisualBlocking())) {
             mc.thePlayer.renderArmPitch = mc.thePlayer.rotationPitch - 90f;
-        }
+        }*/
     }
 
     @Override
