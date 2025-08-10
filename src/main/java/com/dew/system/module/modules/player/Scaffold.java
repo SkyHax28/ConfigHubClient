@@ -127,7 +127,7 @@ public class Scaffold extends Module {
     }
 
     @Override
-    public void onPreUpdate(PreUpdateEvent event) {
+    public void onTick(TickEvent event) {
         if (mc.thePlayer != null) {
             jumpTicks = mc.thePlayer.onGround ? 0 : jumpTicks + 1;
         }
@@ -511,9 +511,9 @@ public class Scaffold extends Module {
 
             EnumFacing opposite = facing.getOpposite();
 
-            double hitX = neighbor.getX() + 0.5 + 0.5 * opposite.getFrontOffsetX();
-            double hitY = neighbor.getY() + 0.5 + 0.5 * opposite.getFrontOffsetY();
-            double hitZ = neighbor.getZ() + 0.5 + 0.5 * opposite.getFrontOffsetZ();
+            double hitX = neighbor.getX() + 0.5 + opposite.getFrontOffsetX() * 0.5;
+            double hitY = neighbor.getY() + 0.5 + opposite.getFrontOffsetY() * 0.5;
+            double hitZ = neighbor.getZ() + 0.5 + opposite.getFrontOffsetZ() * 0.5;
             Vec3 hitVec = new Vec3(hitX, hitY, hitZ);
 
             if (modeValue.equals("Normal") || modeValue.equals("Telly")) {

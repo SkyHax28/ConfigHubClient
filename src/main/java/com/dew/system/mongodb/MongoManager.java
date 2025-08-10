@@ -14,78 +14,102 @@ import net.minecraft.entity.player.EntityPlayer;
 import org.apache.commons.lang3.tuple.Pair;
 import org.bson.Document;
 
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @SuppressWarnings("ALL")
 public class MongoManager implements IMinecraft, EventListener {
 
-    private final MongoClient mongoClient;
-    private final MongoCollection<Document> collection;
+    private MongoClient mongoClient;
+    private MongoCollection<Document> collection;
     private final String uri;
     private final Timer tickTimer = new Timer();
     public final List<Pair<EntityPlayer, String>> online = new CopyOnWriteArrayList<>();
     private boolean connected = false;
+    private final ExecutorService dbExecutor = Executors.newFixedThreadPool(3);
+    private final Object userLock = new Object();
 
     public MongoManager() {
         DewCommon.eventManager.register(this);
         this.uri = "mongodb+srv://dewclientuser:TcZn7M4gtdoI8QyD@cluster0.rejop8c.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
-        this.mongoClient = MongoClients.create(uri);
-        MongoDatabase database = mongoClient.getDatabase("client_data1");
-        this.collection = database.getCollection("server_users1");
+        initMongo();
 
         LogUtil.infoLog("init mongoManager");
+    }
+
+    private synchronized void initMongo() {
+        try {
+            mongoClient = MongoClients.create(uri);
+            MongoDatabase database = mongoClient.getDatabase("client_data1");
+            collection = database.getCollection("server_users1");
+            connected = checkConnection();
+            LogUtil.infoLog("MongoDB connection established");
+        } catch (Exception e) {
+            connected = false;
+            LogUtil.infoLog("Mongo init failed: " + e.getMessage());
+        }
+    }
+
+    private boolean checkConnection() {
+        try {
+            mongoClient.getDatabase("admin").runCommand(new Document("ping", 1));
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     public boolean isConnected() {
         return this.connected;
     }
 
+    private void runAsync(Runnable task) {
+        dbExecutor.submit(() -> {
+            try {
+                task.run();
+            } catch (Exception e) {
+                LogUtil.infoLog("DB Task Error: " + e.getMessage());
+                connected = false;
+                reconnect();
+            }
+        });
+    }
+
+    private synchronized void reconnect() {
+        LogUtil.infoLog("Reconnecting to MongoDB...");
+        try {
+            if (mongoClient != null) mongoClient.close();
+        } catch (Exception ignored) {}
+        initMongo();
+    }
+
     public void addUserToServer(String serverIP, String username) {
         if (collection == null || serverIP == null || username == null) return;
-        new Thread(() -> {
-            try {
+        runAsync(() -> {
+            synchronized (userLock) {
                 Document query = new Document("server_ip", serverIP)
                         .append("username", username);
 
                 collection.insertOne(query);
                 LogUtil.infoLog(String.format("Added %s to %s", username, serverIP));
                 connected = true;
-            } catch (Exception e) {
-                LogUtil.infoLog("Failed to add user: " + e.getMessage());
             }
-        }).start();
-    }
-
-    public void removeUserFromServer(String serverIP, String username) {
-        if (collection == null || serverIP == null || username == null) return;
-        new Thread(() -> {
-            try {
-                Document query = new Document("server_ip", serverIP)
-                        .append("username", username);
-
-                collection.deleteOne(query);
-                LogUtil.infoLog(String.format("Removed %s from %s", username, serverIP));
-                connected = false;
-            } catch (Exception e) {
-                LogUtil.infoLog("Failed to remove user: " + e.getMessage());
-            }
-        }).start();
+        });
     }
 
     public void removeUserFromAllServers(String username) {
         if (collection == null || username == null) return;
-        new Thread(() -> {
-            try {
+        runAsync(() -> {
+            synchronized (userLock) {
                 Document query = new Document("username", username);
                 collection.deleteMany(query);
                 LogUtil.infoLog(String.format("Removed %s from all servers", username));
-                connected = false;
-            } catch (Exception e) {
-                LogUtil.infoLog("Failed to remove from all servers: " + e.getMessage());
             }
-        }).start();
+        });
     }
 
     public List<String> getUsersOnServer(String serverIP) {
@@ -101,15 +125,15 @@ public class MongoManager implements IMinecraft, EventListener {
         return usernames;
     }
 
-    public boolean isUserOnServer(String serverIP, String username) {
+    private String normalizeServerIP(String serverIP) {
         try {
-            Document query = new Document("server_ip", serverIP)
-                    .append("username", username);
-            LogUtil.infoLog("Looking for {} on {}".format(username, serverIP));
-            return collection.find(query).first() != null;
+            String[] parts = serverIP.split(":");
+            String host = parts[0];
+            String port = (parts.length > 1) ? parts[1] : "25565";
+            String ip = InetAddress.getByName(host).getHostAddress();
+            return ip + ":" + port;
         } catch (Exception e) {
-            LogUtil.infoLog("isUserOnServer failed: " + e.getMessage());
-            return false;
+            return serverIP.toLowerCase();
         }
     }
 
@@ -134,57 +158,51 @@ public class MongoManager implements IMinecraft, EventListener {
         if (!connected || mc == null || mc.theWorld == null || mc.thePlayer == null || !mc.inGameHasFocus) return;
         if (!tickTimer.hasElapsed(5000)) return;
 
-        new Thread(() -> {
-            try {
-                ServerData serverData = mc.getCurrentServerData();
-                if (serverData == null || collection == null) return;
+        runAsync(() -> {
+            ServerData serverData = mc.getCurrentServerData();
+            if (serverData == null || collection == null) return;
 
-                List<String> users = getUsersOnServer(serverData.serverIP);
-                if (users == null) return;
+            List<String> users = getUsersOnServer(normalizeServerIP(serverData.serverIP));
+            if (users == null) return;
 
-                for (String unformattedName : users) {
-                    if (unformattedName == null) continue;
+            List<Pair<EntityPlayer, String>> newOnline = new ArrayList<>();
 
-                    String mcUsername = "";
-                    String clientUsername = "";
+            for (String unformattedName : users) {
+                if (unformattedName.contains("~~--~~")) {
+                    String[] parts = unformattedName.split("~~--~~", 2);
+                    String mcUsername = parts[0];
+                    String clientUsername = parts.length > 1 ? parts[1] : "";
 
-                    if (unformattedName.contains("~~--~~")) {
-                        String[] parts = unformattedName.split("~~--~~", 2);
-                        mcUsername = parts[0] != null ? parts[0] : "";
-                        clientUsername = parts.length > 1 && parts[1] != null ? parts[1] : "";
-
-                        for (EntityPlayer player : mc.theWorld.playerEntities) {
-                            if (player != null && mcUsername.contains(player.getName())) {
-                                online.remove(Pair.of(player, clientUsername));
-                                online.add(Pair.of(player, clientUsername));
-                            }
+                    for (EntityPlayer player : mc.theWorld.playerEntities) {
+                        if (player != null && mcUsername.equals(player.getName())) {
+                            newOnline.add(Pair.of(player, clientUsername));
                         }
                     }
                 }
-
-                tickTimer.reset();
-            } catch (Exception e) {
-                LogUtil.infoLog("Tick Mongo Update failed: " + e.getMessage());
             }
-        }).start();
+
+            online.retainAll(newOnline);
+            for (Pair<EntityPlayer, String> p : newOnline) {
+                if (!online.contains(p)) {
+                    online.add(p);
+                }
+            }
+
+            tickTimer.reset();
+        });
     }
 
     @Override
     public void onWorld(WorldEvent event) {
         if (mc == null || mc.getSession() == null || event == null || event.ip == null) return;
         String username = mc.getSession().getUsername() + "~~--~~" + DataSaver.userName;
-        if (username == null) return;
-
-        removeUserFromAllServers(username);
-        addUserToServer(event.ip, username);
+        addUserToServer(normalizeServerIP(event.ip), username);
     }
 
     @Override
     public void onLeaveWorld(LeaveWorldEvent event) {
         if (mc == null || mc.getSession() == null) return;
         String username = mc.getSession().getUsername() + "~~--~~" + DataSaver.userName;
-        if (username == null) return;
-
         removeUserFromAllServers(username);
     }
 
@@ -192,17 +210,6 @@ public class MongoManager implements IMinecraft, EventListener {
     public void onGuiDisconnected(GuiDisconnectedEvent event) {
         if (mc == null || mc.getSession() == null) return;
         String username = mc.getSession().getUsername() + "~~--~~" + DataSaver.userName;
-        if (username == null) return;
-
-        removeUserFromAllServers(username);
-    }
-
-    @Override
-    public void onGuiConnecting(GuiConnectingEventActionPerformed event) {
-        if (mc == null || mc.getSession() == null) return;
-        String username = mc.getSession().getUsername() + "~~--~~" + DataSaver.userName;
-        if (username == null) return;
-
         removeUserFromAllServers(username);
     }
 }

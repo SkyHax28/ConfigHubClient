@@ -119,7 +119,7 @@ public class RotationManager {
     private float getSecureRandom() {
         byte[] randomBytes = new byte[4];
         randomGenerator.nextBytes(randomBytes);
-        return (float) ((randomBytes[0] & 0xFF) / 255.0);
+        return (float) ((randomBytes[0] & 0xFF) / 255.0) - 0.5f;
     }
 
     public void resetRotationsInstantly() {
@@ -194,9 +194,9 @@ public class RotationManager {
         Vec3 eyePos = mc.thePlayer.getPositionEyes(1.0f);
 
         Vec3 facePoint = new Vec3(
-                pos.getX() + 0.5 + facing.getFrontOffsetX() * 0.501,
-                pos.getY() + 0.5 + facing.getFrontOffsetY() * 0.501,
-                pos.getZ() + 0.5 + facing.getFrontOffsetZ() * 0.501
+                pos.getX() + 0.5 + facing.getFrontOffsetX() * 0.5,
+                pos.getY() + 0.5 + facing.getFrontOffsetY() * 0.5,
+                pos.getZ() + 0.5 + facing.getFrontOffsetZ() * 0.5
         );
 
         double dx = facePoint.xCoord - eyePos.xCoord;
@@ -260,14 +260,14 @@ public class RotationManager {
     }
 
     public void rotateToward(float targetYaw, float targetPitch, float rotationSpeed) {
-        float randomDelta = getSecureRandom() * 3f;
+        float randomDelta = getSecureRandom() * 10f;
         float adjustedSpeed = rotationSpeed + randomDelta;
 
         float yawDiff = MathHelper.wrapAngleTo180_float(targetYaw - this.clientYaw);
         float pitchDiff = MathHelper.wrapAngleTo180_float(targetPitch - this.clientPitch);
 
-        yawDiff += getSecureRandom() * 1.5f;
-        pitchDiff += getSecureRandom() * 1.5f;
+        yawDiff += getSecureRandom() * 0.05f;
+        pitchDiff += getSecureRandom() * 0.05f;
 
         yawDiff = MathHelper.clamp_float(yawDiff, -adjustedSpeed, adjustedSpeed);
         pitchDiff = MathHelper.clamp_float(pitchDiff, -adjustedSpeed, adjustedSpeed);
