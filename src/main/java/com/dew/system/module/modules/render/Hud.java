@@ -9,6 +9,7 @@ import com.dew.system.module.modules.ghost.BridgeAssist;
 import com.dew.system.module.modules.player.Scaffold;
 import com.dew.system.settingsvalue.BooleanValue;
 import com.dew.system.settingsvalue.MultiSelectionValue;
+import com.dew.system.userdata.DataSaver;
 import com.dew.utils.Lerper;
 import com.dew.utils.font.CustomFontRenderer;
 import net.minecraft.client.Minecraft;
@@ -93,7 +94,7 @@ public class Hud extends Module {
         float fontSize = 0.35f;
 
         if (features.isSelected("Watermark")) {
-            String clientName = DewCommon.clientName + " | " + Minecraft.getDebugFPS() + " fps";
+            String clientName = DewCommon.clientName + " | " + DataSaver.userName + " | " + Minecraft.getDebugFPS() + " fps";
             String beforeWater = clientName.substring(0, 1);
             String afterWater = clientName.substring(1);
 

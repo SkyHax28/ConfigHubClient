@@ -16,6 +16,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EnumPlayerModelParts;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.List;
 
@@ -39,10 +40,20 @@ public class LayerCape implements LayerRenderer<AbstractClientPlayer>
         if (entitylivingbaseIn.hasPlayerInfo() && !entitylivingbaseIn.isInvisible() && entitylivingbaseIn.isWearing(EnumPlayerModelParts.CAPE) && entitylivingbaseIn.getLocationCape() != null || capeModule.isEnabled() && entitylivingbaseIn instanceof EntityPlayerSP || mongoManager.online.contains(entitylivingbaseIn)) {
             GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 
-            if (capeModule.isEnabled() && entitylivingbaseIn instanceof EntityPlayerSP || mongoManager.online.contains(entitylivingbaseIn)) {
+            boolean capeReplaced = false;
+
+            for (Pair<EntityPlayer, String> entry : mongoManager.online) {
+                if (entry.getLeft().equals(entitylivingbaseIn)) {
+                    ResourceLocation customCapeLocation = new ResourceLocation("minecraft", "dew/cape.png");
+                    this.playerRenderer.bindTexture(customCapeLocation);
+                    capeReplaced = true;
+                }
+            }
+
+            if (capeModule.isEnabled() && entitylivingbaseIn instanceof EntityPlayerSP) {
                 ResourceLocation customCapeLocation = new ResourceLocation("minecraft", "dew/cape.png");
                 this.playerRenderer.bindTexture(customCapeLocation);
-            } else {
+            } else if (!capeReplaced) {
                 this.playerRenderer.bindTexture(entitylivingbaseIn.getLocationCape());
             }
 
