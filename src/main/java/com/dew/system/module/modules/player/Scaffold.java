@@ -12,14 +12,12 @@ import com.dew.system.settingsvalue.BooleanValue;
 import com.dew.system.settingsvalue.NumberValue;
 import com.dew.system.settingsvalue.SelectionValue;
 import com.dew.utils.MovementUtil;
-import com.dew.utils.PacketUtil;
 import com.dew.utils.RenderUtil;
 import net.minecraft.block.*;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.play.client.C0APacketAnimation;
 import net.minecraft.potion.Potion;
 import net.minecraft.util.*;
 import org.lwjgl.input.Keyboard;
@@ -297,10 +295,6 @@ public class Scaffold extends Module {
                     BlockPos target = below.add(dx, 0, dz);
                     if (mc.thePlayer.getDistanceSqToCenter(target) > maxDistanceSq) continue;
 
-                    IBlockState state = mc.theWorld.getBlockState(target);
-                    Block block = state.getBlock();
-                    if (!block.isReplaceable(mc.theWorld, target)) continue;
-
                     AxisAlignedBB targetBB = new AxisAlignedBB(
                             target.getX(), target.getY(), target.getZ(),
                             target.getX() + 1, target.getY() + 1, target.getZ() + 1
@@ -308,18 +302,7 @@ public class Scaffold extends Module {
 
                     if (mc.thePlayer.getEntityBoundingBox().intersectsWith(targetBB)) continue;
 
-                    boolean hasSupport = false;
-                    for (EnumFacing dir : EnumFacing.values()) {
-                        BlockPos support = target.offset(dir);
-                        if (!mc.theWorld.getBlockState(support).getBlock().isReplaceable(mc.theWorld, support)) {
-                            hasSupport = true;
-                            break;
-                        }
-                    }
-
-                    if (hasSupport) {
-                        searchQueue.add(target);
-                    }
+                    searchQueue.add(target);
                 }
             }
 

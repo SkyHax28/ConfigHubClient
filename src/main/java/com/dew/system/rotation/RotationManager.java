@@ -265,8 +265,8 @@ public class RotationManager {
         float pitchDiff = MathHelper.wrapAngleTo180_float(targetPitch - this.clientPitch);
 
         if (!noRotationJitters) {
-            yawDiff += getSecureRandom() * 5f;
-            pitchDiff += getSecureRandom() * 5f;
+            yawDiff += getSecureRandom() * 20f;
+            pitchDiff += getSecureRandom() * 20f;
         }
 
         yawDiff = MathHelper.clamp_float(yawDiff, -adjustedSpeed, adjustedSpeed);
@@ -331,7 +331,7 @@ public class RotationManager {
 
         MovingObjectPosition hit = mc.theWorld.rayTraceBlocks(eyePos, reachVec, false, false, false);
 
-        return hit != null && hit.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK && hit.getBlockPos().equals(targetPos);
+        return hit != null && hit.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK && hit.getBlockPos().equals(targetPos) && facing == hit.sideHit;
     }
 
     private Vec3 getLookVecFromRotations(float yaw, float pitch) {

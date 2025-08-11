@@ -454,6 +454,8 @@ public class ItemRenderer
                 case "wag":
                     this.transformFirstPersonItem(f / 1.5F, 0.0F);
 
+                    GlStateManager.translate(0.0F, 0.3F, 0.0F);
+
                     GlStateManager.translate(-0.05F * var9, -0.15F * var9, -0.05F);
                     GlStateManager.rotate(-40.0F * var9, 1.0F, 0.0F, 0.0F);
                     GlStateManager.rotate(20.0F * var9, 0.0F, 1.0F, 0.0F);

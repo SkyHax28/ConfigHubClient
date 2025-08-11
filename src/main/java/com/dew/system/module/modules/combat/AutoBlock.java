@@ -78,11 +78,11 @@ public class AutoBlock extends Module {
                 case "legit":
                     long now = System.currentTimeMillis();
 
-                    auraModule.doMainFunctions(!mc.gameSettings.keyBindUseItem.isKeyDown());
+                    auraModule.doMainFunctions(!mc.gameSettings.keyBindUseItem.isKeyDown() && !block);
 
                     if (now > legitBlockEndTime && !block) {
                         mc.gameSettings.keyBindUseItem.setKeyDown(true);
-                        legitBlockEndTime = now + 250;
+                        legitBlockEndTime = now + 50;
                         block = true;
                     } else {
                         mc.gameSettings.keyBindUseItem.setKeyDown(false);

@@ -15,6 +15,7 @@ import com.dew.system.settingsvalue.BooleanValue;
 import com.dew.system.settingsvalue.MultiSelectionValue;
 import com.dew.system.settingsvalue.NumberValue;
 import com.dew.system.settingsvalue.SelectionValue;
+import com.dew.utils.LogUtil;
 import com.dew.utils.PacketUtil;
 import com.dew.utils.pathfinder.Vec3;
 import de.florianmichael.viamcp.fixes.AttackOrder;
@@ -25,10 +26,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemEgg;
-import net.minecraft.item.ItemFishingRod;
-import net.minecraft.item.ItemSnowball;
+import net.minecraft.item.*;
 import net.minecraft.network.play.client.C03PacketPlayer;
 import net.minecraft.world.WorldSettings;
 import org.lwjgl.input.Keyboard;
@@ -105,11 +103,11 @@ public class Aura extends Module {
     }
 
     private double getTargetRange() {
-        return targetRange.get() + (tpAura.get() ? tpExtendedRange.get() : 0.0) + (mc.thePlayer.isSprinting() ? 0.02 : 0.0);
+        return targetRange.get() + (tpAura.get() ? tpExtendedRange.get() : 0.0);
     }
 
     private double getAttackRange() {
-        return attackRange.get() + (tpAura.get() ? tpExtendedRange.get() : 0.0) + (mc.thePlayer.isSprinting() ? 0.02 : 0.0);
+        return attackRange.get() + (tpAura.get() ? tpExtendedRange.get() : 0.0);
     }
 
     private boolean throwItems(Entity entity) {
@@ -118,13 +116,28 @@ public class Aura extends Module {
         long delay = swapBack && mc.thePlayer.fishEntity == target ? 200L : swapBack ? 400L : 700L;
 
         if (mc.thePlayer.getDistanceToEntity(entity) <= targetRange.get() && mc.thePlayer.canEntityBeSeen(target) && now - lastThrowTime >= delay) {
+            int originalSlot = mc.thePlayer.inventory.currentItem;
             for (int i = 0; i < 9; i++) {
                 if (mc.thePlayer.inventory.getStackInSlot(i) != null) {
                     Item item = mc.thePlayer.inventory.getStackInSlot(i).getItem();
                     if (item instanceof ItemSnowball || item instanceof ItemEgg || item instanceof ItemFishingRod) {
-                        mc.thePlayer.inventory.currentItem = i;
-                        mc.playerController.sendUseItem(mc.thePlayer, mc.theWorld, mc.thePlayer.inventory.getCurrentItem());
+                        if (mc.thePlayer.inventory.currentItem != i) {
+                            mc.thePlayer.inventory.currentItem = i;
+                            mc.playerController.updateController();
+                        }
+                        if (mc.thePlayer.inventory.getCurrentItem() != null && mc.playerController.sendUseItem(mc.thePlayer, mc.theWorld, mc.thePlayer.inventory.getCurrentItem())) {
+                            mc.entityRenderer.itemRenderer.resetEquippedProgress2();
+                        }
                         lastThrowTime = now;
+                        new Thread(() -> {
+                            try {
+                                Thread.sleep(250);
+                            } catch (InterruptedException ignored) {}
+                            if (mc.thePlayer.inventory.currentItem != originalSlot) {
+                                mc.thePlayer.inventory.currentItem = originalSlot;
+                                mc.playerController.updateController();
+                            }
+                        }).start();
                         return true;
                     }
                 }
