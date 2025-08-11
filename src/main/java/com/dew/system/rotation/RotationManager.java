@@ -12,7 +12,7 @@ import org.bouncycastle.crypto.prng.RandomGenerator;
 import org.bouncycastle.crypto.prng.VMPCRandomGenerator;
 
 public class RotationManager {
-    private static final long ROTATION_TIMEOUT = 600L;
+    private static final long ROTATION_TIMEOUT = 300L;
     private final Minecraft mc = IMinecraft.mc;
     private float clientYaw, clientPitch;
     private float prevClientYaw, prevClientPitch;

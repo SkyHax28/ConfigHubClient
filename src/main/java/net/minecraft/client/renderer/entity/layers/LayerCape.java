@@ -1,48 +1,40 @@
 package net.minecraft.client.renderer.entity.layers;
 
 import com.dew.DewCommon;
-import com.dew.IMinecraft;
-import com.dew.system.module.modules.render.Cape;
 import com.dew.system.module.modules.render.SilentView;
 import com.dew.system.mongodb.MongoManager;
 import com.dew.system.rotation.RotationManager;
-import com.dew.utils.LogUtil;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.RenderPlayer;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EnumPlayerModelParts;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
-import org.apache.commons.lang3.tuple.Pair;
-
-import java.util.List;
 
 public class LayerCape implements LayerRenderer<AbstractClientPlayer>
 {
     private final RenderPlayer playerRenderer;
+    private final ResourceLocation customCapeLocation;
 
     public LayerCape(RenderPlayer playerRendererIn)
     {
         this.playerRenderer = playerRendererIn;
+        this.customCapeLocation = new ResourceLocation("minecraft", "dew/cape.png");
     }
 
     public void doRenderLayer(AbstractClientPlayer entitylivingbaseIn, float p_177141_2_, float p_177141_3_, float partialTicks, float p_177141_5_, float p_177141_6_, float p_177141_7_, float scale)
     {
-        Cape capeModule = DewCommon.moduleManager.getModule(Cape.class);
         SilentView silentViewModule = DewCommon.moduleManager.getModule(SilentView.class);
         RotationManager rotationManager = DewCommon.rotationManager;
         MongoManager mongoManager = DewCommon.mongoManager;
         boolean semiVisible = rotationManager.isRotating() && silentViewModule.isEnabled() && SilentView.mode.get().equals("GameSense") && entitylivingbaseIn instanceof EntityPlayerSP;
         if (semiVisible) return;
-        if (entitylivingbaseIn.hasPlayerInfo() && !entitylivingbaseIn.isInvisible() && entitylivingbaseIn.isWearing(EnumPlayerModelParts.CAPE) && entitylivingbaseIn.getLocationCape() != null || capeModule.isEnabled() && entitylivingbaseIn instanceof EntityPlayerSP || mongoManager.online.stream().anyMatch(p -> p.getLeft().equals(entitylivingbaseIn))) {
+        if (entitylivingbaseIn.hasPlayerInfo() && !entitylivingbaseIn.isInvisible() && entitylivingbaseIn.isWearing(EnumPlayerModelParts.CAPE) && entitylivingbaseIn.getLocationCape() != null || mongoManager.online.stream().anyMatch(p -> p.getLeft().equals(entitylivingbaseIn))) {
             GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 
-            if (capeModule.isEnabled() && entitylivingbaseIn instanceof EntityPlayerSP || mongoManager.online.stream().anyMatch(p -> p.getLeft().equals(entitylivingbaseIn))) {
-                ResourceLocation customCapeLocation = new ResourceLocation("minecraft", "dew/cape.png");
-                this.playerRenderer.bindTexture(customCapeLocation);
+            if (mongoManager.online.stream().anyMatch(p -> p.getLeft().equals(entitylivingbaseIn))) {
+                this.playerRenderer.bindTexture(this.customCapeLocation);
             } else {
                 this.playerRenderer.bindTexture(entitylivingbaseIn.getLocationCape());
             }

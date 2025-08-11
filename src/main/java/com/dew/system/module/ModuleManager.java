@@ -23,7 +23,7 @@ public class ModuleManager implements EventListener {
         this.modules.addAll(Arrays.asList(
                 new MoveFix(), new Animations(), new ClickGui(), new Aura(),
                 new FlightModule(), new Disabler(), new Hud(), new SpeedModule(),
-                new Cape(), new NoFall(), new SilentView(), new InvMove(), new NoSlow(),
+                new MurdererDetector(), new NoFall(), new SilentView(), new InvMove(), new NoSlow(),
                 new Scaffold(), new KeepSprint(), new NameTags(), new Chams(),
                 new Velocity(), new CameraNoClip(), new AutoTool(), new Breaker(),
                 new ESP(), new Fullbright(), new Xray(), new NoBreakDelay(),
@@ -36,7 +36,7 @@ public class ModuleManager implements EventListener {
                 new FastPlace(), new BridgeAssist(), new Clicker(), new FakeLag(),
                 new SilentAimAssist(), new Freecam(), new Trajectories(), new PacketBlaster(),
                 new ColorBlindnessAssistant(), new Scaffold2(), new CivBreak(), new LightningDetector(),
-                new Spider(), new BarrierVision(), new MurdererDetector()
+                new Spider(), new BarrierVision()
         ));
 
         DewCommon.eventManager.register(this);

@@ -127,10 +127,10 @@ public class Scaffold extends Module {
     }
 
     @Override
-    public void onTick(TickEvent event) {
-        if (mc.thePlayer != null) {
-            jumpTicks = mc.thePlayer.onGround ? 0 : jumpTicks + 1;
-        }
+    public void onPreUpdate(PreUpdateEvent event) {
+        if (mc.thePlayer == null || mc.theWorld == null) return;
+
+        jumpTicks = mc.thePlayer.onGround ? 0 : jumpTicks + 1;
         delay++;
 
         this.doMainFunctions();
