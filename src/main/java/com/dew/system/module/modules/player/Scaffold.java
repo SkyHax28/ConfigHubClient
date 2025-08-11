@@ -474,7 +474,7 @@ public class Scaffold extends Module {
             Vec3 hitVec = new Vec3(hitX, hitY, hitZ);
 
             if (modeValue.equals("Normal") || modeValue.equals("Telly")) {
-                boolean canPlace = DewCommon.rotationManager.faceBlockWithFacing(neighbor, opposite, rotationSpeedVal, !mode.get().equals("Telly") || !hypixelTellyBanFix.get());
+                boolean canPlace = DewCommon.rotationManager.faceBlockWithFacing(neighbor, opposite, rotationSpeedVal, true);
                 if (!canPlace) return PlaceResult.FAIL_ROTATION;
             }
 
