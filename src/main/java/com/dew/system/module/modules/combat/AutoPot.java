@@ -114,7 +114,7 @@ public class AutoPot extends Module {
                     mc.thePlayer.inventory.currentItem = targetSlot;
                     mc.playerController.updateController();
 
-                    DewCommon.rotationManager.rotateToward(mc.thePlayer.rotationYaw, 90f, 180f);
+                    DewCommon.rotationManager.rotateToward(mc.thePlayer.rotationYaw, 90f, 180f, true);
                     stage = 1;
                     tickDelayCounter = 1;
                 }
@@ -122,7 +122,7 @@ public class AutoPot extends Module {
                 break;
 
             case 1:
-                DewCommon.rotationManager.rotateToward(mc.thePlayer.rotationYaw, 90f, 180f);
+                DewCommon.rotationManager.rotateToward(mc.thePlayer.rotationYaw, 90f, 180f, true);
                 mc.rightClickMouse();
                 stage = 2;
                 break;

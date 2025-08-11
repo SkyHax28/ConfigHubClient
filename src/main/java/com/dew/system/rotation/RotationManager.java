@@ -1,8 +1,6 @@
 package com.dew.system.rotation;
 
-import com.dew.DewCommon;
 import com.dew.IMinecraft;
-import com.dew.system.event.events.PostMotionEvent;
 import com.dew.utils.LogUtil;
 import com.dew.utils.MovementUtil;
 import net.minecraft.client.Minecraft;
@@ -161,7 +159,7 @@ public class RotationManager {
 
     public void facePosition(double x, double y, double z, float rotationSpeed) {
         float[] rotations = getRotationsTo(x, y, z);
-        rotateToward(rotations[0], rotations[1], rotationSpeed);
+        rotateToward(rotations[0], rotations[1], rotationSpeed, false);
     }
 
     public boolean faceEntity(Entity entity, float rotationSpeed) {
@@ -172,13 +170,13 @@ public class RotationManager {
 
         float currentPitch = getClientPitch();
 
-        rotateToward(targetYaw, currentPitch, rotationSpeed);
+        rotateToward(targetYaw, currentPitch, rotationSpeed, false);
 
         if (canHitEntityAtRotation(entity, getClientYaw(), getClientPitch())) {
             return true;
         }
 
-        rotateToward(targetYaw, targetPitch, rotationSpeed);
+        rotateToward(targetYaw, targetPitch, rotationSpeed, false);
         return canHitEntityAtRotation(entity, getClientYaw(), getClientPitch());
     }
 
@@ -187,10 +185,10 @@ public class RotationManager {
         double y = pos.getY() + 0.5;
         double z = pos.getZ() + 0.5;
         float[] rotations = getRotationsTo(x, y, z);
-        rotateToward(rotations[0], rotations[1], rotationSpeed);
+        rotateToward(rotations[0], rotations[1], rotationSpeed, false);
     }
 
-    public boolean faceBlockWithFacing(BlockPos pos, EnumFacing facing, float rotationSpeed) {
+    public boolean faceBlockWithFacing(BlockPos pos, EnumFacing facing, float rotationSpeed, boolean noRotationJitters) {
         Vec3 eyePos = mc.thePlayer.getPositionEyes(1.0f);
 
         Vec3 facePoint = new Vec3(
@@ -208,12 +206,12 @@ public class RotationManager {
         float targetYaw = (float) Math.toDegrees(Math.atan2(dz, dx)) - 90.0f;
         float targetPitch = (float) -Math.toDegrees(Math.atan2(dy, distXZ));
 
-        rotateToward(targetYaw, targetPitch, rotationSpeed);
+        rotateToward(targetYaw, targetPitch, rotationSpeed, noRotationJitters);
         return canHitBlockAtRotation(pos, facing, getClientYaw(), getClientPitch());
     }
 
     public void faceBlockHypixelSafe(float rotationSpeed, boolean slowdown) {
-        rotateToward(snapToHypYaw((float) MovementUtil.getDirection(), slowdown), 80f, rotationSpeed);
+        rotateToward(snapToHypYaw((float) MovementUtil.getDirection(), slowdown), 80f, rotationSpeed, true);
     }
 
     public float tellySwap(float yaw) {
@@ -259,15 +257,17 @@ public class RotationManager {
         return Math.abs(yaw - lowerCandidate) <= Math.abs(upperCandidate - yaw) ? lowerCandidate : upperCandidate;
     }
 
-    public void rotateToward(float targetYaw, float targetPitch, float rotationSpeed) {
-        float randomDelta = getSecureRandom() * 10f;
+    public void rotateToward(float targetYaw, float targetPitch, float rotationSpeed, boolean noRotationJitters) {
+        float randomDelta = noRotationJitters ? 0f : getSecureRandom() * 15f;
         float adjustedSpeed = rotationSpeed + randomDelta;
 
         float yawDiff = MathHelper.wrapAngleTo180_float(targetYaw - this.clientYaw);
         float pitchDiff = MathHelper.wrapAngleTo180_float(targetPitch - this.clientPitch);
 
-        yawDiff += getSecureRandom() * 0.05f;
-        pitchDiff += getSecureRandom() * 0.05f;
+        if (!noRotationJitters) {
+            yawDiff += getSecureRandom() * 0.5f;
+            pitchDiff += getSecureRandom() * 0.5f;
+        }
 
         yawDiff = MathHelper.clamp_float(yawDiff, -adjustedSpeed, adjustedSpeed);
         pitchDiff = MathHelper.clamp_float(pitchDiff, -adjustedSpeed, adjustedSpeed);

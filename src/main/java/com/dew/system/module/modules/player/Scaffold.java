@@ -209,7 +209,7 @@ public class Scaffold extends Module {
         if (mode.get().equals("Telly") && !mc.thePlayer.isPotionActive(Potion.moveSpeed) && !mc.thePlayer.isPotionActive(Potion.jump) && !towered && !Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) && Keyboard.isKeyDown(mc.gameSettings.keyBindForward.getKeyCode()) && !MovementUtil.isBlockAbovePlayer(mc.thePlayer, 1)) {
             if (jumpTicks <= 2) {
                 if (!MovementUtil.isDiagonal(10f)) {
-                    DewCommon.rotationManager.rotateToward((float) MovementUtil.getDirection(), 72f, 180f);
+                    DewCommon.rotationManager.rotateToward((float) MovementUtil.getDirection(), 72f, 180f, false);
                     alreadyRotatedInThisTick = true;
                 }
 
@@ -231,7 +231,7 @@ public class Scaffold extends Module {
         switch (mode.get().toLowerCase()) {
             case "normal":
                 if (DewCommon.rotationManager.isReturning() || !holdingBlock) {
-                    DewCommon.rotationManager.rotateToward((float) (MovementUtil.getDirection() - 180f), 83f, rotationSpeed.get().floatValue());
+                    DewCommon.rotationManager.rotateToward((float) (MovementUtil.getDirection() - 180f), 83f, rotationSpeed.get().floatValue(), false);
                 }
                 break;
 
@@ -243,7 +243,7 @@ public class Scaffold extends Module {
 
             case "telly":
                 if ((mc.thePlayer.isPotionActive(Potion.moveSpeed) || mc.thePlayer.isPotionActive(Potion.jump) || MovementUtil.isDiagonal(10f)) && (DewCommon.rotationManager.isReturning() || !holdingBlock)) {
-                    DewCommon.rotationManager.rotateToward((float) (MovementUtil.getDirection() - 180f), 83f, hypixelTellyBanFix.get() ? 60f : tellyPreRotationSpeed.get().floatValue());
+                    DewCommon.rotationManager.rotateToward((float) (MovementUtil.getDirection() - 180f), 83f, hypixelTellyBanFix.get() ? 60f : tellyPreRotationSpeed.get().floatValue(), false);
                 }
                 break;
 
@@ -517,7 +517,7 @@ public class Scaffold extends Module {
             Vec3 hitVec = new Vec3(hitX, hitY, hitZ);
 
             if (modeValue.equals("Normal") || modeValue.equals("Telly")) {
-                boolean canPlace = DewCommon.rotationManager.faceBlockWithFacing(neighbor, opposite, rotSpeed);
+                boolean canPlace = DewCommon.rotationManager.faceBlockWithFacing(neighbor, opposite, rotSpeed, modeValue.equals("Telly") && hypixelTellyBanFix.get());
                 if (!canPlace) return PlaceResult.FAIL_ROTATION;
             }
 
