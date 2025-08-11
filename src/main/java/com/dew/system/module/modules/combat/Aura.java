@@ -30,6 +30,7 @@ import net.minecraft.item.ItemEgg;
 import net.minecraft.item.ItemFishingRod;
 import net.minecraft.item.ItemSnowball;
 import net.minecraft.network.play.client.C03PacketPlayer;
+import net.minecraft.world.WorldSettings;
 import org.lwjgl.input.Keyboard;
 
 import java.util.*;
@@ -55,7 +56,6 @@ public class Aura extends Module {
     private long lastAttackTime = 0L;
     private long nextAttackDelay = 0L;
     private long lastThrowTime = 0L;
-    private int oldThrowSlot = -1;
     private boolean targeted = false;
 
     public Aura() {
@@ -64,7 +64,7 @@ public class Aura extends Module {
 
     public boolean isInAutoBlockMode() {
         AutoBlock autoBlockModule = DewCommon.moduleManager.getModule(AutoBlock.class);
-        return this.isEnabled() && autoBlockModule.isEnabled() && target != null && autoBlockModule.isHoldingSword();
+        return this.isEnabled() && autoBlockModule.isEnabled() && target != null && autoBlockModule.isHoldingSword() && (!autoBlockModule.getMode().equals("Legit") || DewCommon.rotationManager.canHitEntityFromPlayer(target, this.getAttackRange(), throughWalls.get()));
     }
 
     @Override
@@ -88,7 +88,6 @@ public class Aura extends Module {
         lastAttackTime = 0L;
         nextAttackDelay = 0L;
         lastThrowTime = 0L;
-        oldThrowSlot = -1;
         target = null;
         targeted = false;
         DewCommon.moduleManager.getModule(Animations.class).setVisualBlocking(false);
@@ -116,7 +115,7 @@ public class Aura extends Module {
     private boolean throwItems(Entity entity) {
         long now = System.currentTimeMillis();
         boolean swapBack = mc.thePlayer.fishEntity != null;
-        long delay = swapBack && mc.thePlayer.fishEntity == target ? 50L : swapBack ? 400L : 700L;
+        long delay = swapBack && mc.thePlayer.fishEntity == target ? 200L : swapBack ? 400L : 700L;
 
         if (mc.thePlayer.getDistanceToEntity(entity) <= targetRange.get() && mc.thePlayer.canEntityBeSeen(target) && now - lastThrowTime >= delay) {
             for (int i = 0; i < 9; i++) {
@@ -173,7 +172,7 @@ public class Aura extends Module {
     }
 
     public void doMainFunctions(boolean doAttack) {
-        if (mc.thePlayer == null || DewCommon.moduleManager.getModule(Scaffold.class).isEnabled() || DewCommon.moduleManager.getModule(AutoPot.class).isEnabled() && DewCommon.moduleManager.getModule(AutoPot.class).isThrowing() || DewCommon.moduleManager.getModule(Breaker.class).isEnabled() && DewCommon.moduleManager.getModule(Breaker.class).isBreaking) {
+        if (mc.thePlayer == null || mc.playerController == null || mc.playerController.getCurrentGameType() == WorldSettings.GameType.SPECTATOR  || DewCommon.moduleManager.getModule(Scaffold.class).isEnabled() || DewCommon.moduleManager.getModule(AutoPot.class).isEnabled() && DewCommon.moduleManager.getModule(AutoPot.class).isThrowing() || DewCommon.moduleManager.getModule(Breaker.class).isEnabled() && DewCommon.moduleManager.getModule(Breaker.class).isBreaking) {
             this.resetState();
             return;
         }

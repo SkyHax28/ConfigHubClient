@@ -353,6 +353,8 @@ public class Manager extends Module {
                 item == Item.getItemFromBlock(Blocks.chest) ||
                 item == Item.getItemFromBlock(Blocks.ender_chest) ||
                 item == Item.getItemFromBlock(Blocks.trapped_chest) ||
+                item == Item.getItemFromBlock(Blocks.sand) ||
+                item == Item.getItemFromBlock(Blocks.ladder) ||
                 item instanceof ItemSeeds;
     }
 

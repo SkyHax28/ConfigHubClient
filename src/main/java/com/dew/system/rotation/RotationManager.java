@@ -265,8 +265,8 @@ public class RotationManager {
         float pitchDiff = MathHelper.wrapAngleTo180_float(targetPitch - this.clientPitch);
 
         if (!noRotationJitters) {
-            yawDiff += getSecureRandom() * 0.5f;
-            pitchDiff += getSecureRandom() * 0.5f;
+            yawDiff += getSecureRandom() * 5f;
+            pitchDiff += getSecureRandom() * 5f;
         }
 
         yawDiff = MathHelper.clamp_float(yawDiff, -adjustedSpeed, adjustedSpeed);
