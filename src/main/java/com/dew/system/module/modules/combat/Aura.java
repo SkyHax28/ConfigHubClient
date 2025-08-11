@@ -353,7 +353,7 @@ public class Aura extends Module {
 
             new Thread(() -> {
                 try {
-                    Thread.sleep(80);
+                    Thread.sleep(150);
                 } catch (InterruptedException ignored) {}
                 if (mc.thePlayer.inventory.currentItem != originalSlot) {
                     mc.thePlayer.inventory.currentItem = originalSlot;

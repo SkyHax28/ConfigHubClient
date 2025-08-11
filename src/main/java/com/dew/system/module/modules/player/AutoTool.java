@@ -18,14 +18,14 @@ public class AutoTool extends Module {
     private static final BooleanValue autoSword = new BooleanValue("Auto Sword", true);
     public final AutoToolManager autoToolManager = new AutoToolManager();
     private BlockPos currentBlock = null;
-    private boolean swordUpdater = true;
+    private boolean noSwordUpdates = true;
 
     public AutoTool() {
         super("Auto Tool", ModuleCategory.PLAYER, Keyboard.KEY_NONE, false, true, true);
     }
 
     public void doNotUpdateSwordNow(boolean state) {
-        this.swordUpdater = state;
+        this.noSwordUpdates = state;
     }
 
     @Override
@@ -40,7 +40,7 @@ public class AutoTool extends Module {
 
     @Override
     public void onAttack(AttackEvent event) {
-        if (autoSword.get() && !event.target.isDead && swordUpdater)
+        if (autoSword.get() && !event.target.isDead && !noSwordUpdates)
             autoToolManager.switchToBestSword();
     }
 
