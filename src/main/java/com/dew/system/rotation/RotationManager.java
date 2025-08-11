@@ -331,7 +331,7 @@ public class RotationManager {
 
         MovingObjectPosition hit = mc.theWorld.rayTraceBlocks(eyePos, reachVec, false, false, false);
 
-        return hit != null && hit.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK && hit.getBlockPos().equals(targetPos) && hit.sideHit == facing;
+        return hit != null && hit.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK && hit.getBlockPos().equals(targetPos);
     }
 
     private Vec3 getLookVecFromRotations(float yaw, float pitch) {

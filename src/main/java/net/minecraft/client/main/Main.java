@@ -1,5 +1,7 @@
 package net.minecraft.client.main;
 
+import com.dew.DewCommon;
+import com.dew.IMinecraft;
 import com.dew.system.userdata.DataSaver;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -110,6 +112,8 @@ public class Main
             public void run()
             {
                 Minecraft.stopIntegratedServer();
+                String username = IMinecraft.mc.getSession().getUsername() + "~~--~~" + DataSaver.userName;
+                DewCommon.mongoManager.removeUserFromAllServers(username);
             }
         });
         Thread.currentThread().setName("Client thread");
