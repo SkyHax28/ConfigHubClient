@@ -26,6 +26,7 @@ public class SpeedModule extends Module {
     private final Map<String, SpeedMode> modes = new HashMap<>();
     private SpeedMode currentMode = null;
     private String lastModeName = null;
+
     public SpeedModule() {
         super("Speed", ModuleCategory.MOVEMENT, Keyboard.KEY_NONE, false, true, true);
 

@@ -5,8 +5,6 @@ import com.dew.system.event.events.PreUpdateEvent;
 import com.dew.system.event.events.ReceivedPacketEvent;
 import com.dew.system.module.modules.movement.speed.SpeedMode;
 import com.dew.utils.LogUtil;
-import com.dew.utils.MovementUtil;
-import com.dew.utils.TimerUtil;
 
 public class HypixelPredictionSpeed implements SpeedMode {
     @Override

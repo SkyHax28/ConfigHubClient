@@ -17,6 +17,7 @@ public class Teams extends Module {
     private static final BooleanValue nameColor = new BooleanValue("Name Color", false);
     private static final BooleanValue armorColor = new BooleanValue("Armor Color", false);
     private static final NumberValue armorIndex = new NumberValue("Armor Index", 3.0, 0.0, 3.0, 1.0, armorColor::get);
+
     public Teams() {
         super("Teams", ModuleCategory.COMBAT, Keyboard.KEY_NONE, false, true, true);
     }

@@ -39,6 +39,7 @@ public class Hud extends Module {
     private static final BooleanValue disableAchievementsNotification = new BooleanValue("Disable Achievements Notification", true);
     private final Map<Module, Float> animationProgress = new HashMap<>();
     private long lastRenderTime = System.nanoTime();
+
     public Hud() {
         super("Hud", ModuleCategory.RENDER, Keyboard.KEY_NONE, true, false, true);
     }
@@ -94,7 +95,7 @@ public class Hud extends Module {
         float fontSize = 0.35f;
 
         if (features.isSelected("Watermark")) {
-            String clientName = DewCommon.clientName + " | " + DataSaver.userName + " | " + Minecraft.getDebugFPS() + " fps";
+            String clientName = DewCommon.clientName + " | " + DataSaver.userName + " | " + Minecraft.getDebugFPS() + " fps" + (!DewCommon.mongoManager.isConnected() ? " | Connecting..." : "");
             String beforeWater = clientName.substring(0, 1);
             String afterWater = clientName.substring(1);
 

@@ -19,6 +19,7 @@ import net.minecraft.network.play.client.C0APacketAnimation;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.world.WorldSettings;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
@@ -45,7 +46,7 @@ public class CivBreak extends Module {
 
     @Override
     public void onRender3D(Render3DEvent event) {
-        if (mc.thePlayer == null || mc.theWorld == null || currentBlock == null) return;
+        if (mc.thePlayer == null || mc.theWorld == null || mc.playerController == null || mc.playerController.getCurrentGameType() == WorldSettings.GameType.ADVENTURE || mc.playerController.getCurrentGameType() == WorldSettings.GameType.SPECTATOR || currentBlock == null) return;
 
         double renderX = mc.getRenderManager().viewerPosX;
         double renderY = mc.getRenderManager().viewerPosY;
@@ -83,13 +84,14 @@ public class CivBreak extends Module {
 
     @Override
     public void onPreMotion(PreMotionEvent event) {
-        if (mc.thePlayer == null || mc.theWorld == null || currentBlock == null) return;
-        if (BlockUtil.getCenterDistance(currentBlock) > range.get() || mc.theWorld.getBlockState(currentBlock).getBlock() instanceof BlockAir) return;
+        if (mc.thePlayer == null || mc.theWorld == null || mc.playerController == null || mc.playerController.getCurrentGameType() == WorldSettings.GameType.ADVENTURE || mc.playerController.getCurrentGameType() == WorldSettings.GameType.SPECTATOR || currentBlock == null) return;
+        if (BlockUtil.getCenterDistance(currentBlock) > range.get() || mc.theWorld.getBlockState(currentBlock).getBlock() instanceof BlockAir)
+            return;
 
         DewCommon.rotationManager.faceBlock(currentBlock, rotationSpeed.get().floatValue());
 
         if (mc.thePlayer.ticksExisted % breakDelay.get().intValue() == 0) {
-            PacketUtil.sendPacket(new C0APacketAnimation());
+            mc.thePlayer.swingItem();
             if (mc.thePlayer.capabilities.isCreativeMode) {
                 PacketUtil.sendPacketAsSilent(new C07PacketPlayerDigging(C07PacketPlayerDigging.Action.START_DESTROY_BLOCK, currentBlock, EnumFacing.DOWN));
             } else {

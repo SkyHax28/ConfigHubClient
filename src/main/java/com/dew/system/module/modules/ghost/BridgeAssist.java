@@ -17,6 +17,7 @@ public class BridgeAssist extends Module {
     private int resetTick = 0;
     private int bridTick = 0;
     private boolean bridging = false;
+
     public BridgeAssist() {
         super("Bridge Assist", ModuleCategory.GHOST, Keyboard.KEY_NONE, false, true, true);
     }

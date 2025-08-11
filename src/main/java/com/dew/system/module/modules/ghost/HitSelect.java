@@ -12,12 +12,13 @@ import org.lwjgl.input.Keyboard;
 
 public class HitSelect extends Module {
 
-    public static SelectionValue mode = new SelectionValue("Mode", "Active", "Active", "Pause");
-    public static SelectionValue preference = new SelectionValue("Preference", "Reduce", "Movement", "Reduce", "Critical");
     private static final NumberValue chance = new NumberValue("Chance", 80.0, 10.0, 100.0, 1.0);
     private static final NumberValue threshold = new NumberValue("Threshold", 400.0, 300.0, 500.0, 1.0);
+    public static SelectionValue mode = new SelectionValue("Mode", "Active", "Active", "Pause");
+    public static SelectionValue preference = new SelectionValue("Preference", "Reduce", "Movement", "Reduce", "Critical");
     private long lastAttackTime = -1;
     private boolean currentShouldAttack = false;
+
     public HitSelect() {
         super("Hit Select", ModuleCategory.GHOST, Keyboard.KEY_NONE, false, true, true);
     }

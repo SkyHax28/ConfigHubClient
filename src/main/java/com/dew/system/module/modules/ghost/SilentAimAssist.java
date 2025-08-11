@@ -19,6 +19,7 @@ public class SilentAimAssist extends Module {
 
     private static final NumberValue angleDifference = new NumberValue("Angle Difference", 70.0, 20.0, 90.0, 0.5);
     private static final BooleanValue onlyWhenClick = new BooleanValue("Only When Click", true);
+
     public SilentAimAssist() {
         super("Silent Aim Assist", ModuleCategory.GHOST, Keyboard.KEY_NONE, false, true, true);
     }

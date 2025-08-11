@@ -27,6 +27,7 @@ public class AutoPot extends Module {
     private int stage = 0;
     private int prevSlot = -1;
     private int targetSlot = -1;
+
     public AutoPot() {
         super("Auto Pot", ModuleCategory.COMBAT, Keyboard.KEY_NONE, false, true, true);
     }
@@ -134,7 +135,7 @@ public class AutoPot extends Module {
                 }
 
                 this.resetState();
-                tickDelayCounter = (int) Math.max(1, throwDelay.get().intValue());
+                tickDelayCounter = Math.max(1, throwDelay.get().intValue());
                 break;
         }
     }

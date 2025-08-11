@@ -21,6 +21,7 @@ public class Knockback extends Module {
     private final Clock attackDelay = new Clock();
     private boolean isHit = false;
     private float delay = 0f;
+
     public Knockback() {
         super("Knockback", ModuleCategory.GHOST, Keyboard.KEY_NONE, false, true, true);
     }

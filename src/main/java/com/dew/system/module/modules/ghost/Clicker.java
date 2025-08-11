@@ -20,6 +20,7 @@ public class Clicker extends Module {
     private long nextClickTime = 0;
     private double lastInterval = 0;
     private long lastRestTime = 0;
+
     public Clicker() {
         super("Clicker", ModuleCategory.GHOST, Keyboard.KEY_NONE, false, true, true);
     }

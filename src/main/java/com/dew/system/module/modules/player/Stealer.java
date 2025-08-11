@@ -25,6 +25,7 @@ public class Stealer extends Module {
     private int closeTickCounter = 0;
     private int startDelayCounter = 0;
     private boolean wasChestOpenLastTick = false;
+
     public Stealer() {
         super("Stealer", ModuleCategory.PLAYER, Keyboard.KEY_NONE, false, true, true);
     }

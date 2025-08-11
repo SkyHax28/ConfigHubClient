@@ -25,6 +25,7 @@ public class FlightModule extends Module {
     private final Map<String, FlightMode> modes = new HashMap<>();
     private FlightMode currentMode = null;
     private String lastModeName = null;
+
     public FlightModule() {
         super("Flight", ModuleCategory.MOVEMENT, Keyboard.KEY_NONE, false, true, true);
 

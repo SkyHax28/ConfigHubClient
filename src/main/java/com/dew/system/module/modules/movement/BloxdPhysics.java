@@ -27,6 +27,7 @@ public class BloxdPhysics extends Module {
     private int bhopJumps = 0;
     private long knockbackEndTime = 0;
     private boolean wasClimbing = false;
+
     public BloxdPhysics() {
         super("Bloxd Physics", ModuleCategory.MOVEMENT, Keyboard.KEY_NONE, false, true, true);
     }

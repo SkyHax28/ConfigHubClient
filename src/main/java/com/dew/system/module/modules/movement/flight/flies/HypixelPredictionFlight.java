@@ -5,14 +5,7 @@ import com.dew.system.event.events.PreUpdateEvent;
 import com.dew.system.event.events.ReceivedPacketEvent;
 import com.dew.system.event.events.SendPacketEvent;
 import com.dew.system.module.modules.movement.flight.FlightMode;
-import com.dew.utils.*;
-import net.minecraft.init.Blocks;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.Packet;
-import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement;
-import net.minecraft.network.play.client.C0FPacketConfirmTransaction;
-import net.minecraft.network.play.server.S08PacketPlayerPosLook;
-import net.minecraft.util.BlockPos;
+import com.dew.utils.LogUtil;
 
 public class HypixelPredictionFlight implements FlightMode {
 

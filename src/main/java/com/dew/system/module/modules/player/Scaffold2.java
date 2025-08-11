@@ -30,6 +30,7 @@ public class Scaffold2 extends Module {
     private int lastBlockSlot = -1;
     private BlockPos lastPlaced = null;
     private int keepY = -1;
+
     public Scaffold2() {
         super("Scaffold2", ModuleCategory.PLAYER, Keyboard.KEY_NONE, false, true, true);
     }

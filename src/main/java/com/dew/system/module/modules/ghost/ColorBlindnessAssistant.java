@@ -21,6 +21,7 @@ public class ColorBlindnessAssistant extends Module {
 
     private final List<BlockPos> renderBlocks = new ArrayList<>();
     private int targetColorMeta = -1;
+
     public ColorBlindnessAssistant() {
         super("Color Blindness Assistant", ModuleCategory.GHOST, Keyboard.KEY_NONE, false, true, true);
     }

@@ -15,6 +15,7 @@ public class Ambience extends Module {
 
     private static final SelectionValue mode = new SelectionValue("Mode", "Midnight", "Day", "Noon", "Dusk", "Night", "Midnight");
     private static final BooleanValue clearWeather = new BooleanValue("Clear Weather", true);
+
     public Ambience() {
         super("Ambience", ModuleCategory.RENDER, Keyboard.KEY_NONE, false, true, true);
     }

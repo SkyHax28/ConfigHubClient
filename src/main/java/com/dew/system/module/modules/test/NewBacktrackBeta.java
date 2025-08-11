@@ -29,9 +29,10 @@ public class NewBacktrackBeta extends Module {
 
     private final List<PacketEntry> packetQueue = new CopyOnWriteArrayList<>();
     private final List<PosEntry> positions = new CopyOnWriteArrayList<>();
+    private final long lastDelay = 80;
     private PosEntry latestServerPos = null;
     private EntityLivingBase target;
-    private final long lastDelay = 80;
+
     public NewBacktrackBeta() {
         super("NewbacktrackBeta", ModuleCategory.COMBAT, Keyboard.KEY_NONE, false, true, true);
     }

@@ -1456,53 +1456,6 @@ public class Minecraft implements IThreadListener, IPlayerUsage
         }
     }
 
-    public void placeBlockWithRightClickFunctions() {
-        if (!this.playerController.getIsHittingBlock()) {
-            boolean flag = true;
-            ItemStack itemstack = this.thePlayer.inventory.getCurrentItem();
-
-            if (this.objectMouseOver == null) {
-                logger.warn("Null returned as \'hitResult\', this shouldn\'t happen!");
-            } else if (this.objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {
-                BlockPos blockpos = this.objectMouseOver.getBlockPos();
-
-                if (this.theWorld.getBlockState(blockpos).getBlock().getMaterial() != Material.air) {
-                    int i = itemstack != null ? itemstack.stackSize : 0;
-
-                    if (this.playerController.onPlayerRightClick(this.thePlayer, this.theWorld, itemstack, blockpos, this.objectMouseOver.sideHit, this.objectMouseOver.hitVec))
-                    {
-                        flag = false;
-                        PacketUtil.sendPacket(new C0APacketAnimation());
-                    }
-
-                    if (itemstack == null)
-                    {
-                        return;
-                    }
-
-                    if (itemstack.stackSize == 0)
-                    {
-                        this.thePlayer.inventory.mainInventory[this.thePlayer.inventory.currentItem] = null;
-                    }
-                    else if (itemstack.stackSize != i || this.playerController.isInCreativeMode())
-                    {
-                        this.entityRenderer.itemRenderer.resetEquippedProgress();
-                    }
-                }
-            }
-
-            if (flag)
-            {
-                ItemStack itemstack1 = this.thePlayer.inventory.getCurrentItem();
-
-                if (itemstack1 != null && this.playerController.sendUseItem(this.thePlayer, this.theWorld, itemstack1))
-                {
-                    this.entityRenderer.itemRenderer.resetEquippedProgress2();
-                }
-            }
-        }
-    }
-
     @SuppressWarnings("incomplete-switch")
     public void rightClickMouse()
     {

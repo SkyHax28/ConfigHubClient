@@ -87,6 +87,7 @@ public class Manager extends Module {
         if (moveToHotbar(bestAxe, 2)) return;
         if (moveToHotbar(bestShovel, 3)) return;
         if (searchAndMoveSelectedItemToHotbar(Items.golden_apple, 4)) return;
+        if (searchAndMoveSelectedItemToHotbar(Items.fishing_rod, 5)) return;
         if (searchAndMoveBlocksToHotbar(6)) return;
 
         int bestSplashPotion = getBestPotionSlot(true);
@@ -346,8 +347,6 @@ public class Manager extends Module {
                 item == Items.stick ||
                 item == Items.string ||
                 item == Items.glass_bottle ||
-                item == Items.egg ||
-                item == Items.snowball ||
                 item == Items.flower_pot ||
                 item == Items.bucket ||
                 item == Items.experience_bottle ||

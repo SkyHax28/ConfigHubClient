@@ -13,6 +13,7 @@ public class AutoWalkAI extends Module {
 
     public Entity target = null;
     private boolean targeted = false;
+
     public AutoWalkAI() {
         super("Auto Walk AI", ModuleCategory.MOVEMENT, Keyboard.KEY_NONE, false, true, true);
     }

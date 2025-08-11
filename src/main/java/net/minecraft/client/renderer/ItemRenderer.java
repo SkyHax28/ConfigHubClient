@@ -365,10 +365,6 @@ public class ItemRenderer
 
             ItemStack toRender = itemRenderEvent.itemToRender;
 
-            if (this.itemToRender != toRender) {
-                f = 0f;
-            }
-
             if (toRender != null) {
                 if (animationsModule.isEnabled()) {
                     if (toRender.getItem() instanceof ItemSword) {

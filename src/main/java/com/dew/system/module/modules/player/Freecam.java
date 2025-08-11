@@ -23,6 +23,7 @@ public class Freecam extends Module {
     private double camX, camY, camZ;
     private long lastRenderTime = System.nanoTime();
     private boolean loadable = false;
+
     public Freecam() {
         super("Freecam", ModuleCategory.PLAYER, Keyboard.KEY_F8, false, true, true);
     }

@@ -9,6 +9,7 @@ import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
 import com.dew.system.settingsvalue.BooleanValue;
 import com.dew.system.settingsvalue.NumberValue;
+import com.dew.utils.LogUtil;
 import com.dew.utils.PacketUtil;
 import com.dew.utils.RenderUtil;
 import net.minecraft.block.Block;
@@ -20,9 +21,11 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.C07PacketPlayerDigging;
 import net.minecraft.network.play.client.C0APacketAnimation;
+import net.minecraft.network.play.server.S29PacketSoundEffect;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.world.WorldSettings;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
@@ -35,19 +38,24 @@ public class Breaker extends Module {
     private static final NumberValue range = new NumberValue("Range", 3.0, 1.0, 6.0, 1.0);
     private static final NumberValue rotationSpeed = new NumberValue("Rotation Speed", 60.0, 0.0, 180.0, 5.0);
     private static final BooleanValue breakOpposite = new BooleanValue("Break Opposite", false);
+    private static final BooleanValue autoWhitelist = new BooleanValue("Auto Whitelist", false);
+    private final List<BlockPos> bedWhitelist = new ArrayList<>();
     public boolean isBreaking = false;
     private BlockPos currentTarget = null;
+
     public Breaker() {
         super("Breaker", ModuleCategory.PLAYER, Keyboard.KEY_NONE, false, true, true);
     }
 
     @Override
     public void onDisable() {
+        bedWhitelist.clear();
         this.resetState();
     }
 
     @Override
     public void onLoadWorld(WorldLoadEvent event) {
+        bedWhitelist.clear();
         this.resetState();
     }
 
@@ -63,7 +71,7 @@ public class Breaker extends Module {
 
     @Override
     public void onRender3D(Render3DEvent event) {
-        if (mc.thePlayer == null || mc.theWorld == null || currentTarget == null || !isBreaking) return;
+        if (mc.thePlayer == null || mc.theWorld == null || mc.playerController == null || mc.playerController.getCurrentGameType() == WorldSettings.GameType.ADVENTURE || mc.playerController.getCurrentGameType() == WorldSettings.GameType.SPECTATOR || currentTarget == null || !isBreaking) return;
 
         double renderX = mc.getRenderManager().viewerPosX;
         double renderY = mc.getRenderManager().viewerPosY;
@@ -97,7 +105,12 @@ public class Breaker extends Module {
 
     @Override
     public void onTick(TickEvent event) {
-        if (mc.thePlayer == null || mc.theWorld == null || DewCommon.moduleManager.getModule(Scaffold.class).isEnabled()) return;
+        if (mc.thePlayer == null || mc.theWorld == null || mc.playerController == null || mc.playerController.getCurrentGameType() == WorldSettings.GameType.ADVENTURE || mc.playerController.getCurrentGameType() == WorldSettings.GameType.SPECTATOR || DewCommon.moduleManager.getModule(Scaffold.class).isEnabled())
+            return;
+
+        if (bedWhitelist.isEmpty() && autoWhitelist.get() && mc.thePlayer.ticksExisted % 3 == 0) {
+            this.addNearestBedToWhitelist();
+        }
 
         BlockPos playerPos = new BlockPos(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ);
         List<BlockPos> bedPositions = new ArrayList<>();
@@ -110,7 +123,9 @@ public class Breaker extends Module {
                     Block block = mc.theWorld.getBlockState(pos).getBlock();
 
                     if (isBedBlock(block) && state.getValue(BlockBed.PART) == BlockBed.EnumPartType.HEAD) {
-                        bedPositions.add(pos);
+                        if (!bedWhitelist.contains(pos) || !autoWhitelist.get()) {
+                            bedPositions.add(pos);
+                        }
                     }
                 }
             }
@@ -203,9 +218,47 @@ public class Breaker extends Module {
             if (leftClick) {
                 if (mc.theWorld.getBlockState(pos).getBlock().getMaterial() != Material.air && mc.playerController.onPlayerDamageBlock(pos, facing)) {
                     mc.effectRenderer.addBlockHitEffects(pos, facing);
-                    PacketUtil.sendPacket(new C0APacketAnimation());
+                    mc.thePlayer.swingItem();
                 }
             }
+        }
+    }
+
+    private void addNearestBedToWhitelist() {
+        if (mc.thePlayer == null || mc.theWorld == null) return;
+        BlockPos respawnPos = mc.thePlayer.getPosition();
+        if (respawnPos == null) return;
+
+        BlockPos nearestBed = null;
+        double nearestDist = Double.MAX_VALUE;
+
+        int hRadius = 10;
+        int yRadius = 2;
+        for (int x = -hRadius; x <= hRadius; x++) {
+            for (int y = -yRadius; y <= yRadius; y++) {
+                for (int z = -hRadius; z <= hRadius; z++) {
+                    BlockPos pos = respawnPos.add(x, y, z);
+                    IBlockState state = mc.theWorld.getBlockState(pos);
+                    Block block = state.getBlock();
+
+                    if (isBedBlock(block) && state.getValue(BlockBed.PART) == BlockBed.EnumPartType.HEAD) {
+                        double dist = respawnPos.distanceSq(pos);
+                        if (dist < nearestDist) {
+                            nearestDist = dist;
+                            nearestBed = pos;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (nearestBed != null) {
+            bedWhitelist.add(nearestBed);
+            int x = nearestBed.getX();
+            int y = nearestBed.getY();
+            int z = nearestBed.getZ();
+            int distance = (int) mc.thePlayer.getDistance(x, y, z);
+            LogUtil.printChat("Whitelisted bed at " + x + " " + y + " " + z + " (" + distance + " blocks away)");
         }
     }
 

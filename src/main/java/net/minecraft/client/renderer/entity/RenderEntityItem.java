@@ -63,7 +63,7 @@ public class RenderEntityItem extends Render<EntityItem>
                 lastUpdateTimeMap.put(entityId, currentTime);
 
                 float randomized = 720f * deltaTimeSec;
-                float currentPitch = pitchRotationMap.getOrDefault(entityId, RandomUtil.nextFloat() * 90f + randomized);
+                float currentPitch = pitchRotationMap.getOrDefault(entityId, 0f);
 
                 if (!onGround && !landedItems.contains(entityId)) {
                     currentPitch += randomized;

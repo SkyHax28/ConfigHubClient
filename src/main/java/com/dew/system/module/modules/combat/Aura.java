@@ -25,6 +25,10 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemEgg;
+import net.minecraft.item.ItemFishingRod;
+import net.minecraft.item.ItemSnowball;
 import net.minecraft.network.play.client.C03PacketPlayer;
 import org.lwjgl.input.Keyboard;
 
@@ -43,13 +47,17 @@ public class Aura extends Module {
     private static final BooleanValue noRotationHitCheck = new BooleanValue("No Rotation Hit Check", false);
     private static final BooleanValue throughWalls = new BooleanValue("Through Walls", true);
     private static final BooleanValue visualAutoBlock = new BooleanValue("Visual Auto Block", true);
+    private static final BooleanValue autoThrowRodOrBalls = new BooleanValue("Auto Throw Rod or Balls", false, () -> mode.get().equals("Single"));
     private static final BooleanValue tpAura = new BooleanValue("TP Aura", false);
     private static final NumberValue tpExtendedRange = new NumberValue("TP Extended Range", 50.0, 0.0, 100.0, 1.0, tpAura::get);
     private final Random random = new Random();
     public Entity target = null;
     private long lastAttackTime = 0L;
     private long nextAttackDelay = 0L;
+    private long lastThrowTime = 0L;
+    private int oldThrowSlot = -1;
     private boolean targeted = false;
+
     public Aura() {
         super("Aura", ModuleCategory.COMBAT, Keyboard.KEY_NONE, false, true, true);
     }
@@ -79,6 +87,8 @@ public class Aura extends Module {
     private void resetState() {
         lastAttackTime = 0L;
         nextAttackDelay = 0L;
+        lastThrowTime = 0L;
+        oldThrowSlot = -1;
         target = null;
         targeted = false;
         DewCommon.moduleManager.getModule(Animations.class).setVisualBlocking(false);
@@ -101,6 +111,28 @@ public class Aura extends Module {
 
     private double getAttackRange() {
         return attackRange.get() + (tpAura.get() ? tpExtendedRange.get() : 0.0) + (mc.thePlayer.isSprinting() ? 0.02 : 0.0);
+    }
+
+    private boolean throwItems(Entity entity) {
+        long now = System.currentTimeMillis();
+        boolean swapBack = mc.thePlayer.fishEntity != null;
+        long delay = swapBack && mc.thePlayer.fishEntity == target ? 50L : swapBack ? 400L : 700L;
+
+        if (mc.thePlayer.getDistanceToEntity(entity) <= targetRange.get() && mc.thePlayer.canEntityBeSeen(target) && now - lastThrowTime >= delay) {
+            for (int i = 0; i < 9; i++) {
+                if (mc.thePlayer.inventory.getStackInSlot(i) != null) {
+                    Item item = mc.thePlayer.inventory.getStackInSlot(i).getItem();
+                    if (item instanceof ItemSnowball || item instanceof ItemEgg || item instanceof ItemFishingRod) {
+                        mc.thePlayer.inventory.currentItem = i;
+                        mc.playerController.sendUseItem(mc.thePlayer, mc.theWorld, mc.thePlayer.inventory.getCurrentItem());
+                        lastThrowTime = now;
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
     }
 
     private boolean attack(Entity entity, boolean canHit, long currentTime) {
@@ -157,7 +189,11 @@ public class Aura extends Module {
                     long currentTime = System.currentTimeMillis();
                     boolean canHit = this.rotateToTargetAndIsCanHit(target);
                     if (doAttack) {
-                        boolean success = this.attack(target, canHit, currentTime);
+                        boolean threw = false;
+                        if (autoThrowRodOrBalls.get()) {
+                            threw = this.throwItems(target);
+                        }
+                        boolean success = this.attack(target, canHit && !threw, currentTime);
                         if (success) {
                             lastAttackTime = currentTime;
                             nextAttackDelay = getNextAttackDelay();

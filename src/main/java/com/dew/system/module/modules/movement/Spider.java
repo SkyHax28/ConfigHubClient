@@ -1,15 +1,11 @@
 package com.dew.system.module.modules.movement;
 
-import com.dew.DewCommon;
 import com.dew.system.event.events.PreMotionEvent;
-import com.dew.system.event.events.StrafeEvent;
 import com.dew.system.event.events.WorldLoadEvent;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
-import com.dew.system.rotation.RotationManager;
 import com.dew.system.settingsvalue.SelectionValue;
 import com.dew.utils.*;
-import net.minecraft.client.settings.GameSettings;
 import net.minecraft.network.play.client.C03PacketPlayer;
 import org.lwjgl.input.Keyboard;
 
@@ -17,6 +13,7 @@ public class Spider extends Module {
 
     private static final SelectionValue mode = new SelectionValue("Mode", "Prediction Infinite", "Prediction Infinite");
     private final Clock hypTimer = new Clock();
+
     public Spider() {
         super("Spider", ModuleCategory.MOVEMENT, Keyboard.KEY_NONE, false, true, true);
     }
@@ -55,6 +52,7 @@ public class Spider extends Module {
 
         if (mode.get().equals("Prediction Infinite")) {
             if ((MovementUtil.isBlockUnderPlayer(mc.thePlayer, 2, 0.5, false) || mc.thePlayer.isCollidedHorizontally) && mc.gameSettings.keyBindJump.isKeyDown()) {
+                event.forceC06 = true;
                 if (hypTimer.hasTimePassed(300)) {
                     BlinkUtil.doBlink();
                     TimerUtil.setTimerSpeed(0.3f);
