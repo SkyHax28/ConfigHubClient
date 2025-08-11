@@ -7,6 +7,7 @@ import com.dew.system.event.events.WorldLoadEvent;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
 import com.dew.system.module.modules.exploit.SafetySwitchv2000;
+import com.dew.system.module.modules.player.AutoTool;
 import com.dew.system.module.modules.player.Breaker;
 import com.dew.system.module.modules.player.Freecam;
 import com.dew.system.module.modules.player.Scaffold;
@@ -28,6 +29,8 @@ import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.*;
 import net.minecraft.network.play.client.C03PacketPlayer;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.world.WorldSettings;
 import org.lwjgl.input.Keyboard;
 
@@ -47,6 +50,7 @@ public class Aura extends Module {
     private static final BooleanValue throughWalls = new BooleanValue("Through Walls", true);
     private static final BooleanValue visualAutoBlock = new BooleanValue("Visual Auto Block", true);
     private static final BooleanValue autoThrowRodOrBalls = new BooleanValue("Auto Throw Rod or Balls", false, () -> mode.get().equals("Single"));
+    private static final BooleanValue autoBlockPlacer = new BooleanValue("Auto Block Placer", false, () -> mode.get().equals("Single"));
     private static final BooleanValue tpAura = new BooleanValue("TP Aura", false);
     private static final NumberValue tpExtendedRange = new NumberValue("TP Extended Range", 50.0, 0.0, 100.0, 1.0, tpAura::get);
     private final Random random = new Random();
@@ -54,6 +58,7 @@ public class Aura extends Module {
     private long lastAttackTime = 0L;
     private long nextAttackDelay = 0L;
     private long lastThrowTime = 0L;
+    private long lastPlaceTime = 0L;
     private boolean targeted = false;
 
     public Aura() {
@@ -96,55 +101,6 @@ public class Aura extends Module {
         if (this.isInAutoBlockMode()) return;
 
         this.doMainFunctions(true);
-    }
-
-    private boolean rotateToTargetAndIsCanHit(Entity entity) {
-        return DewCommon.rotationManager.faceEntity(entity, rotationSpeed.get().floatValue());
-    }
-
-    private double getTargetRange() {
-        return targetRange.get() + (tpAura.get() ? tpExtendedRange.get() : 0.0);
-    }
-
-    private double getAttackRange() {
-        return attackRange.get() + (tpAura.get() ? tpExtendedRange.get() : 0.0);
-    }
-
-    private boolean throwItems(Entity entity) {
-        long now = System.currentTimeMillis();
-        boolean swapBack = mc.thePlayer.fishEntity != null;
-        long delay = swapBack && mc.thePlayer.fishEntity == target ? 200L : swapBack ? 400L : 700L;
-
-        if (mc.thePlayer.getDistanceToEntity(entity) <= targetRange.get() && mc.thePlayer.canEntityBeSeen(target) && now - lastThrowTime >= delay) {
-            int originalSlot = mc.thePlayer.inventory.currentItem;
-            for (int i = 0; i < 9; i++) {
-                if (mc.thePlayer.inventory.getStackInSlot(i) != null) {
-                    Item item = mc.thePlayer.inventory.getStackInSlot(i).getItem();
-                    if (item instanceof ItemSnowball || item instanceof ItemEgg || item instanceof ItemFishingRod) {
-                        if (mc.thePlayer.inventory.currentItem != i) {
-                            mc.thePlayer.inventory.currentItem = i;
-                            mc.playerController.updateController();
-                        }
-                        if (mc.thePlayer.inventory.getCurrentItem() != null && mc.playerController.sendUseItem(mc.thePlayer, mc.theWorld, mc.thePlayer.inventory.getCurrentItem())) {
-                            mc.entityRenderer.itemRenderer.resetEquippedProgress2();
-                        }
-                        lastThrowTime = now;
-                        new Thread(() -> {
-                            try {
-                                Thread.sleep(250);
-                            } catch (InterruptedException ignored) {}
-                            if (mc.thePlayer.inventory.currentItem != originalSlot) {
-                                mc.thePlayer.inventory.currentItem = originalSlot;
-                                mc.playerController.updateController();
-                            }
-                        }).start();
-                        return true;
-                    }
-                }
-            }
-        }
-
-        return false;
     }
 
     private boolean attack(Entity entity, boolean canHit, long currentTime) {
@@ -192,9 +148,12 @@ public class Aura extends Module {
 
         switch (mode.get().toLowerCase()) {
             case "single":
-                target = getClosestTarget(this.getTargetRange());
+                target = getHighestThreatTarget(this.getTargetRange());
                 if (target != null) {
                     targeted = true;
+                    if (autoBlockPlacer.get() && placeDefensiveBlock(target)) {
+                        return;
+                    }
                     if (visualAutoBlock.get()) {
                         DewCommon.moduleManager.getModule(Animations.class).setVisualBlocking(true);
                     }
@@ -250,6 +209,175 @@ public class Aura extends Module {
         }
     }
 
+    private boolean rotateToTargetAndIsCanHit(Entity entity) {
+        return DewCommon.rotationManager.faceEntity(entity, rotationSpeed.get().floatValue());
+    }
+
+    private double getTargetRange() {
+        return targetRange.get() + (tpAura.get() ? tpExtendedRange.get() : 0.0);
+    }
+
+    private double getAttackRange() {
+        return attackRange.get() + (tpAura.get() ? tpExtendedRange.get() : 0.0);
+    }
+
+    private boolean throwItems(Entity entity) {
+        long now = System.currentTimeMillis();
+        boolean swapBack = mc.thePlayer.fishEntity != null;
+        long delay = swapBack && mc.thePlayer.fishEntity == target ? 200L : swapBack ? 400L : 700L;
+
+        if (mc.thePlayer.getDistanceToEntity(entity) <= targetRange.get() && mc.thePlayer.canEntityBeSeen(target) && now - lastThrowTime >= delay) {
+            int originalSlot = mc.thePlayer.inventory.currentItem;
+            for (int i = 0; i < 9; i++) {
+                if (mc.thePlayer.inventory.getStackInSlot(i) != null) {
+                    Item item = mc.thePlayer.inventory.getStackInSlot(i).getItem();
+                    if (item instanceof ItemSnowball || item instanceof ItemEgg || item instanceof ItemFishingRod) {
+                        DewCommon.moduleManager.getModule(AutoTool.class).doNotUpdateSwordNow(true);
+                        if (mc.thePlayer.inventory.currentItem != i) {
+                            mc.thePlayer.inventory.currentItem = i;
+                            mc.playerController.updateController();
+                        }
+                        if (mc.thePlayer.inventory.getCurrentItem() != null && mc.playerController.sendUseItem(mc.thePlayer, mc.theWorld, mc.thePlayer.inventory.getCurrentItem())) {
+                            mc.entityRenderer.itemRenderer.resetEquippedProgress2();
+                        }
+                        lastThrowTime = now;
+                        new Thread(() -> {
+                            try {
+                                Thread.sleep(250);
+                            } catch (InterruptedException ignored) {}
+                            if (mc.thePlayer.inventory.currentItem != originalSlot) {
+                                mc.thePlayer.inventory.currentItem = originalSlot;
+                                mc.playerController.updateController();
+                            }
+                            DewCommon.moduleManager.getModule(AutoTool.class).doNotUpdateSwordNow(false);
+                        }).start();
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private double getThreatScore(EntityLivingBase entity) {
+        double score = 0;
+        double dist = mc.thePlayer.getDistanceToEntity(entity);
+        score -= dist;
+
+        ItemStack held = entity.getHeldItem();
+        if (held != null && held.getItem() instanceof ItemSword) score += 10;
+        if (entity.getTotalArmorValue() > 10) score += 5;
+        if (entity.getHealth() > 15) score += 3;
+        return score;
+    }
+
+    private Entity getHighestThreatTarget(double range) {
+        EntityLivingBase best = null;
+        double bestScore = Double.NEGATIVE_INFINITY;
+        for (Entity entity : mc.theWorld.loadedEntityList) {
+            if (shouldNotAttack(entity) || entity instanceof EntityPlayerSP) continue;
+            if (entity instanceof EntityLivingBase && mc.thePlayer.getDistanceToEntity(entity) <= range) {
+                double score = getThreatScore((EntityLivingBase) entity);
+                if (score > bestScore) {
+                    bestScore = score;
+                    best = (EntityLivingBase) entity;
+                }
+            }
+        }
+        return best;
+    }
+
+    private boolean placeDefensiveBlock(Entity entity) {
+        if (System.currentTimeMillis() - lastPlaceTime < 400) return false;
+        double dist = mc.thePlayer.getDistanceToEntity(entity);
+        if (dist < 2.5 || dist > 3.0) return false;
+
+        int blockSlot = getHotbarBlockSlot();
+        if (blockSlot == -1) return false;
+
+        double dx = entity.posX - mc.thePlayer.posX;
+        double dz = entity.posZ - mc.thePlayer.posZ;
+
+        double len = Math.sqrt(dx * dx + dz * dz);
+        if (len == 0) return false;
+        dx /= len;
+        dz /= len;
+
+        double placeX = entity.posX - dx;
+        double placeZ = entity.posZ - dz;
+        double placeY = Math.floor(entity.posY);
+
+        BlockPos pos = new BlockPos(placeX, placeY, placeZ);
+
+        EnumFacing placeFacing = null;
+        BlockPos neighbor = null;
+        for (EnumFacing facing : EnumFacing.values()) {
+            BlockPos adj = pos.offset(facing);
+            if (!mc.theWorld.isAirBlock(adj)) {
+                placeFacing = facing.getOpposite();
+                neighbor = adj;
+                break;
+            }
+        }
+
+        if (placeFacing == null || neighbor == null) return false;
+
+        int originalSlot = mc.thePlayer.inventory.currentItem;
+        EnumFacing opposite = placeFacing.getOpposite();
+
+        double hitX = neighbor.getX() + 0.5 + 0.5 * opposite.getFrontOffsetX();
+        double hitY = neighbor.getY() + 0.5 + 0.5 * opposite.getFrontOffsetY();
+        double hitZ = neighbor.getZ() + 0.5 + 0.5 * opposite.getFrontOffsetZ();
+        net.minecraft.util.Vec3 hitVec = new net.minecraft.util.Vec3(hitX, hitY, hitZ);
+
+        if (DewCommon.rotationManager.faceBlockWithFacing(neighbor, placeFacing, rotationSpeed.get().floatValue(), true)) {
+            DewCommon.moduleManager.getModule(AutoTool.class).doNotUpdateSwordNow(true);
+            if (mc.thePlayer.inventory.currentItem != blockSlot) {
+                mc.thePlayer.inventory.currentItem = blockSlot;
+                mc.playerController.updateController();
+            }
+            ItemStack itemstack = mc.thePlayer.inventory.getCurrentItem();
+            if (mc.playerController.onPlayerRightClick(mc.thePlayer, mc.theWorld, itemstack, neighbor, placeFacing, hitVec)) {
+                mc.thePlayer.swingItem();
+                if (itemstack != null) {
+                    if (itemstack.stackSize == 0) {
+                        mc.thePlayer.inventory.mainInventory[mc.thePlayer.inventory.currentItem] = null;
+                    } else if (mc.playerController.isInCreativeMode()) {
+                        mc.entityRenderer.itemRenderer.resetEquippedProgress();
+                    }
+                }
+            }
+
+            lastPlaceTime = System.currentTimeMillis();
+
+            new Thread(() -> {
+                try {
+                    Thread.sleep(80);
+                } catch (InterruptedException ignored) {}
+                if (mc.thePlayer.inventory.currentItem != originalSlot) {
+                    mc.thePlayer.inventory.currentItem = originalSlot;
+                    mc.playerController.updateController();
+                }
+                DewCommon.moduleManager.getModule(AutoTool.class).doNotUpdateSwordNow(false);
+            }).start();
+
+            return true;
+        }
+
+        return false;
+    }
+
+    private int getHotbarBlockSlot() {
+        for (int i = 0; i < 9; i++) {
+            ItemStack stack = mc.thePlayer.inventory.getStackInSlot(i);
+            if (stack != null && stack.getItem() instanceof ItemBlock) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
     private long getNextAttackDelay() {
         double min = minCps.get();
         double max = maxCps.get();
@@ -280,22 +408,6 @@ public class Aura extends Module {
         }
 
         return targets;
-    }
-
-    private Entity getClosestTarget(double range) {
-        Entity closest = null;
-        double closestDist = range;
-
-        for (Entity entity : mc.theWorld.loadedEntityList) {
-            if (entity instanceof EntityPlayerSP || this.shouldNotAttack(entity)) continue;
-            double dist = mc.thePlayer.getDistanceToEntity(entity);
-            if (dist < closestDist) {
-                closestDist = dist;
-                closest = entity;
-            }
-        }
-
-        return closest;
     }
 
     private boolean shouldNotAttack(Entity entity) {

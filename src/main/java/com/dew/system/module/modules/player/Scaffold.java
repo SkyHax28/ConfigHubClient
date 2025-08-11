@@ -295,6 +295,10 @@ public class Scaffold extends Module {
                     BlockPos target = below.add(dx, 0, dz);
                     if (mc.thePlayer.getDistanceSqToCenter(target) > maxDistanceSq) continue;
 
+                    IBlockState state = mc.theWorld.getBlockState(target);
+                    Block block = state.getBlock();
+                    if (!block.isReplaceable(mc.theWorld, target)) continue;
+
                     AxisAlignedBB targetBB = new AxisAlignedBB(
                             target.getX(), target.getY(), target.getZ(),
                             target.getX() + 1, target.getY() + 1, target.getZ() + 1
@@ -302,7 +306,18 @@ public class Scaffold extends Module {
 
                     if (mc.thePlayer.getEntityBoundingBox().intersectsWith(targetBB)) continue;
 
-                    searchQueue.add(target);
+                    boolean hasSupport = false;
+                    for (EnumFacing dir : EnumFacing.values()) {
+                        BlockPos support = target.offset(dir);
+                        if (!mc.theWorld.getBlockState(support).getBlock().isReplaceable(mc.theWorld, support)) {
+                            hasSupport = true;
+                            break;
+                        }
+                    }
+
+                    if (hasSupport) {
+                        searchQueue.add(target);
+                    }
                 }
             }
 

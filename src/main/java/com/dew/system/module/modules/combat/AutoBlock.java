@@ -80,10 +80,12 @@ public class AutoBlock extends Module {
 
                     auraModule.doMainFunctions(!mc.gameSettings.keyBindUseItem.isKeyDown() && !block);
 
-                    if (now > legitBlockEndTime && !block) {
+                    if (!block && now > legitBlockEndTime) {
                         mc.gameSettings.keyBindUseItem.setKeyDown(true);
                         legitBlockEndTime = now + 50;
                         block = true;
+                    } else if (block && now <= legitBlockEndTime) {
+                        mc.gameSettings.keyBindUseItem.setKeyDown(true);
                     } else {
                         mc.gameSettings.keyBindUseItem.setKeyDown(false);
                         block = false;

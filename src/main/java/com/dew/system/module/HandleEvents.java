@@ -44,6 +44,8 @@ public class HandleEvents implements EventListener {
 
         BlinkUtil.sync(true, true);
         BlinkUtil.stopBlink();
+
+        DewCommon.moduleManager.getModule(AutoTool.class).doNotUpdateSwordNow(false);
     }
 
     @Override

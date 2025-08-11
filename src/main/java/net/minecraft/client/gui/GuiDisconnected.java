@@ -40,7 +40,30 @@ public class GuiDisconnected extends GuiScreen
         this.field_175353_i = this.multilineMessage.size() * this.fontRendererObj.FONT_HEIGHT;
         this.buttonList.add(new GuiButton(0, this.width / 2 - 100, this.height / 2 + this.field_175353_i / 2 + this.fontRendererObj.FONT_HEIGHT, I18n.format("gui.toMenu", new Object[0])));
 
-        this.buttonList.add(new GuiButton(1, this.width / 2 - 100, this.height / 2 + field_175353_i / 2 + this.fontRendererObj.FONT_HEIGHT + 22, 200, 20, "Reconnect to §7" + ServerUtil.serverData.serverIP));
+        String lastServerString = "Last Server";
+        if (ServerUtil.serverData != null) {
+            String fullIp = ServerUtil.serverData.serverIP;
+            int maxWidth = 80;
+
+            if (IMinecraft.mc.fontRendererObj.getStringWidth(fullIp) <= maxWidth) {
+                lastServerString = fullIp;
+            } else {
+                String ellipsis = "...";
+                int ellipsisWidth = IMinecraft.mc.fontRendererObj.getStringWidth(ellipsis);
+                StringBuilder trimmed = new StringBuilder();
+
+                for (int i = 0; i < fullIp.length(); i++) {
+                    String sub = fullIp.substring(0, i + 1);
+                    int width = IMinecraft.mc.fontRendererObj.getStringWidth(sub);
+                    if (width + ellipsisWidth >= maxWidth) break;
+                    trimmed.append(fullIp.charAt(i));
+                }
+
+                lastServerString = trimmed + ellipsis;
+            }
+        }
+
+        this.buttonList.add(new GuiButton(1, this.width / 2 - 100, this.height / 2 + field_175353_i / 2 + this.fontRendererObj.FONT_HEIGHT + 22, 200, 20, "Reconnect to §7" + lastServerString));
         this.buttonList.add(new GuiButton(2, this.width / 2 - 100, this.height / 2 + field_175353_i / 2 + this.fontRendererObj.FONT_HEIGHT + 44, 200, 20, "Set Random Cracked"));
         this.buttonList.add(new GuiButton(3, this.width / 2 - 100, this.height / 2 + field_175353_i / 2 + this.fontRendererObj.FONT_HEIGHT + 66, 200, 20, "Reconnect Mullvad"));
         this.buttonList.add(new GuiButton(69, 5, this.height - 28, 90, 20, "Protocol"));
