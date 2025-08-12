@@ -437,7 +437,8 @@ public class Scaffold extends Module {
     }
 
     private boolean shouldTellyAntiEdge() {
-        return mode.get().equals("Telly") && (MovementUtil.isDiagonal(25f) || !this.shouldTellyDoNotPlaceBlocks() && Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) || (!mc.thePlayer.onGround || Math.abs(MovementUtil.getAngleDifference((float) MovementUtil.getDirection(), DewCommon.rotationManager.getClientYaw())) > 0.3F) && MovementUtil.isDiagonal(12f) || !MovementUtil.isDiagonal(12f) && mc.thePlayer.onGround && Math.abs(MovementUtil.getAngleDifference((float) MovementUtil.getDirection(), DewCommon.rotationManager.getClientYaw())) > 0.3F);
+        boolean hasAngleDiff = Math.abs(MovementUtil.getAngleDifference((float) MovementUtil.getDirection(), DewCommon.rotationManager.getClientYaw())) > 1F;
+        return mode.get().equals("Telly") && (MovementUtil.isDiagonal(25f) || jumpTicks >= 9 || !this.shouldTellyDoNotPlaceBlocks() && Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) || (!mc.thePlayer.onGround || hasAngleDiff) && MovementUtil.isDiagonal(12f) || !MovementUtil.isDiagonal(12f) && mc.thePlayer.onGround && hasAngleDiff);
     }
 
     private boolean canPlaceAt(BlockPos pos) {
