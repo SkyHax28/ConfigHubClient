@@ -18,6 +18,7 @@ import com.dew.system.settingsvalue.NumberValue;
 import com.dew.system.settingsvalue.SelectionValue;
 import com.dew.utils.LogUtil;
 import com.dew.utils.PacketUtil;
+import com.dew.utils.ReachCalculator;
 import com.dew.utils.TimerUtil;
 import com.dew.utils.pathfinder.Vec3;
 import de.florianmichael.viamcp.fixes.AttackOrder;
@@ -51,7 +52,7 @@ public class Aura extends Module {
     private static final BooleanValue noRotationHitCheck = new BooleanValue("No Rotation Hit Check", false);
     private static final BooleanValue throughWalls = new BooleanValue("Through Walls", true);
     private static final BooleanValue visualAutoBlock = new BooleanValue("Visual Auto Block", true);
-    private static final BooleanValue timerRange = new BooleanValue("Timer Range", false);
+    private static final BooleanValue tickBase = new BooleanValue("Tick Base", false);
     private static final BooleanValue autoThrowRodOrBalls = new BooleanValue("Auto Throw Rod or Balls", false, () -> mode.get().equals("Single"));
     private static final BooleanValue autoBlockPlacer = new BooleanValue("Auto Block Placer", false, () -> mode.get().equals("Single"));
     private static final BooleanValue tpAura = new BooleanValue("TP Aura", false);
@@ -63,6 +64,7 @@ public class Aura extends Module {
     private long lastThrowTime = 0L;
     private long lastPlaceTime = 0L;
     private int placeableTick = 0;
+    private int tickableTick = 0;
     private float currentTimerSpeed = 1.0f;
     private boolean burstNextTick = false;
     private boolean slowNextTick = false;
@@ -74,7 +76,7 @@ public class Aura extends Module {
 
     public boolean isInAutoBlockMode() {
         AutoBlock autoBlockModule = DewCommon.moduleManager.getModule(AutoBlock.class);
-        return this.isEnabled() && autoBlockModule.isEnabled() && target != null && autoBlockModule.isHoldingSword() && (!autoBlockModule.getMode().equals("Legit") || DewCommon.rotationManager.canHitEntityFromPlayer(target, this.getAttackRange(), throughWalls.get()));
+        return this.isEnabled() && autoBlockModule.isEnabled() && target != null && autoBlockModule.isHoldingSword() && (!autoBlockModule.getMode().equals("Legit") || ReachCalculator.canReachToAttack(mc.thePlayer, target, this.getAttackRange(), throughWalls.get()));
     }
 
     @Override
@@ -99,6 +101,7 @@ public class Aura extends Module {
         nextAttackDelay = 0L;
         lastThrowTime = 0L;
         placeableTick = 0;
+        tickableTick = 0;
         target = null;
         targeted = false;
         if (currentTimerSpeed != 1f) {
@@ -128,7 +131,7 @@ public class Aura extends Module {
     }
 
     private boolean attack(Entity entity, boolean canHit, long currentTime) {
-        if (DewCommon.rotationManager.canHitEntityFromPlayer(entity, this.getAttackRange(), throughWalls.get()) && (canHit || noRotationHitCheck.get())) {
+        if (ReachCalculator.canReachToAttack(mc.thePlayer, entity, this.getAttackRange(), throughWalls.get()) && (canHit || noRotationHitCheck.get())) {
             if (currentTime - lastAttackTime >= nextAttackDelay) {
                 if (tpAura.get()) {
                     new Thread(() -> {
@@ -189,6 +192,7 @@ public class Aura extends Module {
         restoringInventory = true;
         inventorySwapBackSlot = originalSlot;
         inventorySwapBackTicks = Math.max(1, delayMs / 50);
+        LogUtil.printChat("Schedule " + delayMs + " " + originalSlot);
     }
 
     public void doMainFunctions(boolean doAttack) {
@@ -199,10 +203,17 @@ public class Aura extends Module {
 
         placeableTick = target != null ? placeableTick + 1 : 0;
 
-        if (timerRange.get() && target != null && target instanceof EntityLivingBase && mc.thePlayer.canEntityBeSeen(target)) {
+        if (tickBase.get() && target != null && target instanceof EntityLivingBase && mc.thePlayer.canEntityBeSeen(target) && tickableTick == 0) {
             adjustTimerRange((EntityLivingBase) target);
         } else if (currentTimerSpeed != 1f) {
             slowlyReturnToNormal();
+            if (tickableTick > 0) {
+                tickableTick--;
+            }
+        } else {
+            if (tickableTick > 0) {
+                tickableTick--;
+            }
         }
 
         switch (mode.get().toLowerCase()) {
@@ -283,21 +294,24 @@ public class Aura extends Module {
     private void adjustTimerRange(EntityLivingBase target) {
         double dist = mc.thePlayer.getDistanceToEntity(target);
 
-        if (!burstNextTick && !slowNextTick && dist <= getAttackRange() + 0.2 && dist > getAttackRange() - 0.5) {
+        if (!burstNextTick && !slowNextTick && dist <= getAttackRange() + 0.15 && dist > getAttackRange() - 0.56) {
             burstNextTick = true;
         }
 
         if (burstNextTick) {
             currentTimerSpeed = 10f;
             TimerUtil.setTimerSpeed(currentTimerSpeed);
+            LogUtil.printChat("tick 1");
             burstNextTick = false;
             slowNextTick = true;
             return;
         }
 
         if (slowNextTick) {
-            currentTimerSpeed = 0.2f;
+            currentTimerSpeed = 0.121f;
             TimerUtil.setTimerSpeed(currentTimerSpeed);
+            LogUtil.printChat("tick 2");
+            tickableTick = 10;
             slowNextTick = false;
             return;
         }
@@ -307,8 +321,9 @@ public class Aura extends Module {
 
     private void slowlyReturnToNormal() {
         if (Math.abs(currentTimerSpeed - 1.0f) > 0.01f) {
-            currentTimerSpeed += (1.0f - currentTimerSpeed) * 0.5f;
+            currentTimerSpeed += (1.0f - currentTimerSpeed) * 0.6f;
             TimerUtil.setTimerSpeed(currentTimerSpeed);
+            LogUtil.printChat("Timer balance: " + currentTimerSpeed + "x");
         } else {
             TimerUtil.resetTimerSpeed();
         }
@@ -318,10 +333,8 @@ public class Aura extends Module {
         if (restoringInventory) return false;
 
         long now = System.currentTimeMillis();
-        boolean swapBack = mc.thePlayer.fishEntity != null;
-        long delay = swapBack ? 200L : 500L;
 
-        if (mc.thePlayer.getDistanceToEntity(entity) <= targetRange.get() && mc.thePlayer.canEntityBeSeen(target) && now - lastThrowTime >= delay) {
+        if (mc.thePlayer.getDistanceToEntity(entity) <= targetRange.get() && mc.thePlayer.canEntityBeSeen(target) && now - lastThrowTime >= 300) {
             int originalSlot = mc.thePlayer.inventory.currentItem;
             for (int i = 0; i < 9; i++) {
                 if (mc.thePlayer.inventory.getStackInSlot(i) != null) {
@@ -336,7 +349,8 @@ public class Aura extends Module {
                         }
                         mc.thePlayer.swingItemWithoutPacket();
                         lastThrowTime = now;
-                        scheduleInventoryRestore(originalSlot, 220);
+                        int storeDelay = item instanceof ItemFishingRod ? 220 : 120;
+                        scheduleInventoryRestore(originalSlot, storeDelay);
                         return true;
                     }
                 }
@@ -375,7 +389,7 @@ public class Aura extends Module {
     }
 
     private boolean placeDefensiveBlock(Entity entity) {
-        if (restoringInventory) return false;
+        if (restoringInventory || mc.timer.timerSpeed != 1) return false;
         if (System.currentTimeMillis() - lastPlaceTime < 1000 || !mc.thePlayer.canEntityBeSeen(target)) return false;
         double dist = mc.thePlayer.getDistanceToEntity(entity);
         if (dist < 2.7 || dist > 3.0) return false;
@@ -426,6 +440,7 @@ public class Aura extends Module {
         net.minecraft.util.Vec3 hitVec = new net.minecraft.util.Vec3(hitX, hitY, hitZ);
 
         if (DewCommon.rotationManager.faceBlockWithFacing(neighbor, placeFacing, rotationSpeed.get().floatValue(), true)) {
+            LogUtil.printChat("Defence place: " + pos);
             if (mc.thePlayer.inventory.currentItem != blockSlot) {
                 mc.thePlayer.inventory.currentItem = blockSlot;
                 mc.playerController.updateController();

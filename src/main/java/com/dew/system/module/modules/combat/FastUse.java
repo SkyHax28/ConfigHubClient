@@ -3,6 +3,7 @@ package com.dew.system.module.modules.combat;
 import com.dew.system.event.events.PreMotionEvent;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
+import com.dew.utils.LogUtil;
 import com.dew.utils.PacketUtil;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBucketMilk;
@@ -27,6 +28,7 @@ public class FastUse extends Module {
             }
 
             mc.playerController.onStoppedUsingItem(mc.thePlayer);
+            LogUtil.printChat("Sent food");
         }
     }
 

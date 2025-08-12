@@ -36,7 +36,8 @@ public class ModuleManager implements EventListener {
                 new FastPlace(), new BridgeAssist(), new Clicker(), new FakeLag(),
                 new SilentAimAssist(), new Freecam(), new Trajectories(), new PacketBlaster(),
                 new ColorBlindnessAssistant(), new Scaffold2(), new CivBreak(), new LightningDetector(),
-                new Spider(), new BarrierVision(), new Breadcrumbs(), new AutoAuth()
+                new Spider(), new BarrierVision(), new Breadcrumbs(), new AutoAuth(),
+                new AutoExtinguish()
         ));
 
         DewCommon.eventManager.register(this);

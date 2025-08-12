@@ -3,7 +3,6 @@ package com.dew.utils.font;
 import com.dew.utils.LogUtil;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL30;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -13,6 +12,8 @@ import java.nio.ByteBuffer;
 public class CustomFontRenderer {
     private static final int TEX_WIDTH = 512;
     private static final int TEX_HEIGHT = 512;
+    private static final int PADDING = 2; // 文字ごとの余白
+
     private final Font font;
     private final CharData[] charData = new CharData[256];
     private int texId;
@@ -20,7 +21,6 @@ public class CustomFontRenderer {
     public CustomFontRenderer(Font font) {
         this.font = font;
         generateFontTexture();
-
         LogUtil.infoLog("init customFontRenderer");
     }
 
@@ -39,8 +39,8 @@ public class CustomFontRenderer {
 
         for (int i = 0; i < 256; i++) {
             char ch = (char) i;
-            int width = metrics.charWidth(ch);
-            int height = metrics.getHeight();
+            int width = metrics.charWidth(ch) + PADDING * 2;
+            int height = metrics.getHeight() + PADDING * 2;
 
             if (x + width >= TEX_WIDTH) {
                 x = 0;
@@ -48,7 +48,8 @@ public class CustomFontRenderer {
                 lineHeight = 0;
             }
 
-            g.drawString(String.valueOf(ch), x, y + metrics.getAscent());
+            // 描画位置に余白を加える
+            g.drawString(String.valueOf(ch), x + PADDING, y + metrics.getAscent() + PADDING);
             charData[i] = new CharData(x, y, width, height);
 
             x += width;
@@ -78,9 +79,11 @@ public class CustomFontRenderer {
         int id = GL11.glGenTextures();
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, id);
 
+        // フィルタは線形補間のまま
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
-        GL30.glGenerateMipmap(GL11.GL_TEXTURE_2D);
+
+        // Mipmap生成はしない（滲み防止）
         GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA8, TEX_WIDTH, TEX_HEIGHT, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buffer);
 
         return id;
@@ -107,15 +110,19 @@ public class CustomFontRenderer {
 
         GL11.glBegin(GL11.GL_QUADS);
 
+        float epsX = 0.5f / TEX_WIDTH;
+        float epsY = 0.5f / TEX_HEIGHT;
+
         for (char c : text.toCharArray()) {
             if (c >= 256) continue;
             CharData data = charData[c];
             if (data == null) continue;
 
-            float texX = data.x / (float) TEX_WIDTH;
-            float texY = data.y / (float) TEX_HEIGHT;
-            float texW = data.width / (float) TEX_WIDTH;
-            float texH = data.height / (float) TEX_HEIGHT;
+            // UV補正で0.5px内側に
+            float texX = data.x / (float) TEX_WIDTH + epsX;
+            float texY = data.y / (float) TEX_HEIGHT + epsY;
+            float texW = (data.width) / (float) TEX_WIDTH - epsX * 2;
+            float texH = (data.height) / (float) TEX_HEIGHT - epsY * 2;
 
             float w = data.width * scale;
             float h = data.height * scale;
@@ -129,7 +136,7 @@ public class CustomFontRenderer {
             GL11.glTexCoord2f(texX + texW, texY);
             GL11.glVertex2f(posX + w, y);
 
-            posX += w;
+            posX += w - (PADDING * scale * 2); // パディング分を文字間隔に反映
         }
 
         GL11.glEnd();
@@ -143,7 +150,7 @@ public class CustomFontRenderer {
             if (c >= 256) continue;
             CharData data = charData[c];
             if (data != null) {
-                width += data.width * size;
+                width += (data.width - PADDING * 2) * size;
             }
         }
         return width;

@@ -102,7 +102,7 @@ public class Manager extends Module {
         if (moveToHotbar(bestAxe, 2)) return;
         if (moveToHotbar(bestShovel, 3)) return;
         if (searchAndMoveSelectedItemToHotbar(Items.golden_apple, 4)) return;
-        if (searchAndMoveSelectedItemToHotbar(Items.fishing_rod, 5)) return;
+        if (searchAndMoveSelectedItemToHotbar(mc.thePlayer.isBurning() ? Items.water_bucket : Items.fishing_rod, 5)) return;
         if (searchAndMoveBlocksToHotbar(6)) return;
 
         int bestSplashPotion = getBestPotionSlot(true);

@@ -191,20 +191,23 @@ public class RotationManager {
     public boolean faceBlockWithFacing(BlockPos pos, EnumFacing facing, float rotationSpeed, boolean noRotationJitters) {
         Vec3 eyePos = mc.thePlayer.getPositionEyes(1.0f);
 
-        Vec3 facePoint = new Vec3(
+        Vec3 hitVec = new Vec3(
                 pos.getX() + 0.5 + facing.getFrontOffsetX() * 0.5,
                 pos.getY() + 0.5 + facing.getFrontOffsetY() * 0.5,
                 pos.getZ() + 0.5 + facing.getFrontOffsetZ() * 0.5
         );
 
-        double dx = facePoint.xCoord - eyePos.xCoord;
-        double dy = facePoint.yCoord - eyePos.yCoord;
-        double dz = facePoint.zCoord - eyePos.zCoord;
+        double diffX = hitVec.xCoord - eyePos.xCoord;
+        double diffY = hitVec.yCoord - eyePos.yCoord;
+        double diffZ = hitVec.zCoord - eyePos.zCoord;
 
-        double distXZ = Math.sqrt(dx * dx + dz * dz);
+        double diffXZ = Math.sqrt(diffX * diffX + diffZ * diffZ);
 
-        float targetYaw = (float) Math.toDegrees(Math.atan2(dz, dx)) - 90.0f;
-        float targetPitch = (float) -Math.toDegrees(Math.atan2(dy, distXZ));
+        float targetYaw = (float) (Math.toDegrees(Math.atan2(diffZ, diffX)) - 90.0F);
+        float targetPitch = (float) -Math.toDegrees(Math.atan2(diffY, diffXZ));
+
+        targetYaw = MathHelper.wrapAngleTo180_float(targetYaw);
+        targetPitch = MathHelper.wrapAngleTo180_float(targetPitch);
 
         rotateToward(targetYaw, targetPitch, rotationSpeed, noRotationJitters);
         return canHitBlockAtRotation(pos, facing, getClientYaw(), getClientPitch());
@@ -283,32 +286,6 @@ public class RotationManager {
         this.isRotating = true;
     }
 
-    public boolean canHitEntityFromPlayer(Entity target, double reach, boolean throughWalls) {
-        if (mc.thePlayer == null || mc.theWorld == null || target == null) return false;
-
-        Vec3 eyePos = mc.thePlayer.getPositionEyes(1.0f);
-        AxisAlignedBB targetBox = target.getEntityBoundingBox().expand(0.1, 0.1, 0.1);
-
-        Vec3 targetCenter = new Vec3(
-                (targetBox.minX + targetBox.maxX) / 2.0,
-                (targetBox.minY + targetBox.maxY) / 2.0,
-                (targetBox.minZ + targetBox.maxZ) / 2.0
-        );
-
-        double distance = eyePos.distanceTo(targetCenter);
-        if (distance > reach) return false;
-
-        if (distance < 0.9 && mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.ENTITY) return true;
-
-        MovingObjectPosition blockHit = mc.theWorld.rayTraceBlocks(eyePos, targetCenter, false, true, false);
-        if (!throughWalls && blockHit != null && blockHit.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {
-            return false;
-        }
-
-        MovingObjectPosition entityHit = targetBox.calculateIntercept(eyePos, targetCenter);
-        return entityHit != null;
-    }
-
     public boolean canHitEntityAtRotation(Entity target, float yaw, float pitch) {
         double reach = mc.playerController.getBlockReachDistance();
 
@@ -324,14 +301,88 @@ public class RotationManager {
 
     public boolean canHitBlockAtRotation(BlockPos targetPos, EnumFacing facing, float yaw, float pitch) {
         double reach = mc.playerController.getBlockReachDistance();
-
         Vec3 eyePos = mc.thePlayer.getPositionEyes(1.0f);
-        Vec3 lookVec = getLookVecFromRotations(yaw, pitch);
+        Vec3 look = getLookVecFromRotations(yaw, pitch);
 
-        Vec3 reachVec = eyePos.addVector(lookVec.xCoord * reach, lookVec.yCoord * reach, lookVec.zCoord * reach);
-        MovingObjectPosition hit = mc.theWorld.rayTraceBlocks(eyePos, reachVec, false, false, false);
-        final double EPSILON = 1e-6;
-        return hit != null && hit.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK && hit.getBlockPos().distanceSq(targetPos) < EPSILON && facing == hit.sideHit;
+        double planeCoord;
+        double t;
+        double PARALLEL_EPS = 1e-8;
+        switch (facing) {
+            case WEST:
+                planeCoord = targetPos.getX();
+                if (Math.abs(look.xCoord) < PARALLEL_EPS) return false;
+                t = (planeCoord - eyePos.xCoord) / look.xCoord;
+                break;
+            case EAST:
+                planeCoord = targetPos.getX() + 1.0;
+                if (Math.abs(look.xCoord) < PARALLEL_EPS) return false;
+                t = (planeCoord - eyePos.xCoord) / look.xCoord;
+                break;
+            case DOWN:
+                planeCoord = targetPos.getY();
+                if (Math.abs(look.yCoord) < PARALLEL_EPS) return false;
+                t = (planeCoord - eyePos.yCoord) / look.yCoord;
+                break;
+            case UP:
+                planeCoord = targetPos.getY() + 1.0;
+                if (Math.abs(look.yCoord) < PARALLEL_EPS) return false;
+                t = (planeCoord - eyePos.yCoord) / look.yCoord;
+                break;
+            case NORTH:
+                planeCoord = targetPos.getZ();
+                if (Math.abs(look.zCoord) < PARALLEL_EPS) return false;
+                t = (planeCoord - eyePos.zCoord) / look.zCoord;
+                break;
+            case SOUTH:
+                planeCoord = targetPos.getZ() + 1.0;
+                if (Math.abs(look.zCoord) < PARALLEL_EPS) return false;
+                t = (planeCoord - eyePos.zCoord) / look.zCoord;
+                break;
+            default:
+                return false;
+        }
+
+        double EPS = 1e-6;
+        if (!(t > EPS && t <= reach + EPS)) return false;
+        Vec3 intersect = eyePos.addVector(look.xCoord * t, look.yCoord * t, look.zCoord * t);
+        if (!isPointOnFace(intersect, targetPos, facing, EPS)) return false;
+
+        MovingObjectPosition mop = mc.theWorld.rayTraceBlocks(eyePos, intersect, false, true, false);
+        if (mop == null) {
+            return true;
+        }
+
+        BlockPos hitPos = mop.getBlockPos();
+        if (hitPos != null && hitPos.equals(targetPos)) {
+            if (mop.sideHit == facing) return true;
+
+            double dx = mop.hitVec.xCoord - intersect.xCoord;
+            double dy = mop.hitVec.yCoord - intersect.yCoord;
+            double dz = mop.hitVec.zCoord - intersect.zCoord;
+            return dx * dx + dy * dy + dz * dz <= (1e-6 * 1e-6);
+        }
+
+        return false;
+    }
+
+    private boolean isPointOnFace(Vec3 p, BlockPos pos, EnumFacing face, double eps) {
+        double minX = pos.getX(), maxX = pos.getX() + 1.0;
+        double minY = pos.getY(), maxY = pos.getY() + 1.0;
+        double minZ = pos.getZ(), maxZ = pos.getZ() + 1.0;
+
+        switch (face) {
+            case WEST: case EAST:
+                return p.yCoord >= minY - eps && p.yCoord <= maxY + eps
+                        && p.zCoord >= minZ - eps && p.zCoord <= maxZ + eps;
+            case DOWN: case UP:
+                return p.xCoord >= minX - eps && p.xCoord <= maxX + eps
+                        && p.zCoord >= minZ - eps && p.zCoord <= maxZ + eps;
+            case NORTH: case SOUTH:
+                return p.xCoord >= minX - eps && p.xCoord <= maxX + eps
+                        && p.yCoord >= minY - eps && p.yCoord <= maxY + eps;
+            default:
+                return false;
+        }
     }
 
     private Vec3 getLookVecFromRotations(float yaw, float pitch) {

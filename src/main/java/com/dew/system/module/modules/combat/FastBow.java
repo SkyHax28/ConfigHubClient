@@ -3,6 +3,7 @@ package com.dew.system.module.modules.combat;
 import com.dew.system.event.events.PreMotionEvent;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
+import com.dew.utils.LogUtil;
 import com.dew.utils.PacketUtil;
 import net.minecraft.item.ItemBow;
 import net.minecraft.item.ItemStack;
@@ -34,6 +35,7 @@ public class FastBow extends Module {
 
             PacketUtil.sendPacket(new C07PacketPlayerDigging(C07PacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN));
             mc.thePlayer.setItemInUseCount(currentStack.getMaxItemUseDuration() - 1);
+            LogUtil.printChat("Sent bow");
         }
     }
 }

@@ -8,6 +8,7 @@ import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
 import com.dew.system.module.modules.player.Scaffold;
 import com.dew.system.settingsvalue.NumberValue;
+import com.dew.utils.LogUtil;
 import com.dew.utils.MovementUtil;
 import net.minecraft.block.*;
 import net.minecraft.client.gui.inventory.GuiChest;
@@ -124,6 +125,7 @@ public class AutoPot extends Module {
 
             case 1:
                 DewCommon.rotationManager.rotateToward(mc.thePlayer.rotationYaw, 90f, 180f, true);
+                LogUtil.printChat("Throw pot");
                 mc.rightClickMouse();
                 stage = 2;
                 break;
