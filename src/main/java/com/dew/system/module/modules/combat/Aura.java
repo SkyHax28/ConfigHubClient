@@ -16,6 +16,7 @@ import com.dew.system.settingsvalue.BooleanValue;
 import com.dew.system.settingsvalue.MultiSelectionValue;
 import com.dew.system.settingsvalue.NumberValue;
 import com.dew.system.settingsvalue.SelectionValue;
+import com.dew.utils.LogUtil;
 import com.dew.utils.PacketUtil;
 import com.dew.utils.TimerUtil;
 import com.dew.utils.pathfinder.Vec3;
@@ -107,10 +108,20 @@ public class Aura extends Module {
         burstNextTick = false;
         slowNextTick = false;
         DewCommon.moduleManager.getModule(Animations.class).setVisualBlocking(false);
+        if (inventorySwapBackSlot >= 0 && mc.thePlayer.inventory.currentItem != inventorySwapBackSlot) {
+            mc.thePlayer.inventory.currentItem = inventorySwapBackSlot;
+            mc.playerController.updateController();
+        }
+        DewCommon.moduleManager.getModule(AutoTool.class).doNotUpdateSwordNow(false);
+        restoringInventory = false;
+        inventorySwapBackTicks = -1;
+        inventorySwapBackSlot = -1;
     }
 
     @Override
     public void onTick(TickEvent event) {
+        this.updateSlotSwapper();
+
         if (this.isInAutoBlockMode()) return;
 
         this.doMainFunctions(true);
@@ -153,6 +164,33 @@ public class Aura extends Module {
         return false;
     }
 
+    private int inventorySwapBackTicks = -1;
+    private int inventorySwapBackSlot = -1;
+    private boolean restoringInventory = false;
+
+    public void updateSlotSwapper() {
+        if (inventorySwapBackTicks >= 0) {
+            inventorySwapBackTicks--;
+            if (inventorySwapBackTicks == 0) {
+                if (inventorySwapBackSlot >= 0 && mc.thePlayer.inventory.currentItem != inventorySwapBackSlot) {
+                    mc.thePlayer.inventory.currentItem = inventorySwapBackSlot;
+                    mc.playerController.updateController();
+                }
+                DewCommon.moduleManager.getModule(AutoTool.class).doNotUpdateSwordNow(false);
+                restoringInventory = false;
+                inventorySwapBackTicks = -1;
+                inventorySwapBackSlot = -1;
+            }
+        }
+    }
+
+    private void scheduleInventoryRestore(int originalSlot, int delayMs) {
+        DewCommon.moduleManager.getModule(AutoTool.class).doNotUpdateSwordNow(true);
+        restoringInventory = true;
+        inventorySwapBackSlot = originalSlot;
+        inventorySwapBackTicks = Math.max(1, delayMs / 50);
+    }
+
     public void doMainFunctions(boolean doAttack) {
         if (mc.thePlayer == null || mc.playerController == null || mc.playerController.getCurrentGameType() == WorldSettings.GameType.SPECTATOR  || DewCommon.moduleManager.getModule(Scaffold.class).isEnabled() || DewCommon.moduleManager.getModule(AutoPot.class).isEnabled() && DewCommon.moduleManager.getModule(AutoPot.class).isThrowing() || DewCommon.moduleManager.getModule(Breaker.class).isEnabled() && DewCommon.moduleManager.getModule(Breaker.class).isBreaking) {
             this.resetState();
@@ -172,7 +210,7 @@ public class Aura extends Module {
                 target = getHighestThreatTarget(this.getTargetRange());
                 if (target != null) {
                     targeted = true;
-                    if (autoBlockPlacer.get() && placeableTick <= 150 && placeDefensiveBlock(target)) {
+                    if (autoBlockPlacer.get() && placeableTick <= 70 && placeDefensiveBlock(target)) {
                         return;
                     }
                     if (visualAutoBlock.get()) {
@@ -245,12 +283,12 @@ public class Aura extends Module {
     private void adjustTimerRange(EntityLivingBase target) {
         double dist = mc.thePlayer.getDistanceToEntity(target);
 
-        if (!burstNextTick && !slowNextTick && dist <= getAttackRange() + 0.25 && dist > getAttackRange() - 0.18) {
+        if (!burstNextTick && !slowNextTick && dist <= getAttackRange() + 0.2 && dist > getAttackRange() - 0.5) {
             burstNextTick = true;
         }
 
         if (burstNextTick) {
-            currentTimerSpeed = 6f;
+            currentTimerSpeed = 10f;
             TimerUtil.setTimerSpeed(currentTimerSpeed);
             burstNextTick = false;
             slowNextTick = true;
@@ -269,7 +307,7 @@ public class Aura extends Module {
 
     private void slowlyReturnToNormal() {
         if (Math.abs(currentTimerSpeed - 1.0f) > 0.01f) {
-            currentTimerSpeed += (1.0f - currentTimerSpeed) * 0.3f;
+            currentTimerSpeed += (1.0f - currentTimerSpeed) * 0.5f;
             TimerUtil.setTimerSpeed(currentTimerSpeed);
         } else {
             TimerUtil.resetTimerSpeed();
@@ -277,9 +315,11 @@ public class Aura extends Module {
     }
 
     private boolean throwItems(Entity entity) {
+        if (restoringInventory) return false;
+
         long now = System.currentTimeMillis();
         boolean swapBack = mc.thePlayer.fishEntity != null;
-        long delay = swapBack && mc.thePlayer.fishEntity == target ? 10L : swapBack ? 200L : 500L;
+        long delay = swapBack ? 200L : 500L;
 
         if (mc.thePlayer.getDistanceToEntity(entity) <= targetRange.get() && mc.thePlayer.canEntityBeSeen(target) && now - lastThrowTime >= delay) {
             int originalSlot = mc.thePlayer.inventory.currentItem;
@@ -287,7 +327,6 @@ public class Aura extends Module {
                 if (mc.thePlayer.inventory.getStackInSlot(i) != null) {
                     Item item = mc.thePlayer.inventory.getStackInSlot(i).getItem();
                     if (item instanceof ItemSnowball || item instanceof ItemEgg || item instanceof ItemFishingRod) {
-                        DewCommon.moduleManager.getModule(AutoTool.class).doNotUpdateSwordNow(true);
                         if (mc.thePlayer.inventory.currentItem != i) {
                             mc.thePlayer.inventory.currentItem = i;
                             mc.playerController.updateController();
@@ -295,17 +334,9 @@ public class Aura extends Module {
                         if (mc.thePlayer.inventory.getCurrentItem() != null && mc.playerController.sendUseItem(mc.thePlayer, mc.theWorld, mc.thePlayer.inventory.getCurrentItem())) {
                             mc.entityRenderer.itemRenderer.resetEquippedProgress2();
                         }
+                        mc.thePlayer.swingItemWithoutPacket();
                         lastThrowTime = now;
-                        new Thread(() -> {
-                            try {
-                                Thread.sleep(170);
-                            } catch (InterruptedException ignored) {}
-                            if (mc.thePlayer.inventory.currentItem != originalSlot) {
-                                mc.thePlayer.inventory.currentItem = originalSlot;
-                                mc.playerController.updateController();
-                            }
-                            DewCommon.moduleManager.getModule(AutoTool.class).doNotUpdateSwordNow(false);
-                        }).start();
+                        scheduleInventoryRestore(originalSlot, 220);
                         return true;
                     }
                 }
@@ -344,6 +375,7 @@ public class Aura extends Module {
     }
 
     private boolean placeDefensiveBlock(Entity entity) {
+        if (restoringInventory) return false;
         if (System.currentTimeMillis() - lastPlaceTime < 1000 || !mc.thePlayer.canEntityBeSeen(target)) return false;
         double dist = mc.thePlayer.getDistanceToEntity(entity);
         if (dist < 2.7 || dist > 3.0) return false;
@@ -394,7 +426,6 @@ public class Aura extends Module {
         net.minecraft.util.Vec3 hitVec = new net.minecraft.util.Vec3(hitX, hitY, hitZ);
 
         if (DewCommon.rotationManager.faceBlockWithFacing(neighbor, placeFacing, rotationSpeed.get().floatValue(), true)) {
-            DewCommon.moduleManager.getModule(AutoTool.class).doNotUpdateSwordNow(true);
             if (mc.thePlayer.inventory.currentItem != blockSlot) {
                 mc.thePlayer.inventory.currentItem = blockSlot;
                 mc.playerController.updateController();
@@ -413,21 +444,10 @@ public class Aura extends Module {
 
             lastPlaceTime = System.currentTimeMillis();
 
-            new Thread(() -> {
-                try {
-                    Thread.sleep(30);
-                } catch (InterruptedException ignored) {}
-                if (mc.thePlayer.inventory.currentItem != originalSlot) {
-                    mc.thePlayer.inventory.currentItem = originalSlot;
-                    mc.playerController.updateController();
-                }
-                DewCommon.moduleManager.getModule(AutoTool.class).doNotUpdateSwordNow(false);
-            }).start();
-
-            return true;
+            scheduleInventoryRestore(originalSlot, 40);
         }
 
-        return false;
+        return true;
     }
 
     private int getHotbarBlockSlot() {

@@ -472,9 +472,10 @@ public abstract class Entity implements ICommandSender
             double d3 = x;
             double d4 = y;
             double d5 = z;
-            boolean flag = this.onGround && (this.isSneaking() && this instanceof EntityPlayer || event.isSafeWalk && this instanceof EntityPlayerSP);
+            boolean flag = this.onGround && this.isSneaking() && this instanceof EntityPlayer;
+            boolean flagOrid = this.onGround && event.isSafeWalk && this instanceof EntityPlayerSP;
 
-            if (flag) {
+            if (flag || flagOrid) {
                 double d6;
 
                 for (d6 = 0.05D; x != 0.0D && this.worldObj.getCollidingBoundingBoxes(this, this.getEntityBoundingBox().offset(x, -1.0D, 0.0D)).isEmpty(); d3 = x)

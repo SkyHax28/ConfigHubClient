@@ -17,6 +17,7 @@ import net.minecraft.block.*;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.settings.GameSettings;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Potion;
@@ -122,7 +123,7 @@ public class Scaffold extends Module {
 
         this.doMainFunctions();
         this.tellyFunction();
-        this.edgeCheck();
+        this.edgeCheck(false);
     }
 
     @Override
@@ -130,7 +131,7 @@ public class Scaffold extends Module {
         if (mc.thePlayer == null || mc.theWorld == null) return;
 
         this.jumpCheck();
-        this.edgeCheck();
+        this.edgeCheck(true);
     }
 
     @Override
@@ -169,7 +170,7 @@ public class Scaffold extends Module {
 
     private void doMainFunctions() {
         if (mc.thePlayer.onGround) {
-            doTellyInThisJump = !mc.thePlayer.isPotionActive(Potion.jump) && !mc.thePlayer.isPotionActive(Potion.moveSpeed) && !Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) && Keyboard.isKeyDown(mc.gameSettings.keyBindForward.getKeyCode()) && !MovementUtil.isDiagonal(24f) && !MovementUtil.isBlockAbovePlayer(mc.thePlayer, 1, 0.3);
+            doTellyInThisJump = !Keyboard.isKeyDown(mc.gameSettings.keyBindSneak.getKeyCode()) && !mc.thePlayer.isPotionActive(Potion.jump) && !mc.thePlayer.isPotionActive(Potion.moveSpeed) && !Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) && Keyboard.isKeyDown(mc.gameSettings.keyBindForward.getKeyCode()) && !MovementUtil.isDiagonal(13f) && !MovementUtil.isBlockAbovePlayer(mc.thePlayer, 1, 0.3);
         }
 
         switch (mode.get().toLowerCase()) {
@@ -368,11 +369,11 @@ public class Scaffold extends Module {
         }
     }
 
-    private void edgeCheck() {
+    private void edgeCheck(boolean allowUnSneak) {
         if ((edgeSafeMode.get().equals("Sneak") || this.shouldTellyAntiEdge()) && this.isNearEdge()) {
             mc.gameSettings.keyBindSneak.setKeyDown(true);
             isSneaking = true;
-        } else if (isSneaking) {
+        } else if (isSneaking && allowUnSneak) {
             mc.gameSettings.keyBindSneak.setKeyDown(false);
             isSneaking = false;
         }
@@ -390,7 +391,7 @@ public class Scaffold extends Module {
     public void onMove(MoveEvent event) {
         if (mc.thePlayer == null || mc.theWorld == null) return;
 
-        this.edgeCheck();
+        this.edgeCheck(false);
 
         if (edgeSafeMode.get().equals("Safewalk")) {
             event.isSafeWalk = true;
@@ -408,28 +409,28 @@ public class Scaffold extends Module {
     public void onLivingUpdate(LivingUpdateEvent event) {
         if (mc.thePlayer == null || mc.theWorld == null) return;
 
-        this.edgeCheck();
+        this.edgeCheck(false);
     }
 
     @Override
     public void onTick(TickEvent event) {
         if (mc.thePlayer == null || mc.theWorld == null) return;
 
-        this.edgeCheck();
+        this.edgeCheck(false);
     }
 
     @Override
     public void onPostUpdate(PostUpdateEvent event) {
         if (mc.thePlayer == null || mc.theWorld == null) return;
 
-        this.edgeCheck();
+        this.edgeCheck(false);
     }
 
     @Override
     public void onPostMotion(PostMotionEvent event) {
         if (mc.thePlayer == null || mc.theWorld == null) return;
 
-        this.edgeCheck();
+        this.edgeCheck(false);
     }
 
     private void updateKeepY() {
@@ -438,7 +439,7 @@ public class Scaffold extends Module {
 
     private boolean shouldTellyAntiEdge() {
         boolean hasAngleDiff = Math.abs(MovementUtil.getAngleDifference((float) MovementUtil.getDirection(), DewCommon.rotationManager.getClientYaw())) > 1F;
-        return mode.get().equals("Telly") && (MovementUtil.isDiagonal(25f) || jumpTicks >= 9 || !this.shouldTellyDoNotPlaceBlocks() && Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) || (!mc.thePlayer.onGround || hasAngleDiff) && MovementUtil.isDiagonal(12f) || !MovementUtil.isDiagonal(12f) && mc.thePlayer.onGround && hasAngleDiff);
+        return mode.get().equals("Telly") && (Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) || MovementUtil.isDiagonal(13f) || jumpTicks >= 9 || !this.shouldTellyDoNotPlaceBlocks() && Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) || (!mc.thePlayer.onGround || hasAngleDiff) && MovementUtil.isDiagonal(12f) || !MovementUtil.isDiagonal(12f) && mc.thePlayer.onGround && hasAngleDiff);
     }
 
     private boolean canPlaceAt(BlockPos pos) {
@@ -493,6 +494,7 @@ public class Scaffold extends Module {
     private boolean shouldTellyDoNotPlaceBlocks() {
         if (mode.get().equals("Telly")) {
             if (!doTellyInThisJump) return false;
+            if (mc.thePlayer.hurtTime != 0 || mc.thePlayer.motionY <= -0.55) return false;
             if (towered) return true;
             return jumpTicks <= 3;
         }
@@ -507,8 +509,8 @@ public class Scaffold extends Module {
 
         int baseY = (int) Math.floor(py) - 1;
 
-        double radius = 0.3;
-        double step = Math.PI / 18;
+        double radius = 0.25;
+        double step = Math.PI / 36;
 
         if (mc.thePlayer.isPotionActive(Potion.moveSpeed)) {
             radius += 0.05;
@@ -569,7 +571,7 @@ public class Scaffold extends Module {
 
         EnumFacing preferredFacing = facingFromRotation(
                 mc.thePlayer.rotationYaw,
-                mc.thePlayer.rotationPitch
+                DewCommon.rotationManager.getClientPitch()
         );
 
         EnumFacing[] orderedFacings = new EnumFacing[6];
