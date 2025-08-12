@@ -12,7 +12,7 @@ import java.nio.ByteBuffer;
 public class CustomFontRenderer {
     private static final int TEX_WIDTH = 512;
     private static final int TEX_HEIGHT = 512;
-    private static final int PADDING = 2; // 文字ごとの余白
+    private static final int PADDING = 2;
 
     private final Font font;
     private final CharData[] charData = new CharData[256];
@@ -48,7 +48,6 @@ public class CustomFontRenderer {
                 lineHeight = 0;
             }
 
-            // 描画位置に余白を加える
             g.drawString(String.valueOf(ch), x + PADDING, y + metrics.getAscent() + PADDING);
             charData[i] = new CharData(x, y, width, height);
 
@@ -79,11 +78,8 @@ public class CustomFontRenderer {
         int id = GL11.glGenTextures();
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, id);
 
-        // フィルタは線形補間のまま
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
-
-        // Mipmap生成はしない（滲み防止）
         GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA8, TEX_WIDTH, TEX_HEIGHT, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buffer);
 
         return id;
@@ -118,7 +114,6 @@ public class CustomFontRenderer {
             CharData data = charData[c];
             if (data == null) continue;
 
-            // UV補正で0.5px内側に
             float texX = data.x / (float) TEX_WIDTH + epsX;
             float texY = data.y / (float) TEX_HEIGHT + epsY;
             float texW = (data.width) / (float) TEX_WIDTH - epsX * 2;
@@ -136,7 +131,7 @@ public class CustomFontRenderer {
             GL11.glTexCoord2f(texX + texW, texY);
             GL11.glVertex2f(posX + w, y);
 
-            posX += w - (PADDING * scale * 2); // パディング分を文字間隔に反映
+            posX += w - (PADDING * scale * 2);
         }
 
         GL11.glEnd();
