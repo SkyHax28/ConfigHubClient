@@ -53,7 +53,7 @@ public class AutoExtinguish extends Module {
     public void onTick(TickEvent event) {
         if (mc.thePlayer == null || mc.theWorld == null) return;
 
-        if (!mc.thePlayer.isBurning() || mc.thePlayer.isUsingItem() || DewCommon.moduleManager.getModule(Scaffold.class).isEnabled()) {
+        if (!mc.thePlayer.isBurning() || mc.thePlayer.isUsingItem() || DewCommon.moduleManager.getModule(Scaffold.class).isEnabled() || DewCommon.moduleManager.getModule(Aura.class).isEnabled() && DewCommon.moduleManager.getModule(Aura.class).target != null) {
             this.resetState();
             return;
         }

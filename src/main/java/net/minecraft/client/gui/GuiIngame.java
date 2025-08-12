@@ -339,6 +339,8 @@ public class GuiIngame extends Gui
     }
 
     private static void drawSmoothRoundRect(float x1, float y1, float x2, float y2, float radius, Color color) {
+        GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
+
         int segments = 20;
         float r = color.getRed() / 255.0f;
         float g = color.getGreen() / 255.0f;
@@ -358,8 +360,7 @@ public class GuiIngame extends Gui
         drawArc(x2 - radius, y2 - radius, radius,   0,  90, segments, color);
         drawArc(x1 + radius, y2 - radius, radius,  90, 180, segments, color);
 
-        GL11.glEnable(GL11.GL_TEXTURE_2D);
-        GL11.glDisable(GL11.GL_BLEND);
+        GL11.glPopAttrib();
     }
 
     private static void drawArc(float cx, float cy, float r, float startAngle, float endAngle, int segments, Color color) {

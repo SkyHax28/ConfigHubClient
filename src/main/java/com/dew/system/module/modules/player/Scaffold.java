@@ -170,7 +170,7 @@ public class Scaffold extends Module {
 
     private void doMainFunctions() {
         if (mc.thePlayer.onGround) {
-            doTellyInThisJump = !Keyboard.isKeyDown(mc.gameSettings.keyBindSneak.getKeyCode()) && !mc.thePlayer.isPotionActive(Potion.jump) && !mc.thePlayer.isPotionActive(Potion.moveSpeed) && !Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) && Keyboard.isKeyDown(mc.gameSettings.keyBindForward.getKeyCode()) && !MovementUtil.isDiagonal(13f) && !MovementUtil.isBlockAbovePlayer(mc.thePlayer, 1, 0.3);
+            doTellyInThisJump = !Keyboard.isKeyDown(mc.gameSettings.keyBindSneak.getKeyCode()) && !mc.thePlayer.isPotionActive(Potion.jump) && !mc.thePlayer.isPotionActive(Potion.moveSpeed) && !Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) && Keyboard.isKeyDown(mc.gameSettings.keyBindForward.getKeyCode()) && !MovementUtil.isDiagonal(6f) && !MovementUtil.isBlockAbovePlayer(mc.thePlayer, 1, 0.3);
         }
 
         switch (mode.get().toLowerCase()) {
@@ -370,7 +370,7 @@ public class Scaffold extends Module {
     }
 
     private void edgeCheck(boolean allowUnSneak) {
-        if ((edgeSafeMode.get().equals("Sneak") || this.shouldTellyAntiEdge()) && this.isNearEdge()) {
+        if (edgeSafeMode.get().equals("Sneak") && this.isNearEdge() || this.shouldTellyAntiEdge()) {
             mc.gameSettings.keyBindSneak.setKeyDown(true);
             isSneaking = true;
         } else if (isSneaking && allowUnSneak) {
@@ -439,7 +439,7 @@ public class Scaffold extends Module {
 
     private boolean shouldTellyAntiEdge() {
         boolean hasAngleDiff = Math.abs(MovementUtil.getAngleDifference((float) MovementUtil.getDirection(), DewCommon.rotationManager.getClientYaw())) > 1F;
-        return mode.get().equals("Telly") && (Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) || MovementUtil.isDiagonal(13f) || jumpTicks >= 9 || !this.shouldTellyDoNotPlaceBlocks() && Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) || (!mc.thePlayer.onGround || hasAngleDiff) && MovementUtil.isDiagonal(12f) || !MovementUtil.isDiagonal(12f) && mc.thePlayer.onGround && hasAngleDiff);
+        return mode.get().equals("Telly") && (jumpTicks >= 9 || this.isNearEdge() && (Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) || MovementUtil.isDiagonal(6f) || !this.shouldTellyDoNotPlaceBlocks() && Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) || (!mc.thePlayer.onGround || hasAngleDiff) && MovementUtil.isDiagonal(12f) || !MovementUtil.isDiagonal(12f) && mc.thePlayer.onGround && hasAngleDiff));
     }
 
     private boolean canPlaceAt(BlockPos pos) {

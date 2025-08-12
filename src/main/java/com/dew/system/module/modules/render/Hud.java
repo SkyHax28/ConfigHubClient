@@ -39,7 +39,7 @@ public class Hud extends Module {
     private static final BooleanValue disableAchievementsNotification = new BooleanValue("Disable Achievements Notification", true);
     private final Map<Module, Float> animationProgress = new HashMap<>();
     private long lastRenderTime = System.nanoTime();
-
+    private static final ResourceLocation INVENTORY_TEXTURE = new ResourceLocation("textures/gui/container/inventory.png");
     public Hud() {
         super("Hud", ModuleCategory.RENDER, Keyboard.KEY_NONE, true, false, true);
     }
@@ -95,74 +95,96 @@ public class Hud extends Module {
         float fontSize = 0.35f;
 
         if (features.isSelected("Watermark")) {
-            String clientName = DewCommon.clientName + " | " + DataSaver.userName + " | " + Minecraft.getDebugFPS() + " fps" + (!DewCommon.mongoManager.isConnected() ? " | Connecting..." : "");
-            String beforeWater = clientName.substring(0, 1);
-            String afterWater = clientName.substring(1);
+            String clientName = DewCommon.clientName;
+            String userInfo = " | " + DataSaver.userName + " | " + Minecraft.getDebugFPS() + " fps" + (!DewCommon.mongoManager.isConnected() ? " | Connecting..." : "");
+            String display = clientName + userInfo;
 
-            float speed = 2000f;
+            float speed = 1800f;
             float time = (System.currentTimeMillis() % (int) speed) / speed;
-            float progress = (time + 1f) % 1.0f;
+            Color accentColor = getSmoothPurpleGradient(time);
 
-            mc.bitFontRendererObj.drawBlackOutlinedString(beforeWater, 4, 4, getSmoothPurpleGradient(progress).getRGB());
-            mc.bitFontRendererObj.drawBlackOutlinedString(afterWater, 4 + mc.bitFontRendererObj.getStringWidth(beforeWater), 4, Color.WHITE.getRGB());
+            float displayWidth = fontRenderer.getStringWidth(display, fontSize);
+            float displayHeight = 14f;
+
+            int x = (int) ((sr.getScaledWidth() - displayWidth) / 2);
+            int y = 8;
+
+            int alpha = 255;
+            Color bgColor = new Color(10, 10, 10, (int)(170 * (alpha / 255f)));
+            int softAlpha = (int)(alpha * 0.22);
+
+            drawBlurredBackground(
+                    x - 3, y - 2,
+                    displayWidth + 6, displayHeight,
+                    5,
+                    new Color(bgColor.getRed(), bgColor.getGreen(), bgColor.getBlue(), softAlpha).getRGB()
+            );
+
+            float nameWidth = fontRenderer.getStringWidth(clientName, fontSize);
+            Color nameColor = new Color(accentColor.getRed(), accentColor.getGreen(), accentColor.getBlue(), 255);
+            Color infoColor = new Color(210, 210, 210, alpha);
+
+            fontRenderer.drawStringWithShadow(clientName, x, y - 1.5f, nameColor.getRGB(), fontSize);
+            fontRenderer.drawStringWithShadow(userInfo, x + nameWidth, y - 1.5f, infoColor.getRGB(), fontSize);
+
+            if (mc.thePlayer != null && mc.thePlayer.isBurning()) {
+                String burningText = "Burning";
+                float burningWidth = fontRenderer.getStringWidth(burningText, fontSize);
+
+                drawBlurredBackground(
+                        (sr.getScaledWidth() - burningWidth) / 2f - 3,
+                        y + displayHeight + 2,
+                        burningWidth + 6, 12f,
+                        5,
+                        new Color(0, 0, 0, softAlpha).getRGB()
+                );
+
+                fontRenderer.drawStringWithShadow(
+                        burningText,
+                        (sr.getScaledWidth() - burningWidth) / 2f,
+                        y + displayHeight + 0.5f,
+                        new Color(255, 80, 80, alpha).getRGB(),
+                        fontSize
+                );
+            }
         }
 
         if (features.isSelected("Armor Hud")) {
-            int x = sr.getScaledWidth() / 2 + 15;
-            int y = sr.getScaledHeight() - 56;
+            int baseX = sr.getScaledWidth() / 2 + 15;
+            int baseY = sr.getScaledHeight() - 56 + (mc.thePlayer.capabilities.isCreativeMode ? 15 : 0);
 
+            RenderHelper.enableGUIStandardItemLighting();
             for (int i = 0; i < 4; i++) {
                 ItemStack armorStack = mc.thePlayer.inventory.armorInventory[3 - i];
                 if (armorStack != null) {
-                    int xOffset = i * 18;
-                    int additionalY = mc.thePlayer.capabilities.isCreativeMode ? 15 : 0;
-
-                    RenderHelper.enableGUIStandardItemLighting();
-                    mc.getRenderItem().renderItemAndEffectIntoGUI(armorStack, x + xOffset, y + additionalY);
-                    mc.getRenderItem().renderItemOverlayIntoGUI(mc.bitFontRendererObj, armorStack, x + xOffset, y + additionalY, null);
-                    RenderHelper.disableStandardItemLighting();
+                    mc.getRenderItem().renderItemAndEffectIntoGUI(armorStack, baseX + i * 18, baseY);
+                    mc.getRenderItem().renderItemOverlayIntoGUI(mc.bitFontRendererObj, armorStack, baseX + i * 18, baseY, null);
                 }
             }
+            RenderHelper.disableStandardItemLighting();
         }
 
         if (features.isSelected("Potion Hud")) {
             Collection<PotionEffect> effects = mc.thePlayer.getActivePotionEffects();
             if (!effects.isEmpty()) {
                 int x = sr.getScaledWidth() - 30;
-                int y = sr.getScaledHeight() - 30;
                 int index = 0;
+                mc.getTextureManager().bindTexture(INVENTORY_TEXTURE);
 
                 for (PotionEffect effect : effects) {
                     Potion potion = Potion.potionTypes[effect.getPotionID()];
                     if (potion == null) continue;
 
-                    mc.getTextureManager().bindTexture(new ResourceLocation("textures/gui/container/inventory.png"));
                     int iconIndex = potion.getStatusIconIndex();
-                    int iconX = iconIndex % 8 * 18;
-                    int iconY = 198 + (iconIndex / 8) * 18;
+                    mc.ingameGUI.drawTexturedModalRect(x, sr.getScaledHeight() - 30 - index * 25, iconIndex % 8 * 18, 198 + (iconIndex / 8) * 18, 18, 18);
 
-                    GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-                    mc.ingameGUI.drawTexturedModalRect(x, y - index * 25, iconX, iconY, 18, 18);
-
-                    String potionName = StatCollector.translateToLocal(potion.getName());
-                    String levelStr = toRoman(effect.getAmplifier() + 1);
-                    String durationStr = Potion.getDurationString(effect);
-
+                    String potionName = StatCollector.translateToLocal(potion.getName()) + " " + toRoman(effect.getAmplifier() + 1);
                     int durationTicks = effect.getDuration();
-                    String colorCode;
-                    if (durationTicks <= 200) {
-                        colorCode = "§c";
-                    } else if (durationTicks <= 600) {
-                        colorCode = "§e";
-                    } else {
-                        colorCode = "§f";
-                    }
+                    String colorCode = durationTicks <= 200 ? "§c" : durationTicks <= 600 ? "§e" : "§f";
+                    String durationStr = colorCode + Potion.getDurationString(effect);
 
-                    String display = potionName + " " + levelStr;
-                    String timeDisplay = colorCode + durationStr;
-
-                    mc.bitFontRendererObj.drawStringWithShadow(display, x - mc.bitFontRendererObj.getStringWidth(display) - 4, y - index * 25 + 1, 0xFFFFFF);
-                    mc.bitFontRendererObj.drawStringWithShadow(timeDisplay, x - mc.bitFontRendererObj.getStringWidth(durationStr) - 4, y - index * 25 + 11, 0xFFFFFF);
+                    mc.bitFontRendererObj.drawStringWithShadow(potionName, x - mc.bitFontRendererObj.getStringWidth(potionName) - 4, sr.getScaledHeight() - 29 - index * 25, 0xFFFFFF);
+                    mc.bitFontRendererObj.drawStringWithShadow(durationStr, x - mc.bitFontRendererObj.getStringWidth(Potion.getDurationString(effect)) - 4, sr.getScaledHeight() - 19 - index * 25, 0xFFFFFF);
 
                     index++;
                 }
