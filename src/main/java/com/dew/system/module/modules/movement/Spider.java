@@ -18,6 +18,10 @@ public class Spider extends Module {
         super("Spider", ModuleCategory.MOVEMENT, Keyboard.KEY_NONE, false, true, true);
     }
 
+    public boolean ignoreJumpDelay() {
+        return this.isEnabled() && mode.get().equals("Prediction Infinite");
+    }
+
     @Override
     public String tag() {
         return mode.get();

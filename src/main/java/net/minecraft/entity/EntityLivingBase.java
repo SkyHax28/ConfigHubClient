@@ -7,6 +7,7 @@ import com.dew.system.event.events.PreUpdateEvent;
 import com.dew.system.module.modules.combat.Aura;
 import com.dew.system.module.modules.combat.TargetStrafe;
 import com.dew.system.module.modules.movement.MoveFix;
+import com.dew.system.module.modules.movement.Spider;
 import com.dew.system.module.modules.movement.flight.FlightModule;
 import com.dew.system.module.modules.movement.speed.SpeedModule;
 import com.dew.system.module.modules.player.NoJumpDelay;
@@ -1824,7 +1825,7 @@ public abstract class EntityLivingBase extends Entity
             {
                 this.jump();
 
-                if (DewCommon.moduleManager.getModule(NoJumpDelay.class).isEnabled() && this instanceof EntityPlayerSP) {
+                if ((DewCommon.moduleManager.getModule(NoJumpDelay.class).isEnabled() || DewCommon.moduleManager.getModule(Spider.class).ignoreJumpDelay()) && this instanceof EntityPlayerSP) {
                     this.jumpTicks = 0;
                 } else {
                     this.jumpTicks = 10;
