@@ -16,8 +16,8 @@ import com.dew.system.settingsvalue.BooleanValue;
 import com.dew.system.settingsvalue.MultiSelectionValue;
 import com.dew.system.settingsvalue.NumberValue;
 import com.dew.system.settingsvalue.SelectionValue;
-import com.dew.utils.LogUtil;
 import com.dew.utils.PacketUtil;
+import com.dew.utils.TimerUtil;
 import com.dew.utils.pathfinder.Vec3;
 import de.florianmichael.viamcp.fixes.AttackOrder;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -29,6 +29,7 @@ import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.*;
 import net.minecraft.network.play.client.C03PacketPlayer;
+import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.WorldSettings;
@@ -49,6 +50,7 @@ public class Aura extends Module {
     private static final BooleanValue noRotationHitCheck = new BooleanValue("No Rotation Hit Check", false);
     private static final BooleanValue throughWalls = new BooleanValue("Through Walls", true);
     private static final BooleanValue visualAutoBlock = new BooleanValue("Visual Auto Block", true);
+    private static final BooleanValue timerRange = new BooleanValue("Timer Range", false);
     private static final BooleanValue autoThrowRodOrBalls = new BooleanValue("Auto Throw Rod or Balls", false, () -> mode.get().equals("Single"));
     private static final BooleanValue autoBlockPlacer = new BooleanValue("Auto Block Placer", false, () -> mode.get().equals("Single"));
     private static final BooleanValue tpAura = new BooleanValue("TP Aura", false);
@@ -59,6 +61,10 @@ public class Aura extends Module {
     private long nextAttackDelay = 0L;
     private long lastThrowTime = 0L;
     private long lastPlaceTime = 0L;
+    private int placeableTick = 0;
+    private float currentTimerSpeed = 1.0f;
+    private boolean burstNextTick = false;
+    private boolean slowNextTick = false;
     private boolean targeted = false;
 
     public Aura() {
@@ -91,8 +97,15 @@ public class Aura extends Module {
         lastAttackTime = 0L;
         nextAttackDelay = 0L;
         lastThrowTime = 0L;
+        placeableTick = 0;
         target = null;
         targeted = false;
+        if (currentTimerSpeed != 1f) {
+            TimerUtil.resetTimerSpeed();
+            currentTimerSpeed = 1f;
+        }
+        burstNextTick = false;
+        slowNextTick = false;
         DewCommon.moduleManager.getModule(Animations.class).setVisualBlocking(false);
     }
 
@@ -146,12 +159,20 @@ public class Aura extends Module {
             return;
         }
 
+        placeableTick = target != null ? placeableTick + 1 : 0;
+
+        if (timerRange.get() && target != null && target instanceof EntityLivingBase && mc.thePlayer.canEntityBeSeen(target)) {
+            adjustTimerRange((EntityLivingBase) target);
+        } else if (currentTimerSpeed != 1f) {
+            slowlyReturnToNormal();
+        }
+
         switch (mode.get().toLowerCase()) {
             case "single":
                 target = getHighestThreatTarget(this.getTargetRange());
                 if (target != null) {
                     targeted = true;
-                    if (autoBlockPlacer.get() && placeDefensiveBlock(target)) {
+                    if (autoBlockPlacer.get() && placeableTick <= 150 && placeDefensiveBlock(target)) {
                         return;
                     }
                     if (visualAutoBlock.get()) {
@@ -221,10 +242,44 @@ public class Aura extends Module {
         return attackRange.get() + (tpAura.get() ? tpExtendedRange.get() : 0.0);
     }
 
+    private void adjustTimerRange(EntityLivingBase target) {
+        double dist = mc.thePlayer.getDistanceToEntity(target);
+
+        if (!burstNextTick && !slowNextTick && dist <= getAttackRange() + 0.25 && dist > getAttackRange() - 0.18) {
+            burstNextTick = true;
+        }
+
+        if (burstNextTick) {
+            currentTimerSpeed = 6f;
+            TimerUtil.setTimerSpeed(currentTimerSpeed);
+            burstNextTick = false;
+            slowNextTick = true;
+            return;
+        }
+
+        if (slowNextTick) {
+            currentTimerSpeed = 0.2f;
+            TimerUtil.setTimerSpeed(currentTimerSpeed);
+            slowNextTick = false;
+            return;
+        }
+
+        slowlyReturnToNormal();
+    }
+
+    private void slowlyReturnToNormal() {
+        if (Math.abs(currentTimerSpeed - 1.0f) > 0.01f) {
+            currentTimerSpeed += (1.0f - currentTimerSpeed) * 0.3f;
+            TimerUtil.setTimerSpeed(currentTimerSpeed);
+        } else {
+            TimerUtil.resetTimerSpeed();
+        }
+    }
+
     private boolean throwItems(Entity entity) {
         long now = System.currentTimeMillis();
         boolean swapBack = mc.thePlayer.fishEntity != null;
-        long delay = swapBack && mc.thePlayer.fishEntity == target ? 200L : swapBack ? 400L : 700L;
+        long delay = swapBack && mc.thePlayer.fishEntity == target ? 10L : swapBack ? 200L : 500L;
 
         if (mc.thePlayer.getDistanceToEntity(entity) <= targetRange.get() && mc.thePlayer.canEntityBeSeen(target) && now - lastThrowTime >= delay) {
             int originalSlot = mc.thePlayer.inventory.currentItem;
@@ -243,7 +298,7 @@ public class Aura extends Module {
                         lastThrowTime = now;
                         new Thread(() -> {
                             try {
-                                Thread.sleep(250);
+                                Thread.sleep(170);
                             } catch (InterruptedException ignored) {}
                             if (mc.thePlayer.inventory.currentItem != originalSlot) {
                                 mc.thePlayer.inventory.currentItem = originalSlot;
@@ -289,9 +344,9 @@ public class Aura extends Module {
     }
 
     private boolean placeDefensiveBlock(Entity entity) {
-        if (System.currentTimeMillis() - lastPlaceTime < 400) return false;
+        if (System.currentTimeMillis() - lastPlaceTime < 1000 || !mc.thePlayer.canEntityBeSeen(target)) return false;
         double dist = mc.thePlayer.getDistanceToEntity(entity);
-        if (dist < 2.5 || dist > 3.0) return false;
+        if (dist < 2.7 || dist > 3.0) return false;
 
         int blockSlot = getHotbarBlockSlot();
         if (blockSlot == -1) return false;
@@ -309,6 +364,13 @@ public class Aura extends Module {
         double placeY = Math.floor(entity.posY);
 
         BlockPos pos = new BlockPos(placeX, placeY, placeZ);
+
+        AxisAlignedBB bb = new AxisAlignedBB(
+                pos.getX(), pos.getY(), pos.getZ(),
+                pos.getX() + 1, pos.getY() + 1, pos.getZ() + 1
+        );
+
+        if (target.getEntityBoundingBox().intersectsWith(bb)) return false;
 
         EnumFacing placeFacing = null;
         BlockPos neighbor = null;
@@ -353,7 +415,7 @@ public class Aura extends Module {
 
             new Thread(() -> {
                 try {
-                    Thread.sleep(150);
+                    Thread.sleep(30);
                 } catch (InterruptedException ignored) {}
                 if (mc.thePlayer.inventory.currentItem != originalSlot) {
                     mc.thePlayer.inventory.currentItem = originalSlot;
@@ -381,6 +443,7 @@ public class Aura extends Module {
     private long getNextAttackDelay() {
         double min = minCps.get();
         double max = maxCps.get();
+
         if (min > max) {
             double temp = min;
             min = max;

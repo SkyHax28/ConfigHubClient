@@ -14,6 +14,7 @@ import com.dew.system.settingsvalue.SelectionValue;
 import com.dew.utils.MovementUtil;
 import com.dew.utils.RenderUtil;
 import net.minecraft.block.*;
+import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.item.ItemBlock;
@@ -24,7 +25,9 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.PriorityQueue;
+import java.util.Set;
 
 public class Scaffold extends Module {
 
@@ -49,6 +52,7 @@ public class Scaffold extends Module {
     private boolean hypGroundCheck = false;
     private boolean towered = false;
     private int delay = 0;
+    private boolean doTellyInThisJump = true;
     private BlockPos lastPlacedPos = null;
 
     public Scaffold() {
@@ -60,7 +64,7 @@ public class Scaffold extends Module {
     }
 
     private boolean shouldUpdateKeepYState() {
-        return keepY == -1 || !DewCommon.moduleManager.getModule(SpeedModule.class).isEnabled() && !mode.get().equals("Telly") || Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) && (!MovementUtil.isBlockUnderPlayer(mc.thePlayer, 1, false) || !mode.get().equals("Telly"));
+        return keepY == -1 || !mode.get().equals("Telly") && (!DewCommon.moduleManager.getModule(SpeedModule.class).isEnabled() || Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode())) || mode.get().equals("Telly") && !doTellyInThisJump;
     }
 
     @Override
@@ -87,6 +91,7 @@ public class Scaffold extends Module {
             mc.thePlayer.inventory.currentItem = originalSlot;
             mc.playerController.updateController();
         }
+        doTellyInThisJump = true;
         originalSlot = -1;
         delay = 0;
         holdingBlock = false;
@@ -102,24 +107,9 @@ public class Scaffold extends Module {
             if (towerMode.get().equals("Vanilla")) {
                 MovementUtil.stopYMotion();
             }
-
             MovementUtil.mcJumpNoBoost = false;
             hypGroundCheck = false;
             towered = false;
-        }
-    }
-
-    @Override
-    public void onMove(MoveEvent event) {
-        if (edgeSafeMode.get().equals("Safewalk")) {
-            event.isSafeWalk = true;
-        }
-    }
-
-    @Override
-    public void onItemRender(ItemRenderEvent event) {
-        if (originalSlot != -1) {
-            event.itemToRender = mc.thePlayer.inventory.getStackInSlot(originalSlot);
         }
     }
 
@@ -132,11 +122,15 @@ public class Scaffold extends Module {
 
         this.doMainFunctions();
         this.tellyFunction();
+        this.edgeCheck();
     }
 
     @Override
     public void onPreMotion(PreMotionEvent event) {
+        if (mc.thePlayer == null || mc.theWorld == null) return;
+
         this.jumpCheck();
+        this.edgeCheck();
     }
 
     @Override
@@ -173,29 +167,9 @@ public class Scaffold extends Module {
         GlStateManager.popMatrix();
     }
 
-    private void jumpCheck() {
-        if (mc.thePlayer == null || mc.theWorld == null) return;
-
-        if (!mc.thePlayer.onGround && !jumped) {
-            jumped = true;
-        }
-
-        towerTicks = mc.thePlayer.onGround ? 0 : towerTicks + 1;
-
-        this.towerFunction();
-    }
-
-    private void updateKeepY() {
-        keepY = (int) mc.thePlayer.posY;
-    }
-
     private void doMainFunctions() {
-        if (edgeSafeMode.get().equals("Sneak") && this.isNearEdge()) {
-            mc.gameSettings.keyBindSneak.setKeyDown(true);
-            isSneaking = true;
-        } else if (isSneaking) {
-            mc.gameSettings.keyBindSneak.setKeyDown(false);
-            isSneaking = false;
+        if (mc.thePlayer.onGround) {
+            doTellyInThisJump = !mc.thePlayer.isPotionActive(Potion.jump) && !mc.thePlayer.isPotionActive(Potion.moveSpeed) && !Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) && Keyboard.isKeyDown(mc.gameSettings.keyBindForward.getKeyCode()) && !MovementUtil.isDiagonal(24f) && !MovementUtil.isBlockAbovePlayer(mc.thePlayer, 1, 0.3);
         }
 
         switch (mode.get().toLowerCase()) {
@@ -212,7 +186,7 @@ public class Scaffold extends Module {
                 break;
 
             case "telly":
-                if (mc.thePlayer.isPotionActive(Potion.moveSpeed) && (DewCommon.rotationManager.isReturning() || !holdingBlock)) {
+                if (!this.shouldTellyDoNotPlaceBlocks() && (DewCommon.rotationManager.isReturning() || !holdingBlock)) {
                     DewCommon.rotationManager.rotateToward((float) (MovementUtil.getDirection() - 180f), 83f, hypixelTellyBanFix.get() ? 30f : rotationSpeed.get().floatValue(), true);
                 }
                 break;
@@ -225,12 +199,12 @@ public class Scaffold extends Module {
             mc.thePlayer.setSprinting(false);
         }
 
-        if (this.isTelly() && !Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode())) {
-            return;
-        }
-
         if (shouldUpdateKeepYState()) {
             this.updateKeepY();
+        }
+
+        if (this.shouldTellyDoNotPlaceBlocks()) {
+            return;
         }
 
         if (delay <= placeDelay.get().intValue()) return;
@@ -244,8 +218,6 @@ public class Scaffold extends Module {
 
         BlockPos below = new BlockPos(mc.thePlayer.posX, keepY - 1, mc.thePlayer.posZ);
 
-        if (!mc.theWorld.getBlockState(below).getBlock().isReplaceable(mc.theWorld, below)) return;
-
         int blockSlot = getValidBlockSlot();
         if (blockSlot == -1) return;
 
@@ -258,85 +230,74 @@ public class Scaffold extends Module {
             holdingBlock = true;
         }
 
-        Boolean placed = null;
+        this.search(below);
+    }
+
+    private void search(BlockPos below) {
+        if (!mc.theWorld.getBlockState(below).getBlock().isReplaceable(mc.theWorld, below) && !mc.thePlayer.onGround) return;
 
         PlaceResult result = tryPlaceBlock(below);
-
         if (result == PlaceResult.SUCCESS) {
             lastPlacedPos = below;
-            placed = true;
+            holdingBlock = true;
+            return;
         } else if (result == PlaceResult.FAIL_ROTATION) {
             return;
-        } else {
-            for (EnumFacing dir : getFullPrioritizedFacings()) {
-                BlockPos neighbor = below.offset(dir);
-                PlaceResult neighborResult = tryPlaceBlock(neighbor);
+        }
 
-                if (neighborResult == PlaceResult.FAIL_ROTATION) return;
+        for (EnumFacing dir : EnumFacing.values()) {
+            BlockPos neighbor = below.offset(dir);
+            PlaceResult neighborResult = tryPlaceBlock(neighbor);
 
-                if (neighborResult == PlaceResult.SUCCESS) {
-                    lastPlacedPos = neighbor;
-                    placed = true;
-                    break;
-                }
+            if (neighborResult == PlaceResult.FAIL_ROTATION) return;
+
+            if (neighborResult == PlaceResult.SUCCESS) {
+                lastPlacedPos = neighbor;
+                holdingBlock = true;
+                return;
             }
         }
+
+        if (!mc.theWorld.getBlockState(below).getBlock().isReplaceable(mc.theWorld, below)) return;
 
         int range = clutchRange.get().intValue();
-        if (!Boolean.TRUE.equals(placed) && range > 1) {
+        if (range > 1) {
             double maxDistanceSq = range * range;
 
-            PriorityQueue<BlockPos> searchQueue = new PriorityQueue<>(
-                    Comparator.comparingDouble(pos -> mc.thePlayer.getDistanceSqToCenter(pos))
-            );
+            PriorityQueue<Node> openSet = new PriorityQueue<>(Comparator.comparingDouble(n -> n.fCost));
+            Set<BlockPos> closedSet = new HashSet<>();
 
-            for (int dx = -range; dx <= range; dx++) {
-                for (int dz = -range; dz <= range; dz++) {
-                    BlockPos target = below.add(dx, 0, dz);
-                    if (mc.thePlayer.getDistanceSqToCenter(target) > maxDistanceSq) continue;
+            openSet.add(new Node(below, 0, heuristic(below)));
 
-                    IBlockState state = mc.theWorld.getBlockState(target);
-                    Block block = state.getBlock();
-                    if (!block.isReplaceable(mc.theWorld, target)) continue;
+            while (!openSet.isEmpty()) {
+                Node current = openSet.poll();
 
-                    AxisAlignedBB targetBB = new AxisAlignedBB(
-                            target.getX(), target.getY(), target.getZ(),
-                            target.getX() + 1, target.getY() + 1, target.getZ() + 1
-                    );
+                if (!closedSet.add(current.pos)) continue;
 
-                    if (mc.thePlayer.getEntityBoundingBox().intersectsWith(targetBB)) continue;
+                if (mc.thePlayer.getDistanceSqToCenter(current.pos) > maxDistanceSq) continue;
 
-                    boolean hasSupport = false;
-                    for (EnumFacing dir : EnumFacing.values()) {
-                        BlockPos support = target.offset(dir);
-                        if (!mc.theWorld.getBlockState(support).getBlock().isReplaceable(mc.theWorld, support)) {
-                            hasSupport = true;
-                            break;
-                        }
+                if (canPlaceAt(current.pos)) {
+                    PlaceResult placeRes = tryPlaceBlock(current.pos);
+
+                    if (placeRes == PlaceResult.FAIL_ROTATION) return;
+
+                    if (placeRes == PlaceResult.SUCCESS) {
+                        lastPlacedPos = current.pos;
+                        holdingBlock = true;
+                        return;
                     }
+                }
 
-                    if (hasSupport) {
-                        searchQueue.add(target);
+                for (EnumFacing dir : EnumFacing.values()) {
+                    BlockPos next = current.pos.offset(dir);
+
+                    if (!closedSet.contains(next) && isAirLike(next)) {
+                        double gCost = current.gCost + 1;
+                        double hCost = heuristic(next);
+                        openSet.add(new Node(next, gCost, hCost));
                     }
                 }
             }
-
-            while (!searchQueue.isEmpty()) {
-                BlockPos target = searchQueue.poll();
-                PlaceResult clutchResult = tryPlaceBlock(target);
-
-                if (clutchResult == PlaceResult.FAIL_ROTATION) return;
-
-                if (clutchResult == PlaceResult.SUCCESS) {
-                    lastPlacedPos = target;
-                    placed = true;
-                    break;
-                }
-            }
-        }
-
-        if (Boolean.TRUE.equals(placed)) {
-            holdingBlock = true;
         }
     }
 
@@ -390,70 +351,213 @@ public class Scaffold extends Module {
     }
 
     private void tellyFunction() {
-        if (mode.get().equals("Telly") && !mc.thePlayer.isPotionActive(Potion.moveSpeed) && !towered && !Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) && Keyboard.isKeyDown(mc.gameSettings.keyBindForward.getKeyCode()) && !MovementUtil.isBlockAbovePlayer(mc.thePlayer, 1)) {
-            if (jumpTicks <= 3) {
-                if (jumpTicks == 0 || jumpTicks == 1 || jumpTicks == 2) {
-                    DewCommon.rotationManager.rotateToward((float) MovementUtil.getDirection(), 80f, 180f, true);
+        if (this.shouldTellyDoNotPlaceBlocks()) {
+            if (jumpTicks <= 2) {
+                DewCommon.rotationManager.rotateToward((float) MovementUtil.getDirection(), 80f, 180f, true);
+            } else {
+                if (hypixelTellyBanFix.get()) {
+                    DewCommon.rotationManager.faceBlockHypixelSafe(60f, false);
                 } else {
-                    if (hypixelTellyBanFix.get()) {
-                        DewCommon.rotationManager.faceBlockHypixelSafe(60f, false);
-                    } else {
-                        DewCommon.rotationManager.rotateToward((float) (MovementUtil.getDirection() + 180f), 80f, tellyPreRotationSpeed.get().floatValue(), true);
-                    }
+                    DewCommon.rotationManager.rotateToward((float) (MovementUtil.getDirection() + 180f), 80f, tellyPreRotationSpeed.get().floatValue(), true);
                 }
+            }
 
-                if (mc.thePlayer.posY > 0.0D && (mc.thePlayer.isSprinting() || noSprint.get()) && jumpTicks == 0) {
-                    mc.thePlayer.jump();
-                    this.updateKeepY();
-                }
+            if (mc.thePlayer.posY > 0.0D && mc.thePlayer.onGround && (mc.thePlayer.isSprinting() || noSprint.get())) {
+                mc.thePlayer.jump();
             }
         }
     }
 
-    private boolean isTelly() {
-        return mode.get().equals("Telly") && !mc.thePlayer.isPotionActive(Potion.moveSpeed) && !towered && !Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) && Keyboard.isKeyDown(mc.gameSettings.keyBindForward.getKeyCode()) && !MovementUtil.isBlockAbovePlayer(mc.thePlayer, 1) && jumpTicks <= 3;
+    private void edgeCheck() {
+        if ((edgeSafeMode.get().equals("Sneak") || this.shouldTellyAntiEdge()) && this.isNearEdge()) {
+            mc.gameSettings.keyBindSneak.setKeyDown(true);
+            isSneaking = true;
+        } else if (isSneaking) {
+            mc.gameSettings.keyBindSneak.setKeyDown(false);
+            isSneaking = false;
+        }
     }
 
-    public boolean isNearEdge() {
-        double x = mc.thePlayer.posX;
-        double z = mc.thePlayer.posZ;
-        int y = (int) Math.floor(mc.thePlayer.posY) - 1;
+    private void jumpCheck() {
+        if (!mc.thePlayer.onGround && !jumped) {
+            jumped = true;
+        }
+        towerTicks = mc.thePlayer.onGround ? 0 : towerTicks + 1;
+        this.towerFunction();
+    }
 
-        double expand = mc.thePlayer.isPotionActive(Potion.moveSpeed) ? 0.26 : 0.15;
-        for (double dx = -expand; dx <= expand; dx += expand) {
-            for (double dz = -expand; dz <= expand; dz += expand) {
-                if (dx == 0 && dz == 0) continue;
+    @Override
+    public void onMove(MoveEvent event) {
+        if (mc.thePlayer == null || mc.theWorld == null) return;
 
-                BlockPos pos = new BlockPos(x + dx, y, z + dz);
-                if (!mc.theWorld.getBlockState(pos).getBlock().isFullBlock()) {
-                    return true;
-                }
+        this.edgeCheck();
+
+        if (edgeSafeMode.get().equals("Safewalk")) {
+            event.isSafeWalk = true;
+        }
+    }
+
+    @Override
+    public void onItemRender(ItemRenderEvent event) {
+        if (originalSlot != -1) {
+            event.itemToRender = mc.thePlayer.inventory.getStackInSlot(originalSlot);
+        }
+    }
+
+    @Override
+    public void onLivingUpdate(LivingUpdateEvent event) {
+        if (mc.thePlayer == null || mc.theWorld == null) return;
+
+        this.edgeCheck();
+    }
+
+    @Override
+    public void onTick(TickEvent event) {
+        if (mc.thePlayer == null || mc.theWorld == null) return;
+
+        this.edgeCheck();
+    }
+
+    @Override
+    public void onPostUpdate(PostUpdateEvent event) {
+        if (mc.thePlayer == null || mc.theWorld == null) return;
+
+        this.edgeCheck();
+    }
+
+    @Override
+    public void onPostMotion(PostMotionEvent event) {
+        if (mc.thePlayer == null || mc.theWorld == null) return;
+
+        this.edgeCheck();
+    }
+
+    private void updateKeepY() {
+        keepY = (int) mc.thePlayer.posY;
+    }
+
+    private boolean shouldTellyAntiEdge() {
+        return mode.get().equals("Telly") && (MovementUtil.isDiagonal(25f) || !this.shouldTellyDoNotPlaceBlocks() && Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) || (!mc.thePlayer.onGround || Math.abs(MovementUtil.getAngleDifference((float) MovementUtil.getDirection(), DewCommon.rotationManager.getClientYaw())) > 0.7F) && MovementUtil.isDiagonal(12f) || !MovementUtil.isDiagonal(12f) && mc.thePlayer.onGround && Math.abs(MovementUtil.getAngleDifference((float) MovementUtil.getDirection(), DewCommon.rotationManager.getClientYaw())) > 0.7F);
+    }
+
+    private boolean canPlaceAt(BlockPos pos) {
+        if (!isAirLike(pos)) return false;
+
+        AxisAlignedBB bb = new AxisAlignedBB(
+                pos.getX(), pos.getY(), pos.getZ(),
+                pos.getX() + 1, pos.getY() + 1, pos.getZ() + 1
+        );
+
+        if (mc.thePlayer.getEntityBoundingBox().intersectsWith(bb)) return false;
+
+        for (EnumFacing dir : EnumFacing.values()) {
+            BlockPos support = pos.offset(dir);
+            if (!isAirLike(support)) {
+                return true;
             }
         }
         return false;
     }
 
-    private EnumFacing facingFromRotation(float yaw, float pitch) {
-        if (pitch >= 80.0F) return EnumFacing.DOWN;
-        if (pitch <= -80.0F) return EnumFacing.UP;
+    private boolean isAirLike(BlockPos pos) {
+        Block block = mc.theWorld.getBlockState(pos).getBlock();
 
-        int direction = MathHelper.floor_float((yaw / 90.0F) + 0.5F) & 3;
+        if (block instanceof BlockAir) return true;
+        if (block.isReplaceable(mc.theWorld, pos)) return true;
 
-        switch (direction) {
-            case 0:
-                return EnumFacing.SOUTH;
-            case 1:
-                return EnumFacing.WEST;
-            case 3:
-                return EnumFacing.EAST;
-            case 2:
-            default:
-                return EnumFacing.NORTH;
+        Material mat = block.getMaterial();
+        if (mat == Material.plants || mat == Material.vine || mat == Material.snow) return true;
+
+        return block instanceof BlockSlab && !block.isFullCube() || block instanceof BlockFenceGate || block instanceof BlockLadder || block instanceof BlockWall;
+    }
+
+    private double heuristic(BlockPos pos) {
+        return mc.thePlayer.getDistanceSqToCenter(pos);
+    }
+
+    private static class Node {
+        final BlockPos pos;
+        final double gCost;
+        final double hCost;
+        final double fCost;
+
+        Node(BlockPos pos, double gCost, double hCost) {
+            this.pos = pos;
+            this.gCost = gCost;
+            this.hCost = hCost;
+            this.fCost = gCost + hCost;
         }
     }
 
-    private EnumFacing[] getFullPrioritizedFacings() {
-        return new EnumFacing[]{EnumFacing.DOWN, EnumFacing.NORTH, EnumFacing.SOUTH, EnumFacing.EAST, EnumFacing.WEST, EnumFacing.UP};
+    private boolean shouldTellyDoNotPlaceBlocks() {
+        if (mode.get().equals("Telly")) {
+            if (!doTellyInThisJump) return false;
+            if (towered) return true;
+            return jumpTicks <= 3;
+        }
+
+        return false;
+    }
+
+    public boolean isNearEdge() {
+        double px = mc.thePlayer.posX;
+        double py = mc.thePlayer.posY;
+        double pz = mc.thePlayer.posZ;
+
+        int baseY = (int) Math.floor(py) - 1;
+
+        double radius = 0.3;
+        double step = Math.PI / 18;
+
+        if (mc.thePlayer.isPotionActive(Potion.moveSpeed)) {
+            radius += 0.05;
+        }
+
+        for (double angle = 0; angle < Math.PI * 2; angle += step) {
+            double checkX = px + Math.cos(angle) * radius;
+            double checkZ = pz + Math.sin(angle) * radius;
+
+            BlockPos pos = new BlockPos(checkX, baseY, checkZ);
+            Block block = mc.theWorld.getBlockState(pos).getBlock();
+
+            if (block.isReplaceable(mc.theWorld, pos) || !block.getMaterial().isSolid() || !block.isFullCube()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static final EnumFacing[] FACINGS = EnumFacing.values();
+    private static final float[][] FACING_VECTORS = new float[FACINGS.length][3];
+    static {
+        for (int i = 0; i < FACINGS.length; i++) {
+            EnumFacing f = FACINGS[i];
+            FACING_VECTORS[i][0] = f.getFrontOffsetX();
+            FACING_VECTORS[i][1] = f.getFrontOffsetY();
+            FACING_VECTORS[i][2] = f.getFrontOffsetZ();
+        }
+    }
+
+    private EnumFacing facingFromRotation(float yaw, float pitch) {
+        float cosPitch = MathHelper.cos(-pitch * 0.017453292F);
+        float sinPitch = MathHelper.sin(-pitch * 0.017453292F);
+        float cosYaw = MathHelper.cos(-yaw * 0.017453292F - (float)Math.PI);
+        float sinYaw = MathHelper.sin(-yaw * 0.017453292F - (float)Math.PI);
+
+        float lookX = sinYaw * cosPitch;
+        float lookZ = cosYaw * cosPitch;
+
+        float bestDot = -Float.MAX_VALUE;
+        EnumFacing bestFacing = EnumFacing.NORTH;
+        for (int i = 0; i < FACING_VECTORS.length; i++) {
+            float dot = lookX * FACING_VECTORS[i][0] + sinPitch * FACING_VECTORS[i][1] + lookZ * FACING_VECTORS[i][2];
+            if (dot > bestDot) {
+                bestDot = dot;
+                bestFacing = FACINGS[i];
+            }
+        }
+        return bestFacing;
     }
 
     private PlaceResult tryPlaceBlock(BlockPos pos) {

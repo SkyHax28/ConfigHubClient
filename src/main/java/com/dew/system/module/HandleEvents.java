@@ -105,10 +105,6 @@ public class HandleEvents implements EventListener {
 
         Packet<?> packet = event.packet;
 
-        if (packet instanceof C0DPacketCloseWindow && (mc.currentScreen instanceof ClickGuiScreen || mc.currentScreen instanceof NewClickGuiScreen || mc.currentScreen instanceof GuiChat)) {
-            event.cancel();
-        }
-
         if (BlinkUtil.blinking && !BlinkUtil.limiter && !(packet instanceof C01PacketChatMessage) && !(packet instanceof C0FPacketConfirmTransaction)) {
             event.cancel();
             BlinkUtil.addPacket(packet);

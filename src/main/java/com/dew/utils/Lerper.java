@@ -10,6 +10,10 @@ public class Lerper {
         return from + (to - from) * speed;
     }
 
+    public static double lerpDouble(double from, double to, float speed) {
+        return from + (to - from) * speed;
+    }
+
     public static float lerpDoubleDelta(float from, float to, double speed) {
         return (float) (from + (to - from) * speed);
     }

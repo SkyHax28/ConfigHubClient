@@ -82,7 +82,7 @@ public class AutoBlock extends Module {
 
                     if (!block && now > legitBlockEndTime) {
                         mc.gameSettings.keyBindUseItem.setKeyDown(true);
-                        legitBlockEndTime = now + 50;
+                        legitBlockEndTime = now + 1;
                         block = true;
                     } else if (block && now <= legitBlockEndTime) {
                         mc.gameSettings.keyBindUseItem.setKeyDown(true);

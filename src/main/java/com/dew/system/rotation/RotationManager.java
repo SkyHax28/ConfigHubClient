@@ -327,11 +327,11 @@ public class RotationManager {
 
         Vec3 eyePos = mc.thePlayer.getPositionEyes(1.0f);
         Vec3 lookVec = getLookVecFromRotations(yaw, pitch);
+
         Vec3 reachVec = eyePos.addVector(lookVec.xCoord * reach, lookVec.yCoord * reach, lookVec.zCoord * reach);
-
         MovingObjectPosition hit = mc.theWorld.rayTraceBlocks(eyePos, reachVec, false, false, false);
-
-        return hit != null && hit.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK && hit.getBlockPos().equals(targetPos) && facing == hit.sideHit;
+        final double EPSILON = 1e-6;
+        return hit != null && hit.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK && hit.getBlockPos().distanceSq(targetPos) < EPSILON && facing == hit.sideHit;
     }
 
     private Vec3 getLookVecFromRotations(float yaw, float pitch) {

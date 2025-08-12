@@ -27,6 +27,7 @@ import java.util.List;
 
 public class Manager extends Module {
 
+    private static final NumberValue startDelay = new NumberValue("Start Delay", 1.0, 0.0, 10.0, 1.0);
     private static final NumberValue delay = new NumberValue("Delay", 4.0, 0.0, 10.0, 1.0);
     private static final BooleanValue inventoryOnly = new BooleanValue("Inventory Only", false);
     private static final List<Integer> POSITIVE_PRIORITY = Arrays.asList(
@@ -35,6 +36,8 @@ public class Manager extends Module {
             Potion.heal.id
     );
     private int tickDelayCounter = 0;
+    private int startDelayCounter = 0;
+    private boolean wasCleaningLastTick = false;
     private boolean cleaning = false;
 
     public Manager() {
@@ -59,6 +62,8 @@ public class Manager extends Module {
 
     private void resetState() {
         tickDelayCounter = 0;
+        startDelayCounter = 0;
+        wasCleaningLastTick = false;
         cleaning = false;
     }
 
@@ -66,6 +71,16 @@ public class Manager extends Module {
     public void onPreUpdate(PreUpdateEvent event) {
         if (mc.thePlayer == null || mc.currentScreen instanceof GuiChest || inventoryOnly.get() && !(mc.currentScreen instanceof GuiInventory) || DewCommon.moduleManager.getModule(Disabler.class).isEnabled() && DewCommon.moduleManager.getModule(Disabler.class).isInventoryDisablerEnabled() && mc.thePlayer.isUsingItem()) {
             this.resetState();
+            return;
+        }
+
+        if (!wasCleaningLastTick) {
+            startDelayCounter = Math.max(1, startDelay.get().intValue());
+        }
+        wasCleaningLastTick = true;
+
+        if (startDelayCounter > 0) {
+            startDelayCounter--;
             return;
         }
 
@@ -155,6 +170,7 @@ public class Manager extends Module {
             }
         }
 
+        wasCleaningLastTick = false;
         cleaning = false;
     }
 
