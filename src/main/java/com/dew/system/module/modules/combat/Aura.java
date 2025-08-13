@@ -87,12 +87,42 @@ public class Aura extends Module {
     @Override
     public void onDisable() {
         this.resetState();
+        if (inventorySwapBackSlot >= 0 && mc.thePlayer.inventory.currentItem != inventorySwapBackSlot) {
+            mc.thePlayer.inventory.currentItem = inventorySwapBackSlot;
+            mc.playerController.updateController();
+        }
+        DewCommon.moduleManager.getModule(AutoTool.class).doNotUpdateSwordNow(false);
+        restoringInventory = false;
+        inventorySwapBackTicks = -1;
+        inventorySwapBackSlot = -1;
+        if (currentTimerSpeed != 1f) {
+            TimerUtil.resetTimerSpeed();
+            currentTimerSpeed = 1f;
+        }
+        burstNextTick = false;
+        slowNextTick = false;
     }
 
     @Override
     public void onLoadWorld(WorldLoadEvent event) {
         if (DewCommon.moduleManager.getModule(SafetySwitchv2000.class).isEnabled()) {
             this.setState(false);
+        } else {
+            this.resetState();
+            if (inventorySwapBackSlot >= 0 && mc.thePlayer.inventory.currentItem != inventorySwapBackSlot) {
+                mc.thePlayer.inventory.currentItem = inventorySwapBackSlot;
+                mc.playerController.updateController();
+            }
+            DewCommon.moduleManager.getModule(AutoTool.class).doNotUpdateSwordNow(false);
+            restoringInventory = false;
+            inventorySwapBackTicks = -1;
+            inventorySwapBackSlot = -1;
+            if (currentTimerSpeed != 1f) {
+                TimerUtil.resetTimerSpeed();
+                currentTimerSpeed = 1f;
+            }
+            burstNextTick = false;
+            slowNextTick = false;
         }
     }
 
@@ -104,21 +134,7 @@ public class Aura extends Module {
         tickableTick = 0;
         target = null;
         targeted = false;
-        if (currentTimerSpeed != 1f) {
-            TimerUtil.resetTimerSpeed();
-            currentTimerSpeed = 1f;
-        }
-        burstNextTick = false;
-        slowNextTick = false;
         DewCommon.moduleManager.getModule(Animations.class).setVisualBlocking(false);
-        if (inventorySwapBackSlot >= 0 && mc.thePlayer.inventory.currentItem != inventorySwapBackSlot) {
-            mc.thePlayer.inventory.currentItem = inventorySwapBackSlot;
-            mc.playerController.updateController();
-        }
-        DewCommon.moduleManager.getModule(AutoTool.class).doNotUpdateSwordNow(false);
-        restoringInventory = false;
-        inventorySwapBackTicks = -1;
-        inventorySwapBackSlot = -1;
     }
 
     @Override
@@ -299,7 +315,7 @@ public class Aura extends Module {
         }
 
         if (burstNextTick) {
-            currentTimerSpeed = 10f;
+            currentTimerSpeed = 20f;
             TimerUtil.setTimerSpeed(currentTimerSpeed);
             LogUtil.printChat("tick 1");
             burstNextTick = false;
@@ -308,10 +324,10 @@ public class Aura extends Module {
         }
 
         if (slowNextTick) {
-            currentTimerSpeed = 0.121f;
+            currentTimerSpeed = 0.11f;
             TimerUtil.setTimerSpeed(currentTimerSpeed);
             LogUtil.printChat("tick 2");
-            tickableTick = 10;
+            tickableTick = 15;
             slowNextTick = false;
             return;
         }
@@ -334,7 +350,7 @@ public class Aura extends Module {
 
         long now = System.currentTimeMillis();
 
-        if (mc.thePlayer.getDistanceToEntity(entity) <= targetRange.get() && mc.thePlayer.canEntityBeSeen(target) && now - lastThrowTime >= 300) {
+        if (mc.thePlayer.getDistanceToEntity(entity) <= targetRange.get() && mc.thePlayer.canEntityBeSeen(target) && now - lastThrowTime >= 1400) {
             int originalSlot = mc.thePlayer.inventory.currentItem;
             for (int i = 0; i < 9; i++) {
                 if (mc.thePlayer.inventory.getStackInSlot(i) != null) {
@@ -349,7 +365,7 @@ public class Aura extends Module {
                         }
                         mc.thePlayer.swingItemWithoutPacket();
                         lastThrowTime = now;
-                        int storeDelay = item instanceof ItemFishingRod ? 220 : 120;
+                        int storeDelay = item instanceof ItemFishingRod ? 200 : 120;
                         scheduleInventoryRestore(originalSlot, storeDelay);
                         return true;
                     }

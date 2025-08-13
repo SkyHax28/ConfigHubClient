@@ -3,6 +3,7 @@ package com.dew.system.module;
 import com.dew.DewCommon;
 import com.dew.IMinecraft;
 import com.dew.system.event.EventListener;
+import com.dew.system.module.modules.render.Hud;
 import com.dew.system.settingsvalue.Value;
 import net.minecraft.client.Minecraft;
 
@@ -80,6 +81,8 @@ public abstract class Module implements EventListener {
         }
 
         this.enabled = state;
+
+        DewCommon.moduleManager.getModule(Hud.class).markModuleListDirty();
     }
 
     public boolean isEnabled() {

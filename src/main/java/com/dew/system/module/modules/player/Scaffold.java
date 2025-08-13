@@ -84,6 +84,8 @@ public class Scaffold extends Module {
     public void onLoadWorld(WorldLoadEvent event) {
         if (DewCommon.moduleManager.getModule(SafetySwitchv2000.class).isEnabled()) {
             this.setState(false);
+        } else {
+            this.resetState();
         }
     }
 
@@ -246,6 +248,8 @@ public class Scaffold extends Module {
             return;
         }
 
+        if (!mc.theWorld.getBlockState(below).getBlock().isReplaceable(mc.theWorld, below)) return;
+
         for (EnumFacing dir : EnumFacing.values()) {
             BlockPos neighbor = below.offset(dir);
             PlaceResult neighborResult = tryPlaceBlock(neighbor);
@@ -258,8 +262,6 @@ public class Scaffold extends Module {
                 return;
             }
         }
-
-        if (!mc.theWorld.getBlockState(below).getBlock().isReplaceable(mc.theWorld, below)) return;
 
         int range = clutchRange.get().intValue();
         if (range > 1) {

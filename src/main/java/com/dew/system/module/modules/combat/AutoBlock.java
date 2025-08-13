@@ -17,6 +17,7 @@ import net.minecraft.network.play.client.C09PacketHeldItemChange;
 import net.minecraft.network.play.server.S12PacketEntityVelocity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.MovingObjectPosition;
 import org.lwjgl.input.Keyboard;
 
 public class AutoBlock extends Module {
@@ -80,11 +81,11 @@ public class AutoBlock extends Module {
 
                     auraModule.doMainFunctions(!mc.gameSettings.keyBindUseItem.isKeyDown() && !block);
 
-                    if (!block && now > legitBlockEndTime) {
+                    if (!block && now > legitBlockEndTime && mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit != MovingObjectPosition.MovingObjectType.BLOCK) {
                         mc.gameSettings.keyBindUseItem.setKeyDown(true);
                         legitBlockEndTime = now + 1;
                         block = true;
-                    } else if (block && now <= legitBlockEndTime) {
+                    } else if (block && now <= legitBlockEndTime && mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit != MovingObjectPosition.MovingObjectType.BLOCK) {
                         mc.gameSettings.keyBindUseItem.setKeyDown(true);
                     } else {
                         mc.gameSettings.keyBindUseItem.setKeyDown(false);

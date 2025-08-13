@@ -56,11 +56,11 @@ public class ColorBlindnessAssistant extends Module {
         if (targetColorMeta != -1) {
             renderBlocks.clear();
 
-            int radius = 10;
+            int radius = 50;
 
             BlockPos playerPos = new BlockPos(mc.thePlayer);
             for (int x = -radius; x <= radius; x++) {
-                for (int y = -3; y <= 3; y++) {
+                for (int y = -2; y <= 1; y++) {
                     for (int z = -radius; z <= radius; z++) {
                         BlockPos pos = playerPos.add(x, y, z);
                         if (mc.theWorld.getBlockState(pos).getBlock() instanceof BlockAir) continue;
@@ -95,7 +95,7 @@ public class ColorBlindnessAssistant extends Module {
             double z = pos.getZ() - mc.getRenderManager().viewerPosZ;
 
             AxisAlignedBB box = new AxisAlignedBB(x, y, z, x + 1, y + 1, z + 1);
-            RenderUtil.drawFilledBox(box, 0f, 0f, 0f, 1.0f);
+            RenderUtil.drawFilledBox(box, 0f, 0f, 0f, 0.8f);
         }
 
         GlStateManager.enableCull();

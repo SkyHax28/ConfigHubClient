@@ -2,6 +2,8 @@ package com.dew.utils;
 
 import net.minecraft.util.Vec3;
 
+import java.awt.*;
+
 public class Lerper {
 
     public static float deltaTime = 1.0F;
@@ -30,6 +32,13 @@ public class Lerper {
 
     public static float easeOutCubic(float t) {
         return (float) (1 - Math.pow(1 - t, 3));
+    }
+
+    public static Color lerpColor(Color a, Color b, float t) {
+        int r = (int) (a.getRed() + (b.getRed() - a.getRed()) * t);
+        int g = (int) (a.getGreen() + (b.getGreen() - a.getGreen()) * t);
+        int bl = (int) (a.getBlue() + (b.getBlue() - a.getBlue()) * t);
+        return new Color(r, g, bl);
     }
 
     public static Vec3 lerpVec3(Vec3 from, Vec3 to, double tickDelta) {

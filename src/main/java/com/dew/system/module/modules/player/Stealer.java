@@ -39,6 +39,8 @@ public class Stealer extends Module {
     public void onLoadWorld(WorldLoadEvent event) {
         if (DewCommon.moduleManager.getModule(SafetySwitchv2000.class).isEnabled()) {
             this.setState(false);
+        } else {
+            this.resetState();
         }
     }
 

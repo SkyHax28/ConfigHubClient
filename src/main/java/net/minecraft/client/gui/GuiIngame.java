@@ -983,7 +983,7 @@ public class GuiIngame extends Gui
             int j = 182;
             int k = i / 2 - j / 2;
             int l = (int)(BossStatus.healthScale * (float)(j + 1));
-            int i1 = 12;
+            int i1 = DewCommon.moduleManager.getModule(Hud.class).isEnabled() && DewCommon.moduleManager.getModule(Hud.class).renderWatermark() ? 52 : 12;
             this.drawTexturedModalRect(k, i1, 0, 74, j, 5);
             this.drawTexturedModalRect(k, i1, 0, 74, j, 5);
 

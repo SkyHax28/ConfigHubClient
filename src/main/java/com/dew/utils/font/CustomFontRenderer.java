@@ -86,6 +86,8 @@ public class CustomFontRenderer {
     }
 
     public void drawString(String text, float x, float y, int color, float size) {
+        y += 1.1f;
+
         float scale = Math.min(size, 1.0f);
 
         GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);

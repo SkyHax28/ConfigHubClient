@@ -16,10 +16,6 @@ public class ReachCalculator {
         if (attacker == null || target == null) return false;
         if (attacker.worldObj == null) return false;
 
-        if (maxReach <= 5.9) {
-            maxReach += 0.1;
-        }
-
         World world = attacker.worldObj;
 
         Vec3 eyePos = getEntityEyePos(attacker);
