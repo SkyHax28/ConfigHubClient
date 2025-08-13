@@ -5,6 +5,7 @@ import com.dew.IMinecraft;
 import com.dew.system.event.EventListener;
 import com.dew.system.event.events.*;
 import com.dew.system.userdata.DataSaver;
+import com.dew.utils.Clock;
 import com.dew.utils.LogUtil;
 import com.dew.utils.ServerUtil;
 import com.dew.utils.Timer;
@@ -37,6 +38,7 @@ public class MongoManager implements IMinecraft, EventListener {
     private final AtomicBoolean connected = new AtomicBoolean(false);
     private final ExecutorService dbExecutor = Executors.newFixedThreadPool(3);
     private final Object userLock = new Object();
+    private final Clock addUserTimer = new Clock();
 
     private static final long RECONNECT_RETRY_INTERVAL_MS = 5000;
 
@@ -148,7 +150,6 @@ public class MongoManager implements IMinecraft, EventListener {
                 try {
                     Document query = new Document("server_ip", serverIP).append("username", username);
                     collection.insertOne(query);
-                    LogUtil.infoLog(String.format("Added %s to %s", username, serverIP));
                     connected.set(true);
                 } catch (MongoException e) {
                     LogUtil.infoLog("MongoDB insertOne failed: " + e.getMessage());
@@ -171,7 +172,6 @@ public class MongoManager implements IMinecraft, EventListener {
                 try {
                     Document query = new Document("username", username);
                     collection.deleteMany(query);
-                    LogUtil.infoLog(String.format("Removed %s from all servers", username));
                     connected.set(true);
                 } catch (MongoException e) {
                     LogUtil.infoLog("MongoDB deleteMany failed: " + e.getMessage());
@@ -242,6 +242,14 @@ public class MongoManager implements IMinecraft, EventListener {
     @Override
     public void onTick(TickEvent event) {
         if (!connected.get() || mc == null || mc.theWorld == null || mc.thePlayer == null || !mc.inGameHasFocus) return;
+
+        if (!mc.isSingleplayer() && !online.stream().anyMatch(p -> p.getLeft().equals(mc.thePlayer) && p.getRight().equals(DataSaver.userName)) && addUserTimer.hasTimePassed(5000) && ServerUtil.serverData != null) {
+            String username = mc.getSession().getUsername() + "~~--~~" + DataSaver.userName;
+            String normalizedIP = normalizeServerIP(ServerUtil.serverData.serverIP);
+            addUserToServer(normalizedIP, username);
+            addUserTimer.reset();
+        }
+
         if (!tickTimer.hasElapsed(5000)) return;
 
         runAsync(() -> {
@@ -287,10 +295,7 @@ public class MongoManager implements IMinecraft, EventListener {
 
     @Override
     public void onWorld(WorldEvent event) {
-        if (mc == null || mc.getSession() == null || ServerUtil.serverData == null && (event == null || event.ip == null)) return;
-        String username = mc.getSession().getUsername() + "~~--~~" + DataSaver.userName;
-        String normalizedIP = normalizeServerIP(event == null && event.ip == null ? ServerUtil.serverData.serverIP : event.ip);
-        addUserToServer(normalizedIP, username);
+        addUserTimer.reset();
     }
 
     @Override

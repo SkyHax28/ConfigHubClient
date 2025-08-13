@@ -92,6 +92,7 @@ public class Knockback extends Module {
         Entity target = event.target;
 
         if (target instanceof EntityLivingBase) {
+            isHit = true;
             switch (mode.get().toLowerCase()) {
                 case "legit packet":
                     if (mc.thePlayer.isSprinting()) {

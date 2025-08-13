@@ -436,7 +436,11 @@ public class Scaffold extends Module {
     }
 
     private void updateKeepY() {
-        keepY = (int) mc.thePlayer.posY;
+        if (keepY == -1 && mc.thePlayer.hurtTime != 0) {
+            keepY = (int) mc.thePlayer.posY - 1;
+        } else {
+            keepY = (int) mc.thePlayer.posY;
+        }
     }
 
     private boolean shouldTellyAntiEdge() {

@@ -97,12 +97,10 @@ public class Manager extends Module {
         int bestWeapon = getBestSwordSlot();
         int bestPickaxe = getBestToolSlot(ItemPickaxe.class);
         int bestAxe = getBestToolSlot(ItemAxe.class);
-        int bestShovel = getBestToolSlot(ItemSpade.class);
 
         if (moveToHotbar(bestWeapon, 0)) return;
         if (moveToHotbar(bestPickaxe, 1)) return;
         if (moveToHotbar(bestAxe, 2)) return;
-        if (moveToHotbar(bestShovel, 3)) return;
         if (searchAndMoveSelectedItemToHotbar(Items.golden_apple, 4)) return;
         if (searchAndMoveSelectedItemToHotbar(mc.thePlayer.isBurning() ? Items.water_bucket : Items.fishing_rod, 5)) return;
         if (searchAndMoveBlocksToHotbar(6)) return;
@@ -150,16 +148,6 @@ public class Manager extends Module {
             ItemStack stack = mc.thePlayer.inventory.mainInventory[i];
             if (stack == null) continue;
             if (stack.getItem() instanceof ItemAxe) {
-                dropSlot(i);
-                return;
-            }
-        }
-
-        for (int i = 0; i < 36; i++) {
-            if (i == bestShovel) continue;
-            ItemStack stack = mc.thePlayer.inventory.mainInventory[i];
-            if (stack == null) continue;
-            if (stack.getItem() instanceof ItemSpade) {
                 dropSlot(i);
                 return;
             }

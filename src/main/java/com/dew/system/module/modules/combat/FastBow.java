@@ -35,7 +35,6 @@ public class FastBow extends Module {
 
             PacketUtil.sendPacket(new C07PacketPlayerDigging(C07PacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN));
             mc.thePlayer.setItemInUseCount(currentStack.getMaxItemUseDuration() - 1);
-            LogUtil.printChat("Sent bow");
         }
     }
 }

@@ -229,7 +229,7 @@ public class Hud extends Module {
 
         if (features.isSelected("Watermark")) {
             String clientName = DewCommon.clientName;
-            String userInfo = " | " + DataSaver.userName + " | " + Minecraft.getDebugFPS() + " fps" + " | " + (mc.isSingleplayer() ? "Singleplayer" : "Multiplayer") + (DewCommon.mongoManager.isConnected() && DewCommon.mongoManager.online.stream().anyMatch(p -> p.getLeft().equals(mc.thePlayer) && p.getRight().equals(DataSaver.userName)) ? " | Connected" : " | Connecting...");
+            String userInfo = " | " + DataSaver.userName + " | " + Minecraft.getDebugFPS() + " fps" + " | " + (mc.isSingleplayer() ? "Singleplayer" : "Multiplayer") + (mc.isSingleplayer() ? "" : DewCommon.mongoManager.isConnected() && DewCommon.mongoManager.online.stream().anyMatch(p -> p.getLeft().equals(mc.thePlayer) && p.getRight().equals(DataSaver.userName)) ? " | Connected" : " | Connecting...");
             String display = clientName + userInfo;
 
             float targetWidth = fontRenderer.getStringWidth(display, fontSize);

@@ -208,7 +208,6 @@ public class Aura extends Module {
         restoringInventory = true;
         inventorySwapBackSlot = originalSlot;
         inventorySwapBackTicks = Math.max(1, delayMs / 50);
-        LogUtil.printChat("Schedule " + delayMs + " " + originalSlot);
     }
 
     public void doMainFunctions(boolean doAttack) {
@@ -315,19 +314,17 @@ public class Aura extends Module {
         }
 
         if (burstNextTick) {
-            currentTimerSpeed = 20f;
+            currentTimerSpeed = 10f;
             TimerUtil.setTimerSpeed(currentTimerSpeed);
-            LogUtil.printChat("tick 1");
             burstNextTick = false;
             slowNextTick = true;
             return;
         }
 
         if (slowNextTick) {
-            currentTimerSpeed = 0.11f;
+            currentTimerSpeed = 0.35f;
             TimerUtil.setTimerSpeed(currentTimerSpeed);
-            LogUtil.printChat("tick 2");
-            tickableTick = 15;
+            tickableTick = 25;
             slowNextTick = false;
             return;
         }
@@ -339,7 +336,6 @@ public class Aura extends Module {
         if (Math.abs(currentTimerSpeed - 1.0f) > 0.01f) {
             currentTimerSpeed += (1.0f - currentTimerSpeed) * 0.6f;
             TimerUtil.setTimerSpeed(currentTimerSpeed);
-            LogUtil.printChat("Timer balance: " + currentTimerSpeed + "x");
         } else {
             TimerUtil.resetTimerSpeed();
         }
@@ -456,7 +452,6 @@ public class Aura extends Module {
         net.minecraft.util.Vec3 hitVec = new net.minecraft.util.Vec3(hitX, hitY, hitZ);
 
         if (DewCommon.rotationManager.faceBlockWithFacing(neighbor, placeFacing, rotationSpeed.get().floatValue(), true)) {
-            LogUtil.printChat("Defence place: " + pos);
             if (mc.thePlayer.inventory.currentItem != blockSlot) {
                 mc.thePlayer.inventory.currentItem = blockSlot;
                 mc.playerController.updateController();
@@ -508,7 +503,7 @@ public class Aura extends Module {
         List<Entity> targets = new ArrayList<>();
 
         for (Entity entity : mc.theWorld.loadedEntityList) {
-            if (entity instanceof EntityPlayerSP || this.shouldNotAttack(entity)) continue;
+            if (entity instanceof EntityPlayerSP || this.shouldNotAttack(entity) || !throughWalls.get() && !mc.thePlayer.canEntityBeSeen(entity)) continue;
             double dist = mc.thePlayer.getDistanceToEntity(entity);
             if (dist <= range) {
                 targets.add(entity);

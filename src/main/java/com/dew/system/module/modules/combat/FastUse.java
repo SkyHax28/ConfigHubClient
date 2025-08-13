@@ -28,7 +28,6 @@ public class FastUse extends Module {
             }
 
             mc.playerController.onStoppedUsingItem(mc.thePlayer);
-            LogUtil.printChat("Sent food");
         }
     }
 

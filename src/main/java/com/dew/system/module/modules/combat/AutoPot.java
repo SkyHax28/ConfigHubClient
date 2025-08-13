@@ -125,7 +125,6 @@ public class AutoPot extends Module {
 
             case 1:
                 DewCommon.rotationManager.rotateToward(mc.thePlayer.rotationYaw, 90f, 180f, true);
-                LogUtil.printChat("Throw pot");
                 mc.rightClickMouse();
                 stage = 2;
                 break;
