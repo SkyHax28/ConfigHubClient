@@ -49,7 +49,7 @@ public class LayerHeldItem implements LayerRenderer<EntityLivingBase>
             final UUID uuid = entitylivingbaseIn.getUniqueID();
             final EntityPlayer entityplayer = IMinecraft.mc.theWorld.getPlayerEntityByUUID(uuid);
 
-            boolean shouldSwordBlock = DewCommon.moduleManager.getModule(Animations.class).isEnabled() && Animations.oldAnimations.isSelected("Third Person") && entityplayer != null && (entityplayer.isBlocking() || entityplayer instanceof EntityPlayerSP && itemstack.getItem() instanceof ItemSword && DewCommon.moduleManager.getModule(Animations.class).isVisualBlocking());
+            boolean shouldSwordBlock = DewCommon.moduleManager.getModule(Animations.class).isEnabled() && Animations.oldAnimations.isSelected("Third Person") && entityplayer != null && (entityplayer.isBlocking() || entityplayer instanceof EntityPlayerSP && (itemstack.getItem() instanceof ItemSword && DewCommon.moduleManager.getModule(Animations.class).isVisualBlocking() || DewCommon.moduleManager.getModule(Animations.class).shouldForceBlock(entityplayer)));
 
             if (shouldSwordBlock) {
                 if (entitylivingbaseIn.isSneaking()) {

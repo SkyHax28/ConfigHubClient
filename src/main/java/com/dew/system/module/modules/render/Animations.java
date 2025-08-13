@@ -6,6 +6,7 @@ import com.dew.system.settingsvalue.BooleanValue;
 import com.dew.system.settingsvalue.MultiSelectionValue;
 import com.dew.system.settingsvalue.NumberValue;
 import com.dew.system.settingsvalue.SelectionValue;
+import net.minecraft.entity.player.EntityPlayer;
 import org.lwjgl.input.Keyboard;
 
 import java.util.Arrays;
@@ -17,6 +18,7 @@ public class Animations extends Module {
     private static final BooleanValue customSwingSpeed = new BooleanValue("Custom Swing Speed", false);
     private static final NumberValue swingSpeed = new NumberValue("Swing Speed", 9.0, -5.0, 20.0, 1.0, customSwingSpeed::get);
     private static final NumberValue itemScale = new NumberValue("Item Scale", 0.0, -2.0, 2.0, 0.5);
+    private static final BooleanValue forceBlockWhenSwinging = new BooleanValue("Force block while swinging", false);
     private boolean visualBlocking = false;
 
     public Animations() {
@@ -37,6 +39,10 @@ public class Animations extends Module {
 
     public int getSwingSpeed() {
         return swingSpeed.get().intValue();
+    }
+
+    public boolean shouldForceBlock(EntityPlayer player) {
+        return this.isEnabled() && forceBlockWhenSwinging.get() && player.isSwingInProgress;
     }
 
     public float getItemScale() {

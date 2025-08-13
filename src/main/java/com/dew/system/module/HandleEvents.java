@@ -8,6 +8,7 @@ import com.dew.system.gui.ClickGuiScreen;
 import com.dew.system.gui.NewClickGuiScreen;
 import com.dew.system.module.modules.player.AutoTool;
 import com.dew.system.module.modules.render.ClickGui;
+import com.dew.system.module.modules.render.Hud;
 import com.dew.system.viapatcher.PacketPatcher;
 import com.dew.utils.BlinkUtil;
 import com.dew.utils.LogUtil;
@@ -38,6 +39,10 @@ public class HandleEvents implements EventListener {
 
     @Override
     public void onLoadWorld(WorldLoadEvent event) {
+        if (DewCommon.moduleManager.getModule(Hud.class).isEnabled()) {
+            DewCommon.moduleManager.getModule(Hud.class).markModuleListDirty();
+        }
+
         DewCommon.clientConfigManager.save();
         worldFullLoaded = false;
         loadingWorld = true;

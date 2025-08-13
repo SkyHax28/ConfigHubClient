@@ -89,7 +89,7 @@ public class RenderPlayer extends RendererLivingEntity<AbstractClientPlayer>
             modelplayer.aimedBow = false;
             modelplayer.isSneak = clientPlayer.isSneaking();
 
-            if (clientPlayer instanceof EntityPlayerSP && itemstack != null && itemstack.getItem() instanceof ItemSword && DewCommon.moduleManager.getModule(Animations.class).isVisualBlocking()) {
+            if (clientPlayer instanceof EntityPlayerSP && itemstack != null && (itemstack.getItem() instanceof ItemSword && DewCommon.moduleManager.getModule(Animations.class).isVisualBlocking() || DewCommon.moduleManager.getModule(Animations.class).shouldForceBlock(clientPlayer))) {
                 modelplayer.heldItemRight = 3;
                 return;
             }

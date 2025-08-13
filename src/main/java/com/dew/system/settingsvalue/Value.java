@@ -1,5 +1,8 @@
 package com.dew.system.settingsvalue;
 
+import com.dew.DewCommon;
+import com.dew.system.module.modules.render.Hud;
+
 import java.util.function.Supplier;
 
 public abstract class Value<T> {
@@ -27,6 +30,9 @@ public abstract class Value<T> {
 
     public void set(T value) {
         this.value = value;
+        if (DewCommon.moduleManager.getModule(Hud.class).isEnabled()) {
+            DewCommon.moduleManager.getModule(Hud.class).markModuleListDirty();
+        }
     }
 
     public boolean isVisible() {

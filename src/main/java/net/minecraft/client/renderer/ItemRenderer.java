@@ -389,7 +389,7 @@ public class ItemRenderer
 
                 if (toRender.getItem() instanceof ItemMap) {
                     this.renderItemMap(abstractclientplayer, f2, f, f1);
-                } else if (animationsModule.isVisualBlocking() && mc.thePlayer.getHeldItem() != null && toRender.getItem() instanceof ItemSword) {
+                } else if (animationsModule.isVisualBlocking() && toRender.getItem() instanceof ItemSword || animationsModule.shouldForceBlock(mc.thePlayer)) {
                     this.renderSwordAnimations(animationsModule, f, f1, var9);
                 } else if (abstractclientplayer.getItemInUseCount() > 0) {
                     EnumAction enumaction = toRender.getItemUseAction();

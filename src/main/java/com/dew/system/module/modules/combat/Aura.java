@@ -52,7 +52,9 @@ public class Aura extends Module {
     private static final BooleanValue noRotationHitCheck = new BooleanValue("No Rotation Hit Check", false);
     private static final BooleanValue throughWalls = new BooleanValue("Through Walls", true);
     private static final BooleanValue visualAutoBlock = new BooleanValue("Visual Auto Block", true);
+    private static final BooleanValue assistAttack = new BooleanValue("Assist Attack", false);
     private static final BooleanValue tickBase = new BooleanValue("Tick Base", false);
+    private static final NumberValue tickDelay = new NumberValue("Tick Delay", 80.0, 0.0, 200.0, 1.0, tickBase::get);
     private static final BooleanValue autoThrowRodOrBalls = new BooleanValue("Auto Throw Rod or Balls", false, () -> mode.get().equals("Single"));
     private static final BooleanValue autoBlockPlacer = new BooleanValue("Auto Block Placer", false, () -> mode.get().equals("Single"));
     private static final BooleanValue tpAura = new BooleanValue("TP Aura", false);
@@ -69,6 +71,9 @@ public class Aura extends Module {
     private boolean burstNextTick = false;
     private boolean slowNextTick = false;
     private boolean targeted = false;
+    private int inventorySwapBackTicks = -1;
+    private int inventorySwapBackSlot = -1;
+    private boolean restoringInventory = false;
 
     public Aura() {
         super("Aura", ModuleCategory.COMBAT, Keyboard.KEY_NONE, false, true, true);
@@ -101,6 +106,8 @@ public class Aura extends Module {
         }
         burstNextTick = false;
         slowNextTick = false;
+        placeableTick = 0;
+        tickableTick = 0;
     }
 
     @Override
@@ -123,6 +130,8 @@ public class Aura extends Module {
             }
             burstNextTick = false;
             slowNextTick = false;
+            placeableTick = 0;
+            tickableTick = 0;
         }
     }
 
@@ -130,8 +139,6 @@ public class Aura extends Module {
         lastAttackTime = 0L;
         nextAttackDelay = 0L;
         lastThrowTime = 0L;
-        placeableTick = 0;
-        tickableTick = 0;
         target = null;
         targeted = false;
         DewCommon.moduleManager.getModule(Animations.class).setVisualBlocking(false);
@@ -140,6 +147,15 @@ public class Aura extends Module {
     @Override
     public void onTick(TickEvent event) {
         this.updateSlotSwapper();
+
+        if (assistAttack.get() && target != null && DewCommon.rotationManager.isRotating() && mc.thePlayer != null && mc.thePlayer.getDistanceToEntity(target) > getAttackRange() && mc.thePlayer.getDistanceToEntity(target) <= getTargetRange()) {
+            long currentTime = System.currentTimeMillis();
+            if (currentTime - lastAttackTime >= nextAttackDelay) {
+                mc.clickMouse();
+                lastAttackTime = currentTime;
+                nextAttackDelay = getNextAttackDelay();
+            }
+        }
 
         if (this.isInAutoBlockMode()) return;
 
@@ -183,10 +199,6 @@ public class Aura extends Module {
         return false;
     }
 
-    private int inventorySwapBackTicks = -1;
-    private int inventorySwapBackSlot = -1;
-    private boolean restoringInventory = false;
-
     public void updateSlotSwapper() {
         if (inventorySwapBackTicks >= 0) {
             inventorySwapBackTicks--;
@@ -211,11 +223,6 @@ public class Aura extends Module {
     }
 
     public void doMainFunctions(boolean doAttack) {
-        if (mc.thePlayer == null || mc.playerController == null || mc.playerController.getCurrentGameType() == WorldSettings.GameType.SPECTATOR  || DewCommon.moduleManager.getModule(Scaffold.class).isEnabled() || DewCommon.moduleManager.getModule(AutoPot.class).isEnabled() && DewCommon.moduleManager.getModule(AutoPot.class).isThrowing() || DewCommon.moduleManager.getModule(Breaker.class).isEnabled() && DewCommon.moduleManager.getModule(Breaker.class).isBreaking) {
-            this.resetState();
-            return;
-        }
-
         placeableTick = target != null ? placeableTick + 1 : 0;
 
         if (tickBase.get() && target != null && target instanceof EntityLivingBase && mc.thePlayer.canEntityBeSeen(target) && tickableTick == 0) {
@@ -229,6 +236,11 @@ public class Aura extends Module {
             if (tickableTick > 0) {
                 tickableTick--;
             }
+        }
+
+        if (mc.thePlayer == null || mc.playerController == null || mc.playerController.getCurrentGameType() == WorldSettings.GameType.SPECTATOR  || DewCommon.moduleManager.getModule(Scaffold.class).isEnabled() || DewCommon.moduleManager.getModule(AutoPot.class).isEnabled() && DewCommon.moduleManager.getModule(AutoPot.class).isThrowing() || DewCommon.moduleManager.getModule(Breaker.class).isEnabled() && DewCommon.moduleManager.getModule(Breaker.class).isBreaking) {
+            this.resetState();
+            return;
         }
 
         switch (mode.get().toLowerCase()) {
@@ -324,7 +336,7 @@ public class Aura extends Module {
         if (slowNextTick) {
             currentTimerSpeed = 0.35f;
             TimerUtil.setTimerSpeed(currentTimerSpeed);
-            tickableTick = 25;
+            tickableTick = tickDelay.get().intValue();
             slowNextTick = false;
             return;
         }

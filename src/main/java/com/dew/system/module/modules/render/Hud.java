@@ -531,9 +531,7 @@ public class Hud extends Module {
                 }
 
                 if (target instanceof AbstractClientPlayer) {
-                    GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
                     GL11.glPushMatrix();
-
                     GL11.glEnable(GL11.GL_BLEND);
                     GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
                     GL11.glDisable(GL11.GL_LIGHTING);
@@ -557,8 +555,9 @@ public class Hud extends Module {
                             64, 64
                     );
 
+                    GL11.glColor4f(1f, 1f, 1f, 1f);
+                    GL11.glDisable(GL11.GL_BLEND);
                     GL11.glPopMatrix();
-                    GL11.glPopAttrib();
                 }
 
                 if (target != null) {
@@ -566,21 +565,26 @@ public class Hud extends Module {
                         ItemStack armor = target.getCurrentArmor(i);
                         if (armor != null) {
                             int itemX = baseX + width - (i + 1) * 19 - 24;
-                            RenderHelper.enableGUIStandardItemLighting();
 
                             GL11.glPushMatrix();
                             GL11.glEnable(GL11.GL_BLEND);
                             GL11.glColor4f(1f, 1f, 1f, targetHudAnimationProgress);
+
+                            RenderHelper.enableGUIStandardItemLighting();
                             mc.getRenderItem().renderItemAndEffectIntoGUI(armor, itemX, y + 27);
-                            mc.getRenderItem().renderItemOverlayIntoGUI(mc.bitFontRendererObj, armor, itemX, y + 27, null);
+                            mc.getRenderItem().renderItemOverlayIntoGUI(mc.fontRendererObj, armor, itemX, y + 27, null);
+                            RenderHelper.disableStandardItemLighting();
+
                             GL11.glColor4f(1f, 1f, 1f, 1f);
                             GL11.glDisable(GL11.GL_BLEND);
                             GL11.glPopMatrix();
-
-                            RenderHelper.disableStandardItemLighting();
                         }
                     }
                 }
+
+                GL11.glColor4f(1f, 1f, 1f, 1f);
+                GlStateManager.disableLighting();
+                GlStateManager.disableBlend();
             } else {
                 targetHpLerp = 0f;
             }
