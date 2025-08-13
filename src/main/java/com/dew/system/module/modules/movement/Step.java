@@ -42,7 +42,10 @@ public class Step extends Module {
             mc.thePlayer.stepHeight = 0.6f;
         }
 
-        ticksSinceLastStep = -1;
+        if (ticksSinceLastStep != -1) {
+            TimerUtil.resetTimerSpeed();
+            ticksSinceLastStep = -1;
+        }
     }
 
     @Override

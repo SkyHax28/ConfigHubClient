@@ -23,19 +23,30 @@ public class AttackEvent extends EventArgument {
         World world = mc.theWorld;
 
         if (mc.effectRenderer != null && world != null) {
-            int blockId = Block.getIdFromBlock(Blocks.redstone_block);
+            /*int blockId = Block.getIdFromBlock(Blocks.redstone_block);
 
-            for (int i = 0; i < 25; i++) {
+            for (int i = 0; i < 1; i++) {
                 double dx = target.posX + (Math.random() - 0.5);
                 double dy = target.posY + target.getEyeHeight() / 2 + (Math.random() - 0.5);
                 double dz = target.posZ + (Math.random() - 0.5);
 
                 mc.effectRenderer.spawnEffectParticle(
-                        EnumParticleTypes.WATER_SPLASH.getParticleID(),
+                        EnumParticleTypes.LAVA.getParticleID(),
                         dx, dy, dz,
                         0.0, 0.0, 0.0,
                         blockId);
-            }
+            }*/
+            int blockId = Block.getIdFromBlock(Blocks.redstone_block);
+
+            double dx = target.posX + (Math.random() - 0.5);
+            double dy = target.posY + target.getEyeHeight() / 2 + (Math.random() - 0.5);
+            double dz = target.posZ + (Math.random() - 0.5);
+
+            mc.effectRenderer.spawnEffectParticle(
+                    EnumParticleTypes.LAVA.getParticleID(),
+                    dx, dy, dz,
+                    0.0, 0.0, 0.0,
+                    blockId);
         }
     }
 
