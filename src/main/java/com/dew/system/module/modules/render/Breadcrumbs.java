@@ -16,6 +16,7 @@ import java.util.LinkedList;
 public class Breadcrumbs extends Module {
 
     private final LinkedList<Point> positions = new LinkedList<>();
+    private static final long MAX_DURATION_MS = 1000;
     public Breadcrumbs() {
         super("Breadcrumbs", ModuleCategory.RENDER, Keyboard.KEY_NONE, true, false, true);
     }
@@ -37,17 +38,23 @@ public class Breadcrumbs extends Module {
         double bbMinYPrev = mc.thePlayer.prevPosY + (mc.thePlayer.getEntityBoundingBox().minY - mc.thePlayer.posY);
         double bbMinYNow = mc.thePlayer.getEntityBoundingBox().minY;
 
-        Vec3 pos = new Vec3(Lerper.lerpDouble(mc.thePlayer.prevPosX, mc.thePlayer.posX, event.partialTicks), Lerper.lerpDouble(bbMinYPrev, bbMinYNow, event.partialTicks), Lerper.lerpDouble(mc.thePlayer.prevPosZ, mc.thePlayer.posZ, event.partialTicks));
+        Vec3 pos = new Vec3(
+                Lerper.lerpDouble(mc.thePlayer.prevPosX, mc.thePlayer.posX, event.partialTicks),
+                Lerper.lerpDouble(bbMinYPrev, bbMinYNow, event.partialTicks),
+                Lerper.lerpDouble(mc.thePlayer.prevPosZ, mc.thePlayer.posZ, event.partialTicks)
+        );
 
-        if (positions.isEmpty() || positions.getLast().x != pos.xCoord || positions.getLast().z != pos.zCoord) {
+        Point last = positions.isEmpty() ? null : positions.getLast();
+        if (last == null || last.x != pos.xCoord || last.y != pos.yCoord || last.z != pos.zCoord) {
             positions.add(new Point(pos.xCoord, pos.yCoord, pos.zCoord));
         }
 
+        long now = System.currentTimeMillis();
         Iterator<Point> it = positions.iterator();
         while (it.hasNext()) {
             Point p = it.next();
-            p.tickExisted++;
-            if (p.tickExisted > 160) {
+            long elapsed = now - p.createTimeMillis;
+            if (elapsed > MAX_DURATION_MS) {
                 it.remove();
             }
         }
@@ -66,7 +73,9 @@ public class Breadcrumbs extends Module {
         double renderZ = mc.getRenderManager().viewerPosZ;
 
         for (Point p : positions) {
-            float alpha = 0.9f - (float) p.tickExisted / 160;
+            long elapsed = now - p.createTimeMillis;
+            float alpha = 0.9f - (float) elapsed / MAX_DURATION_MS * 0.9f;
+            if (alpha < 0f) alpha = 0f;
             GL11.glColor4f(1f, 1f, 1f, alpha);
             GL11.glVertex3d(p.x - renderX, p.y - renderY + 0.01, p.z - renderZ);
         }
@@ -82,10 +91,10 @@ public class Breadcrumbs extends Module {
 
     private static class Point {
         final double x, y, z;
-        int tickExisted;
+        final long createTimeMillis;
         Point(double x, double y, double z) {
             this.x = x; this.y = y; this.z = z;
-            this.tickExisted = 0;
+            this.createTimeMillis = System.currentTimeMillis();
         }
     }
 }

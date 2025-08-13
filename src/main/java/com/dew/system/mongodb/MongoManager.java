@@ -6,7 +6,9 @@ import com.dew.system.event.EventListener;
 import com.dew.system.event.events.*;
 import com.dew.system.userdata.DataSaver;
 import com.dew.utils.LogUtil;
+import com.dew.utils.ServerUtil;
 import com.dew.utils.Timer;
+import com.mongodb.MongoException;
 import com.mongodb.client.*;
 import com.mongodb.client.model.Filters;
 import net.minecraft.client.multiplayer.ServerData;
@@ -16,10 +18,13 @@ import org.bson.Document;
 
 import java.net.InetAddress;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @SuppressWarnings("ALL")
 public class MongoManager implements IMinecraft, EventListener {
@@ -28,10 +33,12 @@ public class MongoManager implements IMinecraft, EventListener {
     private MongoCollection<Document> collection;
     private final String uri;
     private final Timer tickTimer = new Timer();
-    public final List<Pair<EntityPlayer, String>> online = new CopyOnWriteArrayList<>();
-    private boolean connected = false;
+    public final List<Pair<EntityPlayer, String>> online = Collections.synchronizedList(new ArrayList<>());
+    private final AtomicBoolean connected = new AtomicBoolean(false);
     private final ExecutorService dbExecutor = Executors.newFixedThreadPool(3);
     private final Object userLock = new Object();
+
+    private static final long RECONNECT_RETRY_INTERVAL_MS = 5000;
 
     public MongoManager() {
         DewCommon.eventManager.register(this);
@@ -43,28 +50,44 @@ public class MongoManager implements IMinecraft, EventListener {
 
     private synchronized void initMongo() {
         try {
+            if (mongoClient != null) {
+                try {
+                    mongoClient.close();
+                } catch (Exception ignored) {
+                }
+            }
             mongoClient = MongoClients.create(uri);
             MongoDatabase database = mongoClient.getDatabase("client_data1");
             collection = database.getCollection("server_users1");
-            connected = checkConnection();
-            LogUtil.infoLog("MongoDB connection established");
+            connected.set(checkConnection());
+
+            if (connected.get()) {
+                LogUtil.infoLog("MongoDB connection established");
+            } else {
+                LogUtil.infoLog("MongoDB connection could not be established");
+            }
         } catch (Exception e) {
-            connected = false;
+            connected.set(false);
             LogUtil.infoLog("Mongo init failed: " + e.getMessage());
         }
     }
 
     private boolean checkConnection() {
+        if (mongoClient == null) return false;
         try {
             mongoClient.getDatabase("admin").runCommand(new Document("ping", 1));
             return true;
+        } catch (MongoException e) {
+            LogUtil.infoLog("MongoDB ping failed: " + e.getMessage());
+            return false;
         } catch (Exception e) {
+            LogUtil.infoLog("Unexpected error during MongoDB ping: " + e.getMessage());
             return false;
         }
     }
 
     public boolean isConnected() {
-        return this.connected;
+        return connected.get();
     }
 
     private void runAsync(Runnable task) {
@@ -73,10 +96,40 @@ public class MongoManager implements IMinecraft, EventListener {
                 task.run();
             } catch (Exception e) {
                 LogUtil.infoLog("DB Task Error: " + e.getMessage());
-                connected = false;
-                reconnect();
+                connected.set(false);
+                reconnectWithBackoff();
             }
         });
+    }
+
+    private synchronized void reconnectWithBackoff() {
+        LogUtil.infoLog("Attempting to reconnect to MongoDB...");
+        int attempts = 0;
+        while (!connected.get() && attempts < 5) {
+            try {
+                if (mongoClient != null) {
+                    try {
+                        mongoClient.close();
+                    } catch (Exception ignored) {
+                    }
+                }
+                initMongo();
+                if (connected.get()) {
+                    LogUtil.infoLog("MongoDB reconnection succeeded");
+                    return;
+                }
+            } catch (Exception e) {
+                LogUtil.infoLog("MongoDB reconnection attempt failed: " + e.getMessage());
+            }
+            attempts++;
+            try {
+                Thread.sleep(RECONNECT_RETRY_INTERVAL_MS);
+            } catch (InterruptedException ignored) {
+            }
+        }
+        if (!connected.get()) {
+            LogUtil.infoLog("MongoDB reconnection failed after " + attempts + " attempts");
+        }
     }
 
     private synchronized void reconnect() {
@@ -88,44 +141,75 @@ public class MongoManager implements IMinecraft, EventListener {
     }
 
     public void addUserToServer(String serverIP, String username) {
-        if (collection == null || serverIP == null || username == null) return;
+        if (!connected.get() || collection == null || serverIP == null || username == null) return;
+
         runAsync(() -> {
             synchronized (userLock) {
-                Document query = new Document("server_ip", serverIP)
-                        .append("username", username);
-
-                collection.insertOne(query);
-                LogUtil.infoLog(String.format("Added %s to %s", username, serverIP));
-                connected = true;
+                try {
+                    Document query = new Document("server_ip", serverIP).append("username", username);
+                    collection.insertOne(query);
+                    LogUtil.infoLog(String.format("Added %s to %s", username, serverIP));
+                    connected.set(true);
+                } catch (MongoException e) {
+                    LogUtil.infoLog("MongoDB insertOne failed: " + e.getMessage());
+                    connected.set(false);
+                    reconnectWithBackoff();
+                } catch (Exception e) {
+                    LogUtil.infoLog("Unexpected error in addUserToServer: " + e.getMessage());
+                    connected.set(false);
+                    reconnectWithBackoff();
+                }
             }
         });
     }
 
     public void removeUserFromAllServers(String username) {
-        if (collection == null || username == null) return;
+        if (!connected.get() || collection == null || username == null) return;
+
         runAsync(() -> {
             synchronized (userLock) {
-                Document query = new Document("username", username);
-                collection.deleteMany(query);
-                LogUtil.infoLog(String.format("Removed %s from all servers", username));
+                try {
+                    Document query = new Document("username", username);
+                    collection.deleteMany(query);
+                    LogUtil.infoLog(String.format("Removed %s from all servers", username));
+                    connected.set(true);
+                } catch (MongoException e) {
+                    LogUtil.infoLog("MongoDB deleteMany failed: " + e.getMessage());
+                    connected.set(false);
+                    reconnectWithBackoff();
+                } catch (Exception e) {
+                    LogUtil.infoLog("Unexpected error in removeUserFromAllServers: " + e.getMessage());
+                    connected.set(false);
+                    reconnectWithBackoff();
+                }
             }
         });
     }
 
     public List<String> getUsersOnServer(String serverIP) {
         List<String> usernames = new ArrayList<>();
+        if (!connected.get() || collection == null || serverIP == null) return usernames;
+
         try {
             FindIterable<Document> results = collection.find(Filters.eq("server_ip", serverIP));
             for (Document doc : results) {
-                usernames.add(doc.getString("username"));
+                String username = doc.getString("username");
+                if (username != null) usernames.add(username);
             }
-        } catch (Exception e) {
+        } catch (MongoException e) {
             LogUtil.infoLog("getUsersOnServer failed: " + e.getMessage());
+            connected.set(false);
+            reconnectWithBackoff();
+        } catch (Exception e) {
+            LogUtil.infoLog("Unexpected error in getUsersOnServer: " + e.getMessage());
+            connected.set(false);
+            reconnectWithBackoff();
         }
         return usernames;
     }
 
     private String normalizeServerIP(String serverIP) {
+        if (serverIP == null) return null;
         try {
             String[] parts = serverIP.split(":");
             String host = parts[0];
@@ -139,35 +223,41 @@ public class MongoManager implements IMinecraft, EventListener {
 
     @Override
     public void onTablistPlayerNameFetch(TablistPlayerNameFetchEvent event) {
-        if (!connected || mc == null || mc.theWorld == null || mc.thePlayer == null) return;
+        if (!connected.get() || mc == null || mc.theWorld == null || mc.thePlayer == null) return;
         ServerData serverData = mc.getCurrentServerData();
         if (serverData == null) return;
 
-        for (Pair<EntityPlayer, String> entry : online) {
-            EntityPlayer mcUserEntity = entry.getLeft();
-            String clientUsername = entry.getRight();
+        synchronized (online) {
+            for (Pair<EntityPlayer, String> entry : online) {
+                EntityPlayer mcUserEntity = entry.getLeft();
+                String clientUsername = entry.getRight();
 
-            if (mcUserEntity != null && event.name != null && mcUserEntity.getName() != null && event.name.contains(mcUserEntity.getName())) {
-                event.name = "§n§b[" + clientUsername + "] §r" + mcUserEntity.getName();
+                if (mcUserEntity != null && event.name != null && mcUserEntity.getName() != null && event.name.contains(mcUserEntity.getName())) {
+                    event.name = "§n§b[" + clientUsername + "] §r" + mcUserEntity.getName();
+                }
             }
         }
     }
 
     @Override
     public void onTick(TickEvent event) {
-        if (!connected || mc == null || mc.theWorld == null || mc.thePlayer == null || !mc.inGameHasFocus) return;
+        if (!connected.get() || mc == null || mc.theWorld == null || mc.thePlayer == null || !mc.inGameHasFocus) return;
         if (!tickTimer.hasElapsed(5000)) return;
 
         runAsync(() -> {
             ServerData serverData = mc.getCurrentServerData();
-            if (serverData == null || collection == null) return;
+            if (serverData == null) return;
 
-            List<String> users = getUsersOnServer(normalizeServerIP(serverData.serverIP));
+            String normalizedIP = normalizeServerIP(serverData.serverIP);
+            if (normalizedIP == null) return;
+
+            List<String> users = getUsersOnServer(normalizedIP);
             if (users == null) return;
 
             List<Pair<EntityPlayer, String>> newOnline = new ArrayList<>();
-
             for (String unformattedName : users) {
+                if (unformattedName == null) continue;
+
                 if (unformattedName.contains("~~--~~")) {
                     String[] parts = unformattedName.split("~~--~~", 2);
                     String mcUsername = parts[0];
@@ -181,10 +271,13 @@ public class MongoManager implements IMinecraft, EventListener {
                 }
             }
 
-            online.retainAll(newOnline);
-            for (Pair<EntityPlayer, String> p : newOnline) {
-                if (!online.contains(p)) {
-                    online.add(p);
+            synchronized (online) {
+                online.removeIf(p -> !newOnline.contains(p));
+
+                for (Pair<EntityPlayer, String> p : newOnline) {
+                    if (!online.contains(p)) {
+                        online.add(p);
+                    }
                 }
             }
 
@@ -194,9 +287,10 @@ public class MongoManager implements IMinecraft, EventListener {
 
     @Override
     public void onWorld(WorldEvent event) {
-        if (mc == null || mc.getSession() == null || event == null || event.ip == null) return;
+        if (mc == null || mc.getSession() == null || ServerUtil.serverData == null && (event == null || event.ip == null)) return;
         String username = mc.getSession().getUsername() + "~~--~~" + DataSaver.userName;
-        addUserToServer(normalizeServerIP(event.ip), username);
+        String normalizedIP = normalizeServerIP(event == null && event.ip == null ? ServerUtil.serverData.serverIP : event.ip);
+        addUserToServer(normalizedIP, username);
     }
 
     @Override
@@ -211,5 +305,22 @@ public class MongoManager implements IMinecraft, EventListener {
         if (mc == null || mc.getSession() == null) return;
         String username = mc.getSession().getUsername() + "~~--~~" + DataSaver.userName;
         removeUserFromAllServers(username);
+    }
+
+    public void shutdown() {
+        try {
+            String username = IMinecraft.mc.getSession().getUsername() + "~~--~~" + DataSaver.userName;
+            removeUserFromAllServers(username);
+            dbExecutor.shutdown();
+            if (!dbExecutor.awaitTermination(5, TimeUnit.SECONDS)) {
+                dbExecutor.shutdownNow();
+            }
+            if (mongoClient != null) {
+                mongoClient.close();
+            }
+            connected.set(false);
+        } catch (Exception e) {
+            LogUtil.infoLog("Error shutting down MongoManager: " + e.getMessage());
+        }
     }
 }

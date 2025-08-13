@@ -43,7 +43,7 @@ public class GuiDisconnected extends GuiScreen
         String lastServerString = "Last Server";
         if (ServerUtil.serverData != null) {
             String fullIp = ServerUtil.serverData.serverIP;
-            int maxWidth = 80;
+            int maxWidth = 110;
 
             if (IMinecraft.mc.fontRendererObj.getStringWidth(fullIp) <= maxWidth) {
                 lastServerString = fullIp;

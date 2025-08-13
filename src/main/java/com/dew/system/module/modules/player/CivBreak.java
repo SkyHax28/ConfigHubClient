@@ -28,6 +28,7 @@ public class CivBreak extends Module {
     private static final NumberValue range = new NumberValue("Range", 3.0, 0.1, 6.0, 0.1);
     private static final NumberValue rotationSpeed = new NumberValue("Rotation Speed", 60.0, 0.0, 180.0, 5.0);
     private static final NumberValue breakDelay = new NumberValue("Break Delay", 1.0, 1.0, 10.0, 1.0);
+    public boolean isBreaking = false;
     private BlockPos currentBlock = null;
 
     public CivBreak() {
@@ -37,11 +38,13 @@ public class CivBreak extends Module {
     @Override
     public void onDisable() {
         currentBlock = null;
+        isBreaking = false;
     }
 
     @Override
     public void onLoadWorld(WorldLoadEvent event) {
         currentBlock = null;
+        isBreaking = false;
     }
 
     @Override
@@ -84,11 +87,13 @@ public class CivBreak extends Module {
 
     @Override
     public void onPreMotion(PreMotionEvent event) {
-        if (mc.thePlayer == null || mc.theWorld == null || mc.playerController == null || mc.playerController.getCurrentGameType() == WorldSettings.GameType.ADVENTURE || mc.playerController.getCurrentGameType() == WorldSettings.GameType.SPECTATOR || currentBlock == null) return;
-        if (BlockUtil.getCenterDistance(currentBlock) > range.get() || mc.theWorld.getBlockState(currentBlock).getBlock() instanceof BlockAir)
+        if (mc.thePlayer == null || mc.theWorld == null || mc.playerController == null || mc.playerController.getCurrentGameType() == WorldSettings.GameType.ADVENTURE || mc.playerController.getCurrentGameType() == WorldSettings.GameType.SPECTATOR || currentBlock == null || BlockUtil.getCenterDistance(currentBlock) > range.get() || mc.theWorld.getBlockState(currentBlock).getBlock() instanceof BlockAir) {
+            isBreaking = false;
             return;
+        }
 
         DewCommon.rotationManager.faceBlock(currentBlock, rotationSpeed.get().floatValue());
+        isBreaking = true;
 
         if (mc.thePlayer.ticksExisted % breakDelay.get().intValue() == 0) {
             mc.thePlayer.swingItem();

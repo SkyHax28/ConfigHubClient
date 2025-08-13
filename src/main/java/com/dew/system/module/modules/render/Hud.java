@@ -7,12 +7,15 @@ import com.dew.system.module.ModuleCategory;
 import com.dew.system.module.modules.combat.Aura;
 import com.dew.system.module.modules.exploit.MurdererDetector;
 import com.dew.system.module.modules.ghost.BridgeAssist;
+import com.dew.system.module.modules.player.Breaker;
+import com.dew.system.module.modules.player.CivBreak;
 import com.dew.system.module.modules.player.Scaffold;
 import com.dew.system.settingsvalue.BooleanValue;
 import com.dew.system.settingsvalue.MultiSelectionValue;
 import com.dew.system.userdata.DataSaver;
 import com.dew.utils.Lerper;
 import com.dew.utils.LogUtil;
+import com.dew.utils.ServerUtil;
 import com.dew.utils.font.CustomFontRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
@@ -48,6 +51,8 @@ public class Hud extends Module {
     private float watermarkWidthLerp = 0f;
     private float combinedTextWidthLerp = 0f;
     private float targetHpLerp = 0f;
+    private boolean targetHudVisible = false;
+    private float targetHudAnimationProgress = 0f;
     private boolean moduleListDirty = true;
     private static final ResourceLocation INVENTORY_TEXTURE = new ResourceLocation("textures/gui/container/inventory.png");
     public Hud() {
@@ -79,6 +84,20 @@ public class Hud extends Module {
         ));
 
         moduleListDirty = false;
+    }
+
+    public void updateTargetHudVisibility(boolean shouldShow, float deltaTime) {
+        if (shouldShow) {
+            targetHudVisible = true;
+            targetHudAnimationProgress += 6f * deltaTime;
+            if (targetHudAnimationProgress > 1f) targetHudAnimationProgress = 1f;
+        } else {
+            targetHudAnimationProgress -= 6f * deltaTime;
+            if (targetHudAnimationProgress < 0f) {
+                targetHudAnimationProgress = 0f;
+                targetHudVisible = false;
+            }
+        }
     }
 
     private void renderModuleList(ScaledResolution sr, CustomFontRenderer fontRenderer, float fontSize, float deltaTime) {
@@ -129,23 +148,25 @@ public class Hud extends Module {
                     new Color(bgColor.getRed(), bgColor.getGreen(), bgColor.getBlue(), softAlpha).getRGB()
             );
 
+            float xMultiplier = 3f;
+
             if (!tag.isEmpty()) {
                 float tagWidth = fontRenderer.getStringWidth(" " + tag, fontSize);
                 float nameWidth = fontRenderer.getStringWidth(moduleName, fontSize);
 
-                float tagX = rightEdgeX - tagWidth - 2;
+                float tagX = rightEdgeX - tagWidth;
                 float nameX = tagX - nameWidth;
 
                 Color nameColor = new Color(accentColor.getRed(), accentColor.getGreen(), accentColor.getBlue(), alpha);
                 Color tagColor = new Color(150, 150, 150, alpha);
 
-                fontRenderer.drawStringWithShadow(moduleName, nameX, finalY - 0.5f, nameColor.getRGB(), fontSize);
-                fontRenderer.drawStringWithShadow(" " + tag, tagX, finalY - 0.5f, tagColor.getRGB(), fontSize);
+                fontRenderer.drawStringWithShadow(moduleName, nameX - xMultiplier, finalY - 0.5f, nameColor.getRGB(), fontSize);
+                fontRenderer.drawStringWithShadow(" " + tag, tagX - xMultiplier, finalY - 0.5f, tagColor.getRGB(), fontSize);
             } else {
                 float nameWidth = fontRenderer.getStringWidth(moduleName, fontSize);
-                float nameX = rightEdgeX - nameWidth - 2;
+                float nameX = rightEdgeX - nameWidth;
                 Color nameColor = new Color(accentColor.getRed(), accentColor.getGreen(), accentColor.getBlue(), alpha);
-                fontRenderer.drawStringWithShadow(moduleName, nameX, finalY - 0.5f, nameColor.getRGB(), fontSize);
+                fontRenderer.drawStringWithShadow(moduleName, nameX - xMultiplier, finalY - 0.5f, nameColor.getRGB(), fontSize);
             }
 
             cumulativeY += displayHeight + 1;
@@ -208,8 +229,7 @@ public class Hud extends Module {
 
         if (features.isSelected("Watermark")) {
             String clientName = DewCommon.clientName;
-            String userInfo = " | " + DataSaver.userName + " | " + Minecraft.getDebugFPS() +
-                    " fps" + (!DewCommon.mongoManager.isConnected() ? " | Connecting..." : "");
+            String userInfo = " | " + DataSaver.userName + " | " + Minecraft.getDebugFPS() + " fps" + " | " + (mc.isSingleplayer() ? "Singleplayer" : "Multiplayer") + (DewCommon.mongoManager.isConnected() && DewCommon.mongoManager.online.stream().anyMatch(p -> p.getLeft().equals(mc.thePlayer) && p.getRight().equals(DataSaver.userName)) ? " | Connected" : " | Connecting...");
             String display = clientName + userInfo;
 
             float targetWidth = fontRenderer.getStringWidth(display, fontSize);
@@ -229,7 +249,7 @@ public class Hud extends Module {
             drawBlurredBackground(
                     x - 3, y - 2,
                     watermarkWidthLerp + 6, displayHeight,
-                    5,
+                    6,
                     new Color(bgColor.getRed(), bgColor.getGreen(), bgColor.getBlue(), softAlpha).getRGB()
             );
 
@@ -248,18 +268,24 @@ public class Hud extends Module {
             }
 
             if (mc.thePlayer != null) {
-                String burningText = mc.thePlayer.isBurning() ? "Burning" : "";
+                String burningText = mc.thePlayer.isBurning() ? "Burning!" : "";
                 String damageInfo = mc.thePlayer.hurtTime != 0 ? "Invulnerable: " + mc.thePlayer.hurtTime : "";
-                String flyInfo = mc.thePlayer.capabilities.allowFlying ? "You can fly now" : "";
+                String flyInfo = mc.thePlayer.capabilities.isFlying ? "Flying" : mc.thePlayer.capabilities.allowFlying ? "Flyable" : "";
+                String blockInfo = DewCommon.moduleManager.getModule(Scaffold.class).isEnabled() || DewCommon.moduleManager.getModule(BridgeAssist.class).isEnabled() && DewCommon.moduleManager.getModule(BridgeAssist.class).isBridging() ? this.getTotalValidBlocksInHotbar() + " blocks available" : "";
                 String murdererInfo = DewCommon.moduleManager.getModule(MurdererDetector.class).isEnabled() && !DewCommon.moduleManager.getModule(MurdererDetector.class).getMurderers().isEmpty() ? "Murderers: " + DewCommon.moduleManager.getModule(MurdererDetector.class).getMurderers().size() : "";
-                String deadInfo = mc.thePlayer.isDead ? "You dead" : "";
+                String breakingInfo = DewCommon.moduleManager.getModule(Breaker.class).isEnabled() && DewCommon.moduleManager.getModule(Breaker.class).isBreaking || DewCommon.moduleManager.getModule(CivBreak.class).isEnabled() && DewCommon.moduleManager.getModule(CivBreak.class).isBreaking ? "Breaking..." : "";
+                String timerInfo = mc.timer.timerSpeed != 1 ? "Balance: " + mc.timer.timerSpeed : "";
+                String deadInfo = mc.thePlayer.isDead ? "Wasted" : "";
                 String spectatingInfo = mc.playerController != null && mc.playerController.getCurrentGameType() == WorldSettings.GameType.SPECTATOR ? "Spectating" : "";
 
                 String combinedText = "";
                 if (!burningText.isEmpty()) combinedText += burningText;
                 if (!damageInfo.isEmpty()) combinedText += (combinedText.isEmpty() ? "" : "  ") + damageInfo;
                 if (!flyInfo.isEmpty()) combinedText += (combinedText.isEmpty() ? "" : "  ") + flyInfo;
+                if (!blockInfo.isEmpty()) combinedText += (combinedText.isEmpty() ? "" : "  ") + blockInfo;
                 if (!murdererInfo.isEmpty()) combinedText += (combinedText.isEmpty() ? "" : "  ") + murdererInfo;
+                if (!breakingInfo.isEmpty()) combinedText += (combinedText.isEmpty() ? "" : "  ") + breakingInfo;
+                if (!timerInfo.isEmpty()) combinedText += (combinedText.isEmpty() ? "" : "  ") + timerInfo;
                 if (!deadInfo.isEmpty()) combinedText += (combinedText.isEmpty() ? "" : "  ") + deadInfo;
                 if (!spectatingInfo.isEmpty()) combinedText += (combinedText.isEmpty() ? "" : "  ") + spectatingInfo;
 
@@ -269,12 +295,14 @@ public class Hud extends Module {
                     float targetCombinedWidth = fontRenderer.getStringWidth(combinedText, fontSize);
                     combinedTextWidthLerp = Lerper.lerp(combinedTextWidthLerp, targetCombinedWidth, lerpSpeed);
 
+                    displayHeight += 2;
+
                     drawBlurredBackground(
                             (sr.getScaledWidth() - combinedTextWidthLerp) / 2f - 3,
                             y + displayHeight + 2,
                             combinedTextWidthLerp + 6, 12f,
-                            5,
-                            new Color(0, 0, 0, softAlpha).getRGB()
+                            6,
+                            new Color(bgColor.getRed(), bgColor.getGreen(), bgColor.getBlue(), softAlpha).getRGB()
                     );
 
                     float xPos = (sr.getScaledWidth() - combinedTextWidthLerp) / 2f;
@@ -306,10 +334,21 @@ public class Hud extends Module {
                                 flyInfo,
                                 xPos,
                                 y + displayHeight + 1.5f,
-                                new Color(230, 230, 230, alpha).getRGB(),
+                                new Color(255, 215, 0, alpha).getRGB(),
                                 fontSize
                         );
                         xPos += fontRenderer.getStringWidth(flyInfo + "  ", fontSize);
+                    }
+
+                    if (!blockInfo.isEmpty()) {
+                        fontRenderer.drawStringWithShadow(
+                                blockInfo,
+                                xPos,
+                                y + displayHeight + 1.5f,
+                                new Color(255, 255, 255, alpha).getRGB(),
+                                fontSize
+                        );
+                        xPos += fontRenderer.getStringWidth(blockInfo + "  ", fontSize);
                     }
 
                     if (!murdererInfo.isEmpty()) {
@@ -321,6 +360,28 @@ public class Hud extends Module {
                                 fontSize
                         );
                         xPos += fontRenderer.getStringWidth(murdererInfo + "  ", fontSize);
+                    }
+
+                    if (!breakingInfo.isEmpty()) {
+                        fontRenderer.drawStringWithShadow(
+                                breakingInfo,
+                                xPos,
+                                y + displayHeight + 1.5f,
+                                new Color(255, 0, 0, alpha).getRGB(),
+                                fontSize
+                        );
+                        xPos += fontRenderer.getStringWidth(breakingInfo + "  ", fontSize);
+                    }
+
+                    if (!timerInfo.isEmpty()) {
+                        fontRenderer.drawStringWithShadow(
+                                timerInfo,
+                                xPos,
+                                y + displayHeight + 1.5f,
+                                new Color(0, 255, 255, alpha).getRGB(),
+                                fontSize
+                        );
+                        xPos += fontRenderer.getStringWidth(timerInfo + "  ", fontSize);
                     }
 
                     if (!deadInfo.isEmpty()) {
@@ -351,7 +412,7 @@ public class Hud extends Module {
                                 (sr.getScaledWidth() - combinedTextWidthLerp) / 2f - 3,
                                 y + displayHeight + 2,
                                 combinedTextWidthLerp + 6, 12f,
-                                5,
+                                6,
                                 new Color(0, 0, 0, softAlpha).getRGB()
                         );
                     }
@@ -403,58 +464,71 @@ public class Hud extends Module {
 
         if (features.isSelected("Target Hud")) {
             Aura auraModule = DewCommon.moduleManager.getModule(Aura.class);
-            if ((auraModule.isEnabled() && auraModule.target instanceof EntityLivingBase) || (auraModule.target == null && mc.currentScreen instanceof GuiChat)) {
-                EntityLivingBase target = auraModule.target == null ? mc.thePlayer : (EntityLivingBase) auraModule.target;
+            boolean shouldShow = auraModule.isEnabled() && auraModule.target instanceof EntityLivingBase;
+            this.updateTargetHudVisibility(shouldShow, deltaTime);
+            if (targetHudVisible) {
+                EntityLivingBase target = auraModule.target != null ? (EntityLivingBase) auraModule.target : null;
 
                 int width = 140;
-                int height = 44;
-                int x = sr.getScaledWidth() / 2 - width / 2;
-                int y = 80;
+                int baseX = sr.getScaledWidth() / 2 - 140 / 2;
+                int baseY = 80;
+
+                float slideOffsetY = -10 * (1f - targetHudAnimationProgress);
+                int baseAlpha = 170;
+                int animatedAlpha = (int)(baseAlpha * targetHudAnimationProgress);
+                int y = baseY + (int) slideOffsetY;
+
+                Color bgColor = new Color(10, 10, 10, animatedAlpha);
+                int softAlpha = (int)(255 * 0.22 * targetHudAnimationProgress);
+                drawBlurredBackground(baseX, y, 140, 44, 8,
+                        new Color(bgColor.getRed(), bgColor.getGreen(), bgColor.getBlue(), softAlpha).getRGB()
+                );
 
                 float speed = 1800f;
                 float time = (System.currentTimeMillis() % (int) speed) / speed;
 
-                Color bgColor = new Color(10, 10, 10, 170);
-                int softAlpha = (int) (255 * 0.22);
-                drawBlurredBackground(x, y, width, height, 5,
-                        new Color(bgColor.getRed(), bgColor.getGreen(), bgColor.getBlue(), softAlpha).getRGB()
-                );
-
-                String name = target.getName();
-                for (int i = 0; i < name.length(); i++) {
-                    char c = name.charAt(i);
-                    Color letterColor = getHudColor(time, i + 20);
-                    fontRenderer.drawStringWithShadow(
-                            String.valueOf(c),
-                            x + 40 + fontRenderer.getStringWidth(name.substring(0, i), fontSize),
-                            y + 2,
-                            letterColor.getRGB(),
-                            fontSize
-                    );
+                if (target != null) {
+                    String name = target.getName();
+                    for (int i = 0; i < name.length(); i++) {
+                        char c = name.charAt(i);
+                        Color letterColor = getHudColor(time, i + 20);
+                        letterColor = applyAlpha(letterColor, targetHudAnimationProgress);
+                        fontRenderer.drawStringWithShadow(
+                                String.valueOf(c),
+                                baseX + 40 + fontRenderer.getStringWidth(name.substring(0, i), fontSize),
+                                y + 2,
+                                letterColor.getRGB(),
+                                fontSize
+                        );
+                    }
                 }
 
-                float targetHpRatio = Math.max(0, Math.min(1, target.getHealth() / target.getMaxHealth()));
+                float targetHpRatio = target != null ? Math.max(0, Math.min(1, target.getHealth() / target.getMaxHealth())) : 0;
                 targetHpLerp = Lerper.lerp(targetHpLerp, targetHpRatio, 10f * deltaTime);
 
                 int hpBarWidth = (int) (targetHpLerp * (width - 50));
                 for (int i = 0; i < hpBarWidth; i++) {
                     Color hpGradColor = getHudColor(time, (float) i + 50);
+                    hpGradColor = applyAlpha(hpGradColor, targetHudAnimationProgress);
                     Gui.drawRect(
-                            x + 40 + i,
+                            baseX + 40 + i,
                             y + 17,
-                            x + 40 + i + 1,
+                            baseX + 40 + i + 1,
                             y + 25,
                             hpGradColor.getRGB()
                     );
                 }
 
-                fontRenderer.drawStringWithShadow(
-                        String.format("%.1f", target.getHealth()),
-                        x + 45 + hpBarWidth,
-                        y + 14,
-                        Color.WHITE.getRGB(),
-                        fontSize
-                );
+                if (target != null) {
+                    Color hpTextColor = new Color(255, 255, 255, (int) (255 * targetHudAnimationProgress));
+                    fontRenderer.drawStringWithShadow(
+                            String.format("%.1f", target.getHealth()),
+                            baseX + 45 + hpBarWidth,
+                            y + 14,
+                            hpTextColor.getRGB(),
+                            fontSize
+                    );
+                }
 
                 if (target instanceof AbstractClientPlayer) {
                     GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
@@ -464,20 +538,20 @@ public class Hud extends Module {
                     GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
                     GL11.glDisable(GL11.GL_LIGHTING);
                     GL11.glEnable(GL11.GL_ALPHA_TEST);
-                    GL11.glColor4f(1f, 1f, 1f, 1f);
+                    GL11.glColor4f(1f, 1f, 1f, targetHudAnimationProgress);
 
                     ResourceLocation skin = ((AbstractClientPlayer) target).getLocationSkin();
                     mc.getTextureManager().bindTexture(skin);
 
                     Gui.drawScaledCustomSizeModalRect(
-                            x + 4, y + 6,
+                            baseX + 4, y + 6,
                             8, 8, 8, 8,
                             32, 32,
                             64, 64
                     );
 
                     Gui.drawScaledCustomSizeModalRect(
-                            x + 4, y + 6,
+                            baseX + 4, y + 6,
                             40, 8, 8, 8,
                             32, 32,
                             64, 64
@@ -487,32 +561,29 @@ public class Hud extends Module {
                     GL11.glPopAttrib();
                 }
 
-                for (int i = 0; i < 4; i++) {
-                    ItemStack armor = target.getCurrentArmor(i);
-                    if (armor != null) {
-                        int itemX = x + width - (i + 1) * 19 - 24;
-                        RenderHelper.enableGUIStandardItemLighting();
-                        mc.getRenderItem().renderItemAndEffectIntoGUI(armor, itemX, y + 27);
-                        mc.getRenderItem().renderItemOverlayIntoGUI(mc.bitFontRendererObj, armor, itemX, y + 27, null);
-                        RenderHelper.disableStandardItemLighting();
+                if (target != null) {
+                    for (int i = 0; i < 4; i++) {
+                        ItemStack armor = target.getCurrentArmor(i);
+                        if (armor != null) {
+                            int itemX = baseX + width - (i + 1) * 19 - 24;
+                            RenderHelper.enableGUIStandardItemLighting();
+
+                            GL11.glPushMatrix();
+                            GL11.glEnable(GL11.GL_BLEND);
+                            GL11.glColor4f(1f, 1f, 1f, targetHudAnimationProgress);
+                            mc.getRenderItem().renderItemAndEffectIntoGUI(armor, itemX, y + 27);
+                            mc.getRenderItem().renderItemOverlayIntoGUI(mc.bitFontRendererObj, armor, itemX, y + 27, null);
+                            GL11.glColor4f(1f, 1f, 1f, 1f);
+                            GL11.glDisable(GL11.GL_BLEND);
+                            GL11.glPopMatrix();
+
+                            RenderHelper.disableStandardItemLighting();
+                        }
                     }
                 }
             } else {
                 targetHpLerp = 0f;
             }
-        }
-
-        if (DewCommon.moduleManager.getModule(Scaffold.class).isEnabled() || DewCommon.moduleManager.getModule(BridgeAssist.class).isEnabled() && DewCommon.moduleManager.getModule(BridgeAssist.class).isBridging()) {
-            int totalBlocks = this.getTotalValidBlocksInHotbar();
-            String display = totalBlocks + " blocks";
-
-            int x = sr.getScaledWidth() / 2 + 20;
-            int y = sr.getScaledHeight() / 2;
-
-            GlStateManager.pushMatrix();
-            RenderHelper.disableStandardItemLighting();
-            mc.bitFontRendererObj.drawStringWithShadow(display, x, y, 0xFFFFFF);
-            GlStateManager.popMatrix();
         }
 
         if (features.isSelected("Module List")) {
@@ -528,6 +599,12 @@ public class Hud extends Module {
             total += stack.stackSize;
         }
         return total;
+    }
+
+    private Color applyAlpha(Color c, float alpha) {
+        int a = (int)(c.getAlpha() * alpha);
+        a = Math.min(255, Math.max(0, a));
+        return new Color(c.getRed(), c.getGreen(), c.getBlue(), a);
     }
 
     private Color getHudColor(float progress, float index) {

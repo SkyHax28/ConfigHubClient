@@ -112,8 +112,7 @@ public class Main
             public void run()
             {
                 Minecraft.stopIntegratedServer();
-                String username = IMinecraft.mc.getSession().getUsername() + "~~--~~" + DataSaver.userName;
-                DewCommon.mongoManager.removeUserFromAllServers(username);
+                DewCommon.mongoManager.shutdown();
             }
         });
         Thread.currentThread().setName("Client thread");
