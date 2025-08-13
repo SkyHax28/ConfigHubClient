@@ -28,7 +28,7 @@ public class ReachCalculator {
         double dz = closestPoint.zCoord - eyePos.zCoord;
         double sqDist = dx * dx + dy * dy + dz * dz;
 
-        if (sqDist <= (maxReach + EPS ) * (maxReach + EPS)) {
+        if (sqDist <= (maxReach + EPS) * (maxReach + EPS)) {
             double dist = Math.sqrt(sqDist);
 
             if (!throughWalls) {

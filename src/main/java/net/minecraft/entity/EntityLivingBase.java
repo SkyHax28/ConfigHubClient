@@ -1349,7 +1349,7 @@ public abstract class EntityLivingBase extends Entity
         return false;
     }
 
-    protected float getJumpUpwardsMotion()
+    public float getJumpUpwardsMotion()
     {
         return 0.42F;
     }
@@ -1368,6 +1368,7 @@ public abstract class EntityLivingBase extends Entity
             Entity target = DewCommon.moduleManager.getModule(Aura.class).target;
             boolean doTargetStrafe = DewCommon.moduleManager.getModule(TargetStrafe.class).isEnabled() && DewCommon.moduleManager.getModule(Aura.class).isEnabled() && (DewCommon.moduleManager.getModule(FlightModule.class).isEnabled() || DewCommon.moduleManager.getModule(SpeedModule.class).isEnabled()) && target != null && DewCommon.moduleManager.getModule(TargetStrafe.class).shouldActivate();
 
+            boolean silentMoveFixMode = false;
             float yaw;
             if (doTargetStrafe) {
                 yaw = MovementUtil.getTargetStrafeYawDirection(target, DewCommon.moduleManager.getModule(TargetStrafe.class).getDistance());
@@ -1375,14 +1376,19 @@ public abstract class EntityLivingBase extends Entity
                 yaw = (float) MovementUtil.getDirection();
             } else if (DewCommon.moduleManager.getModule(MoveFix.class).isEnabled() && DewCommon.rotationManager.isRotating() && this instanceof EntityPlayerSP) {
                 yaw = DewCommon.rotationManager.getClientYaw();
+                silentMoveFixMode = true;
             } else {
                 yaw = this.rotationYaw;
             }
 
             float f = yaw * 0.017453292F;
             if (!MovementUtil.mcJumpNoBoost) {
-                this.motionX -= (double)(MathHelper.sin(f) * 0.2F);
-                this.motionZ += (double)(MathHelper.cos(f) * 0.2F);
+                if (silentMoveFixMode) {
+                    MovementUtil.silentRotationJump(yaw);
+                } else {
+                    this.motionX -= (double) (MathHelper.sin(f) * 0.2F);
+                    this.motionZ += (double) (MathHelper.cos(f) * 0.2F);
+                }
             }
         }
 

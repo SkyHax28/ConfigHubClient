@@ -16,7 +16,6 @@ import com.dew.system.settingsvalue.BooleanValue;
 import com.dew.system.settingsvalue.MultiSelectionValue;
 import com.dew.system.settingsvalue.NumberValue;
 import com.dew.system.settingsvalue.SelectionValue;
-import com.dew.utils.LogUtil;
 import com.dew.utils.PacketUtil;
 import com.dew.utils.ReachCalculator;
 import com.dew.utils.TimerUtil;
@@ -52,7 +51,6 @@ public class Aura extends Module {
     private static final BooleanValue noRotationHitCheck = new BooleanValue("No Rotation Hit Check", false);
     private static final BooleanValue throughWalls = new BooleanValue("Through Walls", true);
     private static final BooleanValue visualAutoBlock = new BooleanValue("Visual Auto Block", true);
-    private static final BooleanValue assistAttack = new BooleanValue("Assist Attack", false);
     private static final BooleanValue tickBase = new BooleanValue("Tick Base", false);
     private static final NumberValue tickDelay = new NumberValue("Tick Delay", 80.0, 0.0, 200.0, 1.0, tickBase::get);
     private static final BooleanValue autoThrowRodOrBalls = new BooleanValue("Auto Throw Rod or Balls", false, () -> mode.get().equals("Single"));
@@ -148,22 +146,13 @@ public class Aura extends Module {
     public void onTick(TickEvent event) {
         this.updateSlotSwapper();
 
-        if (assistAttack.get() && target != null && DewCommon.rotationManager.isRotating() && mc.thePlayer != null && mc.thePlayer.getDistanceToEntity(target) > getAttackRange() && mc.thePlayer.getDistanceToEntity(target) <= getTargetRange()) {
-            long currentTime = System.currentTimeMillis();
-            if (currentTime - lastAttackTime >= nextAttackDelay) {
-                mc.clickMouse();
-                lastAttackTime = currentTime;
-                nextAttackDelay = getNextAttackDelay();
-            }
-        }
-
         if (this.isInAutoBlockMode()) return;
 
         this.doMainFunctions(true);
     }
 
     private boolean attack(Entity entity, boolean canHit, long currentTime) {
-        if (ReachCalculator.canReachToAttack(mc.thePlayer, entity, this.getAttackRange(), throughWalls.get()) && (canHit || noRotationHitCheck.get())) {
+        if ((ReachCalculator.canReachToAttack(mc.thePlayer, DewCommon.moduleManager.getModule(Backtrack.class).getBestBacktrackEntity(entity), this.getAttackRange(), throughWalls.get()) || ReachCalculator.canReachToAttack(mc.thePlayer, entity, this.getAttackRange(), throughWalls.get())) && (canHit || noRotationHitCheck.get())) {
             if (currentTime - lastAttackTime >= nextAttackDelay) {
                 if (tpAura.get()) {
                     new Thread(() -> {
@@ -326,7 +315,7 @@ public class Aura extends Module {
         }
 
         if (burstNextTick) {
-            currentTimerSpeed = 10f;
+            currentTimerSpeed = 5f;
             TimerUtil.setTimerSpeed(currentTimerSpeed);
             burstNextTick = false;
             slowNextTick = true;

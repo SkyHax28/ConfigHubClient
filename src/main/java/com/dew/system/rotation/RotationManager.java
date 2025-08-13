@@ -1,6 +1,8 @@
 package com.dew.system.rotation;
 
+import com.dew.DewCommon;
 import com.dew.IMinecraft;
+import com.dew.system.module.modules.combat.Backtrack;
 import com.dew.utils.LogUtil;
 import com.dew.utils.MovementUtil;
 import net.minecraft.client.Minecraft;
@@ -163,6 +165,7 @@ public class RotationManager {
     }
 
     public boolean faceEntity(Entity entity, float rotationSpeed) {
+        entity = DewCommon.moduleManager.getModule(Backtrack.class).getBestBacktrackEntity(entity);
         float[] rotations = getRotationsTo(entity.posX, entity.posY + (entity.getEyeHeight() / 2.0), entity.posZ);
 
         float targetYaw = rotations[0];

@@ -2,6 +2,7 @@ package com.dew.utils;
 
 import com.dew.IMinecraft;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.network.Packet;
 
 import java.util.ArrayList;
@@ -21,6 +22,16 @@ public class PacketUtil {
 
         silentPackets.add(packet);
         mc.getNetHandler().addToSendQueue(packet);
+    }
+
+    public static int getCurrentPingOrMinusOne() {
+        if (mc.getNetHandler() != null && mc.thePlayer != null) {
+            NetworkPlayerInfo info = mc.getNetHandler().getPlayerInfo(mc.thePlayer.getUniqueID());
+            if (info != null) {
+                return info.getResponseTime();
+            }
+        }
+        return -1;
     }
 
     public static void processPacketClientSide(Packet<?> packet) {

@@ -15,6 +15,7 @@ import com.dew.system.settingsvalue.MultiSelectionValue;
 import com.dew.system.userdata.DataSaver;
 import com.dew.utils.Lerper;
 import com.dew.utils.LogUtil;
+import com.dew.utils.PacketUtil;
 import com.dew.utils.ServerUtil;
 import com.dew.utils.font.CustomFontRenderer;
 import net.minecraft.client.Minecraft;
@@ -229,7 +230,7 @@ public class Hud extends Module {
 
         if (features.isSelected("Watermark")) {
             String clientName = DewCommon.clientName;
-            String userInfo = " | " + DataSaver.userName + " | " + Minecraft.getDebugFPS() + " fps" + " | " + (mc.isSingleplayer() ? "Singleplayer" : "Multiplayer") + (mc.isSingleplayer() ? "" : DewCommon.mongoManager.isConnected() && DewCommon.mongoManager.online.stream().anyMatch(p -> p.getLeft().equals(mc.thePlayer) && p.getRight().equals(DataSaver.userName)) ? " | Connected" : " | Connecting...");
+            String userInfo = " | " + DataSaver.userName + " | " + Minecraft.getDebugFPS() + " fps | " + (mc.isSingleplayer() ? "Singleplayer" : "Multiplayer") + " | " + PacketUtil.getCurrentPingOrMinusOne() + "ms" + (mc.isSingleplayer() ? "" : DewCommon.mongoManager.isConnected() && DewCommon.mongoManager.online.stream().anyMatch(p -> p.getLeft().equals(mc.thePlayer) && p.getRight().equals(DataSaver.userName)) ? " | Connected" : " | Connecting...");
             String display = clientName + userInfo;
 
             float targetWidth = fontRenderer.getStringWidth(display, fontSize);

@@ -237,7 +237,7 @@ public class Scaffold extends Module {
     }
 
     private void search(BlockPos below) {
-        if (!mc.theWorld.getBlockState(below).getBlock().isReplaceable(mc.theWorld, below) && !mc.thePlayer.onGround) return;
+        if (!mc.theWorld.getBlockState(below).getBlock().isReplaceable(mc.theWorld, below)) return;
 
         PlaceResult result = tryPlaceBlock(below);
         if (result == PlaceResult.SUCCESS) {
@@ -247,8 +247,6 @@ public class Scaffold extends Module {
         } else if (result == PlaceResult.FAIL_ROTATION) {
             return;
         }
-
-        if (!mc.theWorld.getBlockState(below).getBlock().isReplaceable(mc.theWorld, below)) return;
 
         for (EnumFacing dir : EnumFacing.values()) {
             BlockPos neighbor = below.offset(dir);
