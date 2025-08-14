@@ -442,8 +442,8 @@ public class Scaffold extends Module {
     }
 
     private boolean shouldTellyAntiEdge() {
-        boolean hasAngleDiff = Math.abs(MovementUtil.getAngleDifference((float) MovementUtil.getDirection(), DewCommon.rotationManager.getClientYaw())) > 0.3F;
-        return mode.get().equals("Telly") && (jumpTicks >= 9 || this.isNearEdge() && (Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) || MovementUtil.isDiagonal(6f) || !this.shouldTellyDoNotPlaceBlocks() && Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) || (!mc.thePlayer.onGround || hasAngleDiff) && MovementUtil.isDiagonal(12f) || !MovementUtil.isDiagonal(12f) && mc.thePlayer.onGround && hasAngleDiff));
+        boolean hasAngleDiff = Math.abs(MovementUtil.getAngleDifference((float) MovementUtil.getDirection(), DewCommon.rotationManager.getClientYaw())) > 0.7F;
+        return mode.get().equals("Telly") && (jumpTicks >= 7 || this.isNearEdge() && (Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) || MovementUtil.isDiagonal(6f) || !this.shouldTellyDoNotPlaceBlocks() && Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) || (!mc.thePlayer.onGround || hasAngleDiff) && MovementUtil.isDiagonal(12f) || !MovementUtil.isDiagonal(12f) && mc.thePlayer.onGround && hasAngleDiff));
     }
 
     private boolean canPlaceAt(BlockPos pos) {

@@ -243,7 +243,7 @@ public class MongoManager implements IMinecraft, EventListener {
     public void onTick(TickEvent event) {
         if (!connected.get() || mc.theWorld == null || mc.thePlayer == null) return;
 
-        if (!mc.isSingleplayer() && !online.stream().anyMatch(p -> p.getLeft().equals(mc.thePlayer) && p.getRight().equals(DataSaver.userName)) && addUserTimer.hasTimePassed(2500) && ServerUtil.serverData != null) {
+        if (!mc.isSingleplayer() && !online.stream().anyMatch(p -> p.getLeft().equals(mc.thePlayer) && p.getRight().equals(DataSaver.userName)) && addUserTimer.hasTimePassed(1500) && ServerUtil.serverData != null) {
             String username = mc.getSession().getUsername() + "~~--~~" + DataSaver.userName;
             String normalizedIP = normalizeServerIP(ServerUtil.serverData.serverIP);
             addUserToServer(normalizedIP, username);

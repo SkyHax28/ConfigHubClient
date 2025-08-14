@@ -48,15 +48,21 @@ public class Breaker extends Module {
     }
 
     @Override
+    public void onEnable() {
+        if (autoWhitelist.get()) {
+            LogUtil.printChat("Press the right control key or world switch to clear the bed whitelist");
+        }
+    }
+
+    @Override
     public void onDisable() {
-        bedWhitelist.clear();
         this.resetState();
     }
 
     @Override
     public void onLoadWorld(WorldLoadEvent event) {
-        bedWhitelist.clear();
         this.resetState();
+        bedWhitelist.clear();
     }
 
     private void resetState() {
@@ -105,11 +111,18 @@ public class Breaker extends Module {
 
     @Override
     public void onTick(TickEvent event) {
-        if (mc.thePlayer == null || mc.theWorld == null || mc.playerController == null || mc.playerController.getCurrentGameType() == WorldSettings.GameType.ADVENTURE || mc.playerController.getCurrentGameType() == WorldSettings.GameType.SPECTATOR || DewCommon.moduleManager.getModule(Scaffold.class).isEnabled())
-            return;
+        if (mc.thePlayer == null || mc.theWorld == null || mc.playerController == null || mc.playerController.getCurrentGameType() == WorldSettings.GameType.ADVENTURE || mc.playerController.getCurrentGameType() == WorldSettings.GameType.SPECTATOR || DewCommon.moduleManager.getModule(Scaffold.class).isEnabled()) return;
 
-        if (bedWhitelist.isEmpty() && autoWhitelist.get() && mc.thePlayer.ticksExisted % 3 == 0) {
-            this.addNearestBedToWhitelist();
+        if (autoWhitelist.get()) {
+            if (!bedWhitelist.isEmpty()) {
+                if (Keyboard.isKeyDown(Keyboard.KEY_RCONTROL)) {
+                    bedWhitelist.clear();
+                }
+            } else {
+                if (mc.thePlayer.ticksExisted % 3 == 0) {
+                    this.addNearestBedToWhitelist();
+                }
+            }
         }
 
         BlockPos playerPos = new BlockPos(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ);
