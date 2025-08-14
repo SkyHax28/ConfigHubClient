@@ -57,20 +57,8 @@ public class RenderEntityItem extends Render<EntityItem>
                 int entityId = itemIn.getEntityId();
                 boolean onGround = itemIn.onGround;
 
-                long currentTime = System.nanoTime();
-                long lastTime = lastUpdateTimeMap.getOrDefault(entityId, currentTime);
-                float deltaTimeSec = (currentTime - lastTime) / 1_000_000_000.0f;
-                lastUpdateTimeMap.put(entityId, currentTime);
-
-                float randomized = 720f * deltaTimeSec;
-                float currentPitch = pitchRotationMap.getOrDefault(entityId, 0f);
-
-                if (!onGround && !landedItems.contains(entityId)) {
-                    currentPitch += randomized;
-                    pitchRotationMap.put(entityId, currentPitch);
-                } else {
-                    landedItems.add(entityId);
-                    pitchRotationMap.put(entityId, currentPitch);
+                if (!pitchRotationMap.containsKey(entityId)) {
+                    pitchRotationMap.put(entityId, !onGround ? trulyRandom.nextFloat() * 360f : 0);
                 }
 
                 Vec3 axis = rotationAxisMap.get(entityId);
@@ -82,7 +70,24 @@ public class RenderEntityItem extends Render<EntityItem>
                     rotationAxisMap.put(entityId, axis);
                 }
 
-                GlStateManager.rotate(currentPitch, (float)axis.xCoord, (float)axis.yCoord, (float)axis.zCoord);
+                long currentTime = System.nanoTime();
+                long lastTime = lastUpdateTimeMap.getOrDefault(entityId, currentTime);
+                float deltaTimeSec = (currentTime - lastTime) / 1_000_000_000.0f;
+                lastUpdateTimeMap.put(entityId, currentTime);
+
+                float currentPitch = pitchRotationMap.get(entityId);
+
+                if (!onGround) {
+                    currentPitch += (360f * 4) * deltaTimeSec;
+                    currentPitch %= 360f;
+                    landedItems.remove(entityId);
+                } else {
+                    landedItems.add(entityId);
+                }
+
+                pitchRotationMap.put(entityId, currentPitch);
+
+                GlStateManager.rotate(currentPitch, (float) axis.xCoord, (float) axis.yCoord, (float) axis.zCoord);
             } else if (flag || this.renderManager.options != null) {
                 float f3 = (((float)itemIn.getAge() + p_177077_8_) / 20.0F + itemIn.hoverStart) * (180F / (float)Math.PI);
                 GlStateManager.rotate(f3, 0.0F, 1.0F, 0.0F);
@@ -145,7 +150,7 @@ public class RenderEntityItem extends Render<EntityItem>
         IBakedModel ibakedmodel = this.itemRenderer.getItemModelMesher().getItemModel(itemstack);
         int i = this.func_177077_a(entity, x, y, z, partialTicks, ibakedmodel);
 
-        float itemSize = DewCommon.moduleManager.getModule(ItemPhysics.class).isEnabled() ? 0.65f : 0.5f;
+        float itemSize = DewCommon.moduleManager.getModule(ItemPhysics.class).isEnabled() ? 0.72f : 0.5f;
 
         for (int j = 0; j < i; ++j)
         {
@@ -193,7 +198,7 @@ public class RenderEntityItem extends Render<EntityItem>
             this.renderManager.renderEngine.getTexture(this.getEntityTexture(entity)).restoreLastBlurMipmap();
         }
 
-        if (entity.isDead) {
+        if (entity.isDead || entity.getEntityItem() == null || entity.getEntityItem().stackSize <= 0) {
             int id = entity.getEntityId();
             pitchRotationMap.remove(id);
             landedItems.remove(id);

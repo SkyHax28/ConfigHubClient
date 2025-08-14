@@ -447,7 +447,8 @@ public class ItemRenderer
                     break;
 
                 case "legacy":
-                    this.transformFirstPersonItem(f / 0.8F, f1);
+                    this.transformFirstPersonItem(0.0F, f1);
+                    GlStateManager.translate(0.0F, 0.1F, 0.0F);
                     this.doCrazyBlockTransformations();
                     break;
 

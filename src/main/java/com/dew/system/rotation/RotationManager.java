@@ -165,7 +165,10 @@ public class RotationManager {
     }
 
     public boolean faceEntity(Entity entity, float rotationSpeed) {
-        entity = DewCommon.moduleManager.getModule(Backtrack.class).getBestBacktrackEntity(entity);
+        Entity backTrackEntity = DewCommon.moduleManager.getModule(Backtrack.class).getBestBacktrackEntity(entity);
+        if (mc.thePlayer.getDistanceToEntity(backTrackEntity) < mc.thePlayer.getDistanceToEntity(entity)) {
+            entity = backTrackEntity;
+        }
         float[] rotations = getRotationsTo(entity.posX, entity.posY + (entity.getEyeHeight() / 2.0), entity.posZ);
 
         float targetYaw = rotations[0];
@@ -264,15 +267,15 @@ public class RotationManager {
     }
 
     public void rotateToward(float targetYaw, float targetPitch, float rotationSpeed, boolean noRotationJitters) {
-        float randomDelta = noRotationJitters ? 0f : getSecureRandom() * 15f;
+        float randomDelta = noRotationJitters ? 0f : getSecureRandom() * 17f;
         float adjustedSpeed = rotationSpeed + randomDelta;
 
         float yawDiff = MathHelper.wrapAngleTo180_float(targetYaw - this.clientYaw);
         float pitchDiff = MathHelper.wrapAngleTo180_float(targetPitch - this.clientPitch);
 
         if (!noRotationJitters) {
-            yawDiff += getSecureRandom() * 20f;
-            pitchDiff += getSecureRandom() * 20f;
+            yawDiff += getSecureRandom() * 25f;
+            pitchDiff += getSecureRandom() * 25f;
         }
 
         yawDiff = MathHelper.clamp_float(yawDiff, -adjustedSpeed, adjustedSpeed);

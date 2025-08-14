@@ -1,6 +1,7 @@
 package com.dew.system.module.modules.combat;
 
 import com.dew.DewCommon;
+import com.dew.system.event.events.PreUpdateEvent;
 import com.dew.system.event.events.ReceivedPacketEvent;
 import com.dew.system.event.events.TickEvent;
 import com.dew.system.event.events.WorldLoadEvent;
@@ -61,7 +62,7 @@ public class AutoBlock extends Module {
     }
 
     @Override
-    public void onTick(TickEvent event) {
+    public void onPreUpdate(PreUpdateEvent event) {
         if (mc.thePlayer == null) return;
 
         Aura auraModule = DewCommon.moduleManager.getModule(Aura.class);

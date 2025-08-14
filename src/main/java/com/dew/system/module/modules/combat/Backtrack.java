@@ -44,7 +44,7 @@ public class Backtrack extends Module {
             ping = 0;
         }
 
-        double targetTime = Math.min(ping, 300);
+        double targetTime = Math.min(ping, 60);
         smoothHistoryTime += (targetTime - smoothHistoryTime) * mc.timer.renderPartialTicks;
         maxHistoryTime = Math.round(smoothHistoryTime);
 

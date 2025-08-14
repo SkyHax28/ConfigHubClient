@@ -2,6 +2,7 @@ package com.dew.system.module.modules.combat;
 
 import com.dew.DewCommon;
 import com.dew.system.event.events.AttackEvent;
+import com.dew.system.event.events.PreUpdateEvent;
 import com.dew.system.event.events.TickEvent;
 import com.dew.system.event.events.WorldLoadEvent;
 import com.dew.system.module.Module;
@@ -143,7 +144,7 @@ public class Aura extends Module {
     }
 
     @Override
-    public void onTick(TickEvent event) {
+    public void onPreUpdate(PreUpdateEvent event) {
         this.updateSlotSwapper();
 
         if (this.isInAutoBlockMode()) return;
@@ -237,7 +238,7 @@ public class Aura extends Module {
                 target = getHighestThreatTarget(this.getTargetRange());
                 if (target != null) {
                     targeted = true;
-                    if (autoBlockPlacer.get() && placeableTick <= 70 && placeDefensiveBlock(target)) {
+                    if (autoBlockPlacer.get() && placeableTick <= 30 && placeDefensiveBlock(target)) {
                         return;
                     }
                     if (visualAutoBlock.get()) {
@@ -360,9 +361,8 @@ public class Aura extends Module {
                         if (mc.thePlayer.inventory.getCurrentItem() != null && mc.playerController.sendUseItem(mc.thePlayer, mc.theWorld, mc.thePlayer.inventory.getCurrentItem())) {
                             mc.entityRenderer.itemRenderer.resetEquippedProgress2();
                         }
-                        mc.thePlayer.swingItemWithoutPacket();
                         lastThrowTime = now;
-                        int storeDelay = item instanceof ItemFishingRod ? 200 : 120;
+                        int storeDelay = item instanceof ItemFishingRod ? 200 : 60;
                         scheduleInventoryRestore(originalSlot, storeDelay);
                         return true;
                     }
@@ -471,7 +471,7 @@ public class Aura extends Module {
 
             lastPlaceTime = System.currentTimeMillis();
 
-            scheduleInventoryRestore(originalSlot, 40);
+            scheduleInventoryRestore(originalSlot, 60);
         }
 
         return true;

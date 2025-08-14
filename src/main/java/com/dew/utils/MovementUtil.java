@@ -144,56 +144,6 @@ public class MovementUtil {
         return ((a - b) % 360f + 540f) % 360f - 180f;
     }
 
-    public static void silentRotationJump(final float yaw) {
-        EntityPlayerSP player = mc.thePlayer;
-
-        float forward = player.movementInput.moveForward;
-        float strafe = player.movementInput.moveStrafe;
-
-        if (forward == 0.0F && strafe == 0.0F && player.isSprinting()) {
-            forward = 1.0F;
-        }
-
-        final int dif = (int) ((MathHelper.wrapAngleTo180_float(player.rotationYaw - yaw - 23.5F - 135.0F) + 180.0F) / 45.0F);
-        float calcForward = 0.0F;
-        float calcStrafe = 0.0F;
-
-        switch (dif) {
-            case 0: calcForward = forward; calcStrafe = strafe; break;
-            case 1: calcForward += forward; calcStrafe -= forward; calcForward += strafe; calcStrafe += strafe; break;
-            case 2: calcForward = strafe; calcStrafe = -forward; break;
-            case 3: calcForward -= forward; calcStrafe -= forward; calcForward += strafe; calcStrafe -= strafe; break;
-            case 4: calcForward = -forward; calcStrafe = -strafe; break;
-            case 5: calcForward -= forward; calcStrafe += forward; calcForward -= strafe; calcStrafe -= strafe; break;
-            case 6: calcForward = -strafe; calcStrafe = forward; break;
-            case 7: calcForward += forward; calcStrafe += forward; calcForward -= strafe; calcStrafe += strafe; break;
-        }
-
-        if (calcForward > 1.0F || (calcForward < 0.9F && calcForward > 0.3F) || calcForward < -1.0F || (calcForward > -0.9F && calcForward < -0.3F))
-            calcForward *= 0.5F;
-        if (calcStrafe > 1.0F || (calcStrafe < 0.9F && calcStrafe > 0.3F) || calcStrafe < -1.0F || (calcStrafe > -0.9F && calcStrafe < -0.3F))
-            calcStrafe *= 0.5F;
-
-        float len = calcStrafe * calcStrafe + calcForward * calcForward;
-        if (len < 1.0E-4F) {
-            calcForward = 1.0F;
-            calcStrafe = 0.0F;
-            len = 1.0F;
-        }
-
-        float invLen = 1.0F / MathHelper.sqrt_float(len);
-        calcStrafe *= invLen;
-        calcForward *= invLen;
-
-        float f1 = MathHelper.sin(yaw * (float) Math.PI / 180.0F);
-        float f2 = MathHelper.cos(yaw * (float) Math.PI / 180.0F);
-
-        float boost = 0.2F;
-
-        player.motionX += (calcStrafe * boost) * f2 - (calcForward * boost) * f1;
-        player.motionZ += (calcForward * boost) * f2 + (calcStrafe * boost) * f1;
-    }
-
     public static void silentRotationStrafe(final StrafeEvent event, final float yaw) {
         final int dif = (int) ((MathHelper.wrapAngleTo180_float(mc.thePlayer.rotationYaw - yaw - 23.5F - 135.0F) + 180.0F) / 45.0F);
         float strafe = event.strafe;

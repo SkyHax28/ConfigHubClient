@@ -65,7 +65,7 @@ public class Scaffold extends Module {
     }
 
     private boolean shouldUpdateKeepYState() {
-        return keepY == -1 || !mode.get().equals("Telly") && (!DewCommon.moduleManager.getModule(SpeedModule.class).isEnabled() || Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode())) || mode.get().equals("Telly") && !doTellyInThisJump;
+        return keepY == -1 || mc.thePlayer.hurtTime != 0 || mc.thePlayer.motionY <= -0.55 || !mode.get().equals("Telly") && (!DewCommon.moduleManager.getModule(SpeedModule.class).isEnabled() || Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode())) || mode.get().equals("Telly") && !doTellyInThisJump;
     }
 
     @Override
@@ -434,7 +434,7 @@ public class Scaffold extends Module {
     }
 
     private void updateKeepY() {
-        if (keepY == -1 && mc.thePlayer.hurtTime != 0) {
+        if (keepY == -1 && (mc.thePlayer.hurtTime != 0 || mc.thePlayer.motionY <= -0.55)) {
             keepY = (int) mc.thePlayer.posY - 1;
         } else {
             keepY = (int) mc.thePlayer.posY;
@@ -442,7 +442,7 @@ public class Scaffold extends Module {
     }
 
     private boolean shouldTellyAntiEdge() {
-        boolean hasAngleDiff = Math.abs(MovementUtil.getAngleDifference((float) MovementUtil.getDirection(), DewCommon.rotationManager.getClientYaw())) > 1F;
+        boolean hasAngleDiff = Math.abs(MovementUtil.getAngleDifference((float) MovementUtil.getDirection(), DewCommon.rotationManager.getClientYaw())) > 0.3F;
         return mode.get().equals("Telly") && (jumpTicks >= 9 || this.isNearEdge() && (Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) || MovementUtil.isDiagonal(6f) || !this.shouldTellyDoNotPlaceBlocks() && Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) || (!mc.thePlayer.onGround || hasAngleDiff) && MovementUtil.isDiagonal(12f) || !MovementUtil.isDiagonal(12f) && mc.thePlayer.onGround && hasAngleDiff));
     }
 

@@ -60,12 +60,16 @@ public class Breadcrumbs extends Module {
         }
 
         GlStateManager.pushMatrix();
+        GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
+
         mc.entityRenderer.disableLightmap();
         GL11.glDisable(GL11.GL_TEXTURE_2D);
         GL11.glEnable(GL11.GL_BLEND);
         GL11.glDisable(GL11.GL_DEPTH_TEST);
+        GL11.glDepthMask(false);
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-        GL11.glLineWidth(10f);
+        GL11.glLineWidth(2.0f);
+
         GL11.glBegin(GL11.GL_LINE_STRIP);
 
         double renderX = mc.getRenderManager().viewerPosX;
@@ -81,11 +85,8 @@ public class Breadcrumbs extends Module {
         }
 
         GL11.glEnd();
-        GL11.glEnable(GL11.GL_DEPTH_TEST);
-        GL11.glEnable(GL11.GL_TEXTURE_2D);
-        GL11.glDisable(GL11.GL_BLEND);
-        GL11.glColor4f(1f, 1f, 1f, 1f);
-        mc.entityRenderer.enableLightmap();
+
+        GL11.glPopAttrib();
         GlStateManager.popMatrix();
     }
 
