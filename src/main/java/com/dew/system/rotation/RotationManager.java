@@ -164,9 +164,9 @@ public class RotationManager {
         rotateToward(rotations[0], rotations[1], rotationSpeed, false);
     }
 
-    public boolean faceEntity(Entity entity, float rotationSpeed) {
+    public boolean faceEntity(Entity entity, float rotationSpeed, boolean noRotationJitters, double maxRange) {
         Entity backTrackEntity = DewCommon.moduleManager.getModule(Backtrack.class).getBestBacktrackEntity(entity);
-        if (mc.thePlayer.getDistanceToEntity(backTrackEntity) < mc.thePlayer.getDistanceToEntity(entity)) {
+        if (entity != backTrackEntity && mc.thePlayer.getDistanceToEntity(backTrackEntity) < mc.thePlayer.getDistanceToEntity(entity)) {
             entity = backTrackEntity;
         }
         float[] rotations = getRotationsTo(entity.posX, entity.posY + (entity.getEyeHeight() / 2.0), entity.posZ);
@@ -176,22 +176,23 @@ public class RotationManager {
 
         float currentPitch = getClientPitch();
 
-        rotateToward(targetYaw, currentPitch, rotationSpeed, false);
+        rotateToward(targetYaw, currentPitch, rotationSpeed, noRotationJitters);
 
-        if (canHitEntityAtRotation(entity, getClientYaw(), getClientPitch())) {
+        if (canHitEntityAtRotation(entity, getClientYaw(), getClientPitch(), maxRange)) {
             return true;
         }
 
-        rotateToward(targetYaw, targetPitch, rotationSpeed, false);
-        return canHitEntityAtRotation(entity, getClientYaw(), getClientPitch());
+        rotateToward(targetYaw, targetPitch, rotationSpeed, noRotationJitters);
+        return canHitEntityAtRotation(entity, getClientYaw(), getClientPitch(), maxRange);
     }
 
-    public void faceBlock(BlockPos pos, float rotationSpeed) {
+    public boolean faceBlock(BlockPos pos, float rotationSpeed, boolean noRotationJitters, double maxRange) {
         double x = pos.getX() + 0.5;
         double y = pos.getY() + 0.5;
         double z = pos.getZ() + 0.5;
         float[] rotations = getRotationsTo(x, y, z);
-        rotateToward(rotations[0], rotations[1], rotationSpeed, false);
+        rotateToward(rotations[0], rotations[1], rotationSpeed, noRotationJitters);
+        return canHitBlockAtRotationWithoutFacing(pos, getClientYaw(), getClientPitch(), maxRange);
     }
 
     public boolean faceBlockWithFacing(BlockPos pos, EnumFacing facing, float rotationSpeed, boolean noRotationJitters) {
@@ -292,8 +293,8 @@ public class RotationManager {
         this.isRotating = true;
     }
 
-    public boolean canHitEntityAtRotation(Entity target, float yaw, float pitch) {
-        double reach = mc.playerController.getBlockReachDistance();
+    public boolean canHitEntityAtRotation(Entity target, float yaw, float pitch, double maxRange) {
+        double reach = maxRange;
 
         Vec3 eyePos = mc.thePlayer.getPositionEyes(1.0f);
         Vec3 lookVec = getLookVecFromRotations(yaw, pitch);
@@ -303,6 +304,18 @@ public class RotationManager {
         MovingObjectPosition hit = box.calculateIntercept(eyePos, reachVec);
 
         return hit != null;
+    }
+
+    public boolean canHitBlockAtRotationWithoutFacing(BlockPos targetPos, float yaw, float pitch, double maxRange) {
+        double reach = maxRange;
+
+        Vec3 eyePos = mc.thePlayer.getPositionEyes(1.0f);
+        Vec3 lookVec = getLookVecFromRotations(yaw, pitch);
+        Vec3 reachVec = eyePos.addVector(lookVec.xCoord * reach, lookVec.yCoord * reach, lookVec.zCoord * reach);
+
+        MovingObjectPosition hit = mc.theWorld.rayTraceBlocks(eyePos, reachVec, false, false, false);
+
+        return hit != null && hit.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK && hit.getBlockPos().equals(targetPos);
     }
 
     public boolean canHitBlockAtRotation(BlockPos targetPos, EnumFacing facing, float yaw, float pitch) {

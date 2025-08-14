@@ -1,5 +1,6 @@
 package net.minecraft.world;
 
+import com.dew.utils.PredictUtil;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -988,6 +989,7 @@ public abstract class World implements IBlockAccess
 
     public void spawnParticle(EnumParticleTypes particleType, double xCoord, double yCoord, double zCoord, double xOffset, double yOffset, double zOffset, int... p_175688_14_)
     {
+        if (PredictUtil.predicting) return;
         this.spawnParticle(particleType.getParticleID(), particleType.getShouldIgnoreRange(), xCoord, yCoord, zCoord, xOffset, yOffset, zOffset, p_175688_14_);
     }
 

@@ -56,7 +56,7 @@ public class SilentAimAssist extends Module {
         }
 
         if (closest != null) {
-            DewCommon.rotationManager.faceEntity(closest, 22f);
+            DewCommon.rotationManager.faceEntity(closest, 22f, false, mc.playerController.getBlockReachDistance());
         }
     }
 }

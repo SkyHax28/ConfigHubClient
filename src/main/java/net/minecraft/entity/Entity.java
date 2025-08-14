@@ -12,6 +12,7 @@ import com.dew.system.module.modules.movement.Step;
 import com.dew.system.rotation.RotationManager;
 import com.dew.system.viapatcher.MovePatcher;
 import com.dew.utils.LogUtil;
+import com.dew.utils.PredictUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockFence;
 import net.minecraft.block.BlockFenceGate;
@@ -982,6 +983,7 @@ public abstract class Entity implements ICommandSender
 
     public void spawnRunningParticles()
     {
+        if (PredictUtil.predicting) return;
         if (this.isSprinting() && !this.isInWater())
         {
             this.createRunningParticles();

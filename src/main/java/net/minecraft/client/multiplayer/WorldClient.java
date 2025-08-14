@@ -3,6 +3,7 @@ package net.minecraft.client.multiplayer;
 import com.dew.DewCommon;
 import com.dew.system.module.modules.combat.Aura;
 import com.dew.system.module.modules.exploit.BarrierVision;
+import com.dew.utils.PredictUtil;
 import com.google.common.collect.Sets;
 import java.util.Random;
 import java.util.Set;
@@ -395,6 +396,8 @@ public class WorldClient extends World
 
     public void playSound(double x, double y, double z, String soundName, float volume, float pitch, boolean distanceDelay)
     {
+        if (PredictUtil.predicting) return;
+
         double d0 = this.mc.getRenderViewEntity().getDistanceSq(x, y, z);
         PositionedSoundRecord positionedsoundrecord = new PositionedSoundRecord(new ResourceLocation(soundName), volume, pitch, (float)x, (float)y, (float)z);
 

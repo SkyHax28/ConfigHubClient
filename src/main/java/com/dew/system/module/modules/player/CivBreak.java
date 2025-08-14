@@ -92,7 +92,7 @@ public class CivBreak extends Module {
             return;
         }
 
-        DewCommon.rotationManager.faceBlock(currentBlock, rotationSpeed.get().floatValue());
+        DewCommon.rotationManager.faceBlock(currentBlock, rotationSpeed.get().floatValue(), true, mc.playerController.getBlockReachDistance());
         isBreaking = true;
 
         if (mc.thePlayer.ticksExisted % breakDelay.get().intValue() == 0) {

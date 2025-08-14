@@ -297,7 +297,7 @@ public class Aura extends Module {
     }
 
     private boolean rotateToTargetAndIsCanHit(Entity entity) {
-        return DewCommon.rotationManager.faceEntity(entity, rotationSpeed.get().floatValue());
+        return DewCommon.rotationManager.faceEntity(entity, rotationSpeed.get().floatValue(), false, mc.playerController.getBlockReachDistance());
     }
 
     private double getTargetRange() {

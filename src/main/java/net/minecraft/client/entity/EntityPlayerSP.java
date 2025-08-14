@@ -9,6 +9,7 @@ import com.dew.system.module.modules.player.Freecam;
 import com.dew.system.module.modules.player.Sprint;
 import com.dew.system.rotation.RotationManager;
 import com.dew.utils.LogUtil;
+import com.dew.utils.PredictUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.MovingSoundMinecartRiding;
 import net.minecraft.client.audio.PositionedSoundRecord;
@@ -141,6 +142,8 @@ public class EntityPlayerSP extends AbstractClientPlayer
 
     public void onUpdateWalkingPlayer()
     {
+        if (PredictUtil.predicting && PredictUtil.isSp) return;
+
         RotationManager rotationManager = DewCommon.rotationManager;
 
         float baseYaw = rotationManager.isRotating() ? rotationManager.getClientYaw() : this.rotationYaw;

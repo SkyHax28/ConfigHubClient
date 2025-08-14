@@ -206,7 +206,7 @@ public class Breaker extends Module {
             isBreaking = true;
         }
 
-        DewCommon.rotationManager.faceBlock(pos, rotationSpeed.get().floatValue());
+        DewCommon.rotationManager.faceBlock(pos, rotationSpeed.get().floatValue(), true, mc.playerController.getBlockReachDistance());
     }
 
     private void sendClickBlockToController(BlockPos pos, EnumFacing facing, boolean leftClick) {
