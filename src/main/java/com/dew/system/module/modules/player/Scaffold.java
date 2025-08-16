@@ -205,7 +205,7 @@ public class Scaffold extends Module {
             mc.thePlayer.setSprinting(false);
         }
 
-        if (shouldUpdateKeepYState() && (!antiTelly || keepY == -1)) {
+        if (shouldUpdateKeepYState() && (!antiTelly && mc.thePlayer.onGround || keepY == -1)) {
             this.updateKeepY();
         }
 

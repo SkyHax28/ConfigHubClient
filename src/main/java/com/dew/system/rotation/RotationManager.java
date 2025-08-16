@@ -268,15 +268,17 @@ public class RotationManager {
     }
 
     public void rotateToward(float targetYaw, float targetPitch, float rotationSpeed, boolean noRotationJitters) {
-        float randomDelta = noRotationJitters ? 0f : getSecureRandom() * 17f;
+        float randomDelta = noRotationJitters ? 0f : getSecureRandom() * 20f;
         float adjustedSpeed = rotationSpeed + randomDelta;
 
         float yawDiff = MathHelper.wrapAngleTo180_float(targetYaw - this.clientYaw);
         float pitchDiff = MathHelper.wrapAngleTo180_float(targetPitch - this.clientPitch);
 
+        float jitter = 20f;
+
         if (!noRotationJitters) {
-            yawDiff += getSecureRandom() * 25f;
-            pitchDiff += getSecureRandom() * 25f;
+            yawDiff += getSecureRandom() * jitter;
+            pitchDiff += getSecureRandom() * (jitter / 2);
         }
 
         yawDiff = MathHelper.clamp_float(yawDiff, -adjustedSpeed, adjustedSpeed);
