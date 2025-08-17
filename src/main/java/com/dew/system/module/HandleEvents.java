@@ -12,6 +12,7 @@ import com.dew.system.module.modules.render.Hud;
 import com.dew.system.viapatcher.PacketPatcher;
 import com.dew.utils.BlinkUtil;
 import com.dew.utils.LogUtil;
+import com.dew.utils.MovementUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiChat;
 import net.minecraft.network.Packet;
@@ -106,6 +107,10 @@ public class HandleEvents implements EventListener {
     @Override
     public void onPreUpdate(PreUpdateEvent event) {
         DewCommon.moduleManager.getModule(AutoTool.class).autoToolManager.tick();
+
+        if (mc.thePlayer != null && MovementUtil.hasMotionHorizontal()) {
+            mc.thePlayer.cameraYaw = 0.1f;
+        }
 
         if (loadingWorld && mc.thePlayer != null && mc.theWorld != null && mc.thePlayer.ticksExisted > 10f && mc.currentScreen == null) {
             worldFullLoaded = true;

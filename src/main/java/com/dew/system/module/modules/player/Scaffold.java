@@ -205,22 +205,23 @@ public class Scaffold extends Module {
             mc.thePlayer.setSprinting(false);
         }
 
-        if (shouldUpdateKeepYState() && (!antiTelly && mc.thePlayer.onGround || keepY == -1)) {
+        if (shouldUpdateKeepYState() && (!antiTelly || keepY == -1)) {
             this.updateKeepY();
         }
 
         if (antiTelly) {
-            if (jumpTicks <= 2) {
-                DewCommon.rotationManager.rotateToward((float) MovementUtil.getDirection(), 80f, 180f, true);
-                if (mc.thePlayer.posY > 0.0D && mc.thePlayer.onGround && !mc.thePlayer.isSprinting()) {
-                    mc.thePlayer.jump();
-                }
-                return;
-            } else if (jumpTicks == 3) {
-                if (hypixelTellyBanFix.get()) {
-                    DewCommon.rotationManager.faceBlockHypixelSafe(60f, false);
-                } else {
-                    DewCommon.rotationManager.rotateToward((float) (MovementUtil.getDirection() + 180f), 80f, tellyPreRotationSpeed.get().floatValue(), true);
+            if (jumpTicks <= 3) {
+                if (jumpTicks <= 1) {
+                    DewCommon.rotationManager.rotateToward((float) MovementUtil.getDirection(), 80f, 180f, true);
+                    if (mc.thePlayer.posY > 0.0D && mc.thePlayer.onGround && !mc.thePlayer.isSprinting()) {
+                        mc.thePlayer.jump();
+                    }
+                } else if (jumpTicks == 3) {
+                    if (hypixelTellyBanFix.get()) {
+                        DewCommon.rotationManager.rotateToward((float) (MovementUtil.getDirection() + 180f), 80f, 60f, true);
+                    } else {
+                        DewCommon.rotationManager.rotateToward((float) (MovementUtil.getDirection() + 180f), 80f, tellyPreRotationSpeed.get().floatValue(), true);
+                    }
                 }
                 return;
             }
@@ -373,9 +374,9 @@ public class Scaffold extends Module {
 
     private void tellyFunction() {
         if (this.shouldTellyDoNotPlaceBlocks()) {
-            if (jumpTicks <= 2) {
+            if (jumpTicks <= 1) {
                 DewCommon.rotationManager.rotateToward((float) MovementUtil.getDirection(), 80f, 180f, true);
-            } else {
+            } else if (jumpTicks == 3) {
                 if (hypixelTellyBanFix.get()) {
                     DewCommon.rotationManager.faceBlockHypixelSafe(60f, false);
                 } else {
@@ -383,7 +384,11 @@ public class Scaffold extends Module {
                 }
             }
 
-            if (mc.thePlayer.posY > 0.0D && mc.thePlayer.onGround && (mc.thePlayer.isSprinting() || noSprint.get())) {
+            if (mc.thePlayer.onGround && isNearEdge() && !mc.thePlayer.isSprinting()) {
+                keepY = (int) mc.thePlayer.posY + 1;
+                mc.thePlayer.setSprinting(true);
+                mc.thePlayer.jump();
+            } else if (mc.thePlayer.posY > 0.0D && mc.thePlayer.onGround && (mc.thePlayer.isSprinting() || noSprint.get())) {
                 mc.thePlayer.jump();
             }
         }

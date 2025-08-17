@@ -311,7 +311,7 @@ public class Aura extends Module {
     private void adjustTimerRange(EntityLivingBase target) {
         double dist = mc.thePlayer.getDistanceToEntity(target);
 
-        if (!burstNextTick && !slowNextTick && dist <= getAttackRange() + 0.15 && dist > getAttackRange() - 0.56) {
+        if (!burstNextTick && !slowNextTick && dist <= getAttackRange() + 0.15 && dist > getAttackRange() - 0.55) {
             burstNextTick = true;
         }
 
@@ -324,7 +324,7 @@ public class Aura extends Module {
         }
 
         if (slowNextTick) {
-            currentTimerSpeed = 0.35f;
+            currentTimerSpeed = 0.25f;
             TimerUtil.setTimerSpeed(currentTimerSpeed);
             tickableTick = tickDelay.get().intValue();
             slowNextTick = false;
@@ -336,7 +336,7 @@ public class Aura extends Module {
 
     private void slowlyReturnToNormal() {
         if (Math.abs(currentTimerSpeed - 1.0f) > 0.01f) {
-            currentTimerSpeed += (1.0f - currentTimerSpeed) * 0.6f;
+            currentTimerSpeed += (1.0f - currentTimerSpeed) * 0.5f;
             TimerUtil.setTimerSpeed(currentTimerSpeed);
         } else {
             TimerUtil.resetTimerSpeed();
