@@ -255,6 +255,10 @@ public class MovementUtil {
         mc.thePlayer.motionY = 0.0;
     }
 
+    public static boolean hasMotionHorizontal() {
+        return mc.thePlayer.motionX != 0 || mc.thePlayer.motionZ != 0;
+    }
+
     public static boolean isMoving() {
         return mc.gameSettings.keyBindForward.isKeyDown() || mc.gameSettings.keyBindBack.isKeyDown() || mc.gameSettings.keyBindRight.isKeyDown() || mc.gameSettings.keyBindLeft.isKeyDown() || mc.thePlayer != null && (mc.thePlayer.movementInput.moveForward != 0f || mc.thePlayer.movementInput.moveStrafe != 0f);
     }
