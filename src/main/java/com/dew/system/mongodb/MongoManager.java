@@ -44,7 +44,7 @@ public class MongoManager implements IMinecraft, EventListener {
 
     public MongoManager() {
         DewCommon.eventManager.register(this);
-        this.uri = "mongodb+srv://dewclientuser:TcZn7M4gtdoI8QyD@cluster0.rejop8c.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+        this.uri = "mongodb+srv://dewuser:brud193ym8y2mcehfue!e@dewbackend.nukdmw4.mongodb.net/?retryWrites=true&w=majority&appName=DewBackend";
         initMongo();
 
         LogUtil.infoLog("init mongoManager");
