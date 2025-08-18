@@ -12,6 +12,7 @@ import com.dew.system.settingsvalue.BooleanValue;
 import com.dew.system.settingsvalue.NumberValue;
 import com.dew.system.settingsvalue.SelectionValue;
 import com.dew.utils.MovementUtil;
+import com.dew.utils.PacketUtil;
 import com.dew.utils.RenderUtil;
 import net.minecraft.block.*;
 import net.minecraft.block.material.Material;
@@ -20,6 +21,7 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.play.client.C0APacketAnimation;
 import net.minecraft.potion.Potion;
 import net.minecraft.util.*;
 import org.lwjgl.input.Keyboard;
@@ -632,7 +634,7 @@ public class Scaffold extends Module {
 
             ItemStack itemstack = mc.thePlayer.inventory.getCurrentItem();
             if (mc.playerController.onPlayerRightClick(mc.thePlayer, mc.theWorld, itemstack, neighbor, opposite, hitVec)) {
-                mc.thePlayer.swingItem();
+                PacketUtil.sendPacket(new C0APacketAnimation());
                 if (itemstack != null) {
                     if (itemstack.stackSize == 0) {
                         mc.thePlayer.inventory.mainInventory[mc.thePlayer.inventory.currentItem] = null;

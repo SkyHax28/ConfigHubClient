@@ -6,10 +6,7 @@ import com.dew.system.event.events.ReceivedPacketEvent;
 import com.dew.system.event.events.SendPacketEvent;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
-import com.dew.system.module.modules.movement.flight.flies.BloxdFlight;
-import com.dew.system.module.modules.movement.flight.flies.HypixelPredictionFlight;
-import com.dew.system.module.modules.movement.flight.flies.TestFlight;
-import com.dew.system.module.modules.movement.flight.flies.VanillaFlight;
+import com.dew.system.module.modules.movement.flight.flies.*;
 import com.dew.system.settingsvalue.NumberValue;
 import com.dew.system.settingsvalue.SelectionValue;
 import org.lwjgl.input.Keyboard;
@@ -19,7 +16,7 @@ import java.util.Map;
 
 public class FlightModule extends Module {
 
-    public static final SelectionValue mode = new SelectionValue("Mode", "Vanilla", "Vanilla", "Hypixel Prediction", "Bloxd", "Test");
+    private static final SelectionValue mode = new SelectionValue("Mode", "Vanilla", "Vanilla", "Hypixel Prediction", "Bloxd", "Verus", "Test");
     public static final NumberValue horizontalSpeed = new NumberValue("Horizontal Speed", 3, 0.1, 10.0, 0.1, () -> mode.get().equals("Vanilla"));
     public static final NumberValue verticalSpeed = new NumberValue("Vertical Speed", 2, 0.1, 10.0, 0.1, () -> mode.get().equals("Vanilla"));
     private final Map<String, FlightMode> modes = new HashMap<>();
@@ -32,7 +29,12 @@ public class FlightModule extends Module {
         modes.put("Vanilla", new VanillaFlight());
         modes.put("Hypixel Prediction", new HypixelPredictionFlight());
         modes.put("Bloxd", new BloxdFlight());
+        modes.put("Verus", new VerusFlight());
         modes.put("Test", new TestFlight());
+    }
+
+    public String getMode() {
+        return mode.get();
     }
 
     @Override

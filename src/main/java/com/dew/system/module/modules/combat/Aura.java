@@ -8,6 +8,7 @@ import com.dew.system.event.events.WorldLoadEvent;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
 import com.dew.system.module.modules.exploit.SafetySwitchv2000;
+import com.dew.system.module.modules.movement.flight.FlightModule;
 import com.dew.system.module.modules.player.AutoTool;
 import com.dew.system.module.modules.player.Breaker;
 import com.dew.system.module.modules.player.Freecam;
@@ -228,7 +229,7 @@ public class Aura extends Module {
             }
         }
 
-        if (mc.thePlayer == null || mc.playerController == null || mc.playerController.getCurrentGameType() == WorldSettings.GameType.SPECTATOR  || DewCommon.moduleManager.getModule(Scaffold.class).isEnabled() || DewCommon.moduleManager.getModule(AutoPot.class).isEnabled() && DewCommon.moduleManager.getModule(AutoPot.class).isThrowing() || DewCommon.moduleManager.getModule(Breaker.class).isEnabled() && DewCommon.moduleManager.getModule(Breaker.class).isBreaking) {
+        if (mc.thePlayer == null || mc.playerController == null || mc.playerController.getCurrentGameType() == WorldSettings.GameType.SPECTATOR || DewCommon.moduleManager.getModule(Scaffold.class).isEnabled() || DewCommon.moduleManager.getModule(FlightModule.class).isEnabled() && DewCommon.moduleManager.getModule(FlightModule.class).getMode().equals("Verus") || DewCommon.moduleManager.getModule(AutoPot.class).isEnabled() && DewCommon.moduleManager.getModule(AutoPot.class).isThrowing() || DewCommon.moduleManager.getModule(Breaker.class).isEnabled() && DewCommon.moduleManager.getModule(Breaker.class).isBreaking) {
             this.resetState();
             return;
         }
