@@ -842,10 +842,10 @@ public class EntityRenderer implements IResourceManagerReloadListener
 
         this.hurtCameraEffect(partialTicks);
 
-        /*if (this.mc.gameSettings.viewBobbing)
+        if (this.mc.gameSettings.viewBobbing)
         {
             this.setupViewBobbing(partialTicks);
-        }*/
+        }
 
         float f1 = this.mc.thePlayer.prevTimeInPortal + (this.mc.thePlayer.timeInPortal - this.mc.thePlayer.prevTimeInPortal) * partialTicks;
 

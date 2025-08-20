@@ -110,7 +110,7 @@ public class HandleEvents implements EventListener {
     public void onPreUpdate(PreUpdateEvent event) {
         DewCommon.moduleManager.getModule(AutoTool.class).autoToolManager.tick();
 
-        if (mc.thePlayer != null) {
+        /*if (mc.thePlayer != null) {
             if (mc.thePlayer.isUsingItem() || mc.thePlayer.isBlocking() || DewCommon.moduleManager.getModule(Animations.class).isVisualBlocking()) {
                 mc.thePlayer.swingItemWithoutPacket();
             }
@@ -118,16 +118,16 @@ public class HandleEvents implements EventListener {
             if (MovementUtil.hasMotionHorizontal()) {
                 mc.thePlayer.cameraYaw = 0.2f;
             }
-        }
+        }*/
 
         if (loadingWorld && mc.thePlayer != null && mc.theWorld != null && mc.thePlayer.ticksExisted > 10f && mc.currentScreen == null) {
             worldFullLoaded = true;
             loadingWorld = false;
         }
 
-        if (DewCommon.moduleManager.getModule(Animations.class).isEnabled() && mc.thePlayer != null && mc.thePlayer.isSwingInProgress && mc.getItemRenderer().itemToRender != null && mc.getItemRenderer().itemToRender.getItem() instanceof ItemSword && (mc.thePlayer.isBlocking() || DewCommon.moduleManager.getModule(Animations.class).isVisualBlocking())) {
+        /*if (DewCommon.moduleManager.getModule(Animations.class).isEnabled() && mc.thePlayer != null && mc.thePlayer.isSwingInProgress && mc.getItemRenderer().itemToRender != null && mc.getItemRenderer().itemToRender.getItem() instanceof ItemSword && (mc.thePlayer.isBlocking() || DewCommon.moduleManager.getModule(Animations.class).isVisualBlocking())) {
             mc.thePlayer.renderArmPitch = mc.thePlayer.rotationPitch - 90f;
-        }
+        }*/
     }
 
     @Override

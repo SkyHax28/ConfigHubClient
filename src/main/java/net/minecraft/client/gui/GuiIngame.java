@@ -587,7 +587,7 @@ public class GuiIngame extends Gui
 
     protected boolean showCrosshair()
     {
-        if (mc.gameSettings.thirdPersonView != 0) return false;
+        //if (mc.gameSettings.thirdPersonView != 0) return false; // TODO: no third person crosshair, etc visual options for one module
 
         if (this.mc.gameSettings.showDebugInfo && !this.mc.thePlayer.hasReducedDebug() && !this.mc.gameSettings.reducedDebugInfo)
         {
