@@ -1637,10 +1637,10 @@ public abstract class EntityLivingBase extends Entity
             f1 = (float)MathHelper.atan2(d1, d0) * 180.0F / (float)Math.PI - 90.0F;
         }
 
-        /*if (this.swingProgress > 0.0F)
+        if (this.swingProgress > 0.0F)
         {
             f1 = this.rotationYaw;
-        }*/
+        }
 
         if (!this.onGround)
         {
@@ -1704,9 +1704,9 @@ public abstract class EntityLivingBase extends Entity
         float fakeRotationYaw = this.rotationYaw;
 
         if (silentViewModule.isEnabled() && rotationManager.isRotating() && SilentView.mode.get().equals("Normal") && this instanceof EntityPlayerSP) {
-            /*if (this.swingProgress > 0.0F) {
+            if (this.swingProgress > 0.0F) {
                 p_110146_1_ = rotationManager.getClientYaw();
-            }*/
+            }
             fakeRotationYaw = rotationManager.getClientYaw();
             this.rotationYawHead = rotationManager.getClientYaw();
         }
