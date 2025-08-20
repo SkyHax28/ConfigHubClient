@@ -10,7 +10,6 @@ import org.lwjgl.input.Keyboard;
 import java.io.IOException;
 
 public class TokenLoginScreen extends GuiScreen {
-    public GuiScreen previousScreen;
     private GuiTextField tokenField;
     private String status = "Not logged in";
 
