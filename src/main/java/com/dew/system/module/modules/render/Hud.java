@@ -389,7 +389,7 @@ public class Hud extends Module {
                                 blinkInfo,
                                 xPos,
                                 y + displayHeight + 1.5f,
-                                new Color(0, 255, 255, alpha).getRGB(),
+                                new Color(0, 255, 100, alpha).getRGB(),
                                 fontSize
                         );
                         xPos += fontRenderer.getStringWidth(blinkInfo + "  ", fontSize);

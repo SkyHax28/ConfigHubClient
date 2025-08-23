@@ -13,6 +13,7 @@ public class Spider extends Module {
 
     private static final SelectionValue mode = new SelectionValue("Mode", "Prediction Infinite", "Prediction Infinite");
     private final Clock hypTimer = new Clock();
+    private boolean blinked = false;
 
     public Spider() {
         super("Spider", ModuleCategory.MOVEMENT, Keyboard.KEY_NONE, false, true, true);
@@ -40,6 +41,7 @@ public class Spider extends Module {
         BlinkUtil.stopBlink();
         TimerUtil.resetTimerSpeed();
         hypTimer.reset();
+        blinked = false;
     }
 
     @Override
@@ -48,6 +50,7 @@ public class Spider extends Module {
         BlinkUtil.stopBlink();
         TimerUtil.resetTimerSpeed();
         hypTimer.reset();
+        blinked = false;
     }
 
     @Override
@@ -72,11 +75,13 @@ public class Spider extends Module {
                     mc.thePlayer.onGround = false;
                     TimerUtil.resetTimerSpeed();
                 }
-            } else {
+                blinked = true;
+            } else if (blinked) {
                 BlinkUtil.sync(true, true);
                 BlinkUtil.stopBlink();
                 TimerUtil.resetTimerSpeed();
                 hypTimer.reset();
+                blinked = false;
             }
         }
     }

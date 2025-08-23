@@ -260,7 +260,8 @@ public class Scaffold extends Module {
     }
 
     private void search(BlockPos below) {
-        if (!mc.theWorld.getBlockState(below).getBlock().isReplaceable(mc.theWorld, below)) return;
+        int playerY = (int) Math.floor(mc.thePlayer.posY);
+        if (!mc.theWorld.getBlockState(below).getBlock().isReplaceable(mc.theWorld, below) || below.getY() > playerY) return;
 
         PlaceResult result = tryPlaceBlock(below);
         if (result == PlaceResult.SUCCESS) {
@@ -273,6 +274,7 @@ public class Scaffold extends Module {
 
         for (EnumFacing dir : EnumFacing.values()) {
             BlockPos neighbor = below.offset(dir);
+            if (neighbor.getY() > playerY) continue;
             PlaceResult neighborResult = tryPlaceBlock(neighbor);
 
             if (neighborResult == PlaceResult.FAIL_ROTATION) return;
@@ -299,6 +301,7 @@ public class Scaffold extends Module {
                 if (!closedSet.add(current.pos)) continue;
 
                 if (mc.thePlayer.getDistanceSqToCenter(current.pos) > maxDistanceSq) continue;
+                if (current.pos.getY() > playerY) continue;
 
                 if (canPlaceAt(current.pos)) {
                     PlaceResult placeRes = tryPlaceBlock(current.pos);
@@ -314,6 +317,8 @@ public class Scaffold extends Module {
 
                 for (EnumFacing dir : EnumFacing.values()) {
                     BlockPos next = current.pos.offset(dir);
+
+                    if (next.getY() > playerY) continue;
 
                     if (!closedSet.contains(next) && isAirLike(next)) {
                         double gCost = current.gCost + 1;
