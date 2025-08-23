@@ -23,7 +23,7 @@ import org.lwjgl.input.Keyboard;
 
 public class AutoBlock extends Module {
 
-    private static final SelectionValue mode = new SelectionValue("Mode", "Hypixel", "Vanilla", "Legit", "Hypixel");
+    private static final SelectionValue mode = new SelectionValue("Mode", "Hypixel", "Vanilla", "Hold", "Legit", "Hypixel");
     private boolean blinkAB = true;
     private boolean block = false;
     private boolean blink = false;
@@ -74,6 +74,16 @@ public class AutoBlock extends Module {
                     if (!block) {
                         PacketUtil.sendPacket(new C08PacketPlayerBlockPlacement(mc.thePlayer.getHeldItem()));
                         block = true;
+                    }
+                    break;
+
+                case "hold":
+                    if (!block || !mc.gameSettings.keyBindUseItem.isKeyDown()) {
+                        mc.gameSettings.keyBindUseItem.setKeyDown(true);
+                        block = true;
+                        auraModule.doMainFunctions(false);
+                    } else {
+                        auraModule.doMainFunctions(true);
                     }
                     break;
 
@@ -154,6 +164,8 @@ public class AutoBlock extends Module {
     public void unblock() {
         if (block) {
             if (mode.get().equals("Legit")) {
+                mc.gameSettings.keyBindUseItem.setKeyDown(false);
+            } else if (mode.get().equals("Hold")) {
                 mc.gameSettings.keyBindUseItem.setKeyDown(false);
             } else {
                 PacketUtil.sendPacket(new C07PacketPlayerDigging(C07PacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN));

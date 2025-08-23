@@ -1,9 +1,6 @@
 package com.dew.system.module.modules.movement.flight.flies;
 
-import com.dew.system.event.events.PreMotionEvent;
-import com.dew.system.event.events.PreUpdateEvent;
-import com.dew.system.event.events.ReceivedPacketEvent;
-import com.dew.system.event.events.SendPacketEvent;
+import com.dew.system.event.events.*;
 import com.dew.system.module.modules.movement.flight.FlightMode;
 import com.dew.utils.BlinkUtil;
 import net.minecraft.network.Packet;
@@ -18,6 +15,10 @@ public class BloxdFlight implements FlightMode {
 
     @Override
     public void onEnable() {
+    }
+
+    @Override
+    public void onAttack(AttackEvent event) {
     }
 
     @Override

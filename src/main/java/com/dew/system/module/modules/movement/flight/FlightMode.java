@@ -1,10 +1,7 @@
 package com.dew.system.module.modules.movement.flight;
 
 import com.dew.IMinecraft;
-import com.dew.system.event.events.PreMotionEvent;
-import com.dew.system.event.events.PreUpdateEvent;
-import com.dew.system.event.events.ReceivedPacketEvent;
-import com.dew.system.event.events.SendPacketEvent;
+import com.dew.system.event.events.*;
 import net.minecraft.client.Minecraft;
 
 public interface FlightMode {
@@ -15,6 +12,8 @@ public interface FlightMode {
     void onEnable();
 
     void onDisable();
+
+    void onAttack(AttackEvent event);
 
     void onPreUpdate(PreUpdateEvent event);
 

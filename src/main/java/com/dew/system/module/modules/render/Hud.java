@@ -13,10 +13,7 @@ import com.dew.system.module.modules.player.Scaffold;
 import com.dew.system.settingsvalue.BooleanValue;
 import com.dew.system.settingsvalue.MultiSelectionValue;
 import com.dew.system.userdata.DataSaver;
-import com.dew.utils.Lerper;
-import com.dew.utils.LogUtil;
-import com.dew.utils.PacketUtil;
-import com.dew.utils.ServerUtil;
+import com.dew.utils.*;
 import com.dew.utils.font.CustomFontRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
@@ -276,6 +273,7 @@ public class Hud extends Module {
                 String murdererInfo = DewCommon.moduleManager.getModule(MurdererDetector.class).isEnabled() && !DewCommon.moduleManager.getModule(MurdererDetector.class).getMurderers().isEmpty() ? "Murderers: " + DewCommon.moduleManager.getModule(MurdererDetector.class).getMurderers().size() : "";
                 String breakingInfo = DewCommon.moduleManager.getModule(Breaker.class).isEnabled() && DewCommon.moduleManager.getModule(Breaker.class).isBreaking || DewCommon.moduleManager.getModule(CivBreak.class).isEnabled() && DewCommon.moduleManager.getModule(CivBreak.class).isBreaking ? "Breaking..." : "";
                 String timerInfo = mc.timer.timerSpeed != 1 ? "Balance: " + mc.timer.timerSpeed : "";
+                String blinkInfo = BlinkUtil.blinking ? "Blinking" : "";
                 String deadInfo = mc.thePlayer.isDead ? "Wasted" : "";
                 String spectatingInfo = mc.playerController != null && mc.playerController.getCurrentGameType() == WorldSettings.GameType.SPECTATOR ? "Spectating" : "";
 
@@ -287,6 +285,7 @@ public class Hud extends Module {
                 if (!murdererInfo.isEmpty()) combinedText += (combinedText.isEmpty() ? "" : "  ") + murdererInfo;
                 if (!breakingInfo.isEmpty()) combinedText += (combinedText.isEmpty() ? "" : "  ") + breakingInfo;
                 if (!timerInfo.isEmpty()) combinedText += (combinedText.isEmpty() ? "" : "  ") + timerInfo;
+                if (!blinkInfo.isEmpty()) combinedText += (combinedText.isEmpty() ? "" : "  ") + blinkInfo;
                 if (!deadInfo.isEmpty()) combinedText += (combinedText.isEmpty() ? "" : "  ") + deadInfo;
                 if (!spectatingInfo.isEmpty()) combinedText += (combinedText.isEmpty() ? "" : "  ") + spectatingInfo;
 
@@ -383,6 +382,17 @@ public class Hud extends Module {
                                 fontSize
                         );
                         xPos += fontRenderer.getStringWidth(timerInfo + "  ", fontSize);
+                    }
+
+                    if (!blinkInfo.isEmpty()) {
+                        fontRenderer.drawStringWithShadow(
+                                blinkInfo,
+                                xPos,
+                                y + displayHeight + 1.5f,
+                                new Color(0, 255, 255, alpha).getRGB(),
+                                fontSize
+                        );
+                        xPos += fontRenderer.getStringWidth(blinkInfo + "  ", fontSize);
                     }
 
                     if (!deadInfo.isEmpty()) {

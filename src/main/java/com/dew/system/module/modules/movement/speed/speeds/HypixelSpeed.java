@@ -1,9 +1,7 @@
 package com.dew.system.module.modules.movement.speed.speeds;
 
 import com.dew.DewCommon;
-import com.dew.system.event.events.PreMotionEvent;
-import com.dew.system.event.events.PreUpdateEvent;
-import com.dew.system.event.events.ReceivedPacketEvent;
+import com.dew.system.event.events.*;
 import com.dew.system.module.modules.exploit.Disabler;
 import com.dew.system.module.modules.movement.speed.SpeedMode;
 import com.dew.system.module.modules.movement.speed.SpeedModule;
@@ -32,6 +30,10 @@ public class HypixelSpeed implements SpeedMode {
     public void onDisable() {
         MovementUtil.mcJumpNoBoost = false;
         this.resetState();
+    }
+
+    @Override
+    public void onAttack(AttackEvent event) {
     }
 
     private void resetState() {
@@ -95,6 +97,10 @@ public class HypixelSpeed implements SpeedMode {
                 }
             }
         }
+    }
+
+    @Override
+    public void onMove(MoveEvent event) {
     }
 
     @Override

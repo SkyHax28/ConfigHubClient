@@ -1,9 +1,6 @@
 package com.dew.system.module.modules.movement.flight.flies;
 
-import com.dew.system.event.events.PreMotionEvent;
-import com.dew.system.event.events.PreUpdateEvent;
-import com.dew.system.event.events.ReceivedPacketEvent;
-import com.dew.system.event.events.SendPacketEvent;
+import com.dew.system.event.events.*;
 import com.dew.system.module.modules.movement.flight.FlightMode;
 import com.dew.utils.MovementUtil;
 import com.dew.utils.PacketUtil;
@@ -26,10 +23,11 @@ public class VerusFlight implements FlightMode {
 
     @Override
     public void onDisable() {
-        if (mc.thePlayer != null) {
-            MovementUtil.stopMovingSlowly();
-            MovementUtil.stopYMotion();
-        }
+    }
+
+    @Override
+    public void onAttack(AttackEvent event) {
+        event.cancel();
     }
 
     @Override
@@ -46,11 +44,8 @@ public class VerusFlight implements FlightMode {
             yMotion -= 0.08;
 
         mc.thePlayer.motionY = yMotion;
-
-        if (mc.thePlayer.isPotionActive(Potion.moveSpeed)) {
-            MovementUtil.strafe(0.42f);
-        } else {
-            MovementUtil.strafe(0.32f);
+        if (yMotion == 0) {
+            mc.thePlayer.onGround = true;
         }
     }
 

@@ -1,10 +1,7 @@
 package com.dew.system.module.modules.movement.speed;
 
 import com.dew.DewCommon;
-import com.dew.system.event.events.PreMotionEvent;
-import com.dew.system.event.events.PreUpdateEvent;
-import com.dew.system.event.events.ReceivedPacketEvent;
-import com.dew.system.event.events.WorldLoadEvent;
+import com.dew.system.event.events.*;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
 import com.dew.system.module.modules.exploit.SafetySwitchv2000;
@@ -39,6 +36,10 @@ public class SpeedModule extends Module {
         modes.put("Test", new TestSpeed());
     }
 
+    public String getMode() {
+        return mode.get();
+    }
+
     @Override
     public String tag() {
         return mode.get();
@@ -57,6 +58,12 @@ public class SpeedModule extends Module {
     public void onDisable() {
         if (currentMode != null)
             currentMode.onDisable();
+    }
+
+    @Override
+    public void onAttack(AttackEvent event) {
+        if (currentMode != null)
+            currentMode.onAttack(event);
     }
 
     @Override
@@ -87,6 +94,12 @@ public class SpeedModule extends Module {
     public void onPreMotion(PreMotionEvent event) {
         if (currentMode != null)
             currentMode.onPreMotion(event);
+    }
+
+    @Override
+    public void onMove(MoveEvent event) {
+        if (currentMode != null)
+            currentMode.onMove(event);
     }
 
     @Override

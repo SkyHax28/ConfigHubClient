@@ -9,6 +9,7 @@ import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
 import com.dew.system.module.modules.exploit.SafetySwitchv2000;
 import com.dew.system.module.modules.movement.flight.FlightModule;
+import com.dew.system.module.modules.movement.speed.SpeedModule;
 import com.dew.system.module.modules.player.AutoTool;
 import com.dew.system.module.modules.player.Breaker;
 import com.dew.system.module.modules.player.Freecam;
@@ -18,6 +19,7 @@ import com.dew.system.settingsvalue.BooleanValue;
 import com.dew.system.settingsvalue.MultiSelectionValue;
 import com.dew.system.settingsvalue.NumberValue;
 import com.dew.system.settingsvalue.SelectionValue;
+import com.dew.utils.MovementUtil;
 import com.dew.utils.PacketUtil;
 import com.dew.utils.ReachCalculator;
 import com.dew.utils.TimerUtil;
@@ -239,7 +241,7 @@ public class Aura extends Module {
                 target = getHighestThreatTarget(this.getTargetRange());
                 if (target != null) {
                     targeted = true;
-                    if (autoBlockPlacer.get() && placeableTick <= 30 && placeDefensiveBlock(target)) {
+                    if (autoBlockPlacer.get() && placeableTick <= 30 && placeDefensiveBlock(target) || DewCommon.moduleManager.getModule(SpeedModule.class).isEnabled() && DewCommon.moduleManager.getModule(SpeedModule.class).getMode().equals("Verus") && mc.thePlayer.onGround && MovementUtil.hasMotionHorizontal()) {
                         return;
                     }
                     if (visualAutoBlock.get()) {

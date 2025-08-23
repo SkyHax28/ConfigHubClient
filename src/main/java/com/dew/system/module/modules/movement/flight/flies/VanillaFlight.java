@@ -1,9 +1,6 @@
 package com.dew.system.module.modules.movement.flight.flies;
 
-import com.dew.system.event.events.PreMotionEvent;
-import com.dew.system.event.events.PreUpdateEvent;
-import com.dew.system.event.events.ReceivedPacketEvent;
-import com.dew.system.event.events.SendPacketEvent;
+import com.dew.system.event.events.*;
 import com.dew.system.module.modules.movement.flight.FlightMode;
 import com.dew.system.module.modules.movement.flight.FlightModule;
 import com.dew.utils.MovementUtil;
@@ -24,6 +21,10 @@ public class VanillaFlight implements FlightMode {
             MovementUtil.stopMovingSlowly();
             MovementUtil.stopYMotion();
         }
+    }
+
+    @Override
+    public void onAttack(AttackEvent event) {
     }
 
     @Override

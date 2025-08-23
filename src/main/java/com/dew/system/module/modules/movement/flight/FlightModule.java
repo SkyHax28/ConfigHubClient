@@ -1,9 +1,6 @@
 package com.dew.system.module.modules.movement.flight;
 
-import com.dew.system.event.events.PreMotionEvent;
-import com.dew.system.event.events.PreUpdateEvent;
-import com.dew.system.event.events.ReceivedPacketEvent;
-import com.dew.system.event.events.SendPacketEvent;
+import com.dew.system.event.events.*;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
 import com.dew.system.module.modules.movement.flight.flies.*;
@@ -55,6 +52,12 @@ public class FlightModule extends Module {
     public void onDisable() {
         if (currentMode != null)
             currentMode.onDisable();
+    }
+
+    @Override
+    public void onAttack(AttackEvent event) {
+        if (currentMode != null)
+            currentMode.onAttack(event);
     }
 
     @Override
