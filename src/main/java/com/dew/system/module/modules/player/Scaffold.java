@@ -215,7 +215,7 @@ public class Scaffold extends Module {
             if (jumpTicks <= 3) {
                 if (jumpTicks <= 1) {
                     DewCommon.rotationManager.rotateToward((float) MovementUtil.getDirection(), 80f, 180f, true);
-                    if (mc.thePlayer.posY > 0.0D && mc.thePlayer.onGround && !mc.thePlayer.isSprinting()) {
+                    if (mc.thePlayer.posY > 0.0D && mc.thePlayer.onGround && isNearEdge() && !MovementUtil.isBlockUnderPlayer(mc.thePlayer, 1, 0.2, false)) {
                         mc.thePlayer.jump();
                     }
                 } else if (jumpTicks == 3) {
@@ -391,9 +391,7 @@ public class Scaffold extends Module {
                 }
             }
 
-            if (mc.thePlayer.onGround && isNearEdge() && !MovementUtil.isBlockUnderPlayer(mc.thePlayer, 1, 0.2, false) && !mc.thePlayer.isSprinting()) {
-                mc.thePlayer.jump();
-            } else if (mc.thePlayer.posY > 0.0D && mc.thePlayer.onGround && (mc.thePlayer.isSprinting() || noSprint.get())) {
+            if (mc.thePlayer.posY > 0.0D && mc.thePlayer.onGround && isNearEdge() && !MovementUtil.isBlockUnderPlayer(mc.thePlayer, 1, 0.2, false)) {
                 mc.thePlayer.jump();
             }
         }

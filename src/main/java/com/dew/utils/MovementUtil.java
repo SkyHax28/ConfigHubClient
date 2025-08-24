@@ -145,7 +145,7 @@ public class MovementUtil {
     }
 
     public static void silentRotationStrafe(final StrafeEvent event, final float yaw) {
-        final int dif = (int) ((MathHelper.wrapAngleTo180_float(mc.thePlayer.rotationYaw - yaw - 23.5F - 135.0F) + 180.0F) / 45.0F);
+        final int dif = (int) (((MathHelper.wrapAngleTo180_float(mc.thePlayer.rotationYaw - yaw - 23.5F - 135.0F) + 180.0F) / 45.0F) + 1e-6F) & 7;
         float strafe = event.strafe;
         float forward = event.forward;
         final float friction = event.friction;

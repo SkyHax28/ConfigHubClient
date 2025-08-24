@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
 
 public class Hud extends Module {
 
-    private static final MultiSelectionValue features = new MultiSelectionValue("Features", Arrays.asList("Watermark", "Module List", "Armor Hud", "Potion Hud", "Target Hud", "Hotbar"), "Watermark", "Module List", "Armor Hud", "Potion Hud", "Target Hud", "Hotbar");
+    private static final MultiSelectionValue features = new MultiSelectionValue("Features", Arrays.asList("Watermark", "Module List", "Potion Hud", "Target Hud", "Hotbar"), "Watermark", "Module List", "Potion Hud", "Target Hud", "Hotbar");
     private static final BooleanValue disableAchievementsNotification = new BooleanValue("Disable Achievements Notification", true);
     private final Map<Module, Float> animationProgress = new HashMap<>();
     private long lastRenderTime = System.nanoTime();
@@ -429,21 +429,6 @@ public class Hud extends Module {
                     }
                 }
             }
-        }
-
-        if (features.isSelected("Armor Hud")) {
-            int baseX = sr.getScaledWidth() / 2 + 15;
-            int baseY = sr.getScaledHeight() - 56 + (mc.thePlayer.capabilities.isCreativeMode ? 15 : 0);
-
-            RenderHelper.enableGUIStandardItemLighting();
-            for (int i = 0; i < 4; i++) {
-                ItemStack armorStack = mc.thePlayer.inventory.armorInventory[3 - i];
-                if (armorStack != null) {
-                    mc.getRenderItem().renderItemAndEffectIntoGUI(armorStack, baseX + i * 18, baseY);
-                    mc.getRenderItem().renderItemOverlayIntoGUI(mc.bitFontRendererObj, armorStack, baseX + i * 18, baseY, null);
-                }
-            }
-            RenderHelper.disableStandardItemLighting();
         }
 
         if (features.isSelected("Potion Hud")) {
