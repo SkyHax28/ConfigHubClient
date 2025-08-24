@@ -34,12 +34,17 @@ public class VerusFlight implements FlightMode {
     public void onPreUpdate(PreUpdateEvent event) {
         if (mc.thePlayer == null || mc.theWorld == null) return;
 
+        if (mc.gameSettings.keyBindJump.isKeyDown()) {
+            if (mc.thePlayer.ticksExisted % 2 == 0) {
+                mc.thePlayer.motionY = 0.41999998688698;
+            }
+            return;
+        }
+
         BlockPos downPos = mc.thePlayer.getPosition().add(0.0, -1.5, 0.0);
         PacketUtil.sendPacket(new C08PacketPlayerBlockPlacement(downPos, 1, new ItemStack(Blocks.stone.getItem(mc.theWorld, downPos)), 0.0F, 0.5F + ((float) Math.random()) * 0.44F, 0.0F));
 
         double yMotion = 0;
-        if (mc.gameSettings.keyBindJump.isKeyDown())
-            yMotion += 0.08;
         if (mc.gameSettings.keyBindSneak.isKeyDown())
             yMotion -= 0.08;
 
