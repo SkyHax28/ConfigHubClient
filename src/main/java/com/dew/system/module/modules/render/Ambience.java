@@ -17,7 +17,7 @@ public class Ambience extends Module {
     private static final BooleanValue clearWeather = new BooleanValue("Clear Weather", true);
 
     public Ambience() {
-        super("Ambience", ModuleCategory.RENDER, Keyboard.KEY_NONE, false, true, true);
+        super("Ambience", ModuleCategory.RENDER, Keyboard.KEY_NONE, false, false, true);
     }
 
     @Override

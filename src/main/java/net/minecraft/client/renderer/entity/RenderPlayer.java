@@ -4,6 +4,7 @@ import com.dew.DewCommon;
 import com.dew.IMinecraft;
 import com.dew.system.module.modules.render.Animations;
 import com.dew.system.module.modules.render.NameTags;
+import com.dew.system.module.modules.render.PlayerHighlight;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.model.ModelPlayer;
@@ -60,8 +61,16 @@ public class RenderPlayer extends RendererLivingEntity<AbstractClientPlayer>
                 d0 = y - 0.125D;
             }
 
+            if (DewCommon.moduleManager.getModule(PlayerHighlight.class).isEnabled()) {
+                GlStateManager.disableLighting();
+            }
+
             this.setModelVisibilities(entity);
             super.doRender(entity, x, d0, z, entityYaw, partialTicks);
+
+            if (DewCommon.moduleManager.getModule(PlayerHighlight.class).isEnabled()) {
+                GlStateManager.enableLighting();
+            }
         }
     }
 

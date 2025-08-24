@@ -10,7 +10,7 @@ public class SilentView extends Module {
     public static final SelectionValue mode = new SelectionValue("Mode", "Normal", "Normal", "GameSense");
 
     public SilentView() {
-        super("Silent View", ModuleCategory.RENDER, Keyboard.KEY_NONE, true, true, true);
+        super("Silent View", ModuleCategory.RENDER, Keyboard.KEY_NONE, true, false, true);
     }
 
     @Override

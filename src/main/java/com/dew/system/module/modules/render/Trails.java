@@ -13,12 +13,12 @@ import org.lwjgl.opengl.GL11;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-public class Breadcrumbs extends Module {
+public class Trails extends Module {
 
     private final LinkedList<Point> positions = new LinkedList<>();
     private static final long MAX_DURATION_MS = 1000;
-    public Breadcrumbs() {
-        super("Breadcrumbs", ModuleCategory.RENDER, Keyboard.KEY_NONE, true, false, true);
+    public Trails() {
+        super("Trails", ModuleCategory.RENDER, Keyboard.KEY_NONE, false, false, true);
     }
 
     @Override

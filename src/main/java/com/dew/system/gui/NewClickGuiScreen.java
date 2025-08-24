@@ -15,9 +15,6 @@ public class NewClickGuiScreen extends GuiScreen {
 
     private long lastUpdateTime = System.nanoTime();
 
-    public void updateHeightAnimation() {
-    }
-
     @Override
     public void initGui() {
         windows.clear();

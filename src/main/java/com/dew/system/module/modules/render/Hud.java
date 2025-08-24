@@ -30,10 +30,13 @@ import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.WorldSettings;
+import org.lwjgl.BufferUtils;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL15;
 
 import java.awt.*;
+import java.nio.FloatBuffer;
 import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -176,35 +179,91 @@ public class Hud extends Module {
         }
     }
 
+    private static class BlurCacheKey {
+        final double x, y, width, height;
+        final int passes;
+
+        BlurCacheKey(double x, double y, double width, double height, int passes) {
+            this.x = x; this.y = y; this.width = width; this.height = height; this.passes = passes;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (!(o instanceof BlurCacheKey)) return false;
+            BlurCacheKey k = (BlurCacheKey) o;
+            return x == k.x && y == k.y && width == k.width && height == k.height && passes == k.passes;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(x, y, width, height, passes);
+        }
+    }
+
+    private static class BlurVBO {
+        int vboId;
+        int vertexCount;
+    }
+
+    private static final Map<BlurCacheKey, BlurVBO> blurCache = new HashMap<>();
+
+    private static BlurVBO createBlurVBO(double x, double y, double width, double height, int passes) {
+        BlurVBO blurVBO = new BlurVBO();
+        blurVBO.vertexCount = passes * 4;
+
+        FloatBuffer buffer = BufferUtils.createFloatBuffer(blurVBO.vertexCount * 2);
+
+        for (int i = 0; i < passes; i++) {
+            double offset = i * 0.5;
+            double left   = x - offset;
+            double top    = y - offset;
+            double right  = x + width + offset;
+            double bottom = y + height + offset;
+
+            buffer.put((float) left).put((float) top);
+            buffer.put((float) left).put((float) bottom);
+            buffer.put((float) right).put((float) bottom);
+            buffer.put((float) right).put((float) top);
+        }
+        buffer.flip();
+
+        blurVBO.vboId = GL15.glGenBuffers();
+        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, blurVBO.vboId);
+        GL15.glBufferData(GL15.GL_ARRAY_BUFFER, buffer, GL15.GL_STATIC_DRAW);
+        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
+
+        return blurVBO;
+    }
+
     private static void drawBlurredBackground(double x, double y, double width, double height, int passes, int color) {
+        if (passes <= 0) return;
+
+        BlurCacheKey key = new BlurCacheKey(x, y, width, height, passes);
+        BlurVBO blurVBO = blurCache.computeIfAbsent(key, k -> createBlurVBO(x, y, width, height, passes));
+
+        float alpha = (color >> 24 & 255) / 255.0F;
+        float red   = (color >> 16 & 255) / 255.0F;
+        float green = (color >> 8 & 255) / 255.0F;
+        float blue  = (color & 255) / 255.0F;
+
         GlStateManager.pushMatrix();
         GlStateManager.enableBlend();
         GlStateManager.disableTexture2D();
         GlStateManager.tryBlendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
+        GlStateManager.color(red, green, blue, alpha);
 
-        for (int i = 0; i < passes; i++) {
-            double offset = i * 0.5;
-            drawRect(x - offset, y - offset, x + width + offset, y + height + offset, color);
-        }
+        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, blurVBO.vboId);
+        GL11.glEnableClientState(GL11.GL_VERTEX_ARRAY);
+        GL11.glVertexPointer(2, GL11.GL_FLOAT, 0, 0L);
+
+        GL11.glDrawArrays(GL11.GL_QUADS, 0, blurVBO.vertexCount);
+
+        GL11.glDisableClientState(GL11.GL_VERTEX_ARRAY);
+        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
 
         GlStateManager.enableTexture2D();
         GlStateManager.disableBlend();
         GlStateManager.popMatrix();
-    }
-
-    private static void drawRect(double left, double top, double right, double bottom, int color) {
-        float alpha = (color >> 24 & 255) / 255.0F;
-        float red = (color >> 16 & 255) / 255.0F;
-        float green = (color >> 8 & 255) / 255.0F;
-        float blue = (color & 255) / 255.0F;
-
-        GlStateManager.color(red, green, blue, alpha);
-        GL11.glBegin(GL11.GL_QUADS);
-        GL11.glVertex2d(left, top);
-        GL11.glVertex2d(left, bottom);
-        GL11.glVertex2d(right, bottom);
-        GL11.glVertex2d(right, top);
-        GL11.glEnd();
     }
 
     public boolean disableAchievementsUI() {
@@ -260,7 +319,7 @@ public class Hud extends Module {
             for (int i = 0; i < display.length(); i++) {
                 char c = display.charAt(i);
                 Color accentColor = getHudColor(time, i);
-                fontRenderer.drawStringWithShadow(
+                fontRenderer.drawString(
                         String.valueOf(c),
                         charX,
                         y - 1.5f,
@@ -313,7 +372,7 @@ public class Hud extends Module {
                     float xPos = (sr.getScaledWidth() - combinedTextWidthLerp) / 2f;
 
                     if (!burningText.isEmpty()) {
-                        fontRenderer.drawStringWithShadow(
+                        fontRenderer.drawString(
                                 burningText,
                                 xPos,
                                 y + displayHeight + 1.5f,
@@ -324,7 +383,7 @@ public class Hud extends Module {
                     }
 
                     if (!damageInfo.isEmpty()) {
-                        fontRenderer.drawStringWithShadow(
+                        fontRenderer.drawString(
                                 damageInfo,
                                 xPos,
                                 y + displayHeight + 1.5f,
@@ -335,7 +394,7 @@ public class Hud extends Module {
                     }
 
                     if (!flyInfo.isEmpty()) {
-                        fontRenderer.drawStringWithShadow(
+                        fontRenderer.drawString(
                                 flyInfo,
                                 xPos,
                                 y + displayHeight + 1.5f,
@@ -346,7 +405,7 @@ public class Hud extends Module {
                     }
 
                     if (!blockInfo.isEmpty()) {
-                        fontRenderer.drawStringWithShadow(
+                        fontRenderer.drawString(
                                 blockInfo,
                                 xPos,
                                 y + displayHeight + 1.5f,
@@ -357,7 +416,7 @@ public class Hud extends Module {
                     }
 
                     if (!murdererInfo.isEmpty()) {
-                        fontRenderer.drawStringWithShadow(
+                        fontRenderer.drawString(
                                 murdererInfo,
                                 xPos,
                                 y + displayHeight + 1.5f,
@@ -368,7 +427,7 @@ public class Hud extends Module {
                     }
 
                     if (!breakingInfo.isEmpty()) {
-                        fontRenderer.drawStringWithShadow(
+                        fontRenderer.drawString(
                                 breakingInfo,
                                 xPos,
                                 y + displayHeight + 1.5f,
@@ -379,7 +438,7 @@ public class Hud extends Module {
                     }
 
                     if (!timerInfo.isEmpty()) {
-                        fontRenderer.drawStringWithShadow(
+                        fontRenderer.drawString(
                                 timerInfo,
                                 xPos,
                                 y + displayHeight + 1.5f,
@@ -390,7 +449,7 @@ public class Hud extends Module {
                     }
 
                     if (!blinkInfo.isEmpty()) {
-                        fontRenderer.drawStringWithShadow(
+                        fontRenderer.drawString(
                                 blinkInfo,
                                 xPos,
                                 y + displayHeight + 1.5f,
@@ -401,7 +460,7 @@ public class Hud extends Module {
                     }
 
                     if (!deadInfo.isEmpty()) {
-                        fontRenderer.drawStringWithShadow(
+                        fontRenderer.drawString(
                                 deadInfo,
                                 xPos,
                                 y + displayHeight + 1.5f,
@@ -412,7 +471,7 @@ public class Hud extends Module {
                     }
 
                     if (!spectatingInfo.isEmpty()) {
-                        fontRenderer.drawStringWithShadow(
+                        fontRenderer.drawString(
                                 spectatingInfo,
                                 xPos,
                                 y + displayHeight + 1.5f,

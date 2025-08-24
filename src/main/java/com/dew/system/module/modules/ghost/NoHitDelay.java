@@ -8,7 +8,7 @@ import org.lwjgl.input.Keyboard;
 public class NoHitDelay extends Module {
 
     public NoHitDelay() {
-        super("No Hit Delay", ModuleCategory.GHOST, Keyboard.KEY_NONE, false, true, true);
+        super("No Hit Delay", ModuleCategory.GHOST, Keyboard.KEY_NONE, false, false, true);
     }
 
     @Override

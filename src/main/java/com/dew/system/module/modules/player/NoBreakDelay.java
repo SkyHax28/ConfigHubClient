@@ -8,7 +8,7 @@ import org.lwjgl.input.Keyboard;
 public class NoBreakDelay extends Module {
 
     public NoBreakDelay() {
-        super("No Break Delay", ModuleCategory.PLAYER, Keyboard.KEY_NONE, false, true, true);
+        super("No Break Delay", ModuleCategory.PLAYER, Keyboard.KEY_NONE, false, false, true);
     }
 
     @Override

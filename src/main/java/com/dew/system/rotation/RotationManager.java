@@ -3,6 +3,7 @@ package com.dew.system.rotation;
 import com.dew.DewCommon;
 import com.dew.IMinecraft;
 import com.dew.system.module.modules.combat.Backtrack;
+import com.dew.system.module.modules.combat.RotRandomizer;
 import com.dew.utils.LogUtil;
 import com.dew.utils.MovementUtil;
 import net.minecraft.client.Minecraft;
@@ -268,7 +269,7 @@ public class RotationManager {
     }
 
     public void rotateToward(float targetYaw, float targetPitch, float rotationSpeed, boolean noRotationJitters) {
-        float randomDelta = noRotationJitters ? 0f : getSecureRandom() * 20f;
+        float randomDelta = noRotationJitters ? 0f : DewCommon.moduleManager.getModule(RotRandomizer.class).isRotationSpeed() ? getSecureRandom() * 20f : 0f;
         float adjustedSpeed = rotationSpeed + randomDelta;
 
         float yawDiff = MathHelper.wrapAngleTo180_float(targetYaw - this.clientYaw);
@@ -277,8 +278,12 @@ public class RotationManager {
         float jitter = 20f;
 
         if (!noRotationJitters) {
-            yawDiff += getSecureRandom() * jitter;
-            pitchDiff += getSecureRandom() * (jitter / 2);
+            if (DewCommon.moduleManager.getModule(RotRandomizer.class).isYawJitter()) {
+                yawDiff += getSecureRandom() * jitter;
+            }
+            if (DewCommon.moduleManager.getModule(RotRandomizer.class).isPitchJitter()) {
+                pitchDiff += getSecureRandom() * (jitter / 2);
+            }
         }
 
         yawDiff = MathHelper.clamp_float(yawDiff, -adjustedSpeed, adjustedSpeed);

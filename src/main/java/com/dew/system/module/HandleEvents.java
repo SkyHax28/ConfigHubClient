@@ -16,12 +16,14 @@ import com.dew.utils.LogUtil;
 import com.dew.utils.MovementUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiChat;
+import net.minecraft.client.gui.GuiIngameMenu;
 import net.minecraft.item.ItemSword;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.C01PacketChatMessage;
 import net.minecraft.network.play.client.C0DPacketCloseWindow;
 import net.minecraft.network.play.client.C0FPacketConfirmTransaction;
 import net.minecraft.network.play.server.S08PacketPlayerPosLook;
+import net.minecraft.network.play.server.S2EPacketCloseWindow;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -180,6 +182,10 @@ public class HandleEvents implements EventListener {
         if (mc.thePlayer == null) return;
 
         Packet<?> packet = event.packet;
+
+        if (packet instanceof S2EPacketCloseWindow && (mc.currentScreen instanceof GuiChat || mc.currentScreen instanceof GuiIngameMenu || mc.currentScreen instanceof NewClickGuiScreen || mc.currentScreen instanceof ClickGuiScreen)) {
+            event.cancel();
+        }
 
         if (packet instanceof S08PacketPlayerPosLook) {
             DewCommon.rotationManager.setRotationsInstantly(((S08PacketPlayerPosLook) packet).getYaw(), ((S08PacketPlayerPosLook) packet).getPitch());

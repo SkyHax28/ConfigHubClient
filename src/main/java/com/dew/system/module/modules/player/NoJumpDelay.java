@@ -7,6 +7,6 @@ import org.lwjgl.input.Keyboard;
 public class NoJumpDelay extends Module {
 
     public NoJumpDelay() {
-        super("No Jump Delay", ModuleCategory.PLAYER, Keyboard.KEY_NONE, false, true, true);
+        super("No Jump Delay", ModuleCategory.PLAYER, Keyboard.KEY_NONE, false, false, true);
     }
 }

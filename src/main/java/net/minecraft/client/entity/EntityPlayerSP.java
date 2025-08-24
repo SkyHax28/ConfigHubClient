@@ -2,13 +2,13 @@ package net.minecraft.client.entity;
 
 import com.dew.DewCommon;
 import com.dew.system.event.events.*;
+import com.dew.system.module.modules.exploit.AntiFalseFlag;
 import com.dew.system.module.modules.movement.AutoWalkAI;
 import com.dew.system.module.modules.movement.InvMove;
 import com.dew.system.module.modules.movement.NoSlow;
 import com.dew.system.module.modules.player.Freecam;
 import com.dew.system.module.modules.player.Sprint;
 import com.dew.system.rotation.RotationManager;
-import com.dew.utils.LogUtil;
 import com.dew.utils.PredictUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.MovingSoundMinecartRiding;
@@ -195,7 +195,7 @@ public class EntityPlayerSP extends AbstractClientPlayer
             double d2 = preMotionEvent.z - this.lastReportedPosZ;
             double d3 = yaw - lastReportedYaw;
             double d4 = pitch - lastReportedPitch;
-            boolean flag2 = d0 * d0 + d1 * d1 + d2 * d2 > 9.0E-4D || this.positionUpdateTicks >= 20;
+            boolean flag2 = d0 * d0 + d1 * d1 + d2 * d2 > (DewCommon.moduleManager.getModule(AntiFalseFlag.class).isEnabled() ? 0.0 : 9.0E-4D) || this.positionUpdateTicks >= 20;
             boolean flag3 = d3 != 0.0D || d4 != 0.0D;
 
             if (this.ridingEntity == null)

@@ -17,13 +17,13 @@ import org.lwjgl.opengl.GL11;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ColorBlindnessAssistant extends Module {
+public class PixelPartyAssist extends Module {
 
     private final List<BlockPos> renderBlocks = new ArrayList<>();
     private int targetColorMeta = -1;
 
-    public ColorBlindnessAssistant() {
-        super("Color Blindness Assistant", ModuleCategory.GHOST, Keyboard.KEY_NONE, false, true, true);
+    public PixelPartyAssist() {
+        super("Pixel Party Assist", ModuleCategory.GHOST, Keyboard.KEY_NONE, false, true, true);
     }
 
     @Override

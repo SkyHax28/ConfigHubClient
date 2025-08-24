@@ -6,6 +6,7 @@ import com.dew.system.event.events.PostUpdateEvent;
 import com.dew.system.event.events.PreUpdateEvent;
 import com.dew.system.module.modules.combat.Aura;
 import com.dew.system.module.modules.combat.TargetStrafe;
+import com.dew.system.module.modules.movement.HighJump;
 import com.dew.system.module.modules.movement.MoveFix;
 import com.dew.system.module.modules.movement.Spider;
 import com.dew.system.module.modules.movement.flight.FlightModule;
@@ -1351,7 +1352,14 @@ public abstract class EntityLivingBase extends Entity
 
     public float getJumpUpwardsMotion()
     {
-        return 0.42F;
+        float height = 0.42F;
+
+        HighJump highJumpModule = DewCommon.moduleManager.getModule(HighJump.class);
+        if (this instanceof EntityPlayerSP && highJumpModule.isEnabled() && highJumpModule.getMode().equals("Vanilla")) {
+            height *= highJumpModule.getMultiplier();
+        }
+
+        return height;
     }
 
     protected void jump()
