@@ -366,7 +366,7 @@ public class ItemRenderer
             ItemStack toRender = itemRenderEvent.itemToRender;
 
             if (toRender != this.itemToRender) {
-                f /= 2f;
+                f = 0f;
             }
 
             if (toRender != null) {

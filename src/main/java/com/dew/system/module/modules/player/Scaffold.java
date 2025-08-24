@@ -220,7 +220,7 @@ public class Scaffold extends Module {
                     }
                 } else if (jumpTicks == 3) {
                     if (hypixelTellyBanFix.get()) {
-                        DewCommon.rotationManager.rotateToward((float) (MovementUtil.getDirection() + 180f), 80f, 60f, true);
+                        DewCommon.rotationManager.rotateToward((float) (MovementUtil.getDirection() + 180f), 80f, 40f, true);
                     } else {
                         DewCommon.rotationManager.rotateToward((float) (MovementUtil.getDirection() + 180f), 80f, tellyPreRotationSpeed.get().floatValue(), true);
                     }
@@ -385,7 +385,7 @@ public class Scaffold extends Module {
                 DewCommon.rotationManager.rotateToward((float) MovementUtil.getDirection(), 80f, 180f, true);
             } else if (jumpTicks == 3) {
                 if (hypixelTellyBanFix.get()) {
-                    DewCommon.rotationManager.faceBlockHypixelSafe(60f, false);
+                    DewCommon.rotationManager.faceBlockHypixelSafe(40f, false);
                 } else {
                     DewCommon.rotationManager.rotateToward((float) (MovementUtil.getDirection() + 180f), 80f, tellyPreRotationSpeed.get().floatValue(), true);
                 }

@@ -119,7 +119,7 @@ public class Breaker extends Module {
                     bedWhitelist.clear();
                 }
             } else {
-                if (mc.thePlayer.ticksExisted % 50 == 0) {
+                if (mc.thePlayer.ticksExisted % 50 == 0 || mc.thePlayer.ticksExisted <= 20) {
                     this.addNearestBedToWhitelist();
                 }
             }

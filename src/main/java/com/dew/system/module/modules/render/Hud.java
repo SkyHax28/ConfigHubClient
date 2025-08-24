@@ -146,18 +146,23 @@ public class Hud extends Module {
                     new Color(bgColor.getRed(), bgColor.getGreen(), bgColor.getBlue(), softAlpha).getRGB()
             );
 
-            float xMultiplier = 3f;
+            float xMultiplier = 2.5f;
+
+            int barColor;
+            int r = Math.min(255, accentColor.getRed() + 40);
+            int g = Math.min(255, accentColor.getGreen() + 40);
+            int b = Math.min(255, accentColor.getBlue() + 40);
+            barColor = new Color(r, g, b, alpha).getRGB();
+
+            drawBlurredBackground(bgLeft + 1, bgTop + 1.5, 0.1, 12, 2, barColor);
 
             if (!tag.isEmpty()) {
                 float tagWidth = fontRenderer.getStringWidth(" " + tag, fontSize);
                 float nameWidth = fontRenderer.getStringWidth(moduleName, fontSize);
-
                 float tagX = rightEdgeX - tagWidth;
                 float nameX = tagX - nameWidth;
-
                 Color nameColor = new Color(accentColor.getRed(), accentColor.getGreen(), accentColor.getBlue(), alpha);
                 Color tagColor = new Color(150, 150, 150, alpha);
-
                 fontRenderer.drawStringWithShadow(moduleName, nameX - xMultiplier, finalY - 0.5f, nameColor.getRGB(), fontSize);
                 fontRenderer.drawStringWithShadow(" " + tag, tagX - xMultiplier, finalY - 0.5f, tagColor.getRGB(), fontSize);
             } else {
