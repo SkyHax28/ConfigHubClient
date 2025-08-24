@@ -39,7 +39,7 @@ public class BlocksMCSpeed implements SpeedMode {
         if (MovementUtil.isMoving()) {
             if (mc.thePlayer.onGround) {
                 mc.thePlayer.jump();
-                MovementUtil.strafe((float) Math.max(0.41f + MovementUtil.getSpeedEffect() * 0.1, MovementUtil.getBaseMoveSpeed(0.2873)));
+                MovementUtil.strafe((float) Math.max(0.41f + MovementUtil.getSpeedEffect() * 0.1, MovementUtil.getBaseMoveSpeed(0.2773)));
             } else {
                 MovementUtil.strafe(MovementUtil.getSpeed());
             }

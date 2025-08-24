@@ -2,6 +2,7 @@ package com.dew.system.module.modules.render;
 
 import com.dew.DewCommon;
 import com.dew.system.event.events.Render2DEvent;
+import com.dew.system.event.events.WorldLoadEvent;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
 import com.dew.system.module.modules.combat.Aura;
@@ -55,9 +56,20 @@ public class Hud extends Module {
     private boolean targetHudVisible = false;
     private float targetHudAnimationProgress = 0f;
     private boolean moduleListDirty = true;
+    private static final Map<BlurCacheKey, BlurVBO> blurCache = new HashMap<>();
     private static final ResourceLocation INVENTORY_TEXTURE = new ResourceLocation("textures/gui/container/inventory.png");
     public Hud() {
         super("Hud", ModuleCategory.RENDER, Keyboard.KEY_NONE, true, false, true);
+    }
+
+    @Override
+    public void onDisable() {
+        blurCache.clear();
+    }
+
+    @Override
+    public void onLoadWorld(WorldLoadEvent event) {
+        blurCache.clear();
     }
 
     public void markModuleListDirty() {
@@ -204,8 +216,6 @@ public class Hud extends Module {
         int vboId;
         int vertexCount;
     }
-
-    private static final Map<BlurCacheKey, BlurVBO> blurCache = new HashMap<>();
 
     private static BlurVBO createBlurVBO(double x, double y, double width, double height, int passes) {
         BlurVBO blurVBO = new BlurVBO();
