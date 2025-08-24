@@ -44,7 +44,7 @@ public class Scaffold extends Module {
     private static final SelectionValue edgeSafeMode = new SelectionValue("Edge Safe Mode", "OFF", "OFF", "Safewalk", "Sneak");
     public static final BooleanValue preferHighestStack = new BooleanValue("Prefer Highest Stack", true);
     public static final BooleanValue noSprint = new BooleanValue("No Sprint", false);
-    public static final BooleanValue autoTellyEdgeSneak = new BooleanValue("Auto Telly Edge Sneak", false);
+    public static final BooleanValue autoTellyEdgeSneak = new BooleanValue("Auto Telly Edge Sneak", false, () -> mode.get().equals("Telly"));
     private final EnumFacing[] facingsArray = EnumFacing.values();
     public boolean holdingBlock = false;
     public boolean jumped = false;
