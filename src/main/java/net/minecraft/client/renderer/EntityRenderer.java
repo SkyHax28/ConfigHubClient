@@ -2,10 +2,7 @@ package net.minecraft.client.renderer;
 
 import com.dew.DewCommon;
 import com.dew.system.event.events.Render3DEvent;
-import com.dew.system.module.modules.render.CameraNoClip;
-import com.dew.system.module.modules.render.Fullbright;
-import com.dew.system.module.modules.render.NoHurtCam;
-import com.dew.system.module.modules.render.Xray;
+import com.dew.system.module.modules.render.*;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.gson.JsonSyntaxException;
@@ -842,10 +839,10 @@ public class EntityRenderer implements IResourceManagerReloadListener
 
         this.hurtCameraEffect(partialTicks);
 
-        /*if (this.mc.gameSettings.viewBobbing)
+        if (this.mc.gameSettings.viewBobbing && !DewCommon.moduleManager.getModule(MinimalBobbing.class).isEnabled())
         {
             this.setupViewBobbing(partialTicks);
-        }*/
+        }
 
         float f1 = this.mc.thePlayer.prevTimeInPortal + (this.mc.thePlayer.timeInPortal - this.mc.thePlayer.prevTimeInPortal) * partialTicks;
 
