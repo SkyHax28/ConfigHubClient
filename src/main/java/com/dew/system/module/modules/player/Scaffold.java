@@ -260,7 +260,7 @@ public class Scaffold extends Module {
     }
 
     private void search(BlockPos below) {
-        int playerY = (int) Math.floor(mc.thePlayer.posY);
+        int playerY = (int) mc.thePlayer.posY - 1;
         if (!mc.theWorld.getBlockState(below).getBlock().isReplaceable(mc.theWorld, below) || below.getY() > playerY) return;
 
         PlaceResult result = tryPlaceBlock(below);
@@ -339,7 +339,7 @@ public class Scaffold extends Module {
                     if (MovementUtil.isMoving()) {
                         mc.thePlayer.motionY = 0.5;
                     } else {
-                        mc.thePlayer.motionY = 0.8;
+                        mc.thePlayer.motionY = 1;
                         MovementUtil.stopMovingQuickly();
                     }
                     break;
@@ -391,9 +391,7 @@ public class Scaffold extends Module {
                 }
             }
 
-            if (mc.thePlayer.onGround && isNearEdge() && !mc.thePlayer.isSprinting()) {
-                keepY = (int) mc.thePlayer.posY + 1;
-                mc.thePlayer.setSprinting(true);
+            if (mc.thePlayer.onGround && isNearEdge() && !MovementUtil.isBlockUnderPlayer(mc.thePlayer, 1, 0.2, false) && !mc.thePlayer.isSprinting()) {
                 mc.thePlayer.jump();
             } else if (mc.thePlayer.posY > 0.0D && mc.thePlayer.onGround && (mc.thePlayer.isSprinting() || noSprint.get())) {
                 mc.thePlayer.jump();
@@ -620,6 +618,10 @@ public class Scaffold extends Module {
 
         for (EnumFacing facing : orderedFacings) {
             BlockPos neighbor = pos.offset(facing);
+
+            int playerY = (int) mc.thePlayer.posY - 1;
+            if (neighbor.getY() > playerY) continue;
+
             IBlockState state = mc.theWorld.getBlockState(neighbor);
             Block block = state.getBlock();
 
@@ -628,7 +630,7 @@ public class Scaffold extends Module {
             EnumFacing opposite = facing.getOpposite();
 
             double hitX = neighbor.getX() + 0.5 + 0.5 * opposite.getFrontOffsetX();
-            double hitY = neighbor.getY() + 0.5 + 0.5 * opposite.getFrontOffsetY();
+            double hitY = neighbor.getY() + 0.5 + ((float) Math.random()) * 0.44F;
             double hitZ = neighbor.getZ() + 0.5 + 0.5 * opposite.getFrontOffsetZ();
             Vec3 hitVec = new Vec3(hitX, hitY, hitZ);
 

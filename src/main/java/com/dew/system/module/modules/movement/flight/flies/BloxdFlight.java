@@ -41,6 +41,10 @@ public class BloxdFlight implements FlightMode {
     }
 
     @Override
+    public void onBlockBB(BlockBBEvent event) {
+    }
+
+    @Override
     public void onSendPacket(SendPacketEvent event) {
         if (mc.thePlayer == null || mc.theWorld == null) return;
 

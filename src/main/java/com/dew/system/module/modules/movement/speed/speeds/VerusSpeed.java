@@ -8,6 +8,7 @@ import com.dew.system.module.modules.movement.speed.SpeedMode;
 import com.dew.system.module.modules.movement.speed.SpeedModule;
 import com.dew.utils.MovementUtil;
 import com.dew.utils.PacketUtil;
+import net.minecraft.block.BlockAir;
 import net.minecraft.block.BlockIce;
 import net.minecraft.block.BlockPackedIce;
 import net.minecraft.init.Blocks;
@@ -16,6 +17,7 @@ import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement;
 import net.minecraft.network.play.server.S08PacketPlayerPosLook;
 import net.minecraft.potion.Potion;
+import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
 
 public class VerusSpeed implements SpeedMode {
@@ -52,11 +54,18 @@ public class VerusSpeed implements SpeedMode {
 
     @Override
     public void onPreMotion(PreMotionEvent event) {
+        if (mc.thePlayer == null || mc.thePlayer.isInWater() || DewCommon.moduleManager.getModule(FlightModule.class).isEnabled()) return;
+
+        if (!mc.thePlayer.onGround && allowTick <= 0) {
+            MovementUtil.strafe(0.3f);
+        }
     }
 
     @Override
     public void onMove(MoveEvent event) {
-        if (mc.thePlayer == null || mc.thePlayer.isInWater() || DewCommon.moduleManager.getModule(FlightModule.class).isEnabled() || mc.theWorld.getBlockState(mc.thePlayer.getPosition().down()).getBlock() instanceof BlockIce || mc.theWorld.getBlockState(mc.thePlayer.getPosition().down()).getBlock() instanceof BlockPackedIce) return;
+        if (mc.thePlayer == null || mc.thePlayer.isInWater() || DewCommon.moduleManager.getModule(FlightModule.class).isEnabled()) return;
+
+        MovementUtil.mcJumpNoBoost = true;
 
         if (!mc.thePlayer.onGround) {
             if (allowTick > 0) {
@@ -70,8 +79,6 @@ public class VerusSpeed implements SpeedMode {
                 } else {
                     MovementUtil.strafe(0.52f);
                 }
-            } else {
-                MovementUtil.strafe(0.2f);
             }
         } else if (MovementUtil.isMoving()) {
             BlockPos downPos = mc.thePlayer.getPosition().add(0.0, -1.5, 0.0);
@@ -90,6 +97,18 @@ public class VerusSpeed implements SpeedMode {
                 MovementUtil.strafe(0.69F);
             }
             event.y = 0.0;
+        }
+    }
+
+    @Override
+    public void onBlockBB(BlockBBEvent event) {
+        if (mc.thePlayer == null || mc.theWorld == null) return;
+
+        if (event.blockPos.getY() == mc.thePlayer.getPosition().down().getY() && (mc.theWorld.getBlockState(mc.thePlayer.getPosition().down()).getBlock() instanceof BlockIce || mc.theWorld.getBlockState(mc.thePlayer.getPosition().down()).getBlock() instanceof BlockPackedIce)) {
+            int x = event.blockPos.getX();
+            int y = event.blockPos.getY();
+            int z = event.blockPos.getZ();
+            event.boundingBox = new AxisAlignedBB(x, y, z, x + 1, y + 1, z + 1);
         }
     }
 

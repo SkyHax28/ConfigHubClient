@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Random;
 
 import com.dew.DewCommon;
+import com.dew.system.event.events.BlockBBEvent;
+import com.dew.system.event.events.StrafeEvent;
 import com.dew.system.module.modules.render.Xray;
 import net.minecraft.block.material.MapColor;
 import net.minecraft.block.material.Material;
@@ -394,6 +396,12 @@ public class Block
     public void addCollisionBoxesToList(World worldIn, BlockPos pos, IBlockState state, AxisAlignedBB mask, List<AxisAlignedBB> list, Entity collidingEntity)
     {
         AxisAlignedBB axisalignedbb = this.getCollisionBoundingBox(worldIn, pos, state);
+
+        BlockBBEvent event = new BlockBBEvent(pos, blockState.getBlock(), axisalignedbb);
+        DewCommon.eventManager.call(event);
+        axisalignedbb = event.boundingBox;
+
+        if (event.isCancelled()) return;
 
         if (axisalignedbb != null && mask.intersectsWith(axisalignedbb))
         {

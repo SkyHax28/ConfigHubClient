@@ -21,5 +21,7 @@ public interface SpeedMode {
 
     void onMove(MoveEvent event);
 
+    void onBlockBB(BlockBBEvent event);
+
     void onReceivedPacket(ReceivedPacketEvent event);
 }

@@ -8,6 +8,7 @@ import com.dew.system.event.events.WorldLoadEvent;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
 import com.dew.system.module.modules.exploit.SafetySwitchv2000;
+import com.dew.system.module.modules.movement.Step;
 import com.dew.system.module.modules.movement.flight.FlightModule;
 import com.dew.system.module.modules.movement.speed.SpeedModule;
 import com.dew.system.module.modules.player.AutoTool;
@@ -451,7 +452,7 @@ public class Aura extends Module {
         EnumFacing opposite = placeFacing.getOpposite();
 
         double hitX = neighbor.getX() + 0.5 + 0.5 * opposite.getFrontOffsetX();
-        double hitY = neighbor.getY() + 0.5 + 0.5 * opposite.getFrontOffsetY();
+        double hitY = neighbor.getY() + 0.5 + ((float) Math.random()) * 0.44F;
         double hitZ = neighbor.getZ() + 0.5 + 0.5 * opposite.getFrontOffsetZ();
         net.minecraft.util.Vec3 hitVec = new net.minecraft.util.Vec3(hitX, hitY, hitZ);
 

@@ -177,6 +177,10 @@ public class HypixelSpeed implements SpeedMode {
     }
 
     @Override
+    public void onBlockBB(BlockBBEvent event) {
+    }
+
+    @Override
     public void onReceivedPacket(ReceivedPacketEvent event) {
         if (mc.thePlayer == null) return;
 

@@ -19,6 +19,8 @@ public interface FlightMode {
 
     void onPreMotion(PreMotionEvent event);
 
+    void onBlockBB(BlockBBEvent event);
+
     void onSendPacket(SendPacketEvent event);
 
     void onReceivedPacket(ReceivedPacketEvent event);

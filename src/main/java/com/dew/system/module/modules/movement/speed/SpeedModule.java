@@ -103,6 +103,12 @@ public class SpeedModule extends Module {
     }
 
     @Override
+    public void onBlockBB(BlockBBEvent event) {
+        if (currentMode != null)
+            currentMode.onBlockBB(event);
+    }
+
+    @Override
     public void onReceivedPacket(ReceivedPacketEvent event) {
         if (currentMode != null)
             currentMode.onReceivedPacket(event);

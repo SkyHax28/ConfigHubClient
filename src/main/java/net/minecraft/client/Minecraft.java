@@ -1339,6 +1339,7 @@ public class Minecraft implements IThreadListener, IPlayerUsage
 
     public void shutdown()
     {
+        DewCommon.mongoManager.shutdown();
         this.running = false;
     }
 

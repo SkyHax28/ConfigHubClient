@@ -39,6 +39,10 @@ public class BloxdSpeed implements SpeedMode {
     }
 
     @Override
+    public void onBlockBB(BlockBBEvent event) {
+    }
+
+    @Override
     public void onReceivedPacket(ReceivedPacketEvent event) {
     }
 }

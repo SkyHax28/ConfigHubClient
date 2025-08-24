@@ -1,5 +1,6 @@
 package com.dew.system.module.modules.movement;
 
+import com.dew.system.event.events.AttackEvent;
 import com.dew.system.event.events.PreMotionEvent;
 import com.dew.system.event.events.WorldLoadEvent;
 import com.dew.system.module.Module;
@@ -9,7 +10,11 @@ import com.dew.system.settingsvalue.SelectionValue;
 import com.dew.utils.MovementUtil;
 import com.dew.utils.PacketUtil;
 import com.dew.utils.TimerUtil;
+import net.minecraft.init.Blocks;
+import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.client.C03PacketPlayer;
+import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement;
+import net.minecraft.util.BlockPos;
 import org.lwjgl.input.Keyboard;
 
 public class Step extends Module {
@@ -20,6 +25,10 @@ public class Step extends Module {
 
     public Step() {
         super("Step", ModuleCategory.MOVEMENT, Keyboard.KEY_NONE, false, true, true);
+    }
+
+    private boolean isStepping() {
+        return ticksSinceLastStep != -1;
     }
 
     @Override
@@ -73,12 +82,18 @@ public class Step extends Module {
 
         MovementUtil.fakeJump();
 
-        if (mode.get().equals("NCP")) {
-            PacketUtil.sendPacket(new C03PacketPlayer.C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY + 0.41999998688698, mc.thePlayer.posZ, false));
-            PacketUtil.sendPacket(new C03PacketPlayer.C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY + 0.7531999805212, mc.thePlayer.posZ, false));
+        switch (mode.get().toLowerCase()) {
+            case "normal":
+                TimerUtil.setTimerSpeed(timerSpeed.get().floatValue());
+                break;
+
+            case "ncp":
+                PacketUtil.sendPacket(new C03PacketPlayer.C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY + 0.41999998688698, mc.thePlayer.posZ, false));
+                PacketUtil.sendPacket(new C03PacketPlayer.C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY + 0.7531999805212, mc.thePlayer.posZ, false));
+                TimerUtil.setTimerSpeed(timerSpeed.get().floatValue());
+                break;
         }
 
-        TimerUtil.setTimerSpeed(timerSpeed.get().floatValue());
         ticksSinceLastStep = 0;
     }
 }

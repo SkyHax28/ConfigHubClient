@@ -84,6 +84,12 @@ public class FlightModule extends Module {
     }
 
     @Override
+    public void onBlockBB(BlockBBEvent event) {
+        if (currentMode != null)
+            currentMode.onBlockBB(event);
+    }
+
+    @Override
     public void onSendPacket(SendPacketEvent event) {
         if (currentMode != null)
             currentMode.onSendPacket(event);

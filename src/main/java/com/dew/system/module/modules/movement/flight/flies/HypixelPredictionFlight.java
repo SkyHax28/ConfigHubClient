@@ -35,6 +35,10 @@ public class HypixelPredictionFlight implements FlightMode {
     }
 
     @Override
+    public void onBlockBB(BlockBBEvent event) {
+    }
+
+    @Override
     public void onSendPacket(SendPacketEvent event) {
     }
 

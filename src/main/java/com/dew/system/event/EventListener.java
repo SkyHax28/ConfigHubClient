@@ -80,4 +80,7 @@ public interface EventListener {
 
     default void onGuiConnecting(GuiConnectingEventActionPerformed event) {
     }
+
+    default void onBlockBB(BlockBBEvent event) {
+    }
 }
