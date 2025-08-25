@@ -7,6 +7,7 @@ import java.util.Queue;
 import java.util.Set;
 
 import com.dew.DewCommon;
+import com.dew.system.module.modules.movement.flight.FlightModule;
 import com.dew.system.module.modules.player.Freecam;
 import com.dew.system.module.modules.render.Xray;
 import net.minecraft.util.BlockPos;
@@ -24,7 +25,7 @@ public class VisGraph
 
     public void func_178606_a(BlockPos pos)
     {
-        if (DewCommon.moduleManager.getModule(Xray.class).isEnabled() || DewCommon.moduleManager.getModule(Freecam.class).isEnabled()) {
+        if (DewCommon.moduleManager.getModule(Xray.class).isEnabled() || DewCommon.moduleManager.getModule(Freecam.class).isEnabled() || DewCommon.moduleManager.getModule(FlightModule.class).isEnabled() && DewCommon.moduleManager.getModule(FlightModule.class).getMode().equals("No Clip")) {
             return;
         }
 
@@ -44,7 +45,7 @@ public class VisGraph
 
     public SetVisibility computeVisibility() {
         SetVisibility setvisibility = new SetVisibility();
-        if (DewCommon.moduleManager.getModule(Xray.class).isEnabled() || DewCommon.moduleManager.getModule(Freecam.class).isEnabled()) {
+        if (DewCommon.moduleManager.getModule(Xray.class).isEnabled() || DewCommon.moduleManager.getModule(Freecam.class).isEnabled() || DewCommon.moduleManager.getModule(FlightModule.class).isEnabled() && DewCommon.moduleManager.getModule(FlightModule.class).getMode().equals("No Clip")) {
             setvisibility.setAllVisible(true);
             return setvisibility;
         }

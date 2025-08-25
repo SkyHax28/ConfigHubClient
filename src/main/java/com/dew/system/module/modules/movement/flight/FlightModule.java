@@ -13,9 +13,9 @@ import java.util.Map;
 
 public class FlightModule extends Module {
 
-    private static final SelectionValue mode = new SelectionValue("Mode", "Vanilla", "Vanilla", "Hypixel Prediction", "Bloxd", "Verus", "Test");
-    public static final NumberValue horizontalSpeed = new NumberValue("Horizontal Speed", 3, 0.1, 10.0, 0.1, () -> mode.get().equals("Vanilla"));
-    public static final NumberValue verticalSpeed = new NumberValue("Vertical Speed", 2, 0.1, 10.0, 0.1, () -> mode.get().equals("Vanilla"));
+    private static final SelectionValue mode = new SelectionValue("Mode", "Vanilla", "Vanilla", "No Clip", "Hypixel Prediction", "Bloxd", "Verus", "Test");
+    public static final NumberValue horizontalSpeed = new NumberValue("Horizontal Speed", 3, 0.1, 10.0, 0.1, () -> mode.get().equals("Vanilla") || mode.get().equals("No Clip"));
+    public static final NumberValue verticalSpeed = new NumberValue("Vertical Speed", 2, 0.1, 10.0, 0.1, () -> mode.get().equals("Vanilla") || mode.get().equals("No Clip"));
     private final Map<String, FlightMode> modes = new HashMap<>();
     private FlightMode currentMode = null;
     private String lastModeName = null;
@@ -24,6 +24,7 @@ public class FlightModule extends Module {
         super("Flight", ModuleCategory.MOVEMENT, Keyboard.KEY_NONE, false, true, true);
 
         modes.put("Vanilla", new VanillaFlight());
+        modes.put("No Clip", new NoClipFlight());
         modes.put("Hypixel Prediction", new HypixelPredictionFlight());
         modes.put("Bloxd", new BloxdFlight());
         modes.put("Verus", new VerusFlight());

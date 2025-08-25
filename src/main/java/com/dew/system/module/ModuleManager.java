@@ -39,7 +39,7 @@ public class ModuleManager implements EventListener {
                 new Spider(), new BarrierVision(), new Trails(), new AutoAuth(),
                 new AutoExtinguish(), new QuakeAura(), new AutoAimPractice(), new Jesus(),
                 new MinimalBobbing(), new AntiFalseFlag(), new PlayerHighlight(), new RotRandomizer(),
-                new HighJump(), new Timer()
+                new HighJump(), new Timer(), new ViaCollision(), new Plugins()
         ));
 
         DewCommon.eventManager.register(this);

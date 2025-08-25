@@ -1,7 +1,10 @@
 package net.minecraft.entity.player;
 
 import com.dew.DewCommon;
+import com.dew.IMinecraft;
 import com.dew.system.module.modules.player.KeepSprint;
+import com.dew.system.viapatcher.PlayerFixer;
+import com.dew.utils.Lerper;
 import com.dew.utils.MovementUtil;
 import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
@@ -2032,6 +2035,10 @@ public abstract class EntityPlayer extends EntityLivingBase
 
     public float getEyeHeight()
     {
+        if (this instanceof EntityPlayerSP) {
+            return Lerper.lerp(PlayerFixer.lastEyeHeight, PlayerFixer.eyeHeight, IMinecraft.mc.timer.renderPartialTicks);
+        }
+
         float f = 1.62F;
 
         if (this.isPlayerSleeping())

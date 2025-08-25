@@ -70,7 +70,13 @@ public abstract class Module implements EventListener {
     }
 
     public void setState(boolean state) {
-        if (this.enabled == state || !this.canBeEnabled) return;
+        if (this.enabled == state) return;
+
+        if (!this.canBeEnabled) {
+            this.onEnable();
+            this.onDisable();
+            return;
+        }
 
         if (state) {
             DewCommon.eventManager.register(this);

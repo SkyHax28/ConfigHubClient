@@ -1,8 +1,5 @@
 package net.minecraft.client.network;
 
-import com.dew.DewCommon;
-import com.dew.system.module.modules.exploit.AntiExploit;
-import com.dew.utils.LogUtil;
 import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -12,11 +9,6 @@ import de.florianmichael.vialoadingbase.ViaLoadingBase;
 import io.netty.buffer.Unpooled;
 import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -1543,43 +1535,8 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient
         this.gameController.theWorld.playSound(packetIn.getX(), packetIn.getY(), packetIn.getZ(), packetIn.getSoundName(), packetIn.getVolume(), packetIn.getPitch(), false);
     }
 
-    private boolean validateResourcePackUrl(S48PacketResourcePackSend packet) {
-        try {
-            String url = packet.getURL();
-            final URI uri = new URI(url);
-            final String scheme = uri.getScheme();
-            final boolean isLevelProtocol = "level".equals(scheme);
-
-            if (!"http".equals(scheme) && !"https".equals(scheme) && !isLevelProtocol) {
-                return true;
-            }
-
-            if (isLevelProtocol) {
-                if (!url.toLowerCase().startsWith("level://") || url.length() <= "level://".length()) {
-                    return false;
-                }
-
-                String path = url.substring("level://".length());
-                path = URLDecoder.decode(path, StandardCharsets.UTF_8.name());
-
-                if (path.contains("..") || !path.endsWith("/resources.zip")) {
-                    throw new URISyntaxException(path, "Invalid levelstorage resourcepack path");
-                }
-            }
-
-            return true;
-        } catch (Exception e) {
-            LogUtil.infoLog(e.getMessage());
-            return false;
-        }
-    }
-
     public void handleResourcePack(S48PacketResourcePackSend packetIn)
     {
-        if (DewCommon.moduleManager.getModule(AntiExploit.class).isEnabled() && DewCommon.handleEvents.isWorldFullLoaded() && !this.validateResourcePackUrl(packetIn)) {
-            return;
-        }
-
         final String s = packetIn.getURL();
         final String s1 = packetIn.getHash();
 

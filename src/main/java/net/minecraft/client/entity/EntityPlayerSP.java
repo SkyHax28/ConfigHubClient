@@ -9,6 +9,7 @@ import com.dew.system.module.modules.movement.NoSlow;
 import com.dew.system.module.modules.player.Freecam;
 import com.dew.system.module.modules.player.Sprint;
 import com.dew.system.rotation.RotationManager;
+import com.dew.system.viapatcher.PlayerFixer;
 import com.dew.utils.PredictUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.MovingSoundMinecartRiding;
@@ -142,6 +143,7 @@ public class EntityPlayerSP extends AbstractClientPlayer
 
     public void onUpdateWalkingPlayer()
     {
+        PlayerFixer.handleEyeYHeight();
         if (PredictUtil.predicting && PredictUtil.isSp) return;
 
         RotationManager rotationManager = DewCommon.rotationManager;
@@ -382,6 +384,10 @@ public class EntityPlayerSP extends AbstractClientPlayer
 
     protected boolean pushOutOfBlocks(double x, double y, double z)
     {
+        if (PlayerFixer.shouldNotPushout()) {
+            return false;
+        }
+
         if (this.noClip)
         {
             return false;
@@ -628,6 +634,8 @@ public class EntityPlayerSP extends AbstractClientPlayer
 
     public void onLivingUpdate()
     {
+        PlayerFixer.handlePlayerSize();
+
         if (DewCommon.moduleManager.getModule(InvMove.class).canMoveFreely() && (!DewCommon.moduleManager.getModule(Freecam.class).isEnabled() && !DewCommon.moduleManager.getModule(AutoWalkAI.class).isEnabled() || mc.currentScreen != null)) {
             List<KeyBinding> movementKeys = Arrays.asList(
                     mc.gameSettings.keyBindForward,

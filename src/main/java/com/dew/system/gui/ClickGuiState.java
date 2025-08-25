@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class ClickGuiState {
-    public static final int NEW_GUI_WIDTH = 120;
+    public static final int NEW_GUI_WIDTH = 110;
     public static final Map<ModuleCategory, WindowState> windowStates = new HashMap<>();
     public static int x = 50;
     public static int y = 50;

@@ -3,6 +3,8 @@ package net.minecraft.client.renderer;
 import com.dew.DewCommon;
 import com.dew.system.event.events.Render3DEvent;
 import com.dew.system.module.modules.render.*;
+import com.dew.system.viapatcher.PlayerFixer;
+import com.dew.utils.Lerper;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.gson.JsonSyntaxException;
@@ -21,6 +23,7 @@ import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.GuiChat;
 import net.minecraft.client.gui.GuiDownloadTerrain;
 import net.minecraft.client.gui.GuiMainMenu;
@@ -319,8 +322,17 @@ public class EntityRenderer implements IResourceManagerReloadListener
         }
     }
 
+    private float viaCollision$height;
+    private float viaCollision$previousHeight;
+    private float animatedEyeHeight;
+
     public void updateRenderer()
     {
+        float eyeHeight = PlayerFixer.eyeHeight;
+        viaCollision$previousHeight = viaCollision$height;
+        viaCollision$height = eyeHeight < viaCollision$height ? eyeHeight : viaCollision$height + ((eyeHeight - viaCollision$height) * 0.5f);
+        animatedEyeHeight = viaCollision$height;
+
         if (OpenGlHelper.shadersSupported && ShaderLinkHelper.getStaticShaderLinkHelper() == null)
         {
             ShaderLinkHelper.setNewStaticShaderLinkHelper();
@@ -656,7 +668,7 @@ public class EntityRenderer implements IResourceManagerReloadListener
     private void orientCamera(float partialTicks)
     {
         Entity entity = this.mc.getRenderViewEntity();
-        float f = entity.getEyeHeight();
+        float f = this.mc.getRenderViewEntity() instanceof EntityPlayerSP ? Lerper.lerp(viaCollision$previousHeight, viaCollision$height, partialTicks) : entity.getEyeHeight();
         double d0 = entity.prevPosX + (entity.posX - entity.prevPosX) * (double)partialTicks;
         double d1 = entity.prevPosY + (entity.posY - entity.prevPosY) * (double)partialTicks + (double)f;
         double d2 = entity.prevPosZ + (entity.posZ - entity.prevPosZ) * (double)partialTicks;

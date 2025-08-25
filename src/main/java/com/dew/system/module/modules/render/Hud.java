@@ -1,21 +1,26 @@
 package com.dew.system.module.modules.render;
 
 import com.dew.DewCommon;
+import com.dew.IMinecraft;
 import com.dew.system.event.events.Render2DEvent;
 import com.dew.system.event.events.WorldLoadEvent;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
 import com.dew.system.module.modules.combat.Aura;
 import com.dew.system.module.modules.exploit.MurdererDetector;
+import com.dew.system.module.modules.exploit.Plugins;
 import com.dew.system.module.modules.ghost.BridgeAssist;
 import com.dew.system.module.modules.player.Breaker;
 import com.dew.system.module.modules.player.CivBreak;
 import com.dew.system.module.modules.player.Scaffold;
 import com.dew.system.settingsvalue.BooleanValue;
 import com.dew.system.settingsvalue.MultiSelectionValue;
+import com.dew.system.settingsvalue.NumberValue;
 import com.dew.system.userdata.DataSaver;
+import com.dew.system.viapatcher.PlayerFixer;
 import com.dew.utils.*;
 import com.dew.utils.font.CustomFontRenderer;
+import de.florianmichael.vialoadingbase.ViaLoadingBase;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.gui.Gui;
@@ -24,6 +29,7 @@ import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.boss.BossStatus;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Potion;
@@ -45,6 +51,7 @@ import java.util.stream.Collectors;
 public class Hud extends Module {
 
     private static final MultiSelectionValue features = new MultiSelectionValue("Features", Arrays.asList("Watermark", "Module List", "Potion Hud", "Target Hud", "Hotbar"), "Watermark", "Module List", "Potion Hud", "Target Hud", "Hotbar");
+    private static final NumberValue uiScale = new NumberValue("UI Scale", 1.0, 0.5, 2.0, 0.1);
     private static final BooleanValue disableAchievementsNotification = new BooleanValue("Disable Achievements Notification", true);
     private final Map<Module, Float> animationProgress = new HashMap<>();
     private long lastRenderTime = System.nanoTime();
@@ -56,20 +63,38 @@ public class Hud extends Module {
     private boolean targetHudVisible = false;
     private float targetHudAnimationProgress = 0f;
     private boolean moduleListDirty = true;
+    private int finalModuleListHeight = 0;
     private static final Map<BlurCacheKey, BlurVBO> blurCache = new HashMap<>();
     private static final ResourceLocation INVENTORY_TEXTURE = new ResourceLocation("textures/gui/container/inventory.png");
     public Hud() {
         super("Hud", ModuleCategory.RENDER, Keyboard.KEY_NONE, true, false, true);
     }
 
-    @Override
-    public void onDisable() {
+    public int getModuleListHeight() {
+        return this.isEnabled() && features.isSelected("Module List") ? finalModuleListHeight / 2 : 0;
+    }
+
+    private void resetStates() {
+        animationProgress.clear();
+        cachedSortedModules.clear();
+        watermarkWidthLerp = 0f;
+        combinedTextWidthLerp = 0f;
+        targetHpLerp = 0f;
+        targetHudVisible = false;
+        targetHudAnimationProgress = 0f;
+        moduleListDirty = true;
+        finalModuleListHeight = 0;
         blurCache.clear();
     }
 
     @Override
+    public void onDisable() {
+        this.resetStates();
+    }
+
+    @Override
     public void onLoadWorld(WorldLoadEvent event) {
-        blurCache.clear();
+        this.resetStates();
     }
 
     public void markModuleListDirty() {
@@ -189,6 +214,8 @@ public class Hud extends Module {
 
             cumulativeY += displayHeight + 1;
         }
+
+        finalModuleListHeight = (int) cumulativeY;
     }
 
     private static class BlurCacheKey {
@@ -284,10 +311,6 @@ public class Hud extends Module {
         return features.isSelected("Hotbar");
     }
 
-    public boolean renderWatermark() {
-        return features.isSelected("Watermark");
-    }
-
     @Override
     public void onRender2D(Render2DEvent event) {
         ScaledResolution sr = new ScaledResolution(mc);
@@ -299,9 +322,19 @@ public class Hud extends Module {
         CustomFontRenderer fontRenderer = DewCommon.customFontRenderer;
         float fontSize = 0.35f;
 
+        float scale = uiScale.get().floatValue() - 0.2f;
+
         if (features.isSelected("Watermark")) {
+            GL11.glPushMatrix();
+            float centerX = sr.getScaledWidth() / 2f;
+            float topY = 0f;
+            GL11.glTranslatef(centerX, topY, 0);
+            GL11.glScalef(scale, scale, 1f);
+            GL11.glTranslatef(-centerX, -topY, 0);
+
             String clientName = DewCommon.clientName;
-            String userInfo = " | " + DataSaver.userName + " | " + Minecraft.getDebugFPS() + " fps | " + (mc.isSingleplayer() ? "Singleplayer" : "Multiplayer") + " | " + PacketUtil.getCurrentPingOrMinusOne() + "ms" + (mc.isSingleplayer() ? "" : DewCommon.mongoManager.isConnected() && DewCommon.mongoManager.online.stream().anyMatch(p -> p.getLeft().equals(mc.thePlayer) && p.getRight().equals(DataSaver.userName)) ? " | Connected" : " | Connecting...");
+            String renderVersion = IMinecraft.mc.isSingleplayer() || ViaLoadingBase.getInstance().getTargetVersion().getVersion() == ViaLoadingBase.getInstance().getNativeVersion() ? "Native" : ViaLoadingBase.getInstance().getTargetVersion().getName();
+            String userInfo = " | " + DataSaver.userName + " | " + Minecraft.getDebugFPS() + " fps | " + (mc.isSingleplayer() ? "Singleplayer" : "Multiplayer") + " | " + renderVersion + " | " + PacketUtil.getCurrentPingOrMinusOne() + "ms" + (mc.isSingleplayer() ? "" : DewCommon.mongoManager.isConnected() && DewCommon.mongoManager.online.stream().anyMatch(p -> p.getLeft().equals(mc.thePlayer) && p.getRight().equals(DataSaver.userName)) ? " | Connected" : " | Connecting...");
             String display = clientName + userInfo;
 
             float targetWidth = fontRenderer.getStringWidth(display, fontSize);
@@ -312,7 +345,7 @@ public class Hud extends Module {
 
             float displayHeight = 14f;
             int x = (int) ((sr.getScaledWidth() - watermarkWidthLerp) / 2);
-            int y = 8;
+            int y = BossStatus.bossName != null && BossStatus.statusBarTime > 0 ? 28 : 8;
 
             int alpha = 255;
             Color bgColor = new Color(10, 10, 10, (int)(170 * (alpha / 255f)));
@@ -329,7 +362,7 @@ public class Hud extends Module {
             for (int i = 0; i < display.length(); i++) {
                 char c = display.charAt(i);
                 Color accentColor = getHudColor(time, i);
-                fontRenderer.drawString(
+                fontRenderer.drawStringWithShadow(
                         String.valueOf(c),
                         charX,
                         y - 1.5f,
@@ -349,6 +382,8 @@ public class Hud extends Module {
                 String timerInfo = mc.timer.timerSpeed != 1 ? "Balance: " + mc.timer.timerSpeed : "";
                 String blinkInfo = BlinkUtil.blinking ? "Blinking" : "";
                 String deadInfo = mc.thePlayer.isDead ? "Wasted" : "";
+                String swimmingInfo = PlayerFixer.shouldSwimOrCrawl() ? "Swimming" : "";
+                String pluginsInfo = DewCommon.moduleManager.getModule(Plugins.class).isEnabled() ? "Detecting... (" + DewCommon.moduleManager.getModule(Plugins.class).getClockMs() + "ms passed)" : "";
                 String spectatingInfo = mc.playerController != null && mc.playerController.getCurrentGameType() == WorldSettings.GameType.SPECTATOR ? "Spectating" : "";
 
                 String combinedText = "";
@@ -361,6 +396,8 @@ public class Hud extends Module {
                 if (!timerInfo.isEmpty()) combinedText += (combinedText.isEmpty() ? "" : "  ") + timerInfo;
                 if (!blinkInfo.isEmpty()) combinedText += (combinedText.isEmpty() ? "" : "  ") + blinkInfo;
                 if (!deadInfo.isEmpty()) combinedText += (combinedText.isEmpty() ? "" : "  ") + deadInfo;
+                if (!swimmingInfo.isEmpty()) combinedText += (combinedText.isEmpty() ? "" : "  ") + swimmingInfo;
+                if (!pluginsInfo.isEmpty()) combinedText += (combinedText.isEmpty() ? "" : "  ") + pluginsInfo;
                 if (!spectatingInfo.isEmpty()) combinedText += (combinedText.isEmpty() ? "" : "  ") + spectatingInfo;
 
                 float lerpSpeed = Math.min(10f * deltaTime, 1f);
@@ -477,7 +514,29 @@ public class Hud extends Module {
                                 new Color(255, 0, 0, alpha).getRGB(),
                                 fontSize
                         );
-                        xPos += fontRenderer.getStringWidth(spectatingInfo + "  ", fontSize);
+                        xPos += fontRenderer.getStringWidth(deadInfo + "  ", fontSize);
+                    }
+
+                    if (!swimmingInfo.isEmpty()) {
+                        fontRenderer.drawString(
+                                swimmingInfo,
+                                xPos,
+                                y + displayHeight + 1.5f,
+                                new Color(255, 0, 0, alpha).getRGB(),
+                                fontSize
+                        );
+                        xPos += fontRenderer.getStringWidth(swimmingInfo + "  ", fontSize);
+                    }
+
+                    if (!pluginsInfo.isEmpty()) {
+                        fontRenderer.drawString(
+                                pluginsInfo,
+                                xPos,
+                                y + displayHeight + 1.5f,
+                                new Color(Color.YELLOW.getRed(), Color.YELLOW.getGreen(), Color.YELLOW.getBlue(), alpha).getRGB(),
+                                fontSize
+                        );
+                        xPos += fontRenderer.getStringWidth(pluginsInfo + "  ", fontSize);
                     }
 
                     if (!spectatingInfo.isEmpty()) {
@@ -492,7 +551,7 @@ public class Hud extends Module {
                 } else {
                     combinedTextWidthLerp = Lerper.lerp(combinedTextWidthLerp, 0f, lerpSpeed);
 
-                    if (combinedTextWidthLerp > 0.1f) {
+                    if (combinedTextWidthLerp > 5f) {
                         drawBlurredBackground(
                                 (sr.getScaledWidth() - combinedTextWidthLerp) / 2f - 3,
                                 y + displayHeight + 2,
@@ -503,36 +562,76 @@ public class Hud extends Module {
                     }
                 }
             }
+
+            GL11.glPopMatrix();
         }
 
         if (features.isSelected("Potion Hud")) {
+            GL11.glPushMatrix();
+            float rightX = sr.getScaledWidth();
+            float bottomY = sr.getScaledHeight();
+            GL11.glTranslatef(rightX, bottomY, 0);
+            GL11.glScalef(scale, scale, 1f);
+            GL11.glTranslatef(-rightX, -bottomY, 0);
+
             Collection<PotionEffect> effects = mc.thePlayer.getActivePotionEffects();
             if (!effects.isEmpty()) {
-                int x = sr.getScaledWidth() - 30;
                 int index = 0;
-                mc.getTextureManager().bindTexture(INVENTORY_TEXTURE);
+                int x = sr.getScaledWidth() - 4;
+                float speed = 1800f;
+                float time = (System.currentTimeMillis() % (int) speed) / speed;
 
                 for (PotionEffect effect : effects) {
                     Potion potion = Potion.potionTypes[effect.getPotionID()];
                     if (potion == null) continue;
 
-                    int iconIndex = potion.getStatusIconIndex();
-                    mc.ingameGUI.drawTexturedModalRect(x, sr.getScaledHeight() - 30 - index * 25, iconIndex % 8 * 18, 198 + (iconIndex / 8) * 18, 18, 18);
-
                     String potionName = StatCollector.translateToLocal(potion.getName()) + " " + toRoman(effect.getAmplifier() + 1);
                     int durationTicks = effect.getDuration();
-                    String colorCode = durationTicks <= 200 ? "§c" : durationTicks <= 600 ? "§e" : "§f";
-                    String durationStr = colorCode + Potion.getDurationString(effect);
+                    String durationStr = Potion.getDurationString(effect);
 
-                    mc.bitFontRendererObj.drawStringWithShadow(potionName, x - mc.bitFontRendererObj.getStringWidth(potionName) - 4, sr.getScaledHeight() - 29 - index * 25, 0xFFFFFF);
-                    mc.bitFontRendererObj.drawStringWithShadow(durationStr, x - mc.bitFontRendererObj.getStringWidth(Potion.getDurationString(effect)) - 4, sr.getScaledHeight() - 19 - index * 25, 0xFFFFFF);
+                    Color durationColor = durationTicks <= 200 ? new Color(255, 80, 80) : durationTicks <= 600 ? new Color(255, 200, 50) : new Color(255, 255, 255);
+                    int nameWidth = (int) fontRenderer.getStringWidth(potionName, fontSize);
+                    int durationWidth = (int) fontRenderer.getStringWidth(durationStr, fontSize);
+                    int widest = Math.max(nameWidth, durationWidth);
+
+                    int boxHeight = 26;
+                    int y = sr.getScaledHeight() - 40 - index * (boxHeight + 4);
+
+                    for (int i = 0; i < potionName.length(); i++) {
+                        char c = potionName.charAt(i);
+                        Color letterColor = getHudColor(time, i + index * 10);
+                        fontRenderer.drawStringWithShadow(
+                                String.valueOf(c),
+                                x - widest - 8 + fontRenderer.getStringWidth(potionName.substring(0, i), fontSize),
+                                y + 6,
+                                letterColor.getRGB(),
+                                fontSize
+                        );
+                    }
+
+                    fontRenderer.drawStringWithShadow(
+                            durationStr,
+                            x - durationWidth - 8,
+                            y + 18,
+                            durationColor.getRGB(),
+                            fontSize
+                    );
 
                     index++;
                 }
             }
+
+            GL11.glPopMatrix();
         }
 
         if (features.isSelected("Target Hud")) {
+            GL11.glPushMatrix();
+            float centerX = sr.getScaledWidth() / 2f;
+            float topY = 0f;
+            GL11.glTranslatef(centerX, topY, 0);
+            GL11.glScalef(scale, scale, 1f);
+            GL11.glTranslatef(-centerX, -topY, 0);
+
             Aura auraModule = DewCommon.moduleManager.getModule(Aura.class);
             boolean shouldShow = auraModule.isEnabled() && auraModule.target instanceof EntityLivingBase;
             this.updateTargetHudVisibility(shouldShow, deltaTime);
@@ -541,7 +640,7 @@ public class Hud extends Module {
 
                 int width = 140;
                 int baseX = sr.getScaledWidth() / 2 - 140 / 2;
-                int baseY = 80;
+                int baseY = 55;
 
                 float slideOffsetY = -10 * (1f - targetHudAnimationProgress);
                 int baseAlpha = 170;
@@ -658,10 +757,19 @@ public class Hud extends Module {
             } else {
                 targetHpLerp = 0f;
             }
+
+            GL11.glPopMatrix();
         }
 
         if (features.isSelected("Module List")) {
+            GL11.glPushMatrix();
+            float rightX = sr.getScaledWidth();
+            float topY = 0f;
+            GL11.glTranslatef(rightX, topY, 0);
+            GL11.glScalef(scale, scale, 1f);
+            GL11.glTranslatef(-rightX, -topY, 0);
             this.renderModuleList(sr, fontRenderer, fontSize, deltaTime);
+            GL11.glPopMatrix();
         }
     }
 

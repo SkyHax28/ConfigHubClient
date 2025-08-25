@@ -20,7 +20,6 @@ package de.florianmichael.vialoadingbase.platform;
 
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.ViaAPI;
-import com.viaversion.viaversion.api.command.ViaCommandSender;
 import com.viaversion.viaversion.api.configuration.ViaVersionConfig;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import com.viaversion.viaversion.api.platform.UnsupportedSoftware;
@@ -80,26 +79,6 @@ public class ViaVersionPlatformImpl implements ViaPlatform<UserConnection> {
     @Override
     public VLBTask runRepeatingSync(Runnable runnable, long ticks) {
         return this.runRepeatingAsync(runnable, ticks);
-    }
-
-    @Override
-    public ViaCommandSender[] getOnlinePlayers() {
-        return new ViaCommandSender[0];
-    }
-
-    @Override
-    public void sendMessage(UUID uuid, String s) {
-        Via.getPlatform().sendMessage(uuid, s);
-    }
-
-    @Override
-    public boolean kickPlayer(UUID uuid, String s) {
-        return false;
-    }
-
-    @Override
-    public boolean isPluginEnabled() {
-        return false;
     }
 
     @Override

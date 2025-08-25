@@ -83,7 +83,7 @@ public class CategoryWindow {
 
         DewCommon.customFontRenderer.drawCenteredStringWithShadow(
                 categoryTitle,
-                x + 60,
+                x + ClickGuiState.NEW_GUI_WIDTH / 2f,
                 y + 1,
                 Color.WHITE.getRGB(),
                 0.35f
@@ -114,7 +114,7 @@ public class CategoryWindow {
         boolean hovered = mouseX >= x && mouseX <= x + ClickGuiState.NEW_GUI_WIDTH && mouseY >= y + yOffset && mouseY <= y + yOffset + configButtonHeight - 1;
         Color bgColor = hovered ? new Color(85, 153, 255, 100) : new Color(0, 0, 0, 100);
         Gui.drawRect(x, y + yOffset, x + ClickGuiState.NEW_GUI_WIDTH, y + yOffset + configButtonHeight, bgColor.getRGB());
-        DewCommon.customFontRenderer.drawCenteredStringWithShadow("Open folder", x + 60, y + yOffset + 3, Color.WHITE.getRGB(), 0.3f);
+        DewCommon.customFontRenderer.drawCenteredStringWithShadow("Open folder", x + ClickGuiState.NEW_GUI_WIDTH / 2f, y + yOffset + 3, Color.WHITE.getRGB(), 0.3f);
 
         yOffset += configButtonHeight;
 
@@ -122,7 +122,7 @@ public class CategoryWindow {
             boolean hoveredConfig = mouseX >= x && mouseX <= x + ClickGuiState.NEW_GUI_WIDTH && mouseY >= y + yOffset && mouseY <= y + yOffset + configButtonHeight - 1;
             Color bgColorConfig = hoveredConfig ? new Color(85, 153, 255, 100) : new Color(0, 0, 0, 100);
             Gui.drawRect(x, y + yOffset, x + ClickGuiState.NEW_GUI_WIDTH, y + yOffset + configButtonHeight, bgColorConfig.getRGB());
-            DewCommon.customFontRenderer.drawCenteredStringWithShadow(config, x + 60, y + yOffset + 3, Color.WHITE.getRGB(), 0.3f);
+            DewCommon.customFontRenderer.drawCenteredStringWithShadow(config, x + ClickGuiState.NEW_GUI_WIDTH / 2f, y + yOffset + 3, Color.WHITE.getRGB(), 0.3f);
             yOffset += configButtonHeight;
         }
     }

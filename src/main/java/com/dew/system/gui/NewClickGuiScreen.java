@@ -2,8 +2,11 @@ package com.dew.system.gui;
 
 import com.dew.DewCommon;
 import com.dew.system.module.ModuleCategory;
+import com.dew.system.module.modules.render.ClickGui;
 import com.dew.utils.Lerper;
+import javafx.scene.transform.Scale;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.ScaledResolution;
 import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
@@ -46,12 +49,21 @@ public class NewClickGuiScreen extends GuiScreen {
         int centerY = height / 2;
 
         GL11.glPushMatrix();
+
+        float scale = DewCommon.moduleManager.getModule(ClickGui.class).getGuiScale() - 0.1f;
+        float leftX = 0f;
+        float topY = 0f;
+        GL11.glTranslatef(leftX, topY, 0);
+        GL11.glScalef(scale, scale, 1f);
+        GL11.glTranslatef(-leftX, -topY, 0);
+
         GL11.glTranslatef(centerX, centerY + slideYOffset, 0);
         GL11.glScalef(openAnimationProgress, openAnimationProgress, 1);
         GL11.glTranslatef(-centerX, -centerY, 0);
 
         for (CategoryWindow window : windows) {
-            window.draw(mouseX, mouseY);
+            float[] fixed = unscaleMouse(mouseX, mouseY);
+            window.draw((int) fixed[0], (int) fixed[1]);
         }
 
         GL11.glPopMatrix();
@@ -60,18 +72,46 @@ public class NewClickGuiScreen extends GuiScreen {
     @Override
     public void mouseClicked(int mouseX, int mouseY, int mouseButton) {
         if (openAnimationProgress < 1.0f) return;
+        float[] fixed = unscaleMouse(mouseX, mouseY);
         for (CategoryWindow window : windows) {
-            window.mouseClicked(mouseX, mouseY, mouseButton);
+            window.mouseClicked((int) fixed[0], (int) fixed[1], mouseButton);
         }
     }
 
     @Override
     public void mouseReleased(int mouseX, int mouseY, int mouseButton) {
         if (openAnimationProgress < 1.0f) return;
+        float[] fixed = unscaleMouse(mouseX, mouseY);
         for (CategoryWindow window : windows) {
-            window.mouseReleased(mouseX, mouseY, mouseButton);
+            window.mouseReleased((int) fixed[0], (int) fixed[1], mouseButton);
             window.resolveOverlap(windows);
         }
+    }
+
+    private float[] unscaleMouse(int mouseX, int mouseY) {
+        float scale = DewCommon.moduleManager.getModule(ClickGui.class).getGuiScale() - 0.1f;
+        float slideYOffset = (1.0f - openAnimationProgress) * 200f;
+        int centerX = width / 2;
+        int centerY = height / 2;
+
+        float unscaledX = mouseX;
+        float unscaledY = mouseY;
+
+        unscaledX -= 0f;
+        unscaledY -= 0f;
+        unscaledX /= scale;
+        unscaledY /= scale;
+        unscaledX += 0f;
+        unscaledY += 0f;
+
+        unscaledX -= centerX;
+        unscaledY -= (centerY + slideYOffset);
+        unscaledX /= openAnimationProgress;
+        unscaledY /= openAnimationProgress;
+        unscaledX += centerX;
+        unscaledY += centerY;
+
+        return new float[]{ unscaledX, unscaledY };
     }
 
     @Override

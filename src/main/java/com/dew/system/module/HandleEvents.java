@@ -11,6 +11,7 @@ import com.dew.system.module.modules.render.Animations;
 import com.dew.system.module.modules.render.ClickGui;
 import com.dew.system.module.modules.render.Hud;
 import com.dew.system.viapatcher.PacketPatcher;
+import com.dew.system.viapatcher.PlayerFixer;
 import com.dew.utils.BlinkUtil;
 import com.dew.utils.LogUtil;
 import com.dew.utils.MovementUtil;
@@ -87,6 +88,8 @@ public class HandleEvents implements EventListener {
             }
         }).start();
 
+        PlayerFixer.initialized = false;
+
         if (DewCommon.moduleManager.getModule(Hud.class).isEnabled()) {
             DewCommon.moduleManager.getModule(Hud.class).markModuleListDirty();
         }
@@ -145,6 +148,7 @@ public class HandleEvents implements EventListener {
         for (Module module : DewCommon.moduleManager.getModules()) {
             if (module.key == key) {
                 if (module == clickGuiModule) {
+                    clickGuiModule.onEnable();
                     switch (clickGuiModule.getMode().toLowerCase()) {
                         case "modern":
                             mc.displayGuiScreen(DewCommon.clickGuiScreen);

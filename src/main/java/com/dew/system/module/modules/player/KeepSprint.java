@@ -7,6 +7,6 @@ import org.lwjgl.input.Keyboard;
 public class KeepSprint extends Module {
 
     public KeepSprint() {
-        super("Keep Sprint", ModuleCategory.PLAYER, Keyboard.KEY_NONE, false, true, true);
+        super("Keep Sprint", ModuleCategory.PLAYER, Keyboard.KEY_NONE, false, false, true);
     }
 }

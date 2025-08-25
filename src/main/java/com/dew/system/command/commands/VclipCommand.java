@@ -2,6 +2,8 @@ package com.dew.system.command.commands;
 
 import com.dew.system.command.Command;
 import com.dew.utils.LogUtil;
+import com.dew.utils.PacketUtil;
+import net.minecraft.network.play.client.C03PacketPlayer;
 
 public class VclipCommand extends Command {
 
@@ -11,7 +13,7 @@ public class VclipCommand extends Command {
 
     @Override
     public String getUsage() {
-        return "vclip <height> - Tp up vertically";
+        return "vclip <height> - Tp up/down vertically";
     }
 
     @Override
@@ -28,6 +30,12 @@ public class VclipCommand extends Command {
         } catch (NumberFormatException e) {
             LogUtil.printChat("§cUsage: .vclip <height>");
             return;
+        }
+
+        if (height > 10 || height < -10) {
+            for (int i = 0; i <= 9; i++) {
+                PacketUtil.sendPacket(new C03PacketPlayer.C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, true));
+            }
         }
 
         mc.thePlayer.setPosition(mc.thePlayer.posX, mc.thePlayer.posY + height, mc.thePlayer.posZ);
