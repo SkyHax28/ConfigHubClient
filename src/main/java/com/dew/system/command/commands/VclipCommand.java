@@ -33,7 +33,7 @@ public class VclipCommand extends Command {
         }
 
         if (height > 10 || height < -10) {
-            for (int i = 0; i <= 9; i++) {
+            for (int i = 0; i < 10; i++) {
                 PacketUtil.sendPacket(new C03PacketPlayer.C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, true));
             }
         }
