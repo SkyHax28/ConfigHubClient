@@ -640,7 +640,7 @@ public class Hud extends Module {
 
                 int width = 140;
                 int baseX = sr.getScaledWidth() / 2 - 140 / 2;
-                int baseY = 55;
+                int baseY = BossStatus.bossName != null && BossStatus.statusBarTime > 0 ? 75 : 55;
 
                 float slideOffsetY = -10 * (1f - targetHudAnimationProgress);
                 int baseAlpha = 170;
