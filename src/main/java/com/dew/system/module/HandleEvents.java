@@ -7,21 +7,19 @@ import com.dew.system.event.events.*;
 import com.dew.system.gui.ClickGuiScreen;
 import com.dew.system.gui.NewClickGuiScreen;
 import com.dew.system.module.modules.player.AutoTool;
-import com.dew.system.module.modules.render.Animations;
 import com.dew.system.module.modules.render.ClickGui;
 import com.dew.system.module.modules.render.Hud;
+import com.dew.system.special.CapeImageLoader;
 import com.dew.system.viapatcher.PacketPatcher;
 import com.dew.system.viapatcher.PlayerFixer;
+import com.dew.utils.Base64Util;
 import com.dew.utils.BlinkUtil;
 import com.dew.utils.LogUtil;
-import com.dew.utils.MovementUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiChat;
 import net.minecraft.client.gui.GuiIngameMenu;
-import net.minecraft.item.ItemSword;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.C01PacketChatMessage;
-import net.minecraft.network.play.client.C0DPacketCloseWindow;
 import net.minecraft.network.play.client.C0FPacketConfirmTransaction;
 import net.minecraft.network.play.server.S08PacketPlayerPosLook;
 import net.minecraft.network.play.server.S2EPacketCloseWindow;
@@ -31,7 +29,6 @@ import okhttp3.Response;
 import org.lwjgl.input.Keyboard;
 
 import java.io.IOException;
-import java.util.Base64;
 import java.util.Objects;
 
 public class HandleEvents implements EventListener {
@@ -52,14 +49,9 @@ public class HandleEvents implements EventListener {
         return this.worldFullLoaded && !this.loadingWorld;
     }
 
-    private String decodeToString(String string) {
-        byte[] decodedBytes = Base64.getDecoder().decode(string);
-        return new String(decodedBytes);
-    }
-
     private String sendKillOrSafe() {
         Request request = new Request.Builder()
-                .url(decodeToString("aHR0cHM6Ly9uYXR0b2dyZWF0YXBpLnBhZ2VzLmRldi9kZXcva2lsbHN3aXRjaC50eHQ="))
+                .url(Base64Util.decodeToString("aHR0cHM6Ly9uYXR0b2dyZWF0YXBpLnBhZ2VzLmRldi9kZXcva2lsbHN3aXRjaC50eHQ="))
                 .get()
                 .header("User-Agent", DewCommon.clientName)
                 .build();
@@ -88,6 +80,7 @@ public class HandleEvents implements EventListener {
             }
         }).start();
 
+        CapeImageLoader.loadAllCapes();
         PlayerFixer.initialized = false;
 
         if (DewCommon.moduleManager.getModule(Hud.class).isEnabled()) {

@@ -4,23 +4,24 @@ import com.dew.DewCommon;
 import com.dew.system.module.modules.render.SilentView;
 import com.dew.system.mongodb.MongoManager;
 import com.dew.system.rotation.RotationManager;
+import com.dew.system.special.CapeImageLoader;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.RenderPlayer;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EnumPlayerModelParts;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
+import org.apache.commons.lang3.tuple.Pair;
 
 public class LayerCape implements LayerRenderer<AbstractClientPlayer>
 {
     private final RenderPlayer playerRenderer;
-    private final ResourceLocation customCapeLocation;
 
     public LayerCape(RenderPlayer playerRendererIn)
     {
         this.playerRenderer = playerRendererIn;
-        this.customCapeLocation = new ResourceLocation("minecraft", "dew/cape.png");
     }
 
     public void doRenderLayer(AbstractClientPlayer entitylivingbaseIn, float p_177141_2_, float p_177141_3_, float partialTicks, float p_177141_5_, float p_177141_6_, float p_177141_7_, float scale)
@@ -33,9 +34,22 @@ public class LayerCape implements LayerRenderer<AbstractClientPlayer>
         if (entitylivingbaseIn.hasPlayerInfo() && !entitylivingbaseIn.isInvisible() && entitylivingbaseIn.isWearing(EnumPlayerModelParts.CAPE) && entitylivingbaseIn.getLocationCape() != null || mongoManager.online.stream().anyMatch(p -> p.getLeft().equals(entitylivingbaseIn))) {
             GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 
-            if (mongoManager.online.stream().anyMatch(p -> p.getLeft().equals(entitylivingbaseIn))) {
-                this.playerRenderer.bindTexture(this.customCapeLocation);
-            } else {
+            boolean specialCapeLoaded = false;
+
+            for (Pair<EntityPlayer, String> entry : DewCommon.mongoManager.online) {
+                if (entry.getLeft().equals(entitylivingbaseIn)) {
+                    ResourceLocation capeImageOrNull = CapeImageLoader.getCape(entry.getRight());
+                    if (capeImageOrNull != null) {
+                        this.playerRenderer.bindTexture(capeImageOrNull);
+                    } else {
+                        this.playerRenderer.bindTexture(new ResourceLocation("minecraft", "dew/cape.png"));
+                    }
+                    specialCapeLoaded = true;
+                    break;
+                }
+            }
+
+            if (!specialCapeLoaded) {
                 this.playerRenderer.bindTexture(entitylivingbaseIn.getLocationCape());
             }
 

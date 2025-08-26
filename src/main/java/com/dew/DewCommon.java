@@ -11,6 +11,7 @@ import com.dew.system.module.HandleEvents;
 import com.dew.system.module.ModuleManager;
 import com.dew.system.mongodb.MongoManager;
 import com.dew.system.rotation.RotationManager;
+import com.dew.system.special.CapeImageLoader;
 import com.dew.utils.LogUtil;
 import com.dew.utils.WingsManager;
 import com.dew.utils.font.CustomFontRenderer;
@@ -57,6 +58,7 @@ public class DewCommon {
         }
 
         initViaMCP();
+        CapeImageLoader.loadAllCapes();
         eventManager = new EventManager();
         rotationManager = new RotationManager();
         moduleConfigManager = new ModuleConfigManager();
