@@ -102,7 +102,7 @@ public class PlayerFixer {
     }
 
     private static boolean canSwim() {
-        return !mc.thePlayer.isSneaking() && mc.thePlayer.isInWater() && mc.thePlayer.isSprinting() && isUnderWater();
+        return !mc.thePlayer.isSneaking() && mc.thePlayer.isInWater() && !mc.thePlayer.capabilities.isFlying && mc.thePlayer.isSprinting() && isUnderWater();
     }
 
     private static boolean olderThanOrEqualsTo1_8() {
