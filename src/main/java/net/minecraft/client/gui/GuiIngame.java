@@ -3,6 +3,7 @@ package net.minecraft.client.gui;
 import com.dew.DewCommon;
 import com.dew.system.event.events.Render2DEvent;
 import com.dew.system.module.modules.render.Hud;
+import com.dew.system.module.modules.render.NoScoreboard;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -627,6 +628,8 @@ public class GuiIngame extends Gui
 
     private void renderScoreboard(ScoreObjective objective, ScaledResolution scaledRes)
     {
+        if (DewCommon.moduleManager.getModule(NoScoreboard.class).isEnabled()) return;
+
         Scoreboard scoreboard = objective.getScoreboard();
         Collection<Score> collection = scoreboard.getSortedScores(objective);
         List<Score> list = Lists.newArrayList(Iterables.filter(collection, new Predicate<Score>()
