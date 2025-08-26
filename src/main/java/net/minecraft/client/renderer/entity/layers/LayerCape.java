@@ -36,16 +36,18 @@ public class LayerCape implements LayerRenderer<AbstractClientPlayer>
 
             boolean specialCapeLoaded = false;
 
-            for (Pair<EntityPlayer, String> entry : DewCommon.mongoManager.online) {
-                if (entry.getLeft().equals(entitylivingbaseIn)) {
-                    ResourceLocation capeImageOrNull = CapeImageLoader.getCape(entry.getRight());
-                    if (capeImageOrNull != null) {
-                        this.playerRenderer.bindTexture(capeImageOrNull);
-                    } else {
-                        this.playerRenderer.bindTexture(new ResourceLocation("minecraft", "dew/cape.png"));
+            if (mongoManager.online.stream().anyMatch(p -> p.getLeft().equals(entitylivingbaseIn))) {
+                for (Pair<EntityPlayer, String> entry : DewCommon.mongoManager.online) {
+                    if (entry.getLeft().equals(entitylivingbaseIn)) {
+                        ResourceLocation capeImageOrNull = CapeImageLoader.getCape(entry.getRight());
+                        if (capeImageOrNull != null) {
+                            this.playerRenderer.bindTexture(capeImageOrNull);
+                        } else {
+                            this.playerRenderer.bindTexture(new ResourceLocation("minecraft", "dew/cape.png"));
+                        }
+                        specialCapeLoaded = true;
+                        break;
                     }
-                    specialCapeLoaded = true;
-                    break;
                 }
             }
 
