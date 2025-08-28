@@ -5,11 +5,17 @@ import com.dew.utils.Base64Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.IImageBuffer;
 import net.minecraft.client.renderer.ThreadDownloadImageData;
+import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.util.ResourceLocation;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
@@ -28,6 +34,8 @@ public class CapeImageLoader {
     private static final Map<String, Integer> capeIndexMap = new HashMap<>();
     private static final Map<String, Long> lastSwitchTimeMap = new HashMap<>();
     private static final Map<String, Long> capeDelayMap = new HashMap<>();
+
+    private static final OkHttpClient client = new OkHttpClient();
 
     public static ResourceLocation getCape(String username) {
         List<ResourceLocation> capes = capeMap.get(username);
@@ -57,75 +65,76 @@ public class CapeImageLoader {
             capeDelayMap.clear();
 
             try {
-                URL url = new URL(LIST_URL);
-                BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
-                StringBuilder sb = new StringBuilder();
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    sb.append(line);
-                }
-                reader.close();
+                Request request = new Request.Builder()
+                        .url(LIST_URL)
+                        .build();
 
-                String data = sb.toString().trim();
-                if (!data.isEmpty()) {
-                    String[] entries = data.split("~~--~~");
-                    for (String entry : entries) {
-                        String[] parts = entry.split(":");
-                        if (parts.length >= 3) {
-                            String username = parts[0].trim();
-                            long delay;
-                            try {
-                                delay = Long.parseLong(parts[1].trim());
-                            } catch (Exception e) {
-                                delay = 1000L;
-                            }
+                try (Response response = client.newCall(request).execute()) {
+                    if (!response.isSuccessful() || response.body() == null) {
+                        System.err.println("Failed to fetch cape list: " + response);
+                        return;
+                    }
 
-                            String[] capeFiles = parts[2].split(",");
+                    String data = response.body().string().trim();
+                    if (!data.isEmpty()) {
+                        String[] entries = data.split("~~--~~");
+                        for (String entry : entries) {
+                            String[] parts = entry.split(":");
+                            if (parts.length >= 3) {
+                                String username = parts[0].trim();
+                                long delay;
+                                try {
+                                    delay = Long.parseLong(parts[1].trim());
+                                } catch (Exception e) {
+                                    delay = 1000L;
+                                }
 
-                            List<ResourceLocation> userCapes = new ArrayList<>();
-                            for (String capeFile : capeFiles) {
-                                capeFile = capeFile.trim();
-                                if (!capeFile.isEmpty()) {
-                                    String capeUrl = CAPE_BASE + capeFile;
-                                    ResourceLocation capeLoc = loadCape(username + "_" + capeFile, capeUrl);
-                                    if (capeLoc != null) {
-                                        userCapes.add(capeLoc);
+                                String[] capeFiles = parts[2].split(",");
+
+                                List<ResourceLocation> userCapes = new ArrayList<>();
+                                for (String capeFile : capeFiles) {
+                                    capeFile = capeFile.trim();
+                                    if (!capeFile.isEmpty()) {
+                                        String capeUrl = CAPE_BASE + capeFile;
+                                        ResourceLocation capeLoc = loadCape(username + "_" + capeFile, capeUrl);
+                                        if (capeLoc != null) {
+                                            userCapes.add(capeLoc);
+                                        }
                                     }
                                 }
-                            }
 
-                            if (!userCapes.isEmpty()) {
-                                capeMap.put(username, userCapes);
-                                capeIndexMap.put(username, 0);
-                                lastSwitchTimeMap.put(username, System.currentTimeMillis());
-                                capeDelayMap.put(username, delay);
-                            }
-                        } else if (parts.length == 2) {
-                            String username = parts[0].trim();
-                            String[] capeFiles = parts[1].split(",");
+                                if (!userCapes.isEmpty()) {
+                                    capeMap.put(username, userCapes);
+                                    capeIndexMap.put(username, 0);
+                                    lastSwitchTimeMap.put(username, System.currentTimeMillis());
+                                    capeDelayMap.put(username, delay);
+                                }
+                            } else if (parts.length == 2) {
+                                String username = parts[0].trim();
+                                String[] capeFiles = parts[1].split(",");
 
-                            List<ResourceLocation> userCapes = new ArrayList<>();
-                            for (String capeFile : capeFiles) {
-                                capeFile = capeFile.trim();
-                                if (!capeFile.isEmpty()) {
-                                    String capeUrl = CAPE_BASE + capeFile;
-                                    ResourceLocation capeLoc = loadCape(username + "_" + capeFile, capeUrl);
-                                    if (capeLoc != null) {
-                                        userCapes.add(capeLoc);
+                                List<ResourceLocation> userCapes = new ArrayList<>();
+                                for (String capeFile : capeFiles) {
+                                    capeFile = capeFile.trim();
+                                    if (!capeFile.isEmpty()) {
+                                        String capeUrl = CAPE_BASE + capeFile;
+                                        ResourceLocation capeLoc = loadCape(username + "_" + capeFile, capeUrl);
+                                        if (capeLoc != null) {
+                                            userCapes.add(capeLoc);
+                                        }
                                     }
                                 }
-                            }
 
-                            if (!userCapes.isEmpty()) {
-                                capeMap.put(username, userCapes);
-                                capeIndexMap.put(username, 0);
-                                lastSwitchTimeMap.put(username, System.currentTimeMillis());
-                                capeDelayMap.put(username, 1000L);
+                                if (!userCapes.isEmpty()) {
+                                    capeMap.put(username, userCapes);
+                                    capeIndexMap.put(username, 0);
+                                    lastSwitchTimeMap.put(username, System.currentTimeMillis());
+                                    capeDelayMap.put(username, 1000L);
+                                }
                             }
                         }
                     }
                 }
-
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -134,25 +143,36 @@ public class CapeImageLoader {
 
     private static ResourceLocation loadCape(String username, String url) {
         try {
-            ResourceLocation rl = new ResourceLocation("dew_capes/" + username);
+            Request request = new Request.Builder()
+                    .url(url)
+                    .build();
 
-            TextureManager textureManager = mc.getTextureManager();
-
-            IImageBuffer buffer = new IImageBuffer() {
-                @Override
-                public BufferedImage parseUserSkin(BufferedImage image) {
-                    return image;
+            try (Response response = client.newCall(request).execute()) {
+                if (!response.isSuccessful() || response.body() == null) {
+                    System.err.println("Failed to load cape: " + url + " - " + response);
+                    return null;
                 }
 
-                @Override
-                public void skinAvailable() {
+                InputStream inputStream = response.body().byteStream();
+                BufferedImage image = ImageIO.read(inputStream);
+                if (image == null) {
+                    System.err.println("Invalid image for cape: " + url);
+                    return null;
                 }
-            };
 
-            ThreadDownloadImageData texture = new ThreadDownloadImageData(null, url, null, buffer);
-            textureManager.loadTexture(rl, texture);
+                ResourceLocation rl = new ResourceLocation("dew_capes/" + username);
 
-            return rl;
+                mc.addScheduledTask(() -> {
+                    try {
+                        DynamicTexture dynTex = new DynamicTexture(image);
+                        mc.getTextureManager().loadTexture(rl, dynTex);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
+
+                return rl;
+            }
         } catch (Exception e) {
             e.printStackTrace();
             return null;
