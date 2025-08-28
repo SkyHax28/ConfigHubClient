@@ -6,13 +6,8 @@ import com.dew.utils.PredictUtil;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
-import java.util.UUID;
+
+import java.util.*;
 import java.util.concurrent.Callable;
 
 import de.florianmichael.viamcp.fixes.FixedSoundEngine;
@@ -1508,6 +1503,8 @@ public abstract class World implements IBlockAccess
         this.theProfiler.endStartSection("regular");
 
         if (DewCommon.moduleManager.getModule(FpsBooster.class).isEnabled()) {
+            List<Entity> toRemove = new ArrayList<>();
+
             Iterator<Entity> entityIter = this.loadedEntityList.iterator();
             while (entityIter.hasNext()) {
                 Entity entity2 = entityIter.next();
@@ -1528,9 +1525,13 @@ public abstract class World implements IBlockAccess
                     if (entity2.addedToChunk && this.isChunkLoaded(entity2.chunkCoordX, entity2.chunkCoordZ, true)) {
                         this.getChunkFromChunkCoords(entity2.chunkCoordX, entity2.chunkCoordZ).removeEntity(entity2);
                     }
-                    entityIter.remove();
-                    this.onEntityRemoved(entity2);
+                    toRemove.add(entity2);
                 }
+            }
+
+            for (Entity dead : toRemove) {
+                this.loadedEntityList.remove(dead);
+                this.onEntityRemoved(dead);
             }
         } else {
             for (int i1 = 0; i1 < this.loadedEntityList.size(); ++i1) {
