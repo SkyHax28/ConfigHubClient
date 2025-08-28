@@ -1,5 +1,8 @@
 package net.minecraft.client.particle;
 
+import com.dew.DewCommon;
+import com.dew.IMinecraft;
+import com.dew.system.module.modules.render.FpsBooster;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -184,6 +187,16 @@ public class EffectRenderer
 
     private void updateEffectAlphaLayer(List<EntityFX> entitiesFX)
     {
+        if (DewCommon.moduleManager.getModule(FpsBooster.class).isEnabled()) {
+            final int max = 2000;
+            if (entitiesFX.size() > max) {
+                int removeCount = entitiesFX.size() - max;
+                for (int i = 0; i < removeCount; i++) {
+                    entitiesFX.get(i).setDead();
+                }
+            }
+        }
+
         List<EntityFX> list = Lists.newArrayList();
         long i = System.currentTimeMillis();
         int j = entitiesFX.size();
@@ -191,6 +204,14 @@ public class EffectRenderer
         for (int k = 0; k < entitiesFX.size(); ++k)
         {
             EntityFX entityfx = entitiesFX.get(k);
+
+            if (entityfx.getDistanceSqToEntity(IMinecraft.mc.thePlayer) > 8 * 8) {
+                entityfx.setDead();
+                list.add(entityfx);
+                --j;
+                continue;
+            }
+
             this.tickParticle(entityfx);
 
             if (entityfx.isDead)

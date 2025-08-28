@@ -1,5 +1,8 @@
 package net.minecraft.client.renderer.entity;
 
+import com.dew.DewCommon;
+import com.dew.IMinecraft;
+import com.dew.system.module.modules.render.FpsBooster;
 import com.google.common.collect.Maps;
 import java.util.Collections;
 import java.util.Map;
@@ -368,6 +371,8 @@ public class RenderManager
 
     public boolean doRenderEntity(Entity entity, double x, double y, double z, float entityYaw, float partialTicks, boolean hideDebugBox)
     {
+        boolean isSimplifiedRendering = DewCommon.moduleManager.getModule(FpsBooster.class).isEnabled() && entity.getDistanceSqToEntity(IMinecraft.mc.thePlayer) > 8 * 8;
+
         Render<Entity> render = null;
 
         try
@@ -397,7 +402,7 @@ public class RenderManager
 
                 try
                 {
-                    if (!this.renderOutlines)
+                    if (!this.renderOutlines && !isSimplifiedRendering)
                     {
                         render.doRenderShadowAndFire(entity, x, y, z, entityYaw, partialTicks);
                     }
@@ -407,7 +412,7 @@ public class RenderManager
                     throw new ReportedException(CrashReport.makeCrashReport(throwable1, "Post-rendering entity in world"));
                 }
 
-                if (this.debugBoundingBox && !entity.isInvisible() && !hideDebugBox)
+                if (this.debugBoundingBox && !entity.isInvisible() && !hideDebugBox && !isSimplifiedRendering)
                 {
                     try
                     {

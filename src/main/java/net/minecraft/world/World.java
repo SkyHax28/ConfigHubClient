@@ -1,5 +1,7 @@
 package net.minecraft.world;
 
+import com.dew.DewCommon;
+import com.dew.system.module.modules.render.FpsBooster;
 import com.dew.utils.PredictUtil;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Lists;
@@ -1445,35 +1447,40 @@ public abstract class World implements IBlockAccess
         this.theProfiler.startSection("entities");
         this.theProfiler.startSection("global");
 
-        for (int i = 0; i < this.weatherEffects.size(); ++i)
-        {
-            Entity entity = (Entity)this.weatherEffects.get(i);
-
-            try
-            {
+        if (DewCommon.moduleManager.getModule(FpsBooster.class).isEnabled()) {
+            Iterator<Entity> iter = this.weatherEffects.iterator();
+            while (iter.hasNext()) {
+                Entity entity = iter.next();
                 ++entity.ticksExisted;
                 entity.onUpdate();
-            }
-            catch (Throwable throwable2)
-            {
-                CrashReport crashreport = CrashReport.makeCrashReport(throwable2, "Ticking entity");
-                CrashReportCategory crashreportcategory = crashreport.makeCategory("Entity being ticked");
 
-                if (entity == null)
-                {
-                    crashreportcategory.addCrashSection("Entity", "~~NULL~~");
+                if (entity.isDead) {
+                    iter.remove();
                 }
-                else
-                {
-                    entity.addEntityCrashInfo(crashreportcategory);
+            }
+        } else {
+            for (int i = 0; i < this.weatherEffects.size(); ++i) {
+                Entity entity = (Entity) this.weatherEffects.get(i);
+
+                try {
+                    ++entity.ticksExisted;
+                    entity.onUpdate();
+                } catch (Throwable throwable2) {
+                    CrashReport crashreport = CrashReport.makeCrashReport(throwable2, "Ticking entity");
+                    CrashReportCategory crashreportcategory = crashreport.makeCategory("Entity being ticked");
+
+                    if (entity == null) {
+                        crashreportcategory.addCrashSection("Entity", "~~NULL~~");
+                    } else {
+                        entity.addEntityCrashInfo(crashreportcategory);
+                    }
+
+                    throw new ReportedException(crashreport);
                 }
 
-                throw new ReportedException(crashreport);
-            }
-
-            if (entity.isDead)
-            {
-                this.weatherEffects.remove(i--);
+                if (entity.isDead) {
+                    this.weatherEffects.remove(i--);
+                }
             }
         }
 
@@ -1500,56 +1507,74 @@ public abstract class World implements IBlockAccess
         this.unloadedEntityList.clear();
         this.theProfiler.endStartSection("regular");
 
-        for (int i1 = 0; i1 < this.loadedEntityList.size(); ++i1)
-        {
-            Entity entity2 = (Entity)this.loadedEntityList.get(i1);
+        if (DewCommon.moduleManager.getModule(FpsBooster.class).isEnabled()) {
+            Iterator<Entity> entityIter = this.loadedEntityList.iterator();
+            while (entityIter.hasNext()) {
+                Entity entity2 = entityIter.next();
 
-            if (entity2.ridingEntity != null)
-            {
-                if (!entity2.ridingEntity.isDead && entity2.ridingEntity.riddenByEntity == entity2)
-                {
-                    continue;
+                if (entity2.ridingEntity != null) {
+                    if (!entity2.ridingEntity.isDead && entity2.ridingEntity.riddenByEntity == entity2) {
+                        continue;
+                    }
+                    entity2.ridingEntity.riddenByEntity = null;
+                    entity2.ridingEntity = null;
                 }
 
-                entity2.ridingEntity.riddenByEntity = null;
-                entity2.ridingEntity = null;
-            }
-
-            this.theProfiler.startSection("tick");
-
-            if (!entity2.isDead)
-            {
-                try
-                {
+                if (!entity2.isDead) {
                     this.updateEntity(entity2);
                 }
-                catch (Throwable throwable1)
-                {
-                    CrashReport crashreport1 = CrashReport.makeCrashReport(throwable1, "Ticking entity");
-                    CrashReportCategory crashreportcategory2 = crashreport1.makeCategory("Entity being ticked");
-                    entity2.addEntityCrashInfo(crashreportcategory2);
-                    throw new ReportedException(crashreport1);
+
+                if (entity2.isDead) {
+                    if (entity2.addedToChunk && this.isChunkLoaded(entity2.chunkCoordX, entity2.chunkCoordZ, true)) {
+                        this.getChunkFromChunkCoords(entity2.chunkCoordX, entity2.chunkCoordZ).removeEntity(entity2);
+                    }
+                    entityIter.remove();
+                    this.onEntityRemoved(entity2);
                 }
             }
+        } else {
+            for (int i1 = 0; i1 < this.loadedEntityList.size(); ++i1) {
+                Entity entity2 = (Entity) this.loadedEntityList.get(i1);
 
-            this.theProfiler.endSection();
-            this.theProfiler.startSection("remove");
+                if (entity2.ridingEntity != null) {
+                    if (!entity2.ridingEntity.isDead && entity2.ridingEntity.riddenByEntity == entity2) {
+                        continue;
+                    }
 
-            if (entity2.isDead)
-            {
-                int k1 = entity2.chunkCoordX;
-                int i2 = entity2.chunkCoordZ;
-
-                if (entity2.addedToChunk && this.isChunkLoaded(k1, i2, true))
-                {
-                    this.getChunkFromChunkCoords(k1, i2).removeEntity(entity2);
+                    entity2.ridingEntity.riddenByEntity = null;
+                    entity2.ridingEntity = null;
                 }
 
-                this.loadedEntityList.remove(i1--);
-                this.onEntityRemoved(entity2);
-            }
+                this.theProfiler.startSection("tick");
 
-            this.theProfiler.endSection();
+                if (!entity2.isDead) {
+                    try {
+                        this.updateEntity(entity2);
+                    } catch (Throwable throwable1) {
+                        CrashReport crashreport1 = CrashReport.makeCrashReport(throwable1, "Ticking entity");
+                        CrashReportCategory crashreportcategory2 = crashreport1.makeCategory("Entity being ticked");
+                        entity2.addEntityCrashInfo(crashreportcategory2);
+                        throw new ReportedException(crashreport1);
+                    }
+                }
+
+                this.theProfiler.endSection();
+                this.theProfiler.startSection("remove");
+
+                if (entity2.isDead) {
+                    int k1 = entity2.chunkCoordX;
+                    int i2 = entity2.chunkCoordZ;
+
+                    if (entity2.addedToChunk && this.isChunkLoaded(k1, i2, true)) {
+                        this.getChunkFromChunkCoords(k1, i2).removeEntity(entity2);
+                    }
+
+                    this.loadedEntityList.remove(i1--);
+                    this.onEntityRemoved(entity2);
+                }
+
+                this.theProfiler.endSection();
+            }
         }
 
         this.theProfiler.endStartSection("blockEntities");

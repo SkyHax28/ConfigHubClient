@@ -5,7 +5,11 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.WorldRenderer;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.shader.Framebuffer;
+import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
 
@@ -82,18 +86,27 @@ public abstract class FramebufferShader extends Shader {
     }
 
     public void drawFramebuffer(final Framebuffer framebuffer) {
-        final ScaledResolution scaledResolution = new ScaledResolution(mc);
-        glBindTexture(GL_TEXTURE_2D, framebuffer.framebufferTexture);
-        glBegin(GL_QUADS);
-        glTexCoord2d(0, 1);
-        glVertex2d(0, 0);
-        glTexCoord2d(0, 0);
-        glVertex2d(0, scaledResolution.getScaledHeight());
-        glTexCoord2d(1, 0);
-        glVertex2d(scaledResolution.getScaledWidth(), scaledResolution.getScaledHeight());
-        glTexCoord2d(1, 1);
-        glVertex2d(scaledResolution.getScaledWidth(), 0);
-        glEnd();
-        glUseProgram(0);
+        ScaledResolution scaledResolution = new ScaledResolution(mc);
+
+        GlStateManager.enableBlend();
+        GlStateManager.disableDepth();
+        GlStateManager.color(1f, 1f, 1f, 1f);
+
+        framebuffer.bindFramebufferTexture();
+
+        Tessellator tessellator = Tessellator.getInstance();
+        WorldRenderer worldrenderer = tessellator.getWorldRenderer();
+        worldrenderer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+
+        worldrenderer.pos(0, scaledResolution.getScaledHeight(), 0).tex(0, 0).endVertex();
+        worldrenderer.pos(scaledResolution.getScaledWidth(), scaledResolution.getScaledHeight(), 0).tex(1, 0).endVertex();
+        worldrenderer.pos(scaledResolution.getScaledWidth(), 0, 0).tex(1, 1).endVertex();
+        worldrenderer.pos(0, 0, 0).tex(0, 1).endVertex();
+
+        tessellator.draw();
+
+        framebuffer.unbindFramebufferTexture();
+        GlStateManager.enableDepth();
+        GlStateManager.disableBlend();
     }
 }

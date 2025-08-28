@@ -1,5 +1,7 @@
 package net.minecraft.client.renderer;
 
+import com.dew.DewCommon;
+import com.dew.system.module.modules.render.FpsBooster;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -678,8 +680,7 @@ public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListene
                 {
                     ++this.countEntitiesRendered;
 
-                    if (entity1.isInRangeToRender3d(d0, d1, d2))
-                    {
+                    if (entity1.isInRangeToRender3d(d0, d1, d2) && (!DewCommon.moduleManager.getModule(FpsBooster.class).isEnabled() || (entity1.ignoreFrustumCheck || camera.isBoundingBoxInFrustum(entity1.getEntityBoundingBox())))) {
                         this.renderManager.renderEntitySimple(entity1, partialTicks);
                     }
                 }
@@ -762,7 +763,11 @@ public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListene
 
                             if (!flag || Reflector.callBoolean(entity2, Reflector.ForgeEntity_shouldRenderInPass, new Object[] {Integer.valueOf(i)}))
                             {
-                                flag4 = this.renderManager.shouldRender(entity2, camera, d0, d1, d2) || entity2.riddenByEntity == this.mc.thePlayer;
+                                if (DewCommon.moduleManager.getModule(FpsBooster.class).isEnabled()) {
+                                    flag4 = (entity2.isInRangeToRender3d(d0, d1, d2) && camera.isBoundingBoxInFrustum(entity2.getEntityBoundingBox())) || entity2.riddenByEntity == this.mc.thePlayer;
+                                } else {
+                                    flag4 = this.renderManager.shouldRender(entity2, camera, d0, d1, d2) || entity2.riddenByEntity == this.mc.thePlayer;
+                                }
 
                                 if (!flag4)
                                 {

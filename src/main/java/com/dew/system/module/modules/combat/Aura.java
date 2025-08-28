@@ -174,6 +174,7 @@ public class Aura extends Module {
                         DewCommon.eventManager.call(event);
 
                         AttackOrder.sendFixedPacketAttack(mc.thePlayer, entity);
+                        mc.thePlayer.onEnchantmentCritical(entity);
 
                         if (shouldTp) {
                             Collections.reverse(paths);
@@ -184,6 +185,7 @@ public class Aura extends Module {
                     }).start();
                 } else {
                     AttackOrder.sendFixedAttack(mc.thePlayer, entity);
+                    mc.thePlayer.onEnchantmentCritical(entity);
                 }
 
                 return true;

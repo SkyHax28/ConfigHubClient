@@ -1,5 +1,7 @@
 package net.minecraft.tileentity;
 
+import com.dew.DewCommon;
+import com.dew.system.module.modules.render.FpsBooster;
 import com.google.common.collect.Maps;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -142,7 +144,7 @@ public abstract class TileEntity
 
     public double getMaxRenderDistanceSquared()
     {
-        return 4096.0D;
+        return DewCommon.moduleManager.getModule(FpsBooster.class).isEnabled() ? 512.0D : 4096.0D;
     }
 
     public BlockPos getPos()
