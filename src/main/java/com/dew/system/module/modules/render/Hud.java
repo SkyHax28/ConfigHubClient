@@ -586,6 +586,7 @@ public class Hud extends Module {
                     if (potion == null) continue;
 
                     String potionName = StatCollector.translateToLocal(potion.getName()) + " " + toRoman(effect.getAmplifier() + 1);
+                    potionName = potionName.replaceAll("§.", "");
                     int durationTicks = effect.getDuration();
                     String durationStr = Potion.getDurationString(effect);
 

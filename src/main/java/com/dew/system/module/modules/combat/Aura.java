@@ -392,7 +392,23 @@ public class Aura extends Module {
     }
 
     private Entity getHighestThreatTarget(double range) {
-        EntityLivingBase best = null;
+        EntityLivingBase closest = null;
+        double closestDistance = Double.MAX_VALUE;
+
+        for (Entity entity : mc.theWorld.loadedEntityList) {
+            if (shouldNotAttack(entity) || entity instanceof EntityPlayerSP) continue;
+            if (entity instanceof EntityLivingBase) {
+                double distance = mc.thePlayer.getDistanceToEntity(entity);
+                if (distance <= range && distance < closestDistance) {
+                    closestDistance = distance;
+                    closest = (EntityLivingBase) entity;
+                }
+            }
+        }
+
+        return closest;
+
+        /*EntityLivingBase best = null;
         double bestScore = Double.NEGATIVE_INFINITY;
         for (Entity entity : mc.theWorld.loadedEntityList) {
             if (shouldNotAttack(entity) || entity instanceof EntityPlayerSP) continue;
@@ -404,7 +420,7 @@ public class Aura extends Module {
                 }
             }
         }
-        return best;
+        return best;*/
     }
 
     private boolean placeDefensiveBlock(Entity entity) {

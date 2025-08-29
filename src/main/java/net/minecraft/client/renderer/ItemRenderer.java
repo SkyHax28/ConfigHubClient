@@ -446,7 +446,7 @@ public class ItemRenderer
         if (animationsModule.isEnabled()) {
             switch (Animations.blockAnimation.get().toLowerCase()) {
                 case "vanilla":
-                    this.transformFirstPersonItem(f, 0.0F);
+                    this.transformFirstPersonItem(f, f1);
                     this.doBlockTransformations();
                     break;
 
