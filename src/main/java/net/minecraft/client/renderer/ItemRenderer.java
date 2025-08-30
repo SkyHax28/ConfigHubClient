@@ -5,7 +5,7 @@ import com.dew.system.module.modules.combat.AutoPot;
 import com.dew.system.module.modules.player.AutoTool;
 import com.dew.system.module.modules.player.Scaffold;
 import com.dew.system.module.modules.render.Animations;
-import com.dew.system.module.modules.render.NoFireOverlay;
+import com.dew.system.module.modules.render.NoRender;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockCarpet;
 import net.minecraft.block.BlockSnow;
@@ -652,7 +652,7 @@ public class ItemRenderer
 
     private void renderFireInFirstPerson(float partialTicks)
     {
-        if (DewCommon.moduleManager.getModule(NoFireOverlay.class).isEnabled()) {
+        if (DewCommon.moduleManager.getModule(NoRender.class).isEnabled() && DewCommon.moduleManager.getModule(NoRender.class).getSelectedCancels().isSelected("Fire Overlay")) {
             GlStateManager.color(1.0F, 1.0F, 1.0F, 0.9F);
             GlStateManager.depthFunc(519);
             GlStateManager.depthMask(false);

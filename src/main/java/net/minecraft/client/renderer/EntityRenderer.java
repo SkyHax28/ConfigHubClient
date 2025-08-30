@@ -2,6 +2,7 @@ package net.minecraft.client.renderer;
 
 import com.dew.DewCommon;
 import com.dew.system.event.events.Render3DEvent;
+import com.dew.system.module.modules.movement.speed.SpeedModule;
 import com.dew.system.module.modules.render.*;
 import com.dew.system.viapatcher.PlayerFixer;
 import com.dew.utils.Lerper;
@@ -622,7 +623,7 @@ public class EntityRenderer implements IResourceManagerReloadListener
 
     private void hurtCameraEffect(float partialTicks)
     {
-        if (DewCommon.moduleManager.getModule(NoHurtCam.class).isEnabled()) return;
+        if (DewCommon.moduleManager.getModule(NoRender.class).isEnabled() && DewCommon.moduleManager.getModule(NoRender.class).getSelectedCancels().isSelected("Hurt Cam")) return;
 
         if (this.mc.getRenderViewEntity() instanceof EntityLivingBase)
         {
@@ -864,9 +865,11 @@ public class EntityRenderer implements IResourceManagerReloadListener
 
         this.hurtCameraEffect(partialTicks);
 
-        if (this.mc.gameSettings.viewBobbing && !DewCommon.moduleManager.getModule(MinimalBobbing.class).isEnabled())
+        if (this.mc.gameSettings.viewBobbing)
         {
-            this.setupViewBobbing(partialTicks);
+            if ((!DewCommon.moduleManager.getModule(SpeedModule.class).isEnabled() || !DewCommon.moduleManager.getModule(SpeedModule.class).getMode().equals("Verus")) && (!DewCommon.moduleManager.getModule(NoRender.class).isEnabled() || !DewCommon.moduleManager.getModule(NoRender.class).getSelectedCancels().isSelected("Screen Bobbing"))) {
+                this.setupViewBobbing(partialTicks);
+            }
         }
 
         float f1 = this.mc.thePlayer.prevTimeInPortal + (this.mc.thePlayer.timeInPortal - this.mc.thePlayer.prevTimeInPortal) * partialTicks;

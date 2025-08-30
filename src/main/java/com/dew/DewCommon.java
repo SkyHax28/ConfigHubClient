@@ -13,7 +13,6 @@ import com.dew.system.mongodb.MongoManager;
 import com.dew.system.rotation.RotationManager;
 import com.dew.system.special.CapeImageLoader;
 import com.dew.utils.LogUtil;
-import com.dew.utils.WingsManager;
 import com.dew.utils.font.CustomFontRenderer;
 import com.dew.utils.pathfinder.MainPathFinder;
 import com.dew.utils.pathfinder.SmartPlayerNavigator;
@@ -42,7 +41,6 @@ public class DewCommon {
     public static BindConfigManager bindConfigManager;
     public static ClientConfigManager clientConfigManager;
     public static RotationManager rotationManager;
-    public static WingsManager wingsManager;
     public static MainPathFinder pathFinder;
     public static SmartPlayerNavigator smartPlayerNavigator;
     public static NewClickGuiScreen clickGuiScreen;
@@ -69,7 +67,6 @@ public class DewCommon {
         moduleManager = new ModuleManager();
         commandManager = new CommandManager();
         handleEvents = new HandleEvents();
-        wingsManager = new WingsManager();
         pathFinder = new MainPathFinder();
         smartPlayerNavigator = new SmartPlayerNavigator();
         clickGuiScreen = new NewClickGuiScreen();

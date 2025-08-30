@@ -3,7 +3,6 @@ package com.dew.system.module.modules.render;
 import com.dew.DewCommon;
 import com.dew.IMinecraft;
 import com.dew.system.event.events.Render2DEvent;
-import com.dew.system.event.events.WorldLoadEvent;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
 import com.dew.system.module.modules.combat.Aura;
@@ -24,13 +23,11 @@ import de.florianmichael.vialoadingbase.ViaLoadingBase;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiChat;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.boss.BossStatus;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
@@ -46,7 +43,6 @@ import java.awt.*;
 import java.nio.FloatBuffer;
 import java.util.*;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class Hud extends Module {
 
@@ -65,31 +61,12 @@ public class Hud extends Module {
     private boolean moduleListDirty = true;
     private int finalModuleListHeight = 0;
     private static final Map<BlurCacheKey, BlurVBO> blurCache = new HashMap<>();
-    private static final ResourceLocation INVENTORY_TEXTURE = new ResourceLocation("textures/gui/container/inventory.png");
     public Hud() {
         super("Hud", ModuleCategory.RENDER, Keyboard.KEY_NONE, true, false, true);
     }
 
     public int getModuleListHeight() {
         return this.isEnabled() && features.isSelected("Module List") ? finalModuleListHeight / 2 : 0;
-    }
-
-    private void resetStates() {
-        animationProgress.clear();
-        cachedSortedModules.clear();
-        watermarkWidthLerp = 0f;
-        combinedTextWidthLerp = 0f;
-        targetHpLerp = 0f;
-        targetHudVisible = false;
-        targetHudAnimationProgress = 0f;
-        moduleListDirty = true;
-        finalModuleListHeight = 0;
-        blurCache.clear();
-    }
-
-    @Override
-    public void onDisable() {
-        this.resetStates();
     }
 
     public void markModuleListDirty() {

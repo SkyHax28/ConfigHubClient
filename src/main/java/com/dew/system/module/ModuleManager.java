@@ -28,7 +28,7 @@ public class ModuleManager implements EventListener {
                 new Velocity(), new CameraNoClip(), new AutoTool(), new Breaker(),
                 new ESP(), new Fullbright(), new Xray(), new NoBreakDelay(),
                 new Manager(), new Stealer(), new Backtrack(), new AutoPot(),
-                new AutoWalkAI(), new NoHurtCam(), new NoFireOverlay(), new Wings(),
+                new AutoWalkAI(), new Phase(), new FreeLook(), new LongJump(),
                 new Sprint(), new TargetStrafe(), new AutoBlock(), new FastBow(),
                 new FastUse(), new Teams(), new HitSelect(), new NoHitDelay(),
                 new Knockback(), new BloxdPhysics(), new Step(), new ItemPhysics(),
@@ -38,10 +38,9 @@ public class ModuleManager implements EventListener {
                 new PixelPartyAssist(), new Scaffold2(), new CivBreak(), new LightningDetector(),
                 new Spider(), new BarrierVision(), new Trails(), new AutoAuth(),
                 new AutoExtinguish(), new QuakeAura(), new AutoAimPractice(), new Jesus(),
-                new MinimalBobbing(), new AntiFalseFlag(), new PlayerHighlight(), new RotRandomizer(),
+                new NoRender(), new AntiFalseFlag(), new Highlighter(), new RotRandomizer(),
                 new HighJump(), new Timer(), new ViaCollision(), new Plugins(),
-                new Spammer(), new PacketChatLimiter(), new NoScoreboard(), new FpsBooster(),
-                new LongJump(), new Phase(), new FreeLook()
+                new Spammer(), new PacketChatLimiter(), new BlockOverlay(), new FpsBooster()
         ));
 
         DewCommon.eventManager.register(this);
