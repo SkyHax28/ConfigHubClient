@@ -57,6 +57,7 @@ dependencies {
     implementation 'org.mongodb:mongodb-driver-sync:4.7.0'
     implementation 'org.mongodb:bson:4.7.0'
     implementation 'org.bouncycastle:bcprov-jdk15on:1.70'
+    implementation 'org.slf4j:slf4j-log4j12:1.7.21'
     implementation fileTree(dir: 'libraries', include: ['*.jar'])
 }
 shadowJar {

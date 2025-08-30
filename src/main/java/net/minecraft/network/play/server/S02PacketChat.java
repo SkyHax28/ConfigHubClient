@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import com.dew.DewCommon;
 import com.dew.system.module.modules.exploit.AutoAuth;
+import com.dew.utils.LogUtil;
 import net.minecraft.network.Packet;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.play.INetHandlerPlayClient;
@@ -43,9 +44,6 @@ public class S02PacketChat implements Packet<INetHandlerPlayClient>
 
     public void processPacket(INetHandlerPlayClient handler)
     {
-        AutoAuth autoAuthModule = DewCommon.moduleManager.getModule(AutoAuth.class);
-        if (autoAuthModule.isEnabled() && autoAuthModule.handleChatPacket(this)) return;
-
         handler.handleChat(this);
     }
 

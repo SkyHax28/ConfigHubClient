@@ -620,6 +620,7 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
             this.modUpdateNotification.drawScreen(mouseX, mouseY, partialTicks);
         }
 
+        this.drawCenteredString(IMinecraft.mc.bitFontRendererObj, "Currently Logged Into: " + mc.session.getUsername(), width / 2, 5, 0xFFFFFF);
         String s3 = "Version from " + DewCommon.versionUpdateDate;
         DewCommon.customFontRenderer.drawStringWithShadow(s3, 2, this.height - 13, -1, 0.3f);
     }

@@ -83,7 +83,7 @@ public class GuiButton extends Gui
 
             if (mc.currentScreen instanceof GuiMainMenu) {
                 this.displayString = this.displayString.replaceAll("§.", "");
-                DewCommon.customFontRenderer.drawCenteredStringWithShadow(this.displayString, x + w / 2f, y + (h - 11) / 2f, textColor, 0.32f);
+                DewCommon.customFontRenderer.drawCenteredStringWithShadow(this.displayString, x + w / 2f, y + (h - 12) / 2f, textColor, 0.32f);
             } else {
                 drawCenteredString(font, this.displayString, x + w / 2, y + (h - 8) / 2, textColor);
             }

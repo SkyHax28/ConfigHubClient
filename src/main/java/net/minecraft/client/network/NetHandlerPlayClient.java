@@ -1,5 +1,8 @@
 package net.minecraft.client.network;
 
+import com.dew.DewCommon;
+import com.dew.system.module.modules.exploit.AutoAuth;
+import com.dew.utils.LogUtil;
 import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -757,6 +760,11 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient
         else
         {
             this.gameController.ingameGUI.getChatGUI().printChatMessage(packetIn.getChatComponent());
+            LogUtil.infoLog(packetIn.getChatComponent().getUnformattedText());
+            AutoAuth autoAuthModule = DewCommon.moduleManager.getModule(AutoAuth.class);
+            if (autoAuthModule.isEnabled()) {
+                autoAuthModule.handleChatPacket(packetIn);
+            }
         }
     }
 
