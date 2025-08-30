@@ -2261,8 +2261,6 @@ public class Minecraft implements IThreadListener, IPlayerUsage
 
         if (worldClientIn == null && this.theWorld != null)
         {
-            LeaveWorldEvent leaveWorldEvent = new LeaveWorldEvent();
-            DewCommon.eventManager.call(leaveWorldEvent);
             this.mcResourcePackRepository.clearResourcePack();
             this.ingameGUI.resetPlayersOverlayFooterHeader();
             this.setServerData((ServerData)null);
@@ -2301,6 +2299,9 @@ public class Minecraft implements IThreadListener, IPlayerUsage
             this.saveLoader.flushCache();
             this.thePlayer = null;
         }
+
+        LeaveWorldEvent leaveWorldEvent = new LeaveWorldEvent();
+        DewCommon.eventManager.call(leaveWorldEvent);
 
         System.gc();
         this.systemTime = 0L;

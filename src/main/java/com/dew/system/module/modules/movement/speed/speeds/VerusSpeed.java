@@ -54,7 +54,7 @@ public class VerusSpeed implements SpeedMode {
 
     @Override
     public void onPreMotion(PreMotionEvent event) {
-        if (mc.thePlayer == null || mc.thePlayer.isInWater() || DewCommon.moduleManager.getModule(FlightModule.class).isEnabled()) return;
+        if (mc.thePlayer == null || mc.thePlayer.isInWater() || DewCommon.moduleManager.getModule(FlightModule.class).isEnabled() && DewCommon.moduleManager.getModule(FlightModule.class).getMode().equals("Verus")) return;
 
         if (!mc.thePlayer.onGround && allowTick <= 0) {
             MovementUtil.strafe(0.3f);
@@ -63,7 +63,7 @@ public class VerusSpeed implements SpeedMode {
 
     @Override
     public void onMove(MoveEvent event) {
-        if (mc.thePlayer == null || mc.thePlayer.isInWater() || DewCommon.moduleManager.getModule(FlightModule.class).isEnabled()) return;
+        if (mc.thePlayer == null || mc.thePlayer.isInWater() || DewCommon.moduleManager.getModule(FlightModule.class).isEnabled() && DewCommon.moduleManager.getModule(FlightModule.class).getMode().equals("Verus")) return;
 
         MovementUtil.mcJumpNoBoost = true;
 
@@ -102,7 +102,7 @@ public class VerusSpeed implements SpeedMode {
 
     @Override
     public void onBlockBB(BlockBBEvent event) {
-        if (mc.thePlayer == null || mc.theWorld == null) return;
+        if (mc.thePlayer == null || mc.theWorld == null && mc.thePlayer.getDistanceSqToCenter(event.blockPos) < 2) return;
 
         if (event.blockPos.getY() == mc.thePlayer.getPosition().down().getY() && (mc.theWorld.getBlockState(mc.thePlayer.getPosition().down()).getBlock() instanceof BlockIce || mc.theWorld.getBlockState(mc.thePlayer.getPosition().down()).getBlock() instanceof BlockPackedIce)) {
             int x = event.blockPos.getX();

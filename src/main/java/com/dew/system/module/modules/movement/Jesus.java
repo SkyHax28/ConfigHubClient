@@ -28,7 +28,7 @@ public class Jesus extends Module {
 
     @Override
     public void onBlockBB(BlockBBEvent event) {
-        if (mc.thePlayer == null || mc.theWorld == null || mc.thePlayer.isSneaking()) return;
+        if (mc.thePlayer == null || mc.theWorld == null || mc.thePlayer.isSneaking() && mc.thePlayer.getDistanceSqToCenter(event.blockPos) < 2) return;
 
         if (event.blockPos.getY() == mc.thePlayer.getPosition().down().getY() && (event.block == Blocks.water || event.block == Blocks.flowing_water || event.block == Blocks.lava || event.block == Blocks.flowing_lava) && (mode.get().equals("Vanilla") || mode.get().equals("Verus Speed Only") && DewCommon.moduleManager.getModule(SpeedModule.class).isEnabled() && DewCommon.moduleManager.getModule(SpeedModule.class).getMode().equals("Verus") && MovementUtil.isMoving())) {
             int x = event.blockPos.getX();

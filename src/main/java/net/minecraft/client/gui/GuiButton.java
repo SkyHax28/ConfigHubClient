@@ -1,5 +1,6 @@
 package net.minecraft.client.gui;
 
+import com.dew.DewCommon;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.audio.SoundHandler;
@@ -80,7 +81,13 @@ public class GuiButton extends Gui
 
             int textColor = !enabled ? 0xFFAAAAAA : (hovered ? 0xFFFFD966 : 0xFFFFFFFF);
 
-            drawCenteredString(font, this.displayString, x + w / 2, y + (h - 8) / 2, textColor);
+            if (mc.currentScreen instanceof GuiMainMenu) {
+                this.displayString = this.displayString.replaceAll("§.", "");
+                DewCommon.customFontRenderer.drawCenteredString(this.displayString, x + w / 2f, y + (h - 13) / 2f, textColor, 0.34f);
+            } else {
+                drawCenteredString(font, this.displayString, x + w / 2, y + (h - 8) / 2, textColor);
+            }
+
             this.mouseDragged(mc, mouseX, mouseY);
         }
     }

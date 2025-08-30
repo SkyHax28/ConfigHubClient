@@ -34,7 +34,9 @@ public class VerusFlight implements FlightMode {
     public void onPreUpdate(PreUpdateEvent event) {
         if (mc.thePlayer == null || mc.theWorld == null) return;
 
-        if (mc.gameSettings.keyBindJump.isKeyDown()) {
+        boolean aboveMoment = !MovementUtil.isBlockAbovePlayer(mc.thePlayer, 1, 0.6);
+
+        if (mc.gameSettings.keyBindJump.isKeyDown() && aboveMoment) {
             if (mc.thePlayer.ticksExisted % 2 == 0) {
                 mc.thePlayer.motionY = 0.41999998688698;
             }
@@ -50,7 +52,7 @@ public class VerusFlight implements FlightMode {
 
         mc.thePlayer.motionY = yMotion;
         if (yMotion == 0) {
-            mc.thePlayer.onGround = true;
+            mc.thePlayer.onGround = aboveMoment;
         }
     }
 

@@ -42,7 +42,7 @@ public class FakeCollisionFlight implements FlightMode {
     public void onBlockBB(BlockBBEvent event) {
         if (mc.thePlayer == null || mc.theWorld == null || yCoord == null) return;
 
-        if (event.blockPos.getY() == yCoord) {
+        if (event.blockPos.getY() == yCoord && mc.thePlayer.getDistanceSqToCenter(event.blockPos) < 2) {
             int x = event.blockPos.getX();
             int y = event.blockPos.getY();
             int z = event.blockPos.getZ();

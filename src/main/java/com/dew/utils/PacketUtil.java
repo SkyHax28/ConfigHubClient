@@ -14,6 +14,8 @@ public class PacketUtil {
     public static ArrayList<Packet<?>> silentPackets = new ArrayList<>();
 
     public static void sendPacket(Packet<?> packet) {
+        if (mc.getNetHandler() == null) return;
+
         mc.getNetHandler().addToSendQueue(packet);
     }
 

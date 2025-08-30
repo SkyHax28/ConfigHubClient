@@ -41,6 +41,7 @@ public class Scaffold extends Module {
     private static final NumberValue clutchRange = new NumberValue("Clutch Range", 3.0, 1.0, 6.0, 1.0);
     private static final NumberValue placeDelay = new NumberValue("Place Delay", 0.0, 0.0, 3.0, 1.0, () -> mode.get().equals("Normal") || mode.get().equals("Telly"));
     private static final SelectionValue towerMode = new SelectionValue("Tower Mode", "OFF", "OFF", "Vanilla", "Hypixel");
+    private static final SelectionValue onlyTowerWhen = new SelectionValue("Only Tower When", "Always", () -> towerMode.get().equals("Vanilla"), "Always", "Standing", "Moving");
     private static final SelectionValue edgeSafeMode = new SelectionValue("Edge Safe Mode", "OFF", () -> mode.get().equals("Normal") || mode.get().equals("Hypixel"), "OFF", "Safewalk", "Sneak");
     private static final BooleanValue noRotationHitCheck = new BooleanValue("No Rotation Hit Check", false);
     public static final BooleanValue preferHighestStack = new BooleanValue("Prefer Highest Stack", true);
@@ -65,7 +66,7 @@ public class Scaffold extends Module {
     }
 
     private boolean canTower() {
-        return Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) && MovementUtil.isBlockUnderPlayer(mc.thePlayer, 3, 2, false) && !MovementUtil.isBlockAbovePlayer(mc.thePlayer, 1, 0.3) && DewCommon.moduleManager.getModule(Hud.class).getTotalValidBlocksInHotbar() > 0;
+        return (onlyTowerWhen.get().equals("Always") || onlyTowerWhen.get().equals("Standing") && !MovementUtil.isMoving() || onlyTowerWhen.get().equals("Moving") && MovementUtil.isMoving()) && Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) && MovementUtil.isBlockUnderPlayer(mc.thePlayer, 3, 2, false) && !MovementUtil.isBlockAbovePlayer(mc.thePlayer, 1, 0.3) && DewCommon.moduleManager.getModule(Hud.class).getTotalValidBlocksInHotbar() > 0;
     }
 
     private boolean shouldUpdateKeepYState() {

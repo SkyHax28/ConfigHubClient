@@ -1,5 +1,6 @@
 package net.minecraft.client.gui;
 
+import com.dew.DewCommon;
 import com.dew.IMinecraft;
 import com.dew.system.altmanager.alt.SessionChanger;
 import com.dew.system.gui.AltManagerGuiScreen;
@@ -9,6 +10,8 @@ import com.dew.utils.ServerUtil;
 import com.dew.utils.VPNUtil;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+
+import java.awt.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -62,7 +65,7 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
     private String openGLWarningLink;
     private static final ResourceLocation splashTexts = new ResourceLocation("texts/splashes.txt");
     private static final ResourceLocation minecraftTitleTextures = new ResourceLocation("textures/gui/title/minecraft.png");
-    private static final ResourceLocation[] titlePanoramaPaths = new ResourceLocation[] {new ResourceLocation("textures/gui/title/background/panorama_0.png"), new ResourceLocation("textures/gui/title/background/panorama_1.png"), new ResourceLocation("textures/gui/title/background/panorama_2.png"), new ResourceLocation("textures/gui/title/background/panorama_3.png"), new ResourceLocation("textures/gui/title/background/panorama_4.png"), new ResourceLocation("textures/gui/title/background/panorama_5.png")};
+    private static final ResourceLocation[] titlePanoramaPaths = new ResourceLocation[] {new ResourceLocation("minecraft", "dew/panorama/panorama_0.png"), new ResourceLocation("minecraft", "dew/panorama/panorama_1.png"), new ResourceLocation("minecraft", "dew/panorama/panorama_2.png"), new ResourceLocation("minecraft", "dew/panorama/panorama_3.png"), new ResourceLocation("minecraft", "dew/panorama/panorama_4.png"), new ResourceLocation("minecraft", "dew/panorama/panorama_5.png")};
     public static final String field_96138_a = "Please click " + EnumChatFormatting.UNDERLINE + "here" + EnumChatFormatting.RESET + " for more information.";
     private int field_92024_r;
     private int field_92023_s;
@@ -190,18 +193,14 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
         int i = 24;
         int j = this.height / 4 + 48;
 
-        if (this.mc.isDemo())
-        {
-            this.addDemoButtons(j, 24);
-        }
-        else
-        {
-            this.addSingleplayerMultiplayerButtons(j, 24);
-        }
+        int yMultiplier = 80;
 
-        this.buttonList.add(new GuiButton(0, this.width / 2 - 100, j + 72 + 12, 98, 20, I18n.format("menu.options", new Object[0])));
-        this.buttonList.add(new GuiButton(4, this.width / 2 + 2, j + 72 + 12, 98, 20, I18n.format("menu.quit", new Object[0])));
-        this.buttonList.add(new GuiButtonLanguage(5, this.width / 2 - 124, j + 72 + 12));
+        this.addSingleplayerMultiplayerButtons(j, 24 + yMultiplier);
+
+        this.buttonList.add(this.accountManagerButton = new GuiButton(14, this.width / 2 + 60, j + 24 * 1 + yMultiplier, 98, 20, "Account Manager"));
+
+        this.buttonList.add(new GuiButton(0, this.width / 2 - 104, j + 40 + 12 + yMultiplier, 98, 20, "Game Settings"));
+        this.buttonList.add(new GuiButton(4, this.width / 2 + 6, j + 40 + 12 + yMultiplier, 98, 20, "Quit Playing"));
 
         synchronized (this.threadLock)
         {
@@ -225,37 +224,8 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
 
     private void addSingleplayerMultiplayerButtons(int p_73969_1_, int p_73969_2_)
     {
-        this.buttonList.add(new GuiButton(1, this.width / 2 - 100, p_73969_1_, I18n.format("menu.singleplayer", new Object[0])));
-        this.buttonList.add(new GuiButton(2, this.width / 2 - 100, p_73969_1_ + p_73969_2_ * 1, 98, 20, I18n.format("menu.multiplayer", new Object[0])));
-
-        String lastServerString = "Last Server";
-        if (ServerUtil.serverData != null) {
-            String fullIp = ServerUtil.serverData.serverIP;
-            int maxWidth = 80;
-
-            if (IMinecraft.mc.fontRendererObj.getStringWidth(fullIp) <= maxWidth) {
-                lastServerString = fullIp;
-            } else {
-                String ellipsis = "...";
-                int ellipsisWidth = IMinecraft.mc.fontRendererObj.getStringWidth(ellipsis);
-                StringBuilder trimmed = new StringBuilder();
-
-                for (int i = 0; i < fullIp.length(); i++) {
-                    String sub = fullIp.substring(0, i + 1);
-                    int width = IMinecraft.mc.fontRendererObj.getStringWidth(sub);
-                    if (width + ellipsisWidth >= maxWidth) break;
-                    trimmed.append(fullIp.charAt(i));
-                }
-
-                lastServerString = trimmed + ellipsis;
-            }
-        }
-        this.buttonList.add(new GuiButton(70, this.width / 2 + 2, p_73969_1_ + p_73969_2_ * 1, 98, 20, lastServerString));
-
-        this.buttonList.add(this.accountManagerButton = new GuiButton(14, this.width / 2 - 100, p_73969_1_ + p_73969_2_ * 2, 98, 20, "Alt Manager"));
-        this.buttonList.add(new GuiButton(69, this.width / 2 + 2, p_73969_1_ + p_73969_2_ * 2, 98, 20, "Protocol"));
-        this.buttonList.add(new GuiButton(80, this.width / 2 + 104, p_73969_1_ + p_73969_2_, 98, 20, "Random Crack"));
-        this.buttonList.add(new GuiButton(90, this.width / 2 + 104, p_73969_1_ + p_73969_2_ * 2, 98, 20, "Reconnect Mullvad"));
+        this.buttonList.add(new GuiButton(1, this.width / 2 - 160, p_73969_1_ + p_73969_2_ * 1, 98, 20, "Singleplayer"));
+        this.buttonList.add(new GuiButton(2, this.width / 2 - 50, p_73969_1_ + p_73969_2_ * 1, 98, 20, "Multiplayer"));
 
         if (Reflector.GuiModList_Constructor.exists())
         {
@@ -328,22 +298,6 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
                 GuiYesNo guiyesno = GuiSelectWorld.makeDeleteWorldYesNo(this, worldinfo.getWorldName(), 12);
                 this.mc.displayGuiScreen(guiyesno);
             }
-        }
-
-        if (button.id == 69) {
-            this.mc.displayGuiScreen(new GuiProtocolSelector(this));
-        }
-
-        if (button.id == 70) {
-            ServerUtil.connectToLastServer();
-        }
-
-        if (button.id == 80) {
-            SessionChanger.getInstance().setUserOffline(RandomUtil.randomString(RandomUtil.nextInt(5, 14)));
-        }
-
-        if (button.id == 90) {
-            VPNUtil.reconnectMullvad();
         }
     }
 
@@ -587,10 +541,10 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
             this.drawGradientRect(0, 0, this.width, this.height, j1, k1);
         }
 
-        this.mc.getTextureManager().bindTexture(minecraftTitleTextures);
+        //this.mc.getTextureManager().bindTexture(minecraftTitleTextures);
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 
-        if ((double)this.updateCounter < 1.0E-4D)
+        /*if ((double)this.updateCounter < 1.0E-4D)
         {
             this.drawTexturedModalRect(j + 0, k + 0, 0, 0, 99, 44);
             this.drawTexturedModalRect(j + 99, k + 0, 129, 0, 27, 44);
@@ -602,17 +556,20 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
         {
             this.drawTexturedModalRect(j + 0, k + 0, 0, 0, 155, 44);
             this.drawTexturedModalRect(j + 155, k + 0, 0, 45, 155, 44);
-        }
+        }*/
 
-        GlStateManager.pushMatrix();
+        /*GlStateManager.pushMatrix();
         GlStateManager.translate((float)(this.width / 2 + 90), 70.0F, 0.0F);
         GlStateManager.rotate(-20.0F, 0.0F, 0.0F, 1.0F);
         float f = 1.8F - MathHelper.abs(MathHelper.sin((float)(Minecraft.getSystemTime() % 1000L) / 1000.0F * (float)Math.PI * 2.0F) * 0.1F);
         f = f * 100.0F / (float)(this.fontRendererObj.getStringWidth(this.splashText) + 32);
         GlStateManager.scale(f, f, f);
         this.drawCenteredString(this.fontRendererObj, this.splashText, 0, -8, -256);
-        GlStateManager.popMatrix();
+        GlStateManager.popMatrix();*/
         String s = "Minecraft 1.8.9";
+
+        int yy = this.height / 4 + 48;
+        DewCommon.customFontRenderer.drawCenteredStringWithShadow("Quit drugs, " + DataSaver.userName, this.width / 2f, yy + 165, -1, 0.35f);
 
         if (this.mc.isDemo())
         {
@@ -641,7 +598,7 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
         }
         else
         {
-            this.drawString(this.fontRendererObj, s, 2, this.height - 10, -1);
+            //this.drawString(this.fontRendererObj, s, 2, this.height - 10, -1);
         }
 
         if (this.openGLWarning1 != null && this.openGLWarning1.length() > 0)
@@ -663,9 +620,8 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
             this.modUpdateNotification.drawScreen(mouseX, mouseY, partialTicks);
         }
 
-        this.drawCenteredString(IMinecraft.mc.bitFontRendererObj, "Currently Logged Into: " + mc.session.getUsername(), width / 2, 5, 0xFFFFFF);
-        String s3 = "Welcome, " + DataSaver.userName;
-        this.drawString(this.fontRendererObj, s3, this.width - this.fontRendererObj.getStringWidth(s3) - 2, this.height - 10, -1);
+        String s3 = "Version from " + DewCommon.versionUpdateDate;
+        DewCommon.customFontRenderer.drawStringWithShadow(s3, 2, this.height - 13, -1, 0.3f);
     }
 
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException

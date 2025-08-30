@@ -1,6 +1,7 @@
 package com.dew.system.module.modules.combat;
 
 import com.dew.DewCommon;
+import com.dew.system.event.events.PreMotionEvent;
 import com.dew.system.event.events.PreUpdateEvent;
 import com.dew.system.event.events.ReceivedPacketEvent;
 import com.dew.system.event.events.WorldLoadEvent;
@@ -9,16 +10,20 @@ import com.dew.system.module.ModuleCategory;
 import com.dew.system.module.modules.movement.speed.SpeedModule;
 import com.dew.system.settingsvalue.NumberValue;
 import com.dew.system.settingsvalue.SelectionValue;
+import com.dew.utils.LogUtil;
+import com.dew.utils.PacketUtil;
 import net.minecraft.network.Packet;
+import net.minecraft.network.play.client.C03PacketPlayer;
 import net.minecraft.network.play.server.S12PacketEntityVelocity;
 import org.lwjgl.input.Keyboard;
 
 public class Velocity extends Module {
 
-    private static final SelectionValue mode = new SelectionValue("Mode", "Normal", "Normal", "Hypixel", "Prediction", "Jump");
+    private static final SelectionValue mode = new SelectionValue("Mode", "Normal", "Normal", "Hypixel", "9.0E-4D Exploit", "Prediction", "Jump");
     private static final NumberValue horizontal = new NumberValue("Horizontal", 0.0, -1.0, 1.0, 0.05, () -> mode.get().equals("Normal"));
     private static final NumberValue vertical = new NumberValue("Vertical", 0.0, -1.0, 1.0, 0.05, () -> mode.get().equals("Normal"));
     private int hypTick = 0;
+    private boolean sent = false;
 
     public Velocity() {
         super("Velocity", ModuleCategory.COMBAT, Keyboard.KEY_NONE, false, true, true);
@@ -32,11 +37,13 @@ public class Velocity extends Module {
     @Override
     public void onDisable() {
         hypTick = 0;
+        sent = false;
     }
 
     @Override
     public void onLoadWorld(WorldLoadEvent event) {
         hypTick = 0;
+        sent = false;
     }
 
     @Override
@@ -44,6 +51,16 @@ public class Velocity extends Module {
         if (mc.thePlayer == null || mc.theWorld == null) return;
 
         hypTick = mc.thePlayer.onGround ? 0 : hypTick + 1;
+    }
+
+    @Override
+    public void onPreMotion(PreMotionEvent event) {
+        if (mc.thePlayer == null || mc.theWorld == null) return;
+
+        if (sent) {
+            event.cancel();
+            sent = false;
+        }
     }
 
     @Override
@@ -74,8 +91,15 @@ public class Velocity extends Module {
                     event.cancel();
                     break;
 
-                case "prediction":
+                case "9.0e-4d exploit":
+                    if (mc.thePlayer.onGround && !sent) {
+                        PacketUtil.sendPacketAsSilent(new C03PacketPlayer.C06PacketPlayerPosLook(mc.thePlayer.posX, mc.thePlayer.posY - 9.0E-4D, mc.thePlayer.posZ, DewCommon.rotationManager.getClientYaw(), DewCommon.rotationManager.getClientPitch(), false));
+                        sent = true;
+                    }
+                    break;
+
                 case "jump":
+                case "prediction":
                     if (mc.thePlayer.onGround && mc.thePlayer.isSprinting() && mc.thePlayer.posY > 0.0D) {
                         int motionX = ((S12PacketEntityVelocity) packet).getMotionX();
                         int motionZ = ((S12PacketEntityVelocity) packet).getMotionZ();
