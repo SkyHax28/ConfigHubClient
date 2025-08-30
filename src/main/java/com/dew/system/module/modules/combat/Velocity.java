@@ -93,7 +93,7 @@ public class Velocity extends Module {
 
                 case "9.0e-4d exploit":
                     if (mc.thePlayer.onGround && !sent) {
-                        PacketUtil.sendPacketAsSilent(new C03PacketPlayer.C06PacketPlayerPosLook(mc.thePlayer.posX, mc.thePlayer.posY - 9.0E-4D, mc.thePlayer.posZ, DewCommon.rotationManager.getClientYaw(), DewCommon.rotationManager.getClientPitch(), false));
+                        PacketUtil.sendPacketAsSilent(new C03PacketPlayer.C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY - 9.0E-4D, mc.thePlayer.posZ, false));
                         sent = true;
                     }
                     break;
