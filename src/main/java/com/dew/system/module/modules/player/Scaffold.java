@@ -452,7 +452,7 @@ public class Scaffold extends Module {
                 DewCommon.rotationManager.rotateToward((float) (MovementUtil.getDirection() + 180f), 80f, this.getTellyRotSpeed(), true);
             }
 
-            if (mc.thePlayer.posY > 0.0D && mc.thePlayer.onGround && isNearEdge()) {
+            if (mc.thePlayer.posY > 0.0D && mc.thePlayer.onGround && this.isNearEdge()) {
                 mc.thePlayer.jump();
             }
         }
@@ -583,7 +583,7 @@ public class Scaffold extends Module {
         return false;
     }
 
-    public boolean isNearEdge() {
+    private boolean isNearEdge() {
         double px = mc.thePlayer.posX;
         double py = mc.thePlayer.posY;
         double pz = mc.thePlayer.posZ;

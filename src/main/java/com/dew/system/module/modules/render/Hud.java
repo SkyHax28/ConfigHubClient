@@ -92,11 +92,6 @@ public class Hud extends Module {
         this.resetStates();
     }
 
-    @Override
-    public void onLoadWorld(WorldLoadEvent event) {
-        this.resetStates();
-    }
-
     public void markModuleListDirty() {
         moduleListDirty = true;
     }
