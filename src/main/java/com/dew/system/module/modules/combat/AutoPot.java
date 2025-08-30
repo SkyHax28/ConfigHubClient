@@ -1,7 +1,6 @@
 package com.dew.system.module.modules.combat;
 
 import com.dew.DewCommon;
-import com.dew.system.event.events.ItemRenderEvent;
 import com.dew.system.event.events.TickEvent;
 import com.dew.system.event.events.WorldLoadEvent;
 import com.dew.system.module.Module;
@@ -33,6 +32,10 @@ public class AutoPot extends Module {
         super("Auto Pot", ModuleCategory.COMBAT, Keyboard.KEY_NONE, false, true, true);
     }
 
+    public int getOriginalSlot() {
+        return prevSlot;
+    }
+
     public boolean isThrowing() {
         return stage != 0;
     }
@@ -52,13 +55,6 @@ public class AutoPot extends Module {
         stage = 0;
         prevSlot = -1;
         targetSlot = -1;
-    }
-
-    @Override
-    public void onItemRender(ItemRenderEvent event) {
-        if (prevSlot != -1) {
-            event.itemToRender = mc.thePlayer.inventory.getStackInSlot(prevSlot);
-        }
     }
 
     @Override

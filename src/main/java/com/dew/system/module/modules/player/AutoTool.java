@@ -24,6 +24,10 @@ public class AutoTool extends Module {
         super("Auto Tool", ModuleCategory.PLAYER, Keyboard.KEY_NONE, false, true, true);
     }
 
+    public int getOriginalSlot() {
+        return autoToolManager.originalSlot;
+    }
+
     public void doNotUpdateSwordNow(boolean state) {
         this.noSwordUpdates = state;
     }

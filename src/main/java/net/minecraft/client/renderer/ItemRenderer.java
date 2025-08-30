@@ -1,9 +1,9 @@
 package net.minecraft.client.renderer;
 
 import com.dew.DewCommon;
-import com.dew.system.event.events.ItemRenderEvent;
-import com.dew.system.event.events.PreMotionEvent;
-import com.dew.system.module.Module;
+import com.dew.system.module.modules.combat.AutoPot;
+import com.dew.system.module.modules.player.AutoTool;
+import com.dew.system.module.modules.player.Scaffold;
 import com.dew.system.module.modules.render.Animations;
 import com.dew.system.module.modules.render.NoFireOverlay;
 import net.minecraft.block.Block;
@@ -359,44 +359,34 @@ public class ItemRenderer
             Animations animationsModule = DewCommon.moduleManager.getModule(Animations.class);
             final float var9 = MathHelper.sin(MathHelper.sqrt_float(f1) * (float) Math.PI);
 
-            ItemRenderEvent itemRenderEvent = new ItemRenderEvent(this.itemToRender);
-            DewCommon.eventManager.call(itemRenderEvent);
-            if (itemRenderEvent.isCancelled()) return;
-
-            ItemStack toRender = itemRenderEvent.itemToRender;
-
-            if (toRender != this.itemToRender) {
-                f = 0f;
-            }
-
-            if (toRender != null) {
+            if (this.itemToRender != null) {
                 if (animationsModule.isEnabled()) {
-                    if (toRender.getItem() instanceof ItemSword) {
+                    if (this.itemToRender.getItem() instanceof ItemSword) {
                         GlStateManager.translate(0.0F, 0.0F, -0.02F);
                         GlStateManager.rotate(1.0F, 0.0F, 0.0F, -0.1F);
-                    } else if (toRender.getItem() instanceof ItemPotion) {
+                    } else if (this.itemToRender.getItem() instanceof ItemPotion) {
                         GlStateManager.translate(-0.0225F, -0.02F, 0.0F);
                         GlStateManager.rotate(1.0F, 0.0F, 0.0F, 0.1F);
-                    } else if (toRender.getItem() instanceof ItemFishingRod || toRender.getItem() instanceof ItemCarrotOnAStick) {
+                    } else if (this.itemToRender.getItem() instanceof ItemFishingRod || this.itemToRender.getItem() instanceof ItemCarrotOnAStick) {
                         GlStateManager.translate(0.08F, -0.0275F, -0.33F);
                         GlStateManager.scale(0.949999988079071D, 1.0D, 1.0D);
-                    } else if (toRender.getItem() instanceof ItemBow) {
+                    } else if (this.itemToRender.getItem() instanceof ItemBow) {
                         GlStateManager.translate(0.0F, 0.0F, 0.0F);
                         GlStateManager.rotate(0.9F, 0.0F, 0.001F, 0.0F);
-                    } else if (toRender.getItem() instanceof ItemBlock) {
-                        Block block = ((ItemBlock) toRender.getItem()).getBlock();
+                    } else if (this.itemToRender.getItem() instanceof ItemBlock) {
+                        Block block = ((ItemBlock) this.itemToRender.getItem()).getBlock();
                         if (block instanceof BlockCarpet || block instanceof BlockSnow) {
                             GlStateManager.translate(0.0F, -0.25F, 0.0F);
                         }
                     }
                 }
 
-                if (toRender.getItem() instanceof ItemMap) {
+                if (this.itemToRender.getItem() instanceof ItemMap) {
                     this.renderItemMap(abstractclientplayer, f2, f, f1);
-                } else if (animationsModule.isVisualBlocking() && toRender.getItem() instanceof ItemSword || animationsModule.shouldForceBlock(mc.thePlayer)) {
+                } else if (animationsModule.isVisualBlocking() && this.itemToRender.getItem() instanceof ItemSword || animationsModule.shouldForceBlock(mc.thePlayer)) {
                     this.renderSwordAnimations(animationsModule, f, f1, var9);
                 } else if (abstractclientplayer.getItemInUseCount() > 0) {
-                    EnumAction enumaction = toRender.getItemUseAction();
+                    EnumAction enumaction = this.itemToRender.getItemUseAction();
 
                     switch (enumaction)
                     {
@@ -429,7 +419,7 @@ public class ItemRenderer
                     this.transformFirstPersonItem(f, f1);
                 }
 
-                this.renderItem(abstractclientplayer, toRender, ItemCameraTransforms.TransformType.FIRST_PERSON);
+                this.renderItem(abstractclientplayer, this.itemToRender, ItemCameraTransforms.TransformType.FIRST_PERSON);
             }
             else if (!abstractclientplayer.isInvisible())
             {
@@ -721,7 +711,24 @@ public class ItemRenderer
         this.prevEquippedProgress = this.equippedProgress;
         EntityPlayer entityplayer = this.mc.thePlayer;
         ItemStack itemstack = entityplayer.inventory.getCurrentItem();
+        int slot = entityplayer.inventory.currentItem;
         boolean flag = false;
+        boolean spoofFlag = false;
+
+        if (DewCommon.moduleManager.getModule(Scaffold.class).isEnabled() && DewCommon.moduleManager.getModule(Scaffold.class).getOriginalSlot() != -1) {
+            slot = DewCommon.moduleManager.getModule(Scaffold.class).getOriginalSlot();
+            spoofFlag = true;
+        } else if (DewCommon.moduleManager.getModule(AutoPot.class).isEnabled() && DewCommon.moduleManager.getModule(AutoPot.class).getOriginalSlot() != -1) {
+            slot = DewCommon.moduleManager.getModule(AutoPot.class).getOriginalSlot();
+            spoofFlag = true;
+        } else if (DewCommon.moduleManager.getModule(AutoTool.class).isEnabled() && DewCommon.moduleManager.getModule(AutoTool.class).getOriginalSlot() != -1) {
+            slot = DewCommon.moduleManager.getModule(AutoTool.class).getOriginalSlot();
+            spoofFlag = true;
+        }
+
+        if (spoofFlag) {
+            itemstack = mc.thePlayer.inventory.getStackInSlot(slot);
+        }
 
         if (this.itemToRender != null && itemstack != null)
         {
@@ -734,7 +741,7 @@ public class ItemRenderer
                     if (!flag1)
                     {
                         this.itemToRender = itemstack;
-                        this.equippedItemSlot = entityplayer.inventory.currentItem;
+                        this.equippedItemSlot = slot;
                         return;
                     }
                 }
@@ -770,11 +777,35 @@ public class ItemRenderer
 
     public void resetEquippedProgress()
     {
-        this.equippedProgress = 0.0F;
+        boolean spoofFlag = false;
+
+        if (DewCommon.moduleManager.getModule(Scaffold.class).isEnabled() && DewCommon.moduleManager.getModule(Scaffold.class).getOriginalSlot() != -1) {
+            spoofFlag = true;
+        } else if (DewCommon.moduleManager.getModule(AutoPot.class).isEnabled() && DewCommon.moduleManager.getModule(AutoPot.class).getOriginalSlot() != -1) {
+            spoofFlag = true;
+        } else if (DewCommon.moduleManager.getModule(AutoTool.class).isEnabled() && DewCommon.moduleManager.getModule(AutoTool.class).getOriginalSlot() != -1) {
+            spoofFlag = true;
+        }
+
+        if (!spoofFlag) {
+            this.equippedProgress = 0.0F;
+        }
     }
 
     public void resetEquippedProgress2()
     {
-        this.equippedProgress = 0.0F;
+        boolean spoofFlag = false;
+
+        if (DewCommon.moduleManager.getModule(Scaffold.class).isEnabled() && DewCommon.moduleManager.getModule(Scaffold.class).getOriginalSlot() != -1) {
+            spoofFlag = true;
+        } else if (DewCommon.moduleManager.getModule(AutoPot.class).isEnabled() && DewCommon.moduleManager.getModule(AutoPot.class).getOriginalSlot() != -1) {
+            spoofFlag = true;
+        } else if (DewCommon.moduleManager.getModule(AutoTool.class).isEnabled() && DewCommon.moduleManager.getModule(AutoTool.class).getOriginalSlot() != -1) {
+            spoofFlag = true;
+        }
+
+        if (!spoofFlag) {
+            this.equippedProgress = 0.0F;
+        }
     }
 }

@@ -2,6 +2,9 @@ package net.minecraft.client.model;
 
 import com.dew.DewCommon;
 import com.dew.IMinecraft;
+import com.dew.system.module.modules.combat.AutoPot;
+import com.dew.system.module.modules.player.AutoTool;
+import com.dew.system.module.modules.player.Scaffold;
 import com.dew.system.module.modules.render.Animations;
 import com.dew.system.module.modules.render.SilentView;
 import com.dew.system.rotation.RotationManager;
@@ -224,6 +227,22 @@ public class ModelBiped extends ModelBase
             this.bipedLeftArm.rotateAngleZ -= MathHelper.cos(ageInTicks * 0.09F) * 0.05F + 0.05F;
             this.bipedRightArm.rotateAngleX += MathHelper.sin(ageInTicks * 0.067F) * 0.05F;
             this.bipedLeftArm.rotateAngleX -= MathHelper.sin(ageInTicks * 0.067F) * 0.05F;
+        }
+
+        if (IMinecraft.mc.gameSettings.thirdPersonView == 0) {
+            boolean spoofFlag = false;
+
+            if (DewCommon.moduleManager.getModule(Scaffold.class).isEnabled() && DewCommon.moduleManager.getModule(Scaffold.class).getOriginalSlot() != -1) {
+                spoofFlag = true;
+            } else if (DewCommon.moduleManager.getModule(AutoPot.class).isEnabled() && DewCommon.moduleManager.getModule(AutoPot.class).getOriginalSlot() != -1) {
+                spoofFlag = true;
+            } else if (DewCommon.moduleManager.getModule(AutoTool.class).isEnabled() && DewCommon.moduleManager.getModule(AutoTool.class).getOriginalSlot() != -1) {
+                spoofFlag = true;
+            }
+
+            if (spoofFlag) {
+                this.bipedRightArm.rotateAngleX = 0f;
+            }
         }
 
         copyModelAngles(this.bipedHead, this.bipedHeadwear);

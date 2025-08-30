@@ -65,6 +65,10 @@ public class Scaffold extends Module {
         super("Scaffold", ModuleCategory.PLAYER, Keyboard.KEY_NONE, false, true, true);
     }
 
+    public int getOriginalSlot() {
+        return originalSlot;
+    }
+
     private boolean canTower() {
         return (onlyTowerWhen.get().equals("Always") || onlyTowerWhen.get().equals("Standing") && !MovementUtil.isMoving() || onlyTowerWhen.get().equals("Moving") && MovementUtil.isMoving()) && Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) && MovementUtil.isBlockUnderPlayer(mc.thePlayer, 3, 2, false) && !MovementUtil.isBlockAbovePlayer(mc.thePlayer, 1, 0.3) && DewCommon.moduleManager.getModule(Hud.class).getTotalValidBlocksInHotbar() > 0;
     }
@@ -421,13 +425,6 @@ public class Scaffold extends Module {
 
         if (edgeSafeMode.get().equals("Safewalk") && !mode.get().equals("Telly")) {
             event.isSafeWalk = true;
-        }
-    }
-
-    @Override
-    public void onItemRender(ItemRenderEvent event) {
-        if (originalSlot != -1) {
-            event.itemToRender = mc.thePlayer.inventory.getStackInSlot(originalSlot);
         }
     }
 
