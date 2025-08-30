@@ -125,6 +125,7 @@ public class Freecam extends Module {
         long now = System.nanoTime();
         float deltaTime = (now - lastRenderTime) / 1_000_000_000.0f;
         lastRenderTime = now;
+        deltaTime = Math.min(deltaTime, 0.05f);
 
         if (freeCamEntity != null) {
             Vec3 motion = new Vec3(0, 0, 0);

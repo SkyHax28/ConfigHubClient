@@ -60,6 +60,7 @@ public class PlayerFixer {
         long now = System.nanoTime();
         float deltaTime = (now - lastRenderTime) / 1_000_000_000.0f;
         lastRenderTime = now;
+        deltaTime = Math.min(deltaTime, 0.05f);
 
         float startHeight = 1.62f;
 
