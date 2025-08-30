@@ -10,6 +10,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
+import net.minecraft.world.WorldSettings;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
@@ -38,7 +39,7 @@ public class BlockOverlay extends Module {
 
     @Override
     public void onRender3D(Render3DEvent event) {
-        if (mc.theWorld == null || getCurrentBlock() == null) return;
+        if (mc.theWorld == null || mc.playerController == null || mc.playerController.getCurrentGameType() == WorldSettings.GameType.ADVENTURE || mc.playerController.getCurrentGameType() == WorldSettings.GameType.SPECTATOR || getCurrentBlock() == null) return;
 
         Block block = mc.theWorld.getBlockState(getCurrentBlock()).getBlock();
         if (block == null) return;
