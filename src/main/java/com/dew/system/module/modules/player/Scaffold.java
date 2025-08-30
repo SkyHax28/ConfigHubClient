@@ -26,10 +26,7 @@ import net.minecraft.util.*;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.PriorityQueue;
-import java.util.Set;
+import java.util.*;
 
 public class Scaffold extends Module {
 
@@ -39,6 +36,7 @@ public class Scaffold extends Module {
     private static final NumberValue tellyThreeJumpRotation = new NumberValue("Telly 3 Jump Rotation", 35.0, 0.0, 180.0, 5.0, () -> mode.get().equals("Telly"));
     private static final NumberValue rotationSpeed = new NumberValue("Rotation Speed", 60.0, 0.0, 180.0, 5.0, () -> mode.get().equals("Normal") || mode.get().equals("Telly"));
     private static final NumberValue clutchRange = new NumberValue("Clutch Range", 3.0, 1.0, 6.0, 1.0);
+    private static final NumberValue expandRange = new NumberValue("Expand Range", 0.0, 0.0, 5.0, 1.0);
     private static final NumberValue placeDelay = new NumberValue("Place Delay", 0.0, 0.0, 3.0, 1.0, () -> mode.get().equals("Normal") || mode.get().equals("Telly"));
     private static final SelectionValue towerMode = new SelectionValue("Tower Mode", "OFF", "OFF", "Vanilla", "Hypixel");
     private static final SelectionValue onlyTowerWhen = new SelectionValue("Only Tower When", "Always", () -> towerMode.get().equals("Vanilla"), "Always", "Standing", "Moving");
@@ -265,8 +263,69 @@ public class Scaffold extends Module {
         this.search(below);
     }
 
+    private List<BlockPos> bresenhamLine(int x0, int z0, int x1, int z1) {
+        List<BlockPos> result = new ArrayList<>();
+
+        int dx = Math.abs(x1 - x0);
+        int dz = Math.abs(z1 - z0);
+
+        int sx = x0 < x1 ? 1 : -1;
+        int sz = z0 < z1 ? 1 : -1;
+
+        int err = dx - dz;
+
+        int x = x0;
+        int z = z0;
+
+        while (true) {
+            result.add(new BlockPos(x, 0, z));
+            if (x == x1 && z == z1) break;
+
+            int e2 = 2 * err;
+            if (e2 > -dz) {
+                err -= dz;
+                x += sx;
+            }
+            if (e2 < dx) {
+                err += dx;
+                z += sz;
+            }
+        }
+
+        return result;
+    }
+
     private void search(BlockPos below) {
         int playerY = (int) mc.thePlayer.posY - 1;
+
+        int maxExpand = expandRange.get().intValue();
+        if (maxExpand > 0 && MovementUtil.isMoving() && !towered) {
+            float yaw = (float) MovementUtil.getDirection();
+            double dirX = -Math.sin(Math.toRadians(yaw));
+            double dirZ =  Math.cos(Math.toRadians(yaw));
+
+            int targetX = (int) Math.round(dirX * maxExpand);
+            int targetZ = (int) Math.round(dirZ * maxExpand);
+
+            List<BlockPos> line = bresenhamLine(0, 0, targetX, targetZ);
+
+            for (BlockPos offset : line) {
+                BlockPos expandPos = below.add(offset.getX(), 0, offset.getZ());
+
+                if (expandPos.getY() > playerY) continue;
+                if (!mc.theWorld.getBlockState(expandPos).getBlock().isReplaceable(mc.theWorld, expandPos)) continue;
+
+                PlaceResult expandResult = tryPlaceBlock(expandPos);
+                if (expandResult == PlaceResult.SUCCESS) {
+                    lastPlacedPos = expandPos;
+                    holdingBlock = true;
+                    return;
+                } else if (expandResult == PlaceResult.FAIL_ROTATION) {
+                    return;
+                }
+            }
+        }
+
         if (!mc.theWorld.getBlockState(below).getBlock().isReplaceable(mc.theWorld, below) || below.getY() > playerY) return;
 
         PlaceResult result = tryPlaceBlock(below);

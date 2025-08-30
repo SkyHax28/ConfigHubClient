@@ -191,9 +191,9 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
         }
 
         int i = 24;
-        int j = this.height / 4 + 48;
+        int j = this.height / 2 + 48;
 
-        int yMultiplier = 80;
+        int yMultiplier = -80;
 
         this.addSingleplayerMultiplayerButtons(j, 24 + yMultiplier);
 
@@ -568,8 +568,8 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
         GlStateManager.popMatrix();*/
         String s = "Minecraft 1.8.9";
 
-        int yy = this.height / 4 + 48;
-        DewCommon.customFontRenderer.drawCenteredStringWithShadow("Quit drugs, " + DataSaver.userName, this.width / 2f, yy + 165, -1, 0.35f);
+        int yy = this.height / 2 + 48;
+        DewCommon.customFontRenderer.drawCenteredStringWithShadow("Quit drugs, " + DataSaver.userName, this.width / 2f, yy + 15, -1, 0.35f);
 
         if (this.mc.isDemo())
         {
