@@ -1,6 +1,7 @@
 package com.dew.system.module.modules.ghost;
 
 import com.dew.DewCommon;
+import com.dew.system.event.events.PreMotionEvent;
 import com.dew.system.event.events.PreUpdateEvent;
 import com.dew.system.event.events.WorldLoadEvent;
 import com.dew.system.module.Module;
@@ -48,7 +49,7 @@ public class BridgeAssist extends Module {
     }
 
     @Override
-    public void onPreUpdate(PreUpdateEvent event) {
+    public void onPreMotion(PreMotionEvent event) {
         if (mc.thePlayer == null) return;
 
         if (bridTick >= 1 && resetTick == 0) {
@@ -61,7 +62,7 @@ public class BridgeAssist extends Module {
 
         if (GameSettings.isKeyDown(mc.gameSettings.keyBindSneak)) return;
 
-        if (this.isNearEdge() && mc.thePlayer.getHeldItem() != null && mc.thePlayer.getHeldItem().getItem() instanceof ItemBlock) {
+        if (DewCommon.moduleManager.getModule(Scaffold.class).isNearEdge() && mc.thePlayer.getHeldItem() != null && mc.thePlayer.getHeldItem().getItem() instanceof ItemBlock) {
             mc.rightClickDelayTimer = 0;
             if (mc.thePlayer.rotationPitch >= 72f && mc.thePlayer.onGround) {
                 mc.gameSettings.keyBindSneak.setKeyDown(true);
@@ -73,35 +74,6 @@ public class BridgeAssist extends Module {
         } else {
             this.resetFunction();
         }
-    }
-
-    private boolean isNearEdge() {
-        double px = mc.thePlayer.posX;
-        double py = mc.thePlayer.posY;
-        double pz = mc.thePlayer.posZ;
-
-        int baseY = (int) Math.floor(py) - 1;
-
-        double radius = 0.35;
-        double step = Math.PI / 36;
-
-        if (mc.thePlayer.isPotionActive(Potion.moveSpeed)) {
-            radius += 0.15;
-        }
-
-        for (double angle = 0; angle < Math.PI * 2; angle += step) {
-            double checkX = px + Math.cos(angle) * radius;
-            double checkZ = pz + Math.sin(angle) * radius;
-
-            BlockPos pos = new BlockPos(checkX, baseY, checkZ);
-            Block block = mc.theWorld.getBlockState(pos).getBlock();
-
-            if (block.isReplaceable(mc.theWorld, pos) || !block.getMaterial().isSolid() || !block.isFullCube()) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     private void resetFunction() {

@@ -3,7 +3,9 @@ package com.dew.system.gui;
 import com.dew.DewCommon;
 import com.dew.IMinecraft;
 import com.dew.system.altmanager.Alt;
+import com.dew.system.altmanager.alt.SessionChanger;
 import com.dew.system.altmanager.login.MicrosoftAuth;
+import com.dew.utils.RandomUtil;
 import com.dew.utils.alt.APIUtils;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiMainMenu;
@@ -34,7 +36,8 @@ public class AltManagerGuiScreen extends GuiScreen {
         this.buttonList.clear();
         this.buttonList.add(new GuiButton(1, width / 2 - 40 + 200, 60, 80, 20, "Cracked"));
         this.buttonList.add(new GuiButton(5, width / 2 - 40 + 200, 85, 80, 20, "Free Random MS"));
-        this.buttonList.add(new GuiButton(0, width / 2 - 40 + 200, 110, 80, 20, "Cancel"));
+        this.buttonList.add(new GuiButton(6, width / 2 - 40 + 200, 110, 80, 20, "Random Cracked"));
+        this.buttonList.add(new GuiButton(0, width / 2 - 40 + 200, 135, 80, 20, "Cancel"));
         this.buttonList.add(new GuiButton(3, width / 2 - 40 - 200, 60, 80, 20, "Use Selected"));
         this.buttonList.add(new GuiButton(2, width / 2 - 40 - 200, 85, 80, 20, "Use Microsoft"));
         this.buttonList.add(new GuiButton(4, width / 2 - 40 - 200, 110, 80, 20, "Token Login"));
@@ -176,6 +179,9 @@ public class AltManagerGuiScreen extends GuiScreen {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
+                break;
+            case 6:
+                SessionChanger.getInstance().setUserOffline(RandomUtil.randomString(RandomUtil.nextInt(5, 14)));
                 break;
         }
     }

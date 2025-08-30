@@ -133,7 +133,6 @@ public class Scaffold extends Module {
 
         this.doMainFunctions();
         this.tellyFunction();
-        this.edgeCheck(false);
     }
 
     @Override
@@ -141,7 +140,7 @@ public class Scaffold extends Module {
         if (mc.thePlayer == null || mc.theWorld == null) return;
 
         this.jumpCheck();
-        this.edgeCheck(true);
+        this.edgeCheck();
     }
 
     @Override
@@ -458,11 +457,11 @@ public class Scaffold extends Module {
         }
     }
 
-    private void edgeCheck(boolean allowUnSneak) {
+    private void edgeCheck() {
         if (edgeSafeMode.get().equals("Sneak") && this.isNearEdge() && !mode.get().equals("Telly") || mode.get().equals("Telly") && mc.thePlayer.onGround && this.isNearEdge() && !doTellyInThisJump) {
             mc.gameSettings.keyBindSneak.setKeyDown(true);
             isSneaking = true;
-        } else if (isSneaking && allowUnSneak) {
+        } else if (isSneaking) {
             mc.gameSettings.keyBindSneak.setKeyDown(false);
             isSneaking = false;
         }
@@ -480,39 +479,9 @@ public class Scaffold extends Module {
     public void onMove(MoveEvent event) {
         if (mc.thePlayer == null || mc.theWorld == null) return;
 
-        this.edgeCheck(false);
-
         if (edgeSafeMode.get().equals("Safewalk") && !mode.get().equals("Telly")) {
             event.isSafeWalk = true;
         }
-    }
-
-    @Override
-    public void onLivingUpdate(LivingUpdateEvent event) {
-        if (mc.thePlayer == null || mc.theWorld == null) return;
-
-        this.edgeCheck(false);
-    }
-
-    @Override
-    public void onTick(TickEvent event) {
-        if (mc.thePlayer == null || mc.theWorld == null) return;
-
-        this.edgeCheck(false);
-    }
-
-    @Override
-    public void onPostUpdate(PostUpdateEvent event) {
-        if (mc.thePlayer == null || mc.theWorld == null) return;
-
-        this.edgeCheck(false);
-    }
-
-    @Override
-    public void onPostMotion(PostMotionEvent event) {
-        if (mc.thePlayer == null || mc.theWorld == null) return;
-
-        this.edgeCheck(false);
     }
 
     private void updateKeepY() {
@@ -583,7 +552,7 @@ public class Scaffold extends Module {
         return false;
     }
 
-    private boolean isNearEdge() {
+    public boolean isNearEdge() {
         double px = mc.thePlayer.posX;
         double py = mc.thePlayer.posY;
         double pz = mc.thePlayer.posZ;
@@ -597,7 +566,7 @@ public class Scaffold extends Module {
             radius += 0.15;
         }
 
-        if (!MovementUtil.isBlockUnderPlayer(mc.thePlayer, 1, 0.2, false)) {
+        if (!MovementUtil.isBlockUnderPlayer(mc.thePlayer, 1, 0.1, false)) {
             for (double angle = 0; angle < Math.PI * 2; angle += step) {
                 double checkX = px + Math.cos(angle) * radius;
                 double checkZ = pz + Math.sin(angle) * radius;
