@@ -71,7 +71,7 @@ public class Manager extends Module {
 
     @Override
     public void onPreUpdate(PreUpdateEvent event) {
-        if (mc.thePlayer == null || mc.currentScreen instanceof GuiChest || inventoryOnly.get() && !(mc.currentScreen instanceof GuiInventory) || DewCommon.moduleManager.getModule(Disabler.class).isEnabled() && DewCommon.moduleManager.getModule(Disabler.class).isInventoryDisablerEnabled() && mc.thePlayer.isUsingItem()) {
+        if (mc.thePlayer == null || mc.thePlayer.inventory.getItemStack() != null || mc.currentScreen instanceof GuiChest || inventoryOnly.get() && !(mc.currentScreen instanceof GuiInventory) || DewCommon.moduleManager.getModule(Disabler.class).isEnabled() && DewCommon.moduleManager.getModule(Disabler.class).isInventoryDisablerEnabled() && mc.thePlayer.isUsingItem()) {
             this.resetState();
             return;
         }

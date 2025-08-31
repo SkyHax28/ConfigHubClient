@@ -151,7 +151,9 @@ public class Aura extends Module {
     }
 
     @Override
-    public void onPreUpdate(PreUpdateEvent event) {
+    public void onTick(TickEvent event) {
+        if (mc.thePlayer == null || mc.theWorld == null) return;
+
         this.updateSlotSwapper();
 
         if (this.isInAutoBlockMode()) return;
@@ -188,7 +190,7 @@ public class Aura extends Module {
                     }).start();
                 } else {
                     if (objectCheck.get()) {
-                        if (mc.objectMouseOver != null && mc.objectMouseOver.entityHit != null && mc.objectMouseOver.entityHit == entity) {
+                        if (mc.objectMouseOver != null && mc.objectMouseOver.entityHit != null && mc.objectMouseOver.entityHit == entity && !mc.thePlayer.isUsingItem()) {
                             AttackOrder.sendFixedAttack(mc.thePlayer, mc.objectMouseOver.entityHit, !swingMode.get().equals("Normal"));
                             mc.thePlayer.onEnchantmentCritical(mc.objectMouseOver.entityHit);
                         }

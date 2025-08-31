@@ -62,8 +62,8 @@ public class AutoBlock extends Module {
     }
 
     @Override
-    public void onPreUpdate(PreUpdateEvent event) {
-        if (mc.thePlayer == null) return;
+    public void onTick(TickEvent event) {
+        if (mc.thePlayer == null || mc.theWorld == null) return;
 
         Aura auraModule = DewCommon.moduleManager.getModule(Aura.class);
 

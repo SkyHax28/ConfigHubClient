@@ -53,7 +53,7 @@ public class Stealer extends Module {
 
     @Override
     public void onPreUpdate(PreUpdateEvent event) {
-        if (mc.thePlayer == null || !(mc.currentScreen instanceof GuiChest)) {
+        if (mc.thePlayer == null || mc.thePlayer.inventory.getItemStack() != null || !(mc.currentScreen instanceof GuiChest)) {
             this.resetState();
             return;
         }
