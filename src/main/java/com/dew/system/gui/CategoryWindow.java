@@ -24,8 +24,11 @@ public class CategoryWindow {
     private boolean dragging;
     private int dragX, dragY;
 
+    private final String categoryTitle;
+
     public CategoryWindow(ModuleCategory category, int x, int y) {
         this.category = category;
+        this.categoryTitle = formatCategoryName(category.name());
 
         ClickGuiState.WindowState state = ClickGuiState.getOrCreate(category, x, y);
         this.x = state.x;
@@ -48,6 +51,23 @@ public class CategoryWindow {
                 .collect(Collectors.toList());
     }
 
+    private String formatCategoryName(String name) {
+        String lower = name.toLowerCase();
+        if (lower.contains("_")) {
+            String[] parts = lower.split("_");
+            StringBuilder builder = new StringBuilder();
+            for (int i = 0; i < parts.length; i++) {
+                if (!parts[i].isEmpty()) {
+                    builder.append(Character.toUpperCase(parts[i].charAt(0)))
+                            .append(parts[i].substring(1));
+                    if (i != parts.length - 1) builder.append(" ");
+                }
+            }
+            return builder.toString();
+        }
+        return lower.substring(0, 1).toUpperCase() + lower.substring(1);
+    }
+
     public void draw(int mouseX, int mouseY) {
         updatePosition(mouseX, mouseY);
 
@@ -59,27 +79,6 @@ public class CategoryWindow {
 
         Gui.drawRect(x, y, x + ClickGuiState.NEW_GUI_WIDTH, y + 1, new Color(85, 153, 255, 180).getRGB());
         Gui.drawRect(x, y + headerHeight - 1, x + ClickGuiState.NEW_GUI_WIDTH, y + headerHeight, new Color(85, 153, 255, 120).getRGB());
-
-        String categoryName = category.name().toLowerCase();
-
-        String categoryTitle;
-        if (categoryName.contains("_")) {
-            String[] parts = categoryName.split("_");
-            StringBuilder builder = new StringBuilder();
-            for (int i = 0; i < parts.length; i++) {
-                String part = parts[i];
-                if (!part.isEmpty()) {
-                    builder.append(Character.toUpperCase(part.charAt(0)))
-                            .append(part.substring(1));
-                }
-                if (i != parts.length - 1) {
-                    builder.append(" ");
-                }
-            }
-            categoryTitle = builder.toString();
-        } else {
-            categoryTitle = categoryName.substring(0, 1).toUpperCase() + categoryName.substring(1);
-        }
 
         DewCommon.customFontRenderer.drawCenteredStringWithShadow(
                 categoryTitle,

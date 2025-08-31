@@ -144,7 +144,7 @@ public abstract class TileEntity
 
     public double getMaxRenderDistanceSquared()
     {
-        return DewCommon.moduleManager.getModule(FpsBooster.class).isEnabled() ? 512.0D : 4096.0D;
+        return DewCommon.moduleManager.getModule(FpsBooster.class).isEnabled() ? 4096.0D / 1.2 : 4096.0D;
     }
 
     public BlockPos getPos()

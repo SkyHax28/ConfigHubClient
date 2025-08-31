@@ -9,6 +9,8 @@ import com.dew.utils.shader.FramebufferShader;
 import com.dew.utils.shader.GlowShader;
 import com.dew.utils.shader.OutlineShader;
 import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.client.renderer.culling.Frustum;
+import net.minecraft.client.renderer.culling.ICamera;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import org.lwjgl.input.Keyboard;
@@ -19,7 +21,7 @@ public class ESP extends Module {
 
     private static final SelectionValue mode = new SelectionValue("Mode", "Glow", "Glow", "Outline");
     private boolean renderNametagAndEnchantmentGlint = true;
-
+    private final ICamera frustum = new Frustum();
     public ESP() {
         super("ESP", ModuleCategory.RENDER, Keyboard.KEY_NONE, false, false, true);
     }
@@ -44,22 +46,34 @@ public class ESP extends Module {
 
     @Override
     public void onRender2D(Render2DEvent event) {
-        final FramebufferShader shader = mode.get().equals("Glow") ? GlowShader.GLOW_SHADER : OutlineShader.OUTLINE_SHADER;
+        final boolean glow = "Glow".equals(mode.get());
+        final FramebufferShader shader = glow ? GlowShader.GLOW_SHADER : OutlineShader.OUTLINE_SHADER;
 
         shader.startDraw(event.partialTicks);
 
         renderNametagAndEnchantmentGlint = false;
-
         try {
-            for (final Entity entity : mc.theWorld.loadedEntityList) {
-                if (!this.shouldRender(entity)) continue;
-                mc.getRenderManager().renderEntityStatic(entity, mc.timer.renderPartialTicks, true);
+            Entity view = mc.getRenderViewEntity();
+            if (view != null) {
+                double x = view.lastTickPosX + (view.posX - view.lastTickPosX) * mc.timer.renderPartialTicks;
+                double y = view.lastTickPosY + (view.posY - view.lastTickPosY) * mc.timer.renderPartialTicks;
+                double z = view.lastTickPosZ + (view.posZ - view.lastTickPosZ) * mc.timer.renderPartialTicks;
+                frustum.setPosition(x, y, z);
             }
-        } catch (final Exception ignored) {
+
+            for (EntityPlayer player : mc.theWorld.playerEntities) {
+                if (shouldRender(player) && frustum.isBoundingBoxInFrustum(player.getEntityBoundingBox())) {
+                    mc.getRenderManager().renderEntityStatic(player, mc.timer.renderPartialTicks, true);
+                }
+            }
+        } finally {
+            renderNametagAndEnchantmentGlint = true;
         }
 
-        renderNametagAndEnchantmentGlint = true;
+        // 各パラメータを事前に決定
+        float radius = glow ? 3.5f : 1.5f;
+        float intensity = glow ? 0.4f : 0.8f;
 
-        shader.stopDraw(Color.WHITE, mode.get().equals("Glow") ? 3.5f : 1.5f, mode.get().equals("Glow") ? 0.4f : 0.8f);
+        shader.stopDraw(Color.WHITE, radius, intensity);
     }
 }

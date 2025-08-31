@@ -1,6 +1,7 @@
 package net.minecraft.client.renderer.tileentity;
 
 import com.dew.DewCommon;
+import com.dew.system.module.modules.render.Chams;
 import com.dew.system.module.modules.render.Xray;
 import com.google.common.collect.Maps;
 import java.util.Map;
@@ -32,6 +33,7 @@ import net.minecraft.util.ReportedException;
 import net.minecraft.world.World;
 import net.optifine.EmissiveTextures;
 import net.optifine.reflect.Reflector;
+import org.lwjgl.opengl.GL11;
 
 public class TileEntityRendererDispatcher
 {
@@ -113,6 +115,11 @@ public class TileEntityRendererDispatcher
         {
             boolean flag = true;
 
+            if (DewCommon.moduleManager.getModule(Chams.class).isEnabled() && DewCommon.moduleManager.getModule(Chams.class).doRenderTileEntities()) {
+                GL11.glEnable(GL11.GL_POLYGON_OFFSET_FILL);
+                GL11.glPolygonOffset(1.0F, -1000000F);
+            }
+
             if (Reflector.ForgeTileEntity_hasFastRenderer.exists())
             {
                 flag = !this.drawingBatch || !Reflector.callBoolean(tileentityIn, Reflector.ForgeTileEntity_hasFastRenderer, new Object[0]);
@@ -152,6 +159,11 @@ public class TileEntityRendererDispatcher
                 }
 
                 EmissiveTextures.endRender();
+            }
+
+            if (DewCommon.moduleManager.getModule(Chams.class).isEnabled() && DewCommon.moduleManager.getModule(Chams.class).doRenderTileEntities()) {
+                GL11.glPolygonOffset(1.0F, 1000000F);
+                GL11.glDisable(GL11.GL_POLYGON_OFFSET_FILL);
             }
         }
     }

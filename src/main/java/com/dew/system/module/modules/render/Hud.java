@@ -3,6 +3,7 @@ package com.dew.system.module.modules.render;
 import com.dew.DewCommon;
 import com.dew.IMinecraft;
 import com.dew.system.event.events.Render2DEvent;
+import com.dew.system.event.events.WorldLoadEvent;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
 import com.dew.system.module.modules.combat.Aura;
@@ -60,9 +61,19 @@ public class Hud extends Module {
     private float targetHudAnimationProgress = 0f;
     private boolean moduleListDirty = true;
     private int finalModuleListHeight = 0;
-    private static final Map<BlurCacheKey, BlurVBO> blurCache = new HashMap<>();
+    private static int unitQuadVbo = 0;
     public Hud() {
         super("Hud", ModuleCategory.RENDER, Keyboard.KEY_NONE, true, false, true);
+    }
+
+    @Override
+    public void onDisable() {
+        deleteUnitQuadVbo();
+    }
+
+    @Override
+    public void onLoadWorld(WorldLoadEvent event) {
+        deleteUnitQuadVbo();
     }
 
     public int getModuleListHeight() {
@@ -134,7 +145,7 @@ public class Hud extends Module {
             String display = moduleName + (!tag.isEmpty() ? " " + tag : "");
 
             float progress = (time + cumulativeY / 100f) % 1.0f;
-            Color accentColor = this.getHudColor(progress, 0);
+            Color accentColor = RenderUtil.getThemeColor(progress, 0);
 
             float displayWidth = cachedWidths.getOrDefault(module, fontRenderer.getStringWidth(display, fontSize));
             float displayHeight = 14;
@@ -244,28 +255,56 @@ public class Hud extends Module {
         return blurVBO;
     }
 
+    private static void ensureUnitQuadVbo() {
+        if (unitQuadVbo != 0) return;
+        FloatBuffer buf = BufferUtils.createFloatBuffer(8);
+        buf.put(0f).put(0f);
+        buf.put(0f).put(1f);
+        buf.put(1f).put(1f);
+        buf.put(1f).put(0f);
+        buf.flip();
+
+        unitQuadVbo = GL15.glGenBuffers();
+        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, unitQuadVbo);
+        GL15.glBufferData(GL15.GL_ARRAY_BUFFER, buf, GL15.GL_STATIC_DRAW);
+        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
+    }
+
+    private static void deleteUnitQuadVbo() {
+        if (unitQuadVbo != 0) {
+            GL15.glDeleteBuffers(unitQuadVbo);
+            unitQuadVbo = 0;
+        }
+    }
+
     private static void drawBlurredBackground(double x, double y, double width, double height, int passes, int color) {
-        if (passes <= 0) return;
+        if (passes <= 0 || width <= 0 || height <= 0) return;
 
-        BlurCacheKey key = new BlurCacheKey(x, y, width, height, passes);
-        BlurVBO blurVBO = blurCache.computeIfAbsent(key, k -> createBlurVBO(x, y, width, height, passes));
+        ensureUnitQuadVbo();
 
-        float alpha = (color >> 24 & 255) / 255.0F;
-        float red   = (color >> 16 & 255) / 255.0F;
-        float green = (color >> 8 & 255) / 255.0F;
-        float blue  = (color & 255) / 255.0F;
+        float a = (color >>> 24 & 255) / 255f;
+        float r = (color >>> 16 & 255) / 255f;
+        float g = (color >>>  8 & 255) / 255f;
+        float b = (color         & 255) / 255f;
 
         GlStateManager.pushMatrix();
         GlStateManager.enableBlend();
         GlStateManager.disableTexture2D();
         GlStateManager.tryBlendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
-        GlStateManager.color(red, green, blue, alpha);
+        GlStateManager.color(r, g, b, a);
 
-        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, blurVBO.vboId);
+        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, unitQuadVbo);
         GL11.glEnableClientState(GL11.GL_VERTEX_ARRAY);
         GL11.glVertexPointer(2, GL11.GL_FLOAT, 0, 0L);
 
-        GL11.glDrawArrays(GL11.GL_QUADS, 0, blurVBO.vertexCount);
+        for (int i = 0; i < passes; i++) {
+            double off = i * 0.5;
+            GlStateManager.pushMatrix();
+            GlStateManager.translate((float)(x - off), (float)(y - off), 0f);
+            GlStateManager.scale((float)(width + off * 2), (float)(height + off * 2), 1f);
+            GL11.glDrawArrays(GL11.GL_QUADS, 0, 4);
+            GlStateManager.popMatrix();
+        }
 
         GL11.glDisableClientState(GL11.GL_VERTEX_ARRAY);
         GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
@@ -334,7 +373,7 @@ public class Hud extends Module {
             float charX = x;
             for (int i = 0; i < display.length(); i++) {
                 char c = display.charAt(i);
-                Color accentColor = getHudColor(time, i);
+                Color accentColor = RenderUtil.getThemeColor(time, i);
                 fontRenderer.drawStringWithShadow(
                         String.valueOf(c),
                         charX,
@@ -571,25 +610,8 @@ public class Hud extends Module {
                     int boxHeight = 26;
                     int y = sr.getScaledHeight() - 40 - index * (boxHeight + 4);
 
-                    for (int i = 0; i < potionName.length(); i++) {
-                        char c = potionName.charAt(i);
-                        Color letterColor = getHudColor(time, i + index * 10);
-                        fontRenderer.drawStringWithShadow(
-                                String.valueOf(c),
-                                x - widest - 8 + fontRenderer.getStringWidth(potionName.substring(0, i), fontSize),
-                                y + 6,
-                                letterColor.getRGB(),
-                                fontSize
-                        );
-                    }
-
-                    fontRenderer.drawStringWithShadow(
-                            durationStr,
-                            x - durationWidth - 8,
-                            y + 18,
-                            durationColor.getRGB(),
-                            fontSize
-                    );
+                    fontRenderer.drawStringWithShadow(potionName, x - widest - 8, y + 6, RenderUtil.getThemeColor(time, index).getRGB(), fontSize);
+                    fontRenderer.drawStringWithShadow(durationStr, x - durationWidth - 8, y + 18, durationColor.getRGB(), fontSize);
 
                     index++;
                 }
@@ -634,7 +656,7 @@ public class Hud extends Module {
                     String name = target.getName();
                     for (int i = 0; i < name.length(); i++) {
                         char c = name.charAt(i);
-                        Color letterColor = getHudColor(time, i + 20);
+                        Color letterColor = RenderUtil.getThemeColor(time, i + 20);
                         letterColor = applyAlpha(letterColor, targetHudAnimationProgress);
                         fontRenderer.drawStringWithShadow(
                                 String.valueOf(c),
@@ -651,7 +673,7 @@ public class Hud extends Module {
 
                 int hpBarWidth = (int) (targetHpLerp * (width - 50));
                 for (int i = 0; i < hpBarWidth; i++) {
-                    Color hpGradColor = getHudColor(time, (float) i + 50);
+                    Color hpGradColor = RenderUtil.getThemeColor(time, (float) i + 50);
                     hpGradColor = applyAlpha(hpGradColor, targetHudAnimationProgress);
                     Gui.drawRect(
                             baseX + 40 + i,
@@ -761,23 +783,6 @@ public class Hud extends Module {
         int a = (int)(c.getAlpha() * alpha);
         a = Math.min(255, Math.max(0, a));
         return new Color(c.getRed(), c.getGreen(), c.getBlue(), a);
-    }
-
-    private Color getHudColor(float progress, float index) {
-        float offset = index * 0.01f;
-        progress = ((progress + offset) % 1.0f + 1.0f) % 1.0f;
-
-        float segment = progress * 3;
-
-        if (segment < 1) {
-            return Lerper.lerpColor(new Color(0, 120, 255), new Color(0, 230, 255), segment);
-        } else if (segment < 2) {
-            float t = segment - 1;
-            return Lerper.lerpColor(new Color(0, 230, 255), new Color(0, 180, 220), t);
-        } else {
-            float t = segment - 2;
-            return Lerper.lerpColor(new Color(0, 180, 220), new Color(0, 120, 255), t);
-        }
     }
 
     private String toRoman(int number) {

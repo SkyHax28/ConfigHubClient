@@ -8,6 +8,8 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.nio.ByteBuffer;
+import java.util.HashMap;
+import java.util.Map;
 
 public class CustomFontRenderer {
     private static final int TEX_WIDTH = 512;
@@ -17,6 +19,9 @@ public class CustomFontRenderer {
     private final Font font;
     private final CharData[] charData = new CharData[256];
     private int texId;
+
+    private final Map<String, Float> widthCache = new HashMap<>();
+    private final Map<String, RenderCache> textCache = new HashMap<>();
 
     public CustomFontRenderer(Font font) {
         this.font = font;
@@ -85,7 +90,63 @@ public class CustomFontRenderer {
         return id;
     }
 
+    public float getStringWidth(String text, float size) {
+        String key = text + "@" + size;
+        if (widthCache.containsKey(key)) {
+            return widthCache.get(key);
+        }
+
+        float width = 0f;
+        for (char c : text.toCharArray()) {
+            if (c >= 256) continue;
+            CharData data = charData[c];
+            if (data != null) {
+                width += (data.width - PADDING * 2) * size;
+            }
+        }
+        widthCache.put(key, width);
+        return width;
+    }
+
     public void drawString(String text, float x, float y, int color, float size) {
+        String key = "plain:" + text + "@" + color + "@" + size;
+        RenderCache cache = textCache.get(key);
+        if (cache != null) {
+            cache.render(x, y);
+            return;
+        }
+
+        RenderCache newCache = new RenderCache(text, color, size, false);
+        newCache.render(x, y);
+        textCache.put(key, newCache);
+    }
+
+    public void drawCenteredString(String text, float centerX, float y, int color, float size) {
+        float width = getStringWidth(text, size);
+        float x = centerX - (width / 2.0f);
+        drawString(text, x, y, color, size);
+    }
+
+    public void drawStringWithShadow(String text, float x, float y, int color, float size) {
+        String key = "shadow:" + text + "@" + color + "@" + size;
+        RenderCache cache = textCache.get(key);
+        if (cache != null) {
+            cache.render(x, y);
+            return;
+        }
+
+        RenderCache newCache = new RenderCache(text, color, size, true);
+        newCache.render(x, y);
+        textCache.put(key, newCache);
+    }
+
+    public void drawCenteredStringWithShadow(String text, float centerX, float y, int color, float size) {
+        float width = getStringWidth(text, size);
+        float x = centerX - (width / 2.0f);
+        drawStringWithShadow(text, x, y, color, size);
+    }
+
+    private void renderText(String text, float x, float y, int color, float size) {
         y += 1.1f;
 
         float scale = Math.min(size, 1.0f);
@@ -141,38 +202,6 @@ public class CustomFontRenderer {
         GL11.glPopAttrib();
     }
 
-    public float getStringWidth(String text, float size) {
-        float width = 0f;
-        for (char c : text.toCharArray()) {
-            if (c >= 256) continue;
-            CharData data = charData[c];
-            if (data != null) {
-                width += (data.width - PADDING * 2) * size;
-            }
-        }
-        return width;
-    }
-
-    public void drawCenteredString(String text, float centerX, float y, int color, float size) {
-        float width = getStringWidth(text, size);
-        float x = centerX - (width / 2.0f);
-        drawString(text, x, y, color, size);
-    }
-
-    public void drawStringWithShadow(String text, float x, float y, int color, float size) {
-        int shadowColor = (color & 0xFF000000);
-        float shadowAlpha = ((color >> 24) & 0xFF) / 255f * 0.5f;
-
-        drawString(text, x + 1, y + 1, (shadowColor & 0x00FFFFFF) | ((int) (shadowAlpha * 255) << 24), size);
-        drawString(text, x, y, color, size);
-    }
-
-    public void drawCenteredStringWithShadow(String text, float centerX, float y, int color, float size) {
-        float width = getStringWidth(text, size);
-        float x = centerX - (width / 2.0f);
-        drawStringWithShadow(text, x, y, color, size);
-    }
-
     private static class CharData {
         public int x, y, width, height;
 
@@ -181,6 +210,31 @@ public class CustomFontRenderer {
             this.y = y;
             this.width = width;
             this.height = height;
+        }
+    }
+
+    private class RenderCache {
+        private final String text;
+        private final int color;
+        private final float size;
+        private final boolean shadow;
+
+        RenderCache(String text, int color, float size, boolean shadow) {
+            this.text = text;
+            this.color = color;
+            this.size = size;
+            this.shadow = shadow;
+        }
+
+        void render(float x, float y) {
+            if (shadow) {
+                int shadowColor = (color & 0xFF000000);
+                float shadowAlpha = ((color >> 24) & 0xFF) / 255f * 0.5f;
+                int sCol = (shadowColor & 0x00FFFFFF) | ((int) (shadowAlpha * 255) << 24);
+
+                renderText(text, x + 1, y + 1, sCol, size);
+            }
+            renderText(text, x, y, color, size);
         }
     }
 }

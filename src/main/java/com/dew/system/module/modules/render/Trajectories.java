@@ -20,6 +20,7 @@ import net.minecraft.util.Vec3;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
+import java.awt.*;
 import java.util.List;
 
 public class Trajectories extends Module {
@@ -110,6 +111,11 @@ public class Trajectories extends Module {
         WorldRenderer buffer = tessellator.getWorldRenderer();
         buffer.begin(GL11.GL_LINE_STRIP, DefaultVertexFormats.POSITION);
 
+        float speed = 1800f;
+        float time = (System.currentTimeMillis() % (int) speed) / speed;
+        Color colorA = RenderUtil.getThemeColor(time, 0);
+        Color color = new Color(colorA.getRed(), colorA.getGreen(), colorA.getBlue(), 80);
+
         while (posY > 0.0) {
             Vec3 current = new Vec3(posX, posY, posZ);
             Vec3 next = new Vec3(posX + motionX, posY + motionY, posZ + motionZ);
@@ -140,7 +146,7 @@ public class Trajectories extends Module {
                         finalHitVec = hitVec;
                         buffer.pos(hitVec.xCoord - renderX, hitVec.yCoord - renderY, hitVec.zCoord - renderZ).endVertex();
                         tessellator.draw();
-                        double boxSize = 0.3D;
+                        double boxSize = 0.2D;
                         AxisAlignedBB box = new AxisAlignedBB(
                                 finalHitVec.xCoord - boxSize - renderX,
                                 finalHitVec.yCoord - boxSize - renderY,
@@ -150,7 +156,8 @@ public class Trajectories extends Module {
                                 finalHitVec.zCoord + boxSize - renderZ
                         );
 
-                        RenderUtil.drawFilledBox(box, 1f, 0f, 1f, 0.5f);
+                        RenderUtil.glColor(color);
+                        RenderUtil.drawSelectionFilledBox(box);
                         disableGL();
                         GlStateManager.popMatrix();
                         return;
@@ -173,7 +180,7 @@ public class Trajectories extends Module {
 
         tessellator.draw();
         if (finalHitVec != null) {
-            double boxSize = 0.3D;
+            double boxSize = 0.2D;
             AxisAlignedBB box = new AxisAlignedBB(
                     finalHitVec.xCoord - boxSize - renderX,
                     finalHitVec.yCoord - boxSize - renderY,
@@ -183,7 +190,8 @@ public class Trajectories extends Module {
                     finalHitVec.zCoord + boxSize - renderZ
             );
 
-            RenderUtil.drawFilledBox(box, 0f, 1f, 1f, 0.5f);
+            RenderUtil.glColor(color);
+            RenderUtil.drawSelectionFilledBox(box);
         }
         disableGL();
         GlStateManager.popMatrix();

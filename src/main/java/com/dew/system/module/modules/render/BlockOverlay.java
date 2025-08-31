@@ -1,8 +1,10 @@
 package com.dew.system.module.modules.render;
 
+import com.dew.DewCommon;
 import com.dew.system.event.events.Render3DEvent;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
+import com.dew.system.module.modules.player.Freecam;
 import com.dew.utils.Lerper;
 import com.dew.utils.RenderUtil;
 import net.minecraft.block.Block;
@@ -39,7 +41,7 @@ public class BlockOverlay extends Module {
 
     @Override
     public void onRender3D(Render3DEvent event) {
-        if (mc.theWorld == null || mc.playerController == null || mc.playerController.getCurrentGameType() == WorldSettings.GameType.ADVENTURE || mc.playerController.getCurrentGameType() == WorldSettings.GameType.SPECTATOR || getCurrentBlock() == null) return;
+        if (mc.theWorld == null || DewCommon.moduleManager.getModule(Freecam.class).isEnabled() || mc.playerController == null || mc.playerController.getCurrentGameType() == WorldSettings.GameType.ADVENTURE || mc.playerController.getCurrentGameType() == WorldSettings.GameType.SPECTATOR || getCurrentBlock() == null) return;
 
         Block block = mc.theWorld.getBlockState(getCurrentBlock()).getBlock();
         if (block == null) return;
@@ -48,7 +50,7 @@ public class BlockOverlay extends Module {
 
         float speed = 1800f;
         float time = (System.currentTimeMillis() % (int) speed) / speed;
-        Color colorA = getColor(time, 0);
+        Color colorA = RenderUtil.getThemeColor(time, 0);
         Color color = new Color(colorA.getRed(), colorA.getGreen(), colorA.getBlue(), 40);
         Color colorB = new Color(colorA.getRed(), colorA.getGreen(), colorA.getBlue(), 240);
 
@@ -73,40 +75,14 @@ public class BlockOverlay extends Module {
                 .expand(0.0020000000949949026D, 0.0020000000949949026D, 0.0020000000949949026D)
                 .offset(-x, -y, -z);
 
-        glColor(colorB);
+        RenderUtil.glColor(colorB);
         RenderUtil.drawSelectionBoundingBox(axisAlignedBB);
-        glColor(color);
+        RenderUtil.glColor(color);
         RenderUtil.drawSelectionFilledBox(axisAlignedBB);
 
         GlStateManager.depthMask(true);
         GlStateManager.enableTexture2D();
         GlStateManager.disableBlend();
         GlStateManager.resetColor();
-    }
-
-    private void glColor(final Color color) {
-        final float red = color.getRed() / 255F;
-        final float green = color.getGreen() / 255F;
-        final float blue = color.getBlue() / 255F;
-        final float alpha = color.getAlpha() / 255F;
-
-        GlStateManager.color(red, green, blue, alpha);
-    }
-
-    private Color getColor(float progress, float index) {
-        float offset = index * 0.01f;
-        progress = ((progress + offset) % 1.0f + 1.0f) % 1.0f;
-
-        float segment = progress * 3;
-
-        if (segment < 1) {
-            return Lerper.lerpColor(new Color(0, 120, 255), new Color(0, 230, 255), segment);
-        } else if (segment < 2) {
-            float t = segment - 1;
-            return Lerper.lerpColor(new Color(0, 230, 255), new Color(0, 180, 220), t);
-        } else {
-            float t = segment - 2;
-            return Lerper.lerpColor(new Color(0, 180, 220), new Color(0, 120, 255), t);
-        }
     }
 }

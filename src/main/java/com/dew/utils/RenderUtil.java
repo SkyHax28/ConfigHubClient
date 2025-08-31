@@ -13,12 +13,30 @@ import static org.lwjgl.opengl.GL11.GL_LINE_STRIP;
 
 public class RenderUtil {
 
-    public static void glColor(int red, int green, int blue, int alpha) {
-        GL11.glColor4f(red / 255f, green / 255f, blue / 255f, alpha / 255f);
+    public static void glColor(final Color color) {
+        final float red = color.getRed() / 255F;
+        final float green = color.getGreen() / 255F;
+        final float blue = color.getBlue() / 255F;
+        final float alpha = color.getAlpha() / 255F;
+
+        GlStateManager.color(red, green, blue, alpha);
     }
 
-    public static void glColor(Color color) {
-        glColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
+    public static Color getThemeColor(float progress, float index) {
+        float offset = index * 0.01f;
+        progress = ((progress + offset) % 1.0f + 1.0f) % 1.0f;
+
+        float segment = progress * 3;
+
+        if (segment < 1) {
+            return Lerper.lerpColor(new Color(0, 120, 255), new Color(0, 230, 255), segment);
+        } else if (segment < 2) {
+            float t = segment - 1;
+            return Lerper.lerpColor(new Color(0, 230, 255), new Color(0, 180, 220), t);
+        } else {
+            float t = segment - 2;
+            return Lerper.lerpColor(new Color(0, 180, 220), new Color(0, 120, 255), t);
+        }
     }
 
     public static void drawSelectionBoundingBox(AxisAlignedBB boundingBox) {
