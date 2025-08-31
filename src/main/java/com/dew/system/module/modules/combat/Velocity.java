@@ -19,7 +19,8 @@ import org.lwjgl.input.Keyboard;
 
 public class Velocity extends Module {
 
-    private static final SelectionValue mode = new SelectionValue("Mode", "Normal", "Normal", "Hypixel", "9.0E-4D Exploit", "Prediction", "Jump");
+    private static final SelectionValue mode = new SelectionValue("Mode", "Normal", "Normal", "Hypixel", "MC Exploit", "Prediction", "Jump");
+    private static final SelectionValue exploitValue = new SelectionValue("Exploit Value", "1.0E-4", () -> mode.get().equals("MC Exploit"), "1.0E-4", "9.0E-4D");
     private static final NumberValue horizontal = new NumberValue("Horizontal", 0.0, -1.0, 1.0, 0.05, () -> mode.get().equals("Normal"));
     private static final NumberValue vertical = new NumberValue("Vertical", 0.0, -1.0, 1.0, 0.05, () -> mode.get().equals("Normal"));
     private int hypTick = 0;
@@ -91,9 +92,13 @@ public class Velocity extends Module {
                     event.cancel();
                     break;
 
-                case "9.0e-4d exploit":
+                case "mc exploit":
                     if (mc.thePlayer.onGround && !sent) {
-                        PacketUtil.sendPacketAsSilent(new C03PacketPlayer.C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY - 9.0E-4D, mc.thePlayer.posZ, false));
+                        if (exploitValue.get().equals("1.0E-4")) {
+                            PacketUtil.sendPacketAsSilent(new C03PacketPlayer.C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY - 1.0E-4, mc.thePlayer.posZ, false));
+                        } else {
+                            PacketUtil.sendPacketAsSilent(new C03PacketPlayer.C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY - 9.0E-4D, mc.thePlayer.posZ, false));
+                        }
                         sent = true;
                     }
                     break;
