@@ -8,6 +8,7 @@ import com.dew.system.event.events.WorldLoadEvent;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
 import com.dew.system.settingsvalue.NumberValue;
+import com.dew.system.settingsvalue.SelectionValue;
 import com.dew.utils.BlockUtil;
 import com.dew.utils.PacketUtil;
 import com.dew.utils.RenderUtil;
@@ -24,7 +25,7 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
 public class CivBreak extends Module {
-
+    private static final SelectionValue swingMode = new SelectionValue("Swing Mode", "Packet", "Normal", "Packet");
     private static final NumberValue range = new NumberValue("Range", 3.0, 0.1, 6.0, 0.1);
     private static final NumberValue rotationSpeed = new NumberValue("Rotation Speed", 60.0, 0.0, 180.0, 5.0);
     private static final NumberValue breakDelay = new NumberValue("Break Delay", 1.0, 1.0, 10.0, 1.0);
@@ -96,7 +97,11 @@ public class CivBreak extends Module {
         isBreaking = true;
 
         if (mc.thePlayer.ticksExisted % breakDelay.get().intValue() == 0) {
-            mc.thePlayer.swingItem();
+            if (swingMode.get().equals("Normal")) {
+                mc.thePlayer.swingItem();
+            } else {
+                PacketUtil.sendPacket(new C0APacketAnimation());
+            }
             if (mc.thePlayer.capabilities.isCreativeMode) {
                 PacketUtil.sendPacketAsSilent(new C07PacketPlayerDigging(C07PacketPlayerDigging.Action.START_DESTROY_BLOCK, currentBlock, EnumFacing.DOWN));
             } else {

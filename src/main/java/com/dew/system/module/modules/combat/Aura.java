@@ -35,6 +35,7 @@ import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.*;
 import net.minecraft.network.play.client.C03PacketPlayer;
+import net.minecraft.network.play.client.C0APacketAnimation;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
@@ -46,6 +47,7 @@ import java.util.*;
 public class Aura extends Module {
 
     private static final SelectionValue mode = new SelectionValue("Mode", "Single", "Single", "Multi");
+    private static final SelectionValue swingMode = new SelectionValue("Swing Mode", "Normal", "Normal", "Packet");
     private static final NumberValue maxTargets = new NumberValue("Max Targets", 3.0, 2.0, 8.0, 1.0, () -> mode.get().equals("Multi"));
     private static final NumberValue targetRange = new NumberValue("Target Range", 6.0, 0.1, 10.0, 0.1);
     private static final NumberValue attackRange = new NumberValue("Attack Range", 3.0, 0.1, 6.0, 0.1);
@@ -62,6 +64,7 @@ public class Aura extends Module {
     private static final BooleanValue autoBlockPlacer = new BooleanValue("Auto Block Placer", false, () -> mode.get().equals("Single"));
     private static final BooleanValue tpAura = new BooleanValue("TP Aura", false);
     private static final NumberValue tpExtendedRange = new NumberValue("TP Extended Range", 50.0, 0.0, 100.0, 1.0, tpAura::get);
+    private static final BooleanValue objectCheck = new BooleanValue("Object Check", false, () -> !tpAura.get());
     private final Random random = new Random();
     public Entity target = null;
     private long lastAttackTime = 0L;
@@ -173,7 +176,7 @@ public class Aura extends Module {
                         AttackEvent event = new AttackEvent(entity);
                         DewCommon.eventManager.call(event);
 
-                        AttackOrder.sendFixedPacketAttack(mc.thePlayer, entity);
+                        AttackOrder.sendFixedPacketAttack(mc.thePlayer, entity, !swingMode.get().equals("Normal"));
                         mc.thePlayer.onEnchantmentCritical(entity);
 
                         if (shouldTp) {
@@ -184,8 +187,15 @@ public class Aura extends Module {
                         }
                     }).start();
                 } else {
-                    AttackOrder.sendFixedAttack(mc.thePlayer, entity);
-                    mc.thePlayer.onEnchantmentCritical(entity);
+                    if (objectCheck.get()) {
+                        if (mc.objectMouseOver != null && mc.objectMouseOver.entityHit != null && mc.objectMouseOver.entityHit == entity) {
+                            AttackOrder.sendFixedAttack(mc.thePlayer, mc.objectMouseOver.entityHit, !swingMode.get().equals("Normal"));
+                            mc.thePlayer.onEnchantmentCritical(mc.objectMouseOver.entityHit);
+                        }
+                    } else {
+                        AttackOrder.sendFixedAttack(mc.thePlayer, entity, !swingMode.get().equals("Normal"));
+                        mc.thePlayer.onEnchantmentCritical(entity);
+                    }
                 }
 
                 return true;
@@ -481,7 +491,11 @@ public class Aura extends Module {
             }
             ItemStack itemstack = mc.thePlayer.inventory.getCurrentItem();
             if (mc.playerController.onPlayerRightClick(mc.thePlayer, mc.theWorld, itemstack, neighbor, placeFacing, hitVec)) {
-                mc.thePlayer.swingItem();
+                if (swingMode.get().equals("Normal")) {
+                    mc.thePlayer.swingItem();
+                } else {
+                    PacketUtil.sendPacket(new C0APacketAnimation());
+                }
                 if (itemstack != null) {
                     if (itemstack.stackSize == 0) {
                         mc.thePlayer.inventory.mainInventory[mc.thePlayer.inventory.currentItem] = null;

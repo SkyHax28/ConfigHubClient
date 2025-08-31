@@ -2,6 +2,9 @@ package net.minecraft.client.renderer.entity.layers;
 
 import com.dew.DewCommon;
 import com.dew.IMinecraft;
+import com.dew.system.module.modules.combat.AutoPot;
+import com.dew.system.module.modules.player.AutoTool;
+import com.dew.system.module.modules.player.Scaffold;
 import com.dew.system.module.modules.render.Animations;
 import com.dew.utils.LogUtil;
 import net.minecraft.block.Block;
@@ -33,6 +36,16 @@ public class LayerHeldItem implements LayerRenderer<EntityLivingBase>
     public void doRenderLayer(EntityLivingBase entitylivingbaseIn, float p_177141_2_, float p_177141_3_, float partialTicks, float p_177141_5_, float p_177141_6_, float p_177141_7_, float scale)
     {
         ItemStack itemstack = entitylivingbaseIn.getHeldItem();
+
+        if (IMinecraft.mc.theWorld.getPlayerEntityByUUID(entitylivingbaseIn.getUniqueID()) instanceof EntityPlayerSP) {
+            if (DewCommon.moduleManager.getModule(Scaffold.class).isEnabled() && DewCommon.moduleManager.getModule(Scaffold.class).getOriginalSlot() != -1) {
+                itemstack = IMinecraft.mc.thePlayer.inventory.getStackInSlot(DewCommon.moduleManager.getModule(Scaffold.class).getOriginalSlot());
+            } else if (DewCommon.moduleManager.getModule(AutoPot.class).isEnabled() && DewCommon.moduleManager.getModule(AutoPot.class).getOriginalSlot() != -1) {
+                itemstack = IMinecraft.mc.thePlayer.inventory.getStackInSlot(DewCommon.moduleManager.getModule(AutoPot.class).getOriginalSlot());
+            } else if (DewCommon.moduleManager.getModule(AutoTool.class).isEnabled() && DewCommon.moduleManager.getModule(AutoTool.class).getOriginalSlot() != -1) {
+                itemstack = IMinecraft.mc.thePlayer.inventory.getStackInSlot(DewCommon.moduleManager.getModule(AutoTool.class).getOriginalSlot());
+            }
+        }
 
         if (itemstack != null)
         {

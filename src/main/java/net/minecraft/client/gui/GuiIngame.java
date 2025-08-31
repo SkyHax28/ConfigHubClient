@@ -958,15 +958,18 @@ public class GuiIngame extends Gui
                 int k7 = MathHelper.ceiling_double_int((double)(l6 - 2) * 10.0D / 300.0D);
                 int i8 = MathHelper.ceiling_double_int((double)l6 * 10.0D / 300.0D) - k7;
 
+                ScaledResolution sr = new ScaledResolution(mc);
+                int baseY = sr.getScaledHeight() - 49;
+
                 for (int l8 = 0; l8 < k7 + i8; ++l8)
                 {
                     if (l8 < k7)
                     {
-                        this.drawTexturedModalRect(j1 - l8 * 8 - 9, j2, 16, 18, 9, 9);
+                        this.drawTexturedModalRect(j1 - l8 * 8 - 9, baseY, 16, 18, 9, 9);
                     }
                     else
                     {
-                        this.drawTexturedModalRect(j1 - l8 * 8 - 9, j2, 25, 18, 9, 9);
+                        this.drawTexturedModalRect(j1 - l8 * 8 - 9, baseY, 25, 18, 9, 9);
                     }
                 }
             }

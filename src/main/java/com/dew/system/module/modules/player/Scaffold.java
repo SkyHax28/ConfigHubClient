@@ -31,6 +31,7 @@ import java.util.*;
 public class Scaffold extends Module {
 
     private static final SelectionValue mode = new SelectionValue("Mode", "Normal", "Normal", "Telly", "Hypixel");
+    private static final SelectionValue swingMode = new SelectionValue("Swing Mode", "Packet", "Normal", "Packet");
     private static final SelectionValue rotationMode = new SelectionValue("Rotation Mode", "Normal", () -> mode.get().equals("Normal") || mode.get().equals("Telly"), "Normal", "Snap");
     private static final NumberValue tellyTwoJumpRotation = new NumberValue("Telly 2 Jump Rotation", 10.0, 0.0, 180.0, 5.0, () -> mode.get().equals("Telly"));
     private static final NumberValue tellyThreeJumpRotation = new NumberValue("Telly 3 Jump Rotation", 35.0, 0.0, 180.0, 5.0, () -> mode.get().equals("Telly"));
@@ -660,7 +661,11 @@ public class Scaffold extends Module {
 
             ItemStack itemstack = mc.thePlayer.inventory.getCurrentItem();
             if (mc.playerController.onPlayerRightClick(mc.thePlayer, mc.theWorld, itemstack, neighbor, opposite, hitVec)) {
-                PacketUtil.sendPacket(new C0APacketAnimation());
+                if (swingMode.get().equals("Normal")) {
+                    mc.thePlayer.swingItem();
+                } else {
+                    PacketUtil.sendPacket(new C0APacketAnimation());
+                }
                 if (itemstack != null) {
                     if (itemstack.stackSize == 0) {
                         mc.thePlayer.inventory.mainInventory[mc.thePlayer.inventory.currentItem] = null;

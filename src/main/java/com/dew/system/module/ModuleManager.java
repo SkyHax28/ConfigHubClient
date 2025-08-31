@@ -35,12 +35,12 @@ public class ModuleManager implements EventListener {
                 new Ambience(), new NoJumpDelay(), new SafetySwitchv2000(), new AntiExploit(),
                 new FastPlace(), new BridgeAssist(), new Clicker(), new FakeLag(),
                 new SilentAimAssist(), new Freecam(), new Trajectories(), new PacketBlaster(),
-                new PixelPartyAssist(), new Scaffold2(), new CivBreak(), new LightningDetector(),
+                new PixelPartyAssist(), new FpsBooster(), new CivBreak(), new LightningDetector(),
                 new Spider(), new BarrierVision(), new Trails(), new AutoAuth(),
                 new AutoExtinguish(), new QuakeAura(), new AutoAimPractice(), new Jesus(),
                 new NoRender(), new AntiFalseFlag(), new Highlighter(), new RotRandomizer(),
                 new HighJump(), new Timer(), new ViaCollision(), new Plugins(),
-                new Spammer(), new PacketChatLimiter(), new BlockOverlay(), new FpsBooster()
+                new Spammer(), new PacketChatLimiter(), new BlockOverlay()
         ));
 
         DewCommon.eventManager.register(this);

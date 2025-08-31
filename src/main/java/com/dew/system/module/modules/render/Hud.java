@@ -47,7 +47,7 @@ import java.util.List;
 
 public class Hud extends Module {
 
-    private static final MultiSelectionValue features = new MultiSelectionValue("Features", Arrays.asList("Watermark", "Module List", "Potion Hud", "Target Hud", "Hotbar"), "Watermark", "Module List", "Potion Hud", "Target Hud", "Hotbar");
+    private static final MultiSelectionValue features = new MultiSelectionValue("Features", Arrays.asList("Watermark", "Module List", "Potion Hud", "Target Hud", "Armor Hud", "Hotbar"), "Watermark", "Module List", "Potion Hud", "Target Hud", "Armor Hud", "Hotbar");
     private static final NumberValue uiScale = new NumberValue("UI Scale", 1.0, 0.5, 2.0, 0.1);
     private static final BooleanValue disableAchievementsNotification = new BooleanValue("Disable Achievements Notification", true);
     private final Map<Module, Float> animationProgress = new HashMap<>();
@@ -199,60 +199,6 @@ public class Hud extends Module {
         }
 
         finalModuleListHeight = (int) cumulativeY;
-    }
-
-    private static class BlurCacheKey {
-        final double x, y, width, height;
-        final int passes;
-
-        BlurCacheKey(double x, double y, double width, double height, int passes) {
-            this.x = x; this.y = y; this.width = width; this.height = height; this.passes = passes;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (!(o instanceof BlurCacheKey)) return false;
-            BlurCacheKey k = (BlurCacheKey) o;
-            return x == k.x && y == k.y && width == k.width && height == k.height && passes == k.passes;
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(x, y, width, height, passes);
-        }
-    }
-
-    private static class BlurVBO {
-        int vboId;
-        int vertexCount;
-    }
-
-    private static BlurVBO createBlurVBO(double x, double y, double width, double height, int passes) {
-        BlurVBO blurVBO = new BlurVBO();
-        blurVBO.vertexCount = passes * 4;
-
-        FloatBuffer buffer = BufferUtils.createFloatBuffer(blurVBO.vertexCount * 2);
-
-        for (int i = 0; i < passes; i++) {
-            double offset = i * 0.5;
-            double left   = x - offset;
-            double top    = y - offset;
-            double right  = x + width + offset;
-            double bottom = y + height + offset;
-
-            buffer.put((float) left).put((float) top);
-            buffer.put((float) left).put((float) bottom);
-            buffer.put((float) right).put((float) bottom);
-            buffer.put((float) right).put((float) top);
-        }
-        buffer.flip();
-
-        blurVBO.vboId = GL15.glGenBuffers();
-        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, blurVBO.vboId);
-        GL15.glBufferData(GL15.GL_ARRAY_BUFFER, buffer, GL15.GL_STATIC_DRAW);
-        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
-
-        return blurVBO;
     }
 
     private static void ensureUnitQuadVbo() {
@@ -765,6 +711,31 @@ public class Hud extends Module {
             GL11.glScalef(scale, scale, 1f);
             GL11.glTranslatef(-rightX, -topY, 0);
             this.renderModuleList(sr, fontRenderer, fontSize, deltaTime);
+            GL11.glPopMatrix();
+        }
+
+        if (features.isSelected("Armor Hud")) {
+            GL11.glPushMatrix();
+            RenderHelper.enableGUIStandardItemLighting();
+
+            int centerX = sr.getScaledWidth() / 2;
+            int baseY = mc.thePlayer.capabilities.isCreativeMode ? sr.getScaledHeight() - 41 : mc.thePlayer.getAir() < 300 ? sr.getScaledHeight() - 65 : sr.getScaledHeight() - 55;
+            int slot = 0;
+
+            ItemStack[] armors = mc.thePlayer.inventory.armorInventory;
+
+            for (int i = armors.length - 1; i >= 0; i--) {
+                ItemStack armorStack = armors[i];
+                if (armorStack != null) {
+                    int x = centerX + 15 + (slot * 17);
+
+                    mc.getRenderItem().renderItemAndEffectIntoGUI(armorStack, x, baseY);
+                    mc.getRenderItem().renderItemOverlays(mc.bitFontRendererObj, armorStack, x, baseY);
+                }
+                slot++;
+            }
+
+            RenderHelper.disableStandardItemLighting();
             GL11.glPopMatrix();
         }
     }

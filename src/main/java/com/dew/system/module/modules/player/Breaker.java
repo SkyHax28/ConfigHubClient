@@ -9,6 +9,7 @@ import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
 import com.dew.system.settingsvalue.BooleanValue;
 import com.dew.system.settingsvalue.NumberValue;
+import com.dew.system.settingsvalue.SelectionValue;
 import com.dew.utils.LogUtil;
 import com.dew.utils.PacketUtil;
 import com.dew.utils.RenderUtil;
@@ -34,7 +35,7 @@ import java.util.Comparator;
 import java.util.List;
 
 public class Breaker extends Module {
-
+    private static final SelectionValue swingMode = new SelectionValue("Swing Mode", "Packet", "Normal", "Packet");
     private static final NumberValue range = new NumberValue("Range", 3.0, 1.0, 6.0, 1.0);
     private static final NumberValue rotationSpeed = new NumberValue("Rotation Speed", 60.0, 0.0, 180.0, 5.0);
     private static final BooleanValue breakOpposite = new BooleanValue("Break Opposite", false);
@@ -231,7 +232,11 @@ public class Breaker extends Module {
             if (leftClick) {
                 if (mc.theWorld.getBlockState(pos).getBlock().getMaterial() != Material.air && mc.playerController.onPlayerDamageBlock(pos, facing)) {
                     mc.effectRenderer.addBlockHitEffects(pos, facing);
-                    mc.thePlayer.swingItem();
+                    if (swingMode.get().equals("Normal")) {
+                        mc.thePlayer.swingItem();
+                    } else {
+                        PacketUtil.sendPacket(new C0APacketAnimation());
+                    }
                 }
             }
         }
