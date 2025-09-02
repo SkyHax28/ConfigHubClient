@@ -3,8 +3,11 @@ package net.minecraft.client;
 import com.dew.DewCommon;
 import com.dew.system.event.events.*;
 import com.dew.system.module.modules.render.Animations;
+import com.dew.utils.LibraryChecker;
+import com.dew.utils.LogUtil;
 import com.dew.utils.McChanges;
 import com.dew.utils.PacketUtil;
+import com.dew.utils.rawinput.RawInputMouseHelper;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -243,6 +246,7 @@ public class Minecraft implements IThreadListener, IPlayerUsage
     public MovingObjectPosition objectMouseOver;
     public GameSettings gameSettings;
     public MouseHelper mouseHelper;
+    public String environment = "";
     public final File mcDataDir;
     private final File fileAssets;
     private final String launchedVersion;
@@ -464,7 +468,16 @@ public class Minecraft implements IThreadListener, IPlayerUsage
                 }
             }
         });
-        this.mouseHelper = new MouseHelper();
+        boolean direct = LibraryChecker.isLibraryLoaded("jinput-dx8");
+        boolean raw = LibraryChecker.isLibraryLoaded("jinput-raw");
+        if (direct || raw) {
+            environment = direct && !raw ? "DirectInputEnvironmentPlugin" : "DirectAndRawInputEnvironmentPlugin";
+            this.mouseHelper = new RawInputMouseHelper();
+            LogUtil.infoLog("Successfully enabled Raw Input");
+        } else {
+            this.mouseHelper = new MouseHelper();
+            LogUtil.infoLog("Your system does not support Raw Input");
+        }
         this.checkGLError("Pre startup");
         GlStateManager.enableTexture2D();
         GlStateManager.shadeModel(7425);

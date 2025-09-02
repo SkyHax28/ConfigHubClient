@@ -15,7 +15,8 @@ public class CommandManager {
     public CommandManager() {
         commands.addAll(Arrays.asList(
                 new HelpCommand(), new ToggleCommand(), new BindCommand(), new ModuleConfigCommand(),
-                new BindConfigCommand(), new VclipCommand(), new NameCommand(), new PluginsCommand()
+                new BindConfigCommand(), new VclipCommand(), new NameCommand(), new PluginsCommand(),
+                new RescanCommand()
         ));
 
         LogUtil.infoLog("init commandManager");
