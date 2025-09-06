@@ -2,7 +2,9 @@ package com.dew.system.module.modules.render;
 
 import com.dew.DewCommon;
 import com.dew.IMinecraft;
+import com.dew.system.event.events.ReceivedPacketEvent;
 import com.dew.system.event.events.Render2DEvent;
+import com.dew.system.event.events.SendPacketEvent;
 import com.dew.system.event.events.WorldLoadEvent;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
@@ -24,12 +26,14 @@ import de.florianmichael.vialoadingbase.ViaLoadingBase;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiChat;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.boss.BossStatus;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.Packet;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.ResourceLocation;
@@ -47,7 +51,7 @@ import java.util.List;
 
 public class Hud extends Module {
 
-    private static final MultiSelectionValue features = new MultiSelectionValue("Features", Arrays.asList("Watermark", "Module List", "Potion Hud", "Target Hud", "Armor Hud", "Hotbar"), "Watermark", "Module List", "Potion Hud", "Target Hud", "Armor Hud", "Hotbar");
+    private static final MultiSelectionValue features = new MultiSelectionValue("Features", Arrays.asList("Watermark", "Module List", "Potion Hud", "Target Hud", "Armor Hud", "Hotbar", "Packet Monitor"), "Watermark", "Module List", "Potion Hud", "Target Hud", "Armor Hud", "Hotbar", "Packet Monitor");
     private static final NumberValue uiScale = new NumberValue("UI Scale", 1.0, 0.5, 2.0, 0.1);
     private static final BooleanValue disableAchievementsNotification = new BooleanValue("Disable Achievements Notification", true);
     private final Map<Module, Float> animationProgress = new HashMap<>();
@@ -62,6 +66,16 @@ public class Hud extends Module {
     private boolean moduleListDirty = true;
     private int finalModuleListHeight = 0;
     private static int unitQuadVbo = 0;
+    private static final int MAX_HISTORY = 120;
+    private int inboundThisTick = 0;
+    private int outboundThisTick = 0;
+    private float timeSinceLastUpdate = 0f;
+    private final Deque<Integer> inboundHeights = new ArrayDeque<>();
+    private final Deque<Integer> outboundHeights = new ArrayDeque<>();
+    private int inSize = 0;
+    private int outSize = 0;
+    private final Deque<Integer> inboundPackets = new ArrayDeque<>();
+    private final Deque<Integer> outboundPackets = new ArrayDeque<>();
     public Hud() {
         super("Hud", ModuleCategory.RENDER, Keyboard.KEY_NONE, true, false, true);
     }
@@ -74,6 +88,15 @@ public class Hud extends Module {
     @Override
     public void onLoadWorld(WorldLoadEvent event) {
         deleteUnitQuadVbo();
+        inboundThisTick = 0;
+        outboundThisTick = 0;
+        timeSinceLastUpdate = 0f;
+        inSize = 0;
+        outSize = 0;
+        inboundHeights.clear();
+        outboundHeights.clear();
+        inboundPackets.clear();
+        outboundPackets.clear();
     }
 
     public int getModuleListHeight() {
@@ -266,6 +289,18 @@ public class Hud extends Module {
 
     public boolean renderCustomHotbar() {
         return features.isSelected("Hotbar");
+    }
+
+    @Override
+    public void onSendPacket(SendPacketEvent event) {
+        if (event.isCancelled()) return;
+        inboundThisTick++;
+    }
+
+    @Override
+    public void onReceivedPacket(ReceivedPacketEvent event) {
+        if (event.isCancelled()) return;
+        outboundThisTick++;
     }
 
     @Override
@@ -736,6 +771,83 @@ public class Hud extends Module {
             }
 
             RenderHelper.disableStandardItemLighting();
+            GL11.glPopMatrix();
+        }
+
+        if (features.isSelected("Packet Monitor")) {
+            GL11.glPushMatrix();
+            float rightX = sr.getScaledWidth();
+            float bottomY = sr.getScaledHeight();
+            GL11.glTranslatef(rightX, bottomY, 0);
+            GL11.glScalef(scale, scale, 1f);
+            GL11.glTranslatef(-rightX, -bottomY, 0);
+
+            int graphWidth = 195;
+            int graphHeight = 50;
+
+            float updateInterval = 0.03f;
+            timeSinceLastUpdate += deltaTime;
+            while (timeSinceLastUpdate >= updateInterval) {
+                inboundPackets.addLast(inboundThisTick);
+                outboundPackets.addLast(outboundThisTick);
+
+                if (inboundPackets.size() > MAX_HISTORY) inboundPackets.removeFirst();
+                if (outboundPackets.size() > MAX_HISTORY) outboundPackets.removeFirst();
+
+                int inHeight = (int) ((inboundThisTick / 50.0f) * (graphHeight - 2));
+                int outHeight = (int) ((outboundThisTick / 50.0f) * (graphHeight - 2));
+
+                inboundHeights.addLast(Math.min(graphHeight - 2, inHeight));
+                outboundHeights.addLast(Math.min(graphHeight - 2, outHeight));
+
+                if (inboundHeights.size() > MAX_HISTORY) inboundHeights.removeFirst();
+                if (outboundHeights.size() > MAX_HISTORY) outboundHeights.removeFirst();
+
+                inboundThisTick = 0;
+                outboundThisTick = 0;
+
+                timeSinceLastUpdate -= updateInterval;
+            }
+
+            int baseX = sr.getScaledWidth() - 205;
+            int baseY = sr.getScaledHeight() - graphHeight - 10;
+
+            drawBlurredBackground(baseX, baseY, graphWidth, graphHeight, 6, new Color(0, 0, 0, 50).getRGB());
+
+            int i = 0;
+
+            for (Integer h : outboundHeights) {
+                int x = baseX + i;
+                int top = baseY + graphHeight - h;
+                int bottom = baseY + graphHeight;
+                if (top < bottom) {
+                    Gui.drawRect(x, top, x + 1, bottom, new Color(Color.ORANGE.getRed(), Color.ORANGE.getGreen(), Color.ORANGE.getBlue(), 200).getRGB());
+                }
+                i++;
+            }
+
+            i = 0;
+            for (Integer h : inboundHeights) {
+                int x = baseX + i;
+                int top = baseY + graphHeight - h;
+                int bottom = baseY + graphHeight;
+                if (top < bottom) {
+                    Gui.drawRect(x, top, x + 1, bottom, new Color(Color.YELLOW.getRed(), Color.YELLOW.getGreen(), Color.YELLOW.getBlue(), 200).getRGB());
+                }
+                i++;
+            }
+
+            if (inboundPackets.peekLast() != null && inboundPackets.peekLast() != 0) {
+                inSize = inboundPackets.peekLast();
+            }
+
+            if (outboundPackets.peekLast() != null && outboundPackets.peekLast() != 0) {
+                outSize = outboundPackets.peekLast();
+            }
+
+            fontRenderer.drawStringWithShadow("Sent: " + inSize, baseX + 125, baseY + 24, Color.WHITE.getRGB(), fontSize);
+            fontRenderer.drawStringWithShadow("Received: " + outSize, baseX + 125, baseY + 36, Color.WHITE.getRGB(), fontSize);
+
             GL11.glPopMatrix();
         }
     }

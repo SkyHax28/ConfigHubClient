@@ -1,10 +1,7 @@
 package com.dew.system.module.modules.combat;
 
 import com.dew.DewCommon;
-import com.dew.system.event.events.AttackEvent;
-import com.dew.system.event.events.PreUpdateEvent;
-import com.dew.system.event.events.TickEvent;
-import com.dew.system.event.events.WorldLoadEvent;
+import com.dew.system.event.events.*;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
 import com.dew.system.module.modules.exploit.SafetySwitchv2000;
@@ -48,6 +45,7 @@ public class Aura extends Module {
 
     private static final SelectionValue mode = new SelectionValue("Mode", "Single", "Single", "Multi");
     private static final SelectionValue swingMode = new SelectionValue("Swing Mode", "Normal", "Normal", "Packet");
+    private static final SelectionValue attackTiming = new SelectionValue("Attack Timing", "Legit", "Legit", "Pre", "Post");
     private static final NumberValue maxTargets = new NumberValue("Max Targets", 3.0, 2.0, 8.0, 1.0, () -> mode.get().equals("Multi"));
     private static final NumberValue targetRange = new NumberValue("Target Range", 6.0, 0.1, 10.0, 0.1);
     private static final NumberValue attackRange = new NumberValue("Attack Range", 3.0, 0.1, 6.0, 0.1);
@@ -150,8 +148,32 @@ public class Aura extends Module {
         DewCommon.moduleManager.getModule(Animations.class).setVisualBlocking(false);
     }
 
+    public String getAttackTiming() {
+        return attackTiming.get();
+    }
+
+    @Override
+    public void onPreUpdate(PreUpdateEvent event) {
+        if (attackTiming.get().equals("Pre")) {
+            this.localFunc();
+        }
+    }
+
+    @Override
+    public void onPostUpdate(PostUpdateEvent event) {
+        if (attackTiming.get().equals("Post")) {
+            this.localFunc();
+        }
+    }
+
     @Override
     public void onTick(TickEvent event) {
+        if (attackTiming.get().equals("Legit")) {
+            this.localFunc();
+        }
+    }
+
+    private void localFunc() {
         if (mc.thePlayer == null || mc.theWorld == null) return;
 
         this.updateSlotSwapper();

@@ -1246,7 +1246,7 @@ public class EntityRenderer implements IResourceManagerReloadListener
             FreeLook freeLookModule = DewCommon.moduleManager.getModule(FreeLook.class);
             if (freeLookModule.isEnabled() && freeLookModule.freeLooked()) {
                 float newYaw = freeLookModule.getCameraYaw() + f2 * 0.15F;
-                float newPitch = freeLookModule.getCameraPitch() - f3 * 0.15F;
+                float newPitch = freeLookModule.getCameraPitch() - f3 * 0.15F * i;
                 if (newPitch > 90) newPitch = 90.0F;
                 if (newPitch < -90) newPitch = -90.0F;
                 freeLookModule.setCameraYaw(newYaw);

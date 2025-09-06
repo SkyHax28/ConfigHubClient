@@ -1,10 +1,7 @@
 package com.dew.system.module.modules.combat;
 
 import com.dew.DewCommon;
-import com.dew.system.event.events.PreUpdateEvent;
-import com.dew.system.event.events.ReceivedPacketEvent;
-import com.dew.system.event.events.TickEvent;
-import com.dew.system.event.events.WorldLoadEvent;
+import com.dew.system.event.events.*;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
 import com.dew.system.settingsvalue.SelectionValue;
@@ -62,10 +59,31 @@ public class AutoBlock extends Module {
     }
 
     @Override
-    public void onTick(TickEvent event) {
-        if (mc.thePlayer == null || mc.theWorld == null) return;
-
+    public void onPreUpdate(PreUpdateEvent event) {
         Aura auraModule = DewCommon.moduleManager.getModule(Aura.class);
+        if (auraModule.getAttackTiming().equals("Pre")) {
+            this.localFunc(auraModule);
+        }
+    }
+
+    @Override
+    public void onPostUpdate(PostUpdateEvent event) {
+        Aura auraModule = DewCommon.moduleManager.getModule(Aura.class);
+        if (auraModule.getAttackTiming().equals("Post")) {
+            this.localFunc(auraModule);
+        }
+    }
+
+    @Override
+    public void onTick(TickEvent event) {
+        Aura auraModule = DewCommon.moduleManager.getModule(Aura.class);
+        if (auraModule.getAttackTiming().equals("Legit")) {
+            this.localFunc(auraModule);
+        }
+    }
+
+    private void localFunc(Aura auraModule) {
+        if (mc.thePlayer == null || mc.theWorld == null) return;
 
         if (auraModule.isInAutoBlockMode()) {
             switch (mode.get().toLowerCase()) {
