@@ -1407,7 +1407,7 @@ public class Minecraft implements IThreadListener, IPlayerUsage
                 BlockPos blockpos = this.objectMouseOver.getBlockPos();
 
                 if (this.thePlayer.isUsingItem()) {
-                    if (this.theWorld.getBlockState(blockpos).getBlock().getMaterial() != Material.air && DewCommon.moduleManager.getModule(Animations.class).isEnabled() && Animations.oldAnimations.isSelected("Punching During Usage")) {
+                    if (this.theWorld.getBlockState(blockpos).getBlock().getMaterial() != Material.air && DewCommon.moduleManager.getModule(Animations.class).isEnabled() && DewCommon.moduleManager.getModule(Animations.class).getOldAnimations().isSelected("Punching During Usage")) {
                         this.effectRenderer.addBlockHitEffects(blockpos, this.objectMouseOver.sideHit);
                         this.thePlayer.swingItemWithoutPacket();
                     }

@@ -3,7 +3,10 @@ package com.dew.utils;
 import com.dew.IMinecraft;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.network.NetworkPlayerInfo;
+import net.minecraft.init.Blocks;
+import net.minecraft.item.ItemStack;
 import net.minecraft.network.Packet;
+import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement;
 
 import java.util.ArrayList;
 
@@ -34,6 +37,10 @@ public class PacketUtil {
             }
         }
         return -1;
+    }
+
+    public static void sendVerusMagicPacket() {
+        sendPacket(new C08PacketPlayerBlockPlacement(mc.thePlayer.getPosition().add(0.0, -10E-4, 0.0), 1, new ItemStack(Blocks.stone.getItem(mc.theWorld, mc.thePlayer.getPosition().add(0.0, -10E-4, 0.0))), 0.0F, 0.5F + ((float) Math.random()) * 0.44F, 0.0F));
     }
 
     public static void processPacketClientSide(Packet<?> packet) {

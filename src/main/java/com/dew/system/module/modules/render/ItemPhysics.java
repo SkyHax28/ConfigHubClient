@@ -7,6 +7,6 @@ import org.lwjgl.input.Keyboard;
 public class ItemPhysics extends Module {
 
     public ItemPhysics() {
-        super("Item Physics", ModuleCategory.RENDER, Keyboard.KEY_NONE, true, false, true);
+        super("Item Physics", ModuleCategory.RENDER, Keyboard.KEY_NONE, false, false, true);
     }
 }

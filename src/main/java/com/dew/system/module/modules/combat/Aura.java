@@ -8,6 +8,7 @@ import com.dew.system.module.modules.exploit.SafetySwitchv2000;
 import com.dew.system.module.modules.movement.Step;
 import com.dew.system.module.modules.movement.flight.FlightModule;
 import com.dew.system.module.modules.movement.speed.SpeedModule;
+import com.dew.system.module.modules.movement.speed.speeds.VerusSpeed;
 import com.dew.system.module.modules.player.AutoTool;
 import com.dew.system.module.modules.player.Breaker;
 import com.dew.system.module.modules.player.Freecam;
@@ -45,7 +46,7 @@ public class Aura extends Module {
 
     private static final SelectionValue mode = new SelectionValue("Mode", "Single", "Single", "Multi");
     private static final SelectionValue swingMode = new SelectionValue("Swing Mode", "Normal", "Normal", "Packet");
-    private static final SelectionValue attackTiming = new SelectionValue("Attack Timing", "Legit", "Legit", "Pre", "Post");
+    private static final SelectionValue attackTiming = new SelectionValue("Attack Timing", "Legit", "Legit", "Pre Update", "Post Update", "Pre Motion", "Post Motion");
     private static final NumberValue maxTargets = new NumberValue("Max Targets", 3.0, 2.0, 8.0, 1.0, () -> mode.get().equals("Multi"));
     private static final NumberValue targetRange = new NumberValue("Target Range", 6.0, 0.1, 10.0, 0.1);
     private static final NumberValue attackRange = new NumberValue("Attack Range", 3.0, 0.1, 6.0, 0.1);
@@ -53,6 +54,7 @@ public class Aura extends Module {
     private static final NumberValue minCps = new NumberValue("Min CPS", 5.0, 0.0, 20.0, 0.1);
     private static final NumberValue rotationSpeed = new NumberValue("Rotation Speed", 60.0, 0.0, 180.0, 5.0);
     private static final MultiSelectionValue targets = new MultiSelectionValue("Targets", Arrays.asList("Player", "Mob", "Animal", "Living"), "Player", "Mob", "Animal", "Living", "Dead", "Teammate");
+    private static final BooleanValue reducedPitchRotation = new BooleanValue("Reduced Pitch Rotation", true);
     private static final BooleanValue noRotationHitCheck = new BooleanValue("No Rotation Hit Check", false);
     private static final BooleanValue throughWalls = new BooleanValue("Through Walls", true);
     private static final BooleanValue visualAutoBlock = new BooleanValue("Visual Auto Block", true);
@@ -154,14 +156,28 @@ public class Aura extends Module {
 
     @Override
     public void onPreUpdate(PreUpdateEvent event) {
-        if (attackTiming.get().equals("Pre")) {
+        if (attackTiming.get().equals("Pre Update")) {
             this.localFunc();
         }
     }
 
     @Override
     public void onPostUpdate(PostUpdateEvent event) {
-        if (attackTiming.get().equals("Post")) {
+        if (attackTiming.get().equals("Post Update")) {
+            this.localFunc();
+        }
+    }
+
+    @Override
+    public void onPreMotion(PreMotionEvent event) {
+        if (attackTiming.get().equals("Pre Motion")) {
+            this.localFunc();
+        }
+    }
+
+    @Override
+    public void onPostMotion(PostMotionEvent event) {
+        if (attackTiming.get().equals("Post Motion")) {
             this.localFunc();
         }
     }
@@ -278,7 +294,7 @@ public class Aura extends Module {
                 target = getHighestThreatTarget(this.getTargetRange());
                 if (target != null) {
                     targeted = true;
-                    if (autoBlockPlacer.get() && placeableTick <= 30 && placeDefensiveBlock(target) || DewCommon.moduleManager.getModule(SpeedModule.class).isEnabled() && DewCommon.moduleManager.getModule(SpeedModule.class).getMode().equals("Verus") && mc.thePlayer.onGround && MovementUtil.hasMotionHorizontal()) {
+                    if (autoBlockPlacer.get() && placeableTick <= 30 && placeDefensiveBlock(target) || DewCommon.moduleManager.getModule(SpeedModule.class).isEnabled() && DewCommon.moduleManager.getModule(SpeedModule.class).getMode().equals("Verus") && VerusSpeed.dontAttack() && MovementUtil.hasMotionHorizontal()) {
                         return;
                     }
                     if (visualAutoBlock.get()) {
@@ -337,7 +353,7 @@ public class Aura extends Module {
     }
 
     private boolean rotateToTargetAndIsCanHit(Entity entity) {
-        return DewCommon.rotationManager.faceEntity(entity, rotationSpeed.get().floatValue(), false, mc.playerController.getBlockReachDistance());
+        return DewCommon.rotationManager.faceEntity(entity, rotationSpeed.get().floatValue(), false, reducedPitchRotation.get(), mc.playerController.getBlockReachDistance());
     }
 
     private double getTargetRange() {

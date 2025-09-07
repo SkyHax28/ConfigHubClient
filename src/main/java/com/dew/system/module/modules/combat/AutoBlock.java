@@ -61,7 +61,7 @@ public class AutoBlock extends Module {
     @Override
     public void onPreUpdate(PreUpdateEvent event) {
         Aura auraModule = DewCommon.moduleManager.getModule(Aura.class);
-        if (auraModule.getAttackTiming().equals("Pre")) {
+        if (auraModule.getAttackTiming().equals("Pre Update")) {
             this.localFunc(auraModule);
         }
     }
@@ -69,7 +69,23 @@ public class AutoBlock extends Module {
     @Override
     public void onPostUpdate(PostUpdateEvent event) {
         Aura auraModule = DewCommon.moduleManager.getModule(Aura.class);
-        if (auraModule.getAttackTiming().equals("Post")) {
+        if (auraModule.getAttackTiming().equals("Post Update")) {
+            this.localFunc(auraModule);
+        }
+    }
+
+    @Override
+    public void onPreMotion(PreMotionEvent event) {
+        Aura auraModule = DewCommon.moduleManager.getModule(Aura.class);
+        if (auraModule.getAttackTiming().equals("Pre Motion")) {
+            this.localFunc(auraModule);
+        }
+    }
+
+    @Override
+    public void onPostMotion(PostMotionEvent event) {
+        Aura auraModule = DewCommon.moduleManager.getModule(Aura.class);
+        if (auraModule.getAttackTiming().equals("Post Motion")) {
             this.localFunc(auraModule);
         }
     }

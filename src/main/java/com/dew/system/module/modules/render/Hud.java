@@ -32,6 +32,7 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.boss.BossStatus;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.Packet;
 import net.minecraft.potion.Potion;
@@ -48,10 +49,11 @@ import java.awt.*;
 import java.nio.FloatBuffer;
 import java.util.*;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Hud extends Module {
 
-    private static final MultiSelectionValue features = new MultiSelectionValue("Features", Arrays.asList("Watermark", "Module List", "Potion Hud", "Target Hud", "Armor Hud", "Hotbar", "Packet Monitor"), "Watermark", "Module List", "Potion Hud", "Target Hud", "Armor Hud", "Hotbar", "Packet Monitor");
+    private static final MultiSelectionValue features = new MultiSelectionValue("Features", Arrays.asList("Watermark", "Module List", "Potion Hud", "Target Hud", "Armor Hud", "Packet Monitor"), "Watermark", "Module List", "Potion Hud", "Target Hud", "Armor Hud", "Packet Monitor");
     private static final NumberValue uiScale = new NumberValue("UI Scale", 1.0, 0.5, 2.0, 0.1);
     private static final BooleanValue disableAchievementsNotification = new BooleanValue("Disable Achievements Notification", true);
     private final Map<Module, Float> animationProgress = new HashMap<>();
@@ -287,10 +289,6 @@ public class Hud extends Module {
         return disableAchievementsNotification.get();
     }
 
-    public boolean renderCustomHotbar() {
-        return features.isSelected("Hotbar");
-    }
-
     @Override
     public void onSendPacket(SendPacketEvent event) {
         if (event.isCancelled()) return;
@@ -370,7 +368,17 @@ public class Hud extends Module {
                 String damageInfo = mc.thePlayer.hurtTime != 0 ? "Invulnerable: " + mc.thePlayer.hurtTime : "";
                 String flyInfo = mc.thePlayer.capabilities.isFlying ? "Flying" : mc.thePlayer.capabilities.allowFlying ? "Flyable" : "";
                 String blockInfo = DewCommon.moduleManager.getModule(Scaffold.class).isEnabled() || DewCommon.moduleManager.getModule(BridgeAssist.class).isEnabled() && DewCommon.moduleManager.getModule(BridgeAssist.class).isBridging() ? this.getTotalValidBlocksInHotbar() + " blocks available" : "";
-                String murdererInfo = DewCommon.moduleManager.getModule(MurdererDetector.class).isEnabled() && !DewCommon.moduleManager.getModule(MurdererDetector.class).getMurderers().isEmpty() ? "Murderers: " + DewCommon.moduleManager.getModule(MurdererDetector.class).getMurderers().size() : "";
+
+                List<EntityPlayer> murderers = DewCommon.moduleManager.getModule(MurdererDetector.class).getMurderers();
+                String murdererInfo = "";
+                if (DewCommon.moduleManager.getModule(MurdererDetector.class).isEnabled() && !murderers.isEmpty()) {
+                    String names = murderers.stream()
+                            .map(EntityPlayer::getName)
+                            .collect(Collectors.joining(", "));
+
+                    murdererInfo = "Murderers: " + murderers.size() + " (" + names + ")";
+                }
+
                 String breakingInfo = DewCommon.moduleManager.getModule(Breaker.class).isEnabled() && DewCommon.moduleManager.getModule(Breaker.class).isBreaking || DewCommon.moduleManager.getModule(CivBreak.class).isEnabled() && DewCommon.moduleManager.getModule(CivBreak.class).isBreaking ? "Breaking..." : "";
                 String timerInfo = mc.timer.timerSpeed != 1 ? "Balance: " + mc.timer.timerSpeed : "";
                 String blinkInfo = BlinkUtil.blinking ? "Blinking" : "";

@@ -32,8 +32,7 @@ public class LongJump extends Module {
         if (mc.thePlayer == null) return;
 
         if (mode.get().equals("Verus")) {
-            BlockPos downPos = mc.thePlayer.getPosition().add(0.0, -1.5, 0.0);
-            PacketUtil.sendPacket(new C08PacketPlayerBlockPlacement(downPos, 1, new ItemStack(Blocks.stone.getItem(mc.theWorld, downPos)), 0.0F, 0.5F + ((float) Math.random()) * 0.44F, 0.0F));
+            PacketUtil.sendVerusMagicPacket();
             mc.thePlayer.motionY = 1;
             MovementUtil.strafe(0.3f);
         }

@@ -420,10 +420,10 @@ public abstract class Render<T extends Entity> implements IEntityRenderer
             int j = fontrenderer.getStringWidth(str) / 2;
             GlStateManager.disableTexture2D();
             worldrenderer.begin(7, DefaultVertexFormats.POSITION_COLOR);
-            worldrenderer.pos(-j - 1, -1 + i, 0.0D).color(0.0F, 0.0F, 0.0F, 0.6F).endVertex();
-            worldrenderer.pos(-j - 1, 8 + i, 0.0D).color(0.0F, 0.0F, 0.0F, 0.6F).endVertex();
-            worldrenderer.pos(j + 1, 8 + i, 0.0D).color(0.0F, 0.0F, 0.0F, 0.6F).endVertex();
-            worldrenderer.pos(j + 1, -1 + i, 0.0D).color(0.0F, 0.0F, 0.0F, 0.6F).endVertex();
+            worldrenderer.pos(-j - 3, -2 + i, 0.0D).color(0.0F, 0.0F, 0.0F, 0.65F).endVertex();
+            worldrenderer.pos(-j - 3, 9 + i, 0.0D).color(0.0F, 0.0F, 0.0F, 0.65F).endVertex();
+            worldrenderer.pos(j + 3, 9 + i, 0.0D).color(0.0F, 0.0F, 0.0F, 0.65F).endVertex();
+            worldrenderer.pos(j + 3, -2 + i, 0.0D).color(0.0F, 0.0F, 0.0F, 0.65F).endVertex();
             tessellator.draw();
             GlStateManager.enableTexture2D();
 

@@ -26,7 +26,11 @@ public class VerusSpeed implements SpeedMode {
         return "Verus";
     }
 
-    private int allowTick = 0;
+    private static int allowTick = 0;
+
+    public static boolean dontAttack() {
+        return allowTick <= 0 || mc.thePlayer != null && mc.thePlayer.onGround;
+    }
 
     @Override
     public void onEnable() {
@@ -43,7 +47,7 @@ public class VerusSpeed implements SpeedMode {
 
     @Override
     public void onAttack(AttackEvent event) {
-        if (mc.thePlayer.onGround && MovementUtil.hasMotionHorizontal()) {
+        if (dontAttack() && MovementUtil.hasMotionHorizontal()) {
             event.cancel();
         }
     }
@@ -81,8 +85,7 @@ public class VerusSpeed implements SpeedMode {
                 }
             }
         } else if (MovementUtil.isMoving()) {
-            BlockPos downPos = mc.thePlayer.getPosition().add(0.0, -1.5, 0.0);
-            PacketUtil.sendPacket(new C08PacketPlayerBlockPlacement(downPos, 1, new ItemStack(Blocks.stone.getItem(mc.theWorld, downPos)), 0.0F, 0.5F + ((float) Math.random()) * 0.44F, 0.0F));
+            PacketUtil.sendVerusMagicPacket();
 
             allowTick = 1;
             mc.thePlayer.jump();

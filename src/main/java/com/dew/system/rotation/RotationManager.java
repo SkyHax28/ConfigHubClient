@@ -165,7 +165,7 @@ public class RotationManager {
         rotateToward(rotations[0], rotations[1], rotationSpeed, false);
     }
 
-    public boolean faceEntity(Entity entity, float rotationSpeed, boolean noRotationJitters, double maxRange) {
+    public boolean faceEntity(Entity entity, float rotationSpeed, boolean noRotationJitters, boolean reducedPitchRotation, double maxRange) {
         Entity backTrackEntity = DewCommon.moduleManager.getModule(Backtrack.class).getBestBacktrackEntity(entity);
         if (entity != backTrackEntity && mc.thePlayer.getDistanceToEntity(backTrackEntity) < mc.thePlayer.getDistanceToEntity(entity)) {
             entity = backTrackEntity;
@@ -177,10 +177,12 @@ public class RotationManager {
 
         float currentPitch = getClientPitch();
 
-        rotateToward(targetYaw, currentPitch, rotationSpeed, noRotationJitters);
+        if (reducedPitchRotation) {
+            rotateToward(targetYaw, currentPitch, rotationSpeed, noRotationJitters);
 
-        if (canHitEntityAtRotation(entity, getClientYaw(), getClientPitch(), maxRange)) {
-            return true;
+            if (canHitEntityAtRotation(entity, getClientYaw(), getClientPitch(), maxRange)) {
+                return true;
+            }
         }
 
         rotateToward(targetYaw, targetPitch, rotationSpeed, noRotationJitters);

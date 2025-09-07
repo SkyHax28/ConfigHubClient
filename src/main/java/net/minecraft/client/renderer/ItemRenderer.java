@@ -258,7 +258,7 @@ public class ItemRenderer
         GlStateManager.translate(0.0F, f2, 0.0F);
         float f3 = 1.0F - (float)Math.pow((double)f1, 27.0D);
 
-        if (Animations.oldAnimations.isSelected("Potion")) {
+        if (DewCommon.moduleManager.getModule(Animations.class).getOldAnimations().isSelected("Potion")) {
             GlStateManager.translate(f3 * 0.66F, f3 * -0.5F, f3 * 0.0F);
             GlStateManager.rotate(f3 * 90.0F, 0.0F, 1.0F, 0.0F);
             GlStateManager.rotate(f3 * 5.0F, 1.0F, 0.0F, 0.0F);
@@ -287,7 +287,7 @@ public class ItemRenderer
 
     private void doBowTransformations(float partialTicks, AbstractClientPlayer clientPlayer)
     {
-        if (Animations.oldAnimations.isSelected("Bow")) {
+        if (DewCommon.moduleManager.getModule(Animations.class).getOldAnimations().isSelected("Bow")) {
             GlStateManager.translate(-0.2D, 0.0D, -0.175D);
             GlStateManager.rotate(1.0F, 0.0F, 0.0F, -1.25F);
         }
@@ -360,7 +360,7 @@ public class ItemRenderer
             final float var9 = MathHelper.sin(MathHelper.sqrt_float(f1) * (float) Math.PI);
 
             if (this.itemToRender != null) {
-                if (animationsModule.isEnabled()) {
+                if (animationsModule.isEnabled() && animationsModule.getOldAnimations().isSelected("First Person")) {
                     if (this.itemToRender.getItem() instanceof ItemSword) {
                         GlStateManager.translate(0.0F, 0.0F, -0.02F);
                         GlStateManager.rotate(1.0F, 0.0F, 0.0F, -0.1F);
@@ -396,12 +396,12 @@ public class ItemRenderer
 
                         case EAT:
                             this.performDrinking(abstractclientplayer, partialTicks);
-                            this.transformFirstPersonItem(f, animationsModule.isEnabled() && Animations.oldAnimations.isSelected("Food") ? f1 : 0.0F);
+                            this.transformFirstPersonItem(f, animationsModule.isEnabled() && animationsModule.getOldAnimations().isSelected("Food") ? f1 : 0.0F);
                             break;
 
                         case DRINK:
                             this.performDrinking(abstractclientplayer, partialTicks);
-                            this.transformFirstPersonItem(f, animationsModule.isEnabled() && Animations.oldAnimations.isSelected("Potion") ? f1 : 0.0F);
+                            this.transformFirstPersonItem(f, animationsModule.isEnabled() && animationsModule.getOldAnimations().isSelected("Potion") ? f1 : 0.0F);
                             break;
 
                         case BLOCK:
@@ -409,7 +409,7 @@ public class ItemRenderer
                             break;
 
                         case BOW:
-                            this.transformFirstPersonItem(f, animationsModule.isEnabled() && Animations.oldAnimations.isSelected("Bow") ? f1 : 0.0F);
+                            this.transformFirstPersonItem(f, animationsModule.isEnabled() && animationsModule.getOldAnimations().isSelected("Bow") ? f1 : 0.0F);
                             this.doBowTransformations(partialTicks, abstractclientplayer);
                     }
                 }
@@ -434,7 +434,7 @@ public class ItemRenderer
 
     private void renderSwordAnimations(Animations animationsModule, float f, float f1, float var9) {
         if (animationsModule.isEnabled()) {
-            switch (Animations.blockAnimation.get().toLowerCase()) {
+            switch (animationsModule.getBlockAnimation().get().toLowerCase()) {
                 case "vanilla":
                     this.transformFirstPersonItem(f, f1);
                     this.doBlockTransformations();

@@ -166,7 +166,7 @@ public class ModelBiped extends ModelBase
 
             case 3:
                 this.bipedRightArm.rotateAngleX = this.bipedRightArm.rotateAngleX * 0.5F - ((float)Math.PI / 10F) * (float)this.heldItemRight;
-                this.bipedRightArm.rotateAngleY = DewCommon.moduleManager.getModule(Animations.class).isEnabled() && Animations.oldAnimations.isSelected("Third Person") ? 0.0F : -0.5235988F;
+                this.bipedRightArm.rotateAngleY = DewCommon.moduleManager.getModule(Animations.class).isEnabled() && DewCommon.moduleManager.getModule(Animations.class).getOldAnimations().isSelected("Third Person") ? 0.0F : -0.5235988F;
         }
 
         this.bipedLeftArm.rotateAngleY = 0.0F;

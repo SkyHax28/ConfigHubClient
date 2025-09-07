@@ -62,7 +62,7 @@ public class LayerHeldItem implements LayerRenderer<EntityLivingBase>
             final UUID uuid = entitylivingbaseIn.getUniqueID();
             final EntityPlayer entityplayer = IMinecraft.mc.theWorld.getPlayerEntityByUUID(uuid);
 
-            boolean shouldSwordBlock = DewCommon.moduleManager.getModule(Animations.class).isEnabled() && Animations.oldAnimations.isSelected("Third Person") && entityplayer != null && (entityplayer.isBlocking() || entityplayer instanceof EntityPlayerSP && (itemstack.getItem() instanceof ItemSword && DewCommon.moduleManager.getModule(Animations.class).isVisualBlocking() || DewCommon.moduleManager.getModule(Animations.class).shouldForceBlock(entityplayer)));
+            boolean shouldSwordBlock = DewCommon.moduleManager.getModule(Animations.class).isEnabled() && DewCommon.moduleManager.getModule(Animations.class).getOldAnimations().isSelected("Third Person") && entityplayer != null && (entityplayer.isBlocking() || entityplayer instanceof EntityPlayerSP && (itemstack.getItem() instanceof ItemSword && DewCommon.moduleManager.getModule(Animations.class).isVisualBlocking() || DewCommon.moduleManager.getModule(Animations.class).shouldForceBlock(entityplayer)));
 
             if (shouldSwordBlock) {
                 if (entitylivingbaseIn.isSneaking()) {
@@ -102,7 +102,7 @@ public class LayerHeldItem implements LayerRenderer<EntityLivingBase>
                 GlStateManager.translate(0.0F, 0.203125F, 0.0F);
             }
 
-            if (DewCommon.moduleManager.getModule(Animations.class).isEnabled() && Animations.oldAnimations.isSelected("Third Person") && !IMinecraft.mc.getRenderItem().shouldRenderItemIn3D(itemstack) && !(itemstack.getItem() instanceof ItemSkull || itemstack.getItem() instanceof ItemBanner || itemstack.getItem() instanceof ItemFishingRod || itemstack.getItem() instanceof ItemCarrotOnAStick || shouldSwordBlock)) {
+            if (DewCommon.moduleManager.getModule(Animations.class).isEnabled() && DewCommon.moduleManager.getModule(Animations.class).getOldAnimations().isSelected("Third Person") && !IMinecraft.mc.getRenderItem().shouldRenderItemIn3D(itemstack) && !(itemstack.getItem() instanceof ItemSkull || itemstack.getItem() instanceof ItemBanner || itemstack.getItem() instanceof ItemFishingRod || itemstack.getItem() instanceof ItemCarrotOnAStick || shouldSwordBlock)) {
                 scale = 1.5F * 0.625F;
                 if (itemstack.getItem() instanceof ItemBow) {
                     GlStateManager.rotate(-12.0F, 0.0f, 1.0f, 0.0f);
