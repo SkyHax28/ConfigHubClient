@@ -88,9 +88,6 @@ public class Freecam extends Module {
         if (mc.thePlayer == null || mc.theWorld == null) return;
 
         if (!loadable && freeCamEntity == null) {
-            if (mc.thePlayer.isSprinting()) {
-                mc.thePlayer.sendStopSprintingPacket();
-            }
             this.resetPlayerStateFirst();
             loadable = true;
             return;

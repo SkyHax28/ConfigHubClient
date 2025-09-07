@@ -1,5 +1,8 @@
 package com.dew.utils.font;
 
+import com.dew.DewCommon;
+import com.dew.IMinecraft;
+import com.dew.system.module.modules.player.StreamerMode;
 import com.dew.utils.LogUtil;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
@@ -91,6 +94,14 @@ public class CustomFontRenderer {
     }
 
     public float getStringWidth(String text, float size) {
+        if (StreamerMode.shouldReplace() && DewCommon.moduleManager.getModule(StreamerMode.class).isEnabled()) {
+            String sessionName = IMinecraft.mc.getSession().getUsername();
+            if (text.contains(sessionName)) {
+                String censored = new String(new char[sessionName.length()]).replace("\0", "*");
+                text = text.replace(sessionName, censored);
+            }
+        }
+
         String key = text + "@" + size;
         if (widthCache.containsKey(key)) {
             return widthCache.get(key);
@@ -109,6 +120,14 @@ public class CustomFontRenderer {
     }
 
     public void drawString(String text, float x, float y, int color, float size) {
+        if (StreamerMode.shouldReplace() && DewCommon.moduleManager.getModule(StreamerMode.class).isEnabled()) {
+            String sessionName = IMinecraft.mc.getSession().getUsername();
+            if (text.contains(sessionName)) {
+                String censored = new String(new char[sessionName.length()]).replace("\0", "*");
+                text = text.replace(sessionName, censored);
+            }
+        }
+
         String key = "plain:" + text + "@" + color + "@" + size;
         RenderCache cache = textCache.get(key);
         if (cache != null) {
@@ -128,6 +147,14 @@ public class CustomFontRenderer {
     }
 
     public void drawStringWithShadow(String text, float x, float y, int color, float size) {
+        if (StreamerMode.shouldReplace() && DewCommon.moduleManager.getModule(StreamerMode.class).isEnabled()) {
+            String sessionName = IMinecraft.mc.getSession().getUsername();
+            if (text.contains(sessionName)) {
+                String censored = new String(new char[sessionName.length()]).replace("\0", "*");
+                text = text.replace(sessionName, censored);
+            }
+        }
+
         String key = "shadow:" + text + "@" + color + "@" + size;
         RenderCache cache = textCache.get(key);
         if (cache != null) {

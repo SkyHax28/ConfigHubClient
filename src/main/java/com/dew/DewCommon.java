@@ -27,7 +27,7 @@ import static com.dew.IMinecraft.mc;
 
 public class DewCommon {
 
-    public static String versionUpdateDate = "August 30th";
+    public static String versionUpdateDate = "September 7th";
 
     public static final File BASE_CFG_DIR = new File(mc.mcDataDir, "dew");
     public static String clientName = "Dew";

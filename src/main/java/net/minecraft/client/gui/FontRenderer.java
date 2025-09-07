@@ -1,5 +1,8 @@
 package net.minecraft.client.gui;
 
+import com.dew.DewCommon;
+import com.dew.IMinecraft;
+import com.dew.system.module.modules.player.StreamerMode;
 import com.ibm.icu.text.ArabicShaping;
 import com.ibm.icu.text.ArabicShapingException;
 import com.ibm.icu.text.Bidi;
@@ -574,6 +577,14 @@ public class FontRenderer implements IResourceManagerReloadListener
         }
         else
         {
+            if (StreamerMode.shouldReplace() && DewCommon.moduleManager.getModule(StreamerMode.class).isEnabled()) {
+                String sessionName = IMinecraft.mc.getSession().getUsername();
+                if (text.contains(sessionName)) {
+                    String censored = new String(new char[sessionName.length()]).replace("\0", "*");
+                    text = text.replace(sessionName, censored);
+                }
+            }
+
             if (this.bidiFlag)
             {
                 text = this.bidiReorder(text);
@@ -609,6 +620,14 @@ public class FontRenderer implements IResourceManagerReloadListener
         }
         else
         {
+            if (StreamerMode.shouldReplace() && DewCommon.moduleManager.getModule(StreamerMode.class).isEnabled()) {
+                String sessionName = IMinecraft.mc.getSession().getUsername();
+                if (text.contains(sessionName)) {
+                    String censored = new String(new char[sessionName.length()]).replace("\0", "*");
+                    text = text.replace(sessionName, censored);
+                }
+            }
+
             float f = 0.0F;
             boolean flag = false;
 
