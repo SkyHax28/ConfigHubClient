@@ -2,6 +2,7 @@ package com.dew.system.event;
 
 import com.dew.utils.LogUtil;
 
+import java.util.Comparator;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -15,9 +16,9 @@ public class EventManager {
     }
 
     public void call(final EventArgument argument) {
-        for (EventListener listener : listenerRegistry) {
-            argument.call(listener);
-        }
+        listenerRegistry.stream()
+                .sorted(Comparator.comparingInt(l -> l.getPriority().ordinal()))
+                .forEach(argument::call);
     }
 
     public void register(final EventListener listener) {

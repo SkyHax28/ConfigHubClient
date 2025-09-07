@@ -3,6 +3,10 @@ package com.dew.system.event;
 import com.dew.system.event.events.*;
 
 public interface EventListener {
+    default EventPriority getPriority() {
+        return EventPriority.NORMAL;
+    }
+
     default void onPreUpdate(PreUpdateEvent event) {
     }
 
@@ -79,5 +83,8 @@ public interface EventListener {
     }
 
     default void onBlockBB(BlockBBEvent event) {
+    }
+
+    default void onKeyPressable(KeyPressableEvent event) {
     }
 }

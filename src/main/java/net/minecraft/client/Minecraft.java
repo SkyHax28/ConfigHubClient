@@ -2016,6 +2016,10 @@ public class Minecraft implements IThreadListener, IPlayerUsage
                 this.displayGuiScreen(new GuiChat("/"));
             }
 
+            KeyPressableEvent keyPressableEvent = new KeyPressableEvent();
+            DewCommon.eventManager.call(keyPressableEvent);
+            if (keyPressableEvent.isCancelled()) return;
+
             if (this.thePlayer.isUsingItem())
             {
                 if (!this.gameSettings.keyBindUseItem.isKeyDown())
