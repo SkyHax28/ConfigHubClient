@@ -3,7 +3,7 @@ package com.dew.system.module.modules.movement;
 import com.dew.DewCommon;
 import com.dew.system.event.events.AttackEvent;
 import com.dew.system.event.events.PreUpdateEvent;
-import com.dew.system.event.events.WorldLoadEvent;
+import com.dew.system.event.events.LoadWorldEvent;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
 import net.minecraft.entity.Entity;
@@ -24,7 +24,7 @@ public class AutoWalkAI extends Module {
     }
 
     @Override
-    public void onLoadWorld(WorldLoadEvent event) {
+    public void onLoadWorld(LoadWorldEvent event) {
         this.setState(false);
     }
 

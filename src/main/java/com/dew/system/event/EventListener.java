@@ -70,7 +70,7 @@ public interface EventListener {
     default void onWorld(WorldEvent event) {
     }
 
-    default void onLoadWorld(WorldLoadEvent event) {
+    default void onLoadWorld(LoadWorldEvent event) {
     }
 
     default void onLeaveWorld(LeaveWorldEvent event) {

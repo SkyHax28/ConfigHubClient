@@ -4,13 +4,12 @@ import com.dew.DewCommon;
 import com.dew.system.event.events.PreMotionEvent;
 import com.dew.system.event.events.PreUpdateEvent;
 import com.dew.system.event.events.ReceivedPacketEvent;
-import com.dew.system.event.events.WorldLoadEvent;
+import com.dew.system.event.events.LoadWorldEvent;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
 import com.dew.system.module.modules.movement.speed.SpeedModule;
 import com.dew.system.settingsvalue.NumberValue;
 import com.dew.system.settingsvalue.SelectionValue;
-import com.dew.utils.LogUtil;
 import com.dew.utils.PacketUtil;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.C03PacketPlayer;
@@ -42,7 +41,7 @@ public class Velocity extends Module {
     }
 
     @Override
-    public void onLoadWorld(WorldLoadEvent event) {
+    public void onLoadWorld(LoadWorldEvent event) {
         hypTick = 0;
         sent = false;
     }

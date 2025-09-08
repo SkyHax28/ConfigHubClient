@@ -4,7 +4,7 @@ import com.dew.DewCommon;
 import com.dew.system.event.events.PreMotionEvent;
 import com.dew.system.event.events.Render3DEvent;
 import com.dew.system.event.events.SendPacketEvent;
-import com.dew.system.event.events.WorldLoadEvent;
+import com.dew.system.event.events.LoadWorldEvent;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
 import com.dew.system.settingsvalue.NumberValue;
@@ -43,7 +43,7 @@ public class CivBreak extends Module {
     }
 
     @Override
-    public void onLoadWorld(WorldLoadEvent event) {
+    public void onLoadWorld(LoadWorldEvent event) {
         currentBlock = null;
         isBreaking = false;
     }

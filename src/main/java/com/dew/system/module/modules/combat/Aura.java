@@ -5,7 +5,6 @@ import com.dew.system.event.events.*;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
 import com.dew.system.module.modules.exploit.SafetySwitchv2000;
-import com.dew.system.module.modules.movement.Step;
 import com.dew.system.module.modules.movement.flight.FlightModule;
 import com.dew.system.module.modules.movement.speed.SpeedModule;
 import com.dew.system.module.modules.movement.speed.speeds.VerusSpeed;
@@ -117,7 +116,7 @@ public class Aura extends Module {
     }
 
     @Override
-    public void onLoadWorld(WorldLoadEvent event) {
+    public void onLoadWorld(LoadWorldEvent event) {
         if (DewCommon.moduleManager.getModule(SafetySwitchv2000.class).isEnabled()) {
             this.setState(false);
         } else {

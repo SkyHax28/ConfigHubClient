@@ -2,18 +2,13 @@ package com.dew.system.module.modules.ghost;
 
 import com.dew.DewCommon;
 import com.dew.system.event.events.PreMotionEvent;
-import com.dew.system.event.events.PreUpdateEvent;
-import com.dew.system.event.events.WorldLoadEvent;
+import com.dew.system.event.events.LoadWorldEvent;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
 import com.dew.system.module.modules.player.Scaffold;
 import com.dew.system.settingsvalue.NumberValue;
-import com.dew.utils.MovementUtil;
-import net.minecraft.block.Block;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.item.ItemBlock;
-import net.minecraft.potion.Potion;
-import net.minecraft.util.BlockPos;
 import org.lwjgl.input.Keyboard;
 
 public class BridgeAssist extends Module {
@@ -37,7 +32,7 @@ public class BridgeAssist extends Module {
     }
 
     @Override
-    public void onLoadWorld(WorldLoadEvent event) {
+    public void onLoadWorld(LoadWorldEvent event) {
         this.resetState();
     }
 

@@ -4,7 +4,7 @@ import com.dew.DewCommon;
 import com.dew.system.event.events.Render3DEvent;
 import com.dew.system.event.events.SendPacketEvent;
 import com.dew.system.event.events.TickEvent;
-import com.dew.system.event.events.WorldLoadEvent;
+import com.dew.system.event.events.LoadWorldEvent;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
 import com.dew.system.settingsvalue.BooleanValue;
@@ -22,7 +22,6 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.C07PacketPlayerDigging;
 import net.minecraft.network.play.client.C0APacketAnimation;
-import net.minecraft.network.play.server.S29PacketSoundEffect;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
@@ -61,7 +60,7 @@ public class Breaker extends Module {
     }
 
     @Override
-    public void onLoadWorld(WorldLoadEvent event) {
+    public void onLoadWorld(LoadWorldEvent event) {
         this.resetState();
         bedWhitelist.clear();
     }

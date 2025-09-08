@@ -2,12 +2,11 @@ package com.dew.system.module.modules.combat;
 
 import com.dew.DewCommon;
 import com.dew.system.event.events.TickEvent;
-import com.dew.system.event.events.WorldLoadEvent;
+import com.dew.system.event.events.LoadWorldEvent;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
 import com.dew.system.module.modules.player.Scaffold;
 import com.dew.system.settingsvalue.NumberValue;
-import com.dew.utils.LogUtil;
 import com.dew.utils.MovementUtil;
 import net.minecraft.block.*;
 import net.minecraft.client.gui.inventory.GuiChest;
@@ -46,7 +45,7 @@ public class AutoPot extends Module {
     }
 
     @Override
-    public void onLoadWorld(WorldLoadEvent event) {
+    public void onLoadWorld(LoadWorldEvent event) {
         this.resetState();
     }
 

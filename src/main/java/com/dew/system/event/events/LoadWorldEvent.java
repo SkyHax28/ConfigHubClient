@@ -5,7 +5,7 @@ import com.dew.system.event.EventListener;
 
 import java.util.Objects;
 
-public class WorldLoadEvent extends EventArgument {
+public class LoadWorldEvent extends EventArgument {
 
     @Override
     public void call(EventListener listener) {

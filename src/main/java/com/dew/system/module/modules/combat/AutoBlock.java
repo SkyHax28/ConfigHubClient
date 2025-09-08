@@ -47,7 +47,7 @@ public class AutoBlock extends Module {
     }
 
     @Override
-    public void onLoadWorld(WorldLoadEvent event) {
+    public void onLoadWorld(LoadWorldEvent event) {
         this.resetState();
     }
 

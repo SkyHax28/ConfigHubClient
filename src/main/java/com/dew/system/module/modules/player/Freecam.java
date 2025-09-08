@@ -45,7 +45,7 @@ public class Freecam extends Module {
     }
 
     @Override
-    public void onLoadWorld(WorldLoadEvent event) {
+    public void onLoadWorld(LoadWorldEvent event) {
         this.setState(false);
     }
 

@@ -1,7 +1,7 @@
 package com.dew.system.module.modules.player;
 
-import com.dew.DewCommon;
-import com.dew.system.event.events.WorldLoadEvent;
+import com.dew.system.event.events.LeaveWorldEvent;
+import com.dew.system.event.events.LoadWorldEvent;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
 import com.dew.utils.BlinkUtil;
@@ -25,7 +25,12 @@ public class Blink extends Module {
     }
 
     @Override
-    public void onLoadWorld(WorldLoadEvent event) {
+    public void onLoadWorld(LoadWorldEvent event) {
+        BlinkUtil.sync(true, true);
+    }
+
+    @Override
+    public void onLeaveWorld(LeaveWorldEvent event) {
         BlinkUtil.sync(true, true);
     }
 }

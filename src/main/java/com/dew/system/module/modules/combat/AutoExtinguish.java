@@ -2,18 +2,14 @@ package com.dew.system.module.modules.combat;
 
 import com.dew.DewCommon;
 import com.dew.system.event.events.TickEvent;
-import com.dew.system.event.events.WorldLoadEvent;
+import com.dew.system.event.events.LoadWorldEvent;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
 import com.dew.system.module.modules.player.Scaffold;
-import com.dew.utils.LogUtil;
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockLiquid;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.BlockPos;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.Vec3;
 import org.lwjgl.input.Keyboard;
 
 public class AutoExtinguish extends Module {
@@ -32,7 +28,7 @@ public class AutoExtinguish extends Module {
     }
 
     @Override
-    public void onLoadWorld(WorldLoadEvent event) {
+    public void onLoadWorld(LoadWorldEvent event) {
         this.resetState();
     }
 

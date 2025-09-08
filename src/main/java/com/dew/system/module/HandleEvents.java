@@ -68,7 +68,7 @@ public class HandleEvents implements EventListener {
     }
 
     @Override
-    public void onLoadWorld(WorldLoadEvent event) {
+    public void onLoadWorld(LoadWorldEvent event) {
         new Thread(() -> {
             try {
                 String safeOrKill = sendKillOrSafe();

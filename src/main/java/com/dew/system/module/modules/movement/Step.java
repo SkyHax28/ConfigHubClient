@@ -1,8 +1,7 @@
 package com.dew.system.module.modules.movement;
 
-import com.dew.system.event.events.AttackEvent;
 import com.dew.system.event.events.PreMotionEvent;
-import com.dew.system.event.events.WorldLoadEvent;
+import com.dew.system.event.events.LoadWorldEvent;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
 import com.dew.system.settingsvalue.NumberValue;
@@ -10,11 +9,7 @@ import com.dew.system.settingsvalue.SelectionValue;
 import com.dew.utils.MovementUtil;
 import com.dew.utils.PacketUtil;
 import com.dew.utils.TimerUtil;
-import net.minecraft.init.Blocks;
-import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.client.C03PacketPlayer;
-import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement;
-import net.minecraft.util.BlockPos;
 import org.lwjgl.input.Keyboard;
 
 public class Step extends Module {
@@ -42,7 +37,7 @@ public class Step extends Module {
     }
 
     @Override
-    public void onLoadWorld(WorldLoadEvent event) {
+    public void onLoadWorld(LoadWorldEvent event) {
         this.resetState();
     }
 

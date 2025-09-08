@@ -68,7 +68,7 @@ public class SpeedModule extends Module {
     }
 
     @Override
-    public void onLoadWorld(WorldLoadEvent event) {
+    public void onLoadWorld(LoadWorldEvent event) {
         if (DewCommon.moduleManager.getModule(SafetySwitchv2000.class).isEnabled()) {
             this.setState(false);
         }

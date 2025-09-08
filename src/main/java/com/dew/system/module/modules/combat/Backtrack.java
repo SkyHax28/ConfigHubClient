@@ -1,7 +1,7 @@
 package com.dew.system.module.modules.combat;
 
 import com.dew.system.event.events.TickEvent;
-import com.dew.system.event.events.WorldLoadEvent;
+import com.dew.system.event.events.LoadWorldEvent;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
 import com.dew.utils.PacketUtil;
@@ -29,7 +29,7 @@ public class Backtrack extends Module {
     }
 
     @Override
-    public void onLoadWorld(WorldLoadEvent event) {
+    public void onLoadWorld(LoadWorldEvent event) {
         maxHistoryTime = 0;
         smoothHistoryTime = 0;
         positionHistory.clear();

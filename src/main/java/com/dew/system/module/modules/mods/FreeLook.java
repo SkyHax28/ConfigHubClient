@@ -1,7 +1,7 @@
 package com.dew.system.module.modules.mods;
 
 import com.dew.system.event.events.PreUpdateEvent;
-import com.dew.system.event.events.WorldLoadEvent;
+import com.dew.system.event.events.LoadWorldEvent;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
 import org.lwjgl.input.Keyboard;
@@ -21,7 +21,7 @@ public class FreeLook extends Module {
     }
 
     @Override
-    public void onLoadWorld(WorldLoadEvent event) {
+    public void onLoadWorld(LoadWorldEvent event) {
         enableLook = false;
     }
 

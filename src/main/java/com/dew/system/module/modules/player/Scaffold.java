@@ -12,7 +12,6 @@ import com.dew.system.module.modules.render.Hud;
 import com.dew.system.settingsvalue.BooleanValue;
 import com.dew.system.settingsvalue.NumberValue;
 import com.dew.system.settingsvalue.SelectionValue;
-import com.dew.utils.LogUtil;
 import com.dew.utils.MovementUtil;
 import com.dew.utils.PacketUtil;
 import com.dew.utils.RenderUtil;
@@ -96,7 +95,7 @@ public class Scaffold extends Module {
     }
 
     @Override
-    public void onLoadWorld(WorldLoadEvent event) {
+    public void onLoadWorld(LoadWorldEvent event) {
         if (DewCommon.moduleManager.getModule(SafetySwitchv2000.class).isEnabled()) {
             this.setState(false);
         } else {
