@@ -2,6 +2,7 @@ package net.minecraft.client.renderer;
 
 import com.dew.DewCommon;
 import com.dew.system.event.events.Render3DEvent;
+import com.dew.system.module.modules.mods.FreeLook;
 import com.dew.system.module.modules.movement.speed.SpeedModule;
 import com.dew.system.module.modules.render.*;
 import com.dew.system.viapatcher.PlayerFixer;

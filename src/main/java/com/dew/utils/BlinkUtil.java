@@ -11,7 +11,7 @@ import java.util.List;
 
 public class BlinkUtil {
     private static final Minecraft mc = IMinecraft.mc;
-    private static final List<Packet<?>> packets = Collections.synchronizedList(new ArrayList<>());
+    public static final List<Packet<?>> packets = Collections.synchronizedList(new ArrayList<>());
     private static final List<Vec3d> positions = Collections.synchronizedList(new ArrayList<>());
     public static boolean limiter = false;
     public static boolean blinking = false;

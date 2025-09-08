@@ -1,6 +1,8 @@
 package com.dew.utils.rawinput;
 
+import com.dew.DewCommon;
 import com.dew.IMinecraft;
+import com.dew.system.module.modules.mods.RawInput;
 import net.java.games.input.ControllerEnvironment;
 import net.java.games.input.Mouse;
 
@@ -30,15 +32,19 @@ public final class RawInputThread extends Thread {
 
         while (true) {
             try {
-                for (Mouse mouse : mice) {
-                    if (!mouse.poll()) {
-                        rescan();
-                    }
+                if (DewCommon.moduleManager.getModule(RawInput.class).isEnabled()) {
+                    for (Mouse mouse : mice) {
+                        if (!mouse.poll()) {
+                            rescan();
+                        }
 
-                    dx.addAndGet((int) mouse.getX().getPollData());
-                    dy.addAndGet(-(int) mouse.getY().getPollData());
+                        dx.addAndGet((int) mouse.getX().getPollData());
+                        dy.addAndGet(-(int) mouse.getY().getPollData());
+                    }
+                    Thread.sleep(1);
+                } else {
+                    Thread.sleep(50);
                 }
-                Thread.sleep(1);
             } catch (InterruptedException e) {
                 break;
             }

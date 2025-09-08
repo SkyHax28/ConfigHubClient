@@ -5,6 +5,7 @@ import com.dew.system.event.events.Render3DEvent;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
 import com.dew.system.module.modules.combat.FastBow;
+import com.dew.system.settingsvalue.BooleanValue;
 import com.dew.utils.RenderUtil;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.GlStateManager;
@@ -24,7 +25,7 @@ import java.awt.*;
 import java.util.List;
 
 public class Trajectories extends Module {
-
+    private static final BooleanValue sheepWars = new BooleanValue("Sheep Wars", false);
     public Trajectories() {
         super("Trajectories", ModuleCategory.RENDER, Keyboard.KEY_NONE, true, false, true);
     }
@@ -46,7 +47,17 @@ public class Trajectories extends Module {
 
         float partialTicks = event.partialTicks;
 
-        if (item instanceof ItemBow) {
+        if (sheepWars.get() && item instanceof ItemSkull) {
+            gravity = 0.05F;
+            size = 0.3F;
+
+            float useTicks = 18;
+
+            float power = useTicks / 20.0F;
+            power = (power * power + power * 2.0F) / 3.0F;
+
+            motionFactor = power * 3.0F;
+        } else if (item instanceof ItemBow) {
             if (!mc.thePlayer.isUsingItem()) return;
 
             gravity = 0.05F;

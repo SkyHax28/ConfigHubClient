@@ -7,6 +7,7 @@ public enum ModuleCategory {
     EXPLOIT,
     RENDER,
     GHOST,
+    MODS,
 
     MODULE_CONFIG_MANAGER,
     BIND_CONFIG_MANAGER

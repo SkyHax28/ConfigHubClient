@@ -2,7 +2,7 @@ package net.minecraft.client.particle;
 
 import com.dew.DewCommon;
 import com.dew.IMinecraft;
-import com.dew.system.module.modules.render.FpsBooster;
+import com.dew.system.module.modules.mods.FpsBooster;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 

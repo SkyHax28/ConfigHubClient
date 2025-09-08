@@ -44,7 +44,7 @@ public class PlayerFixer {
         mc.thePlayer.setEntityBoundingBox(fixedBB);
         mc.thePlayer.height = newHeight;
 
-        if (newerThanOrEqualsTo1_9() && mc.thePlayer.onGround && !mc.theWorld.getCollisionBoxes(sneakBB).isEmpty()) {
+        if (newerThanOrEqualsTo1_9() && mc.thePlayer.onGround && !mc.theWorld.getCollisionBoxes(sneakBB).isEmpty() && !shouldSwimOrCrawl()) {
             mc.gameSettings.keyBindSneak.setKeyDown(true);
             forceSneaking = true;
         } else if (mc.theWorld.getCollisionBoxes(sneakBB).isEmpty() && forceSneaking) {

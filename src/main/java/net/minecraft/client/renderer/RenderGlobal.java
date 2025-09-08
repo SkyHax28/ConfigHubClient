@@ -1,7 +1,7 @@
 package net.minecraft.client.renderer;
 
 import com.dew.DewCommon;
-import com.dew.system.module.modules.render.FpsBooster;
+import com.dew.system.module.modules.mods.FpsBooster;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;

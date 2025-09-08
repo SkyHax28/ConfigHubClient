@@ -381,8 +381,8 @@ public class Hud extends Module {
 
                 String breakingInfo = DewCommon.moduleManager.getModule(Breaker.class).isEnabled() && DewCommon.moduleManager.getModule(Breaker.class).isBreaking || DewCommon.moduleManager.getModule(CivBreak.class).isEnabled() && DewCommon.moduleManager.getModule(CivBreak.class).isBreaking ? "Breaking..." : "";
                 String timerInfo = mc.timer.timerSpeed != 1 ? "Balance: " + mc.timer.timerSpeed : "";
-                String blinkInfo = BlinkUtil.blinking ? "Blinking" : "";
-                String deadInfo = mc.thePlayer.isDead ? "Wasted" : "";
+                String blinkInfo = BlinkUtil.blinking ? "Blinking... (x" +  BlinkUtil.packets.size() + ")": "";
+                String deadInfo = mc.thePlayer.isDead ? "Wasted!" : "";
                 String swimmingInfo = PlayerFixer.shouldSwimOrCrawl() ? "Swimming" : "";
                 String pluginsInfo = DewCommon.moduleManager.getModule(Plugins.class).isEnabled() ? "Detecting... (" + DewCommon.moduleManager.getModule(Plugins.class).getClockMs() + "ms passed)" : "";
                 String spectatingInfo = mc.playerController != null && mc.playerController.getCurrentGameType() == WorldSettings.GameType.SPECTATOR ? "Spectating" : "";

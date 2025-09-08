@@ -1,7 +1,7 @@
 package net.minecraft.tileentity;
 
 import com.dew.DewCommon;
-import com.dew.system.module.modules.render.FpsBooster;
+import com.dew.system.module.modules.mods.FpsBooster;
 import com.google.common.collect.Maps;
 import java.util.Map;
 import java.util.concurrent.Callable;

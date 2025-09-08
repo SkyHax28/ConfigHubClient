@@ -1,4 +1,4 @@
-package com.dew.system.module.modules.render;
+package com.dew.system.module.modules.mods;
 
 import com.dew.system.event.events.PreUpdateEvent;
 import com.dew.system.event.events.WorldLoadEvent;
@@ -11,7 +11,7 @@ public class FreeLook extends Module {
     private int prevThirdPersonView;
     private boolean enableLook = false;
     public FreeLook() {
-        super("Free Look", ModuleCategory.RENDER, Keyboard.KEY_F9, false, true, true);
+        super("Free Look", ModuleCategory.MODS, Keyboard.KEY_F9, false, true, true);
     }
 
     @Override

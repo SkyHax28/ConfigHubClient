@@ -256,6 +256,7 @@ public class Minecraft implements IThreadListener, IPlayerUsage
     public int rightClickDelayTimer;
     private String serverName;
     private int serverPort;
+    public boolean rawInputNotSupported = false;
     public boolean inGameHasFocus;
     long systemTime = getSystemTime();
     private int joinPlayerCounter;
@@ -477,6 +478,7 @@ public class Minecraft implements IThreadListener, IPlayerUsage
         } else {
             this.mouseHelper = new MouseHelper();
             LogUtil.infoLog("Your system does not support Raw Input");
+            this.rawInputNotSupported = true;
         }
         this.checkGLError("Pre startup");
         GlStateManager.enableTexture2D();

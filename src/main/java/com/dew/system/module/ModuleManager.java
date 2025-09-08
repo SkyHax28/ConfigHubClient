@@ -5,6 +5,10 @@ import com.dew.system.event.EventListener;
 import com.dew.system.module.modules.combat.*;
 import com.dew.system.module.modules.exploit.*;
 import com.dew.system.module.modules.ghost.*;
+import com.dew.system.module.modules.mods.FpsBooster;
+import com.dew.system.module.modules.mods.FreeLook;
+import com.dew.system.module.modules.mods.ItemPhysics;
+import com.dew.system.module.modules.mods.RawInput;
 import com.dew.system.module.modules.movement.*;
 import com.dew.system.module.modules.movement.flight.FlightModule;
 import com.dew.system.module.modules.movement.speed.SpeedModule;
@@ -40,7 +44,8 @@ public class ModuleManager implements EventListener {
                 new AutoExtinguish(), new QuakeAura(), new AutoAimPractice(), new Jesus(),
                 new NoRender(), new AntiFalseFlag(), new Highlighter(), new RotRandomizer(),
                 new HighJump(), new Timer(), new ViaCollision(), new Plugins(),
-                new Spammer(), new PacketChatLimiter(), new BlockOverlay(), new StreamerMode()
+                new Spammer(), new PacketChatLimiter(), new BlockOverlay(), new StreamerMode(),
+                new RawInput(), new Blink()
         ));
 
         DewCommon.eventManager.register(this);
