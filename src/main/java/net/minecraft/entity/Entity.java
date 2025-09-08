@@ -474,7 +474,7 @@ public abstract class Entity implements ICommandSender
             double d4 = y;
             double d5 = z;
             boolean flag = this.onGround && this.isSneaking() && this instanceof EntityPlayer;
-            boolean flagOrid = this.onGround && event.isSafeWalk && this instanceof EntityPlayerSP;
+            boolean flagOrid = event.isSafeWalk && this instanceof EntityPlayerSP;
 
             if (flag || flagOrid) {
                 double d6;

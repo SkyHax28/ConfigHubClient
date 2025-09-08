@@ -215,6 +215,10 @@ public class Scaffold extends Module {
         boolean antiTelly = (mode.get().equals("Telly") || mode.get().equals("Prediction")) && !doTellyInThisJump && !Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) && (MovementUtil.isDiagonal(6f) || !mode.get().equals("Prediction"));
 
         if (!isLivingUpdateEvent) {
+            if (MovementUtil.isBlockAbovePlayer(mc.thePlayer, 1, 0.2)) {
+                andromed = false;
+            }
+
             if (needSnapRotationReset) {
                 DewCommon.rotationManager.resetRotationsInstantly();
                 needSnapRotationReset = false;
@@ -364,6 +368,7 @@ public class Scaffold extends Module {
         }
 
         for (EnumFacing dir : EnumFacing.values()) {
+            if (dir == EnumFacing.DOWN) continue;
             BlockPos neighbor = below.offset(dir);
             if (neighbor.getY() > playerY && !andromed) continue;
             PlaceResult neighborResult = tryPlaceBlock(neighbor);
@@ -407,6 +412,7 @@ public class Scaffold extends Module {
                 }
 
                 for (EnumFacing dir : EnumFacing.values()) {
+                    if (dir == EnumFacing.DOWN) continue;
                     BlockPos next = current.pos.offset(dir);
 
                     if (next.getY() > playerY && !andromed) continue;
@@ -544,6 +550,7 @@ public class Scaffold extends Module {
         if (mc.thePlayer.getEntityBoundingBox().intersectsWith(bb)) return false;
 
         for (EnumFacing dir : EnumFacing.values()) {
+            if (dir == EnumFacing.DOWN) continue;
             BlockPos support = pos.offset(dir);
             if (!isAirLike(support)) {
                 return true;
@@ -668,7 +675,7 @@ public class Scaffold extends Module {
 
         EnumFacing preferredFacing = facingFromRotation(
                 mc.thePlayer.rotationYaw,
-                DewCommon.rotationManager.getClientPitch()
+                0f
         );
 
         EnumFacing[] orderedFacings = new EnumFacing[6];
@@ -679,6 +686,7 @@ public class Scaffold extends Module {
         }
 
         for (EnumFacing facing : orderedFacings) {
+            if (facing == EnumFacing.UP && andromed) continue;
             BlockPos neighbor = pos.offset(facing);
 
             int playerY = (int) mc.thePlayer.posY - 1;
