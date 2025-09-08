@@ -4,6 +4,7 @@ import java.util.*;
 
 import com.dew.DewCommon;
 import com.dew.system.module.modules.mods.ItemPhysics;
+import com.dew.system.module.modules.render.NameTags;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.texture.TextureMap;
@@ -134,6 +135,10 @@ public class RenderEntityItem extends Render<EntityItem>
         ItemStack itemstack = entity.getEntityItem();
         this.field_177079_e.setSeed(187L);
         boolean flag = false;
+
+        if (DewCommon.moduleManager.getModule(NameTags.class).isEnabled() && DewCommon.moduleManager.getModule(NameTags.class).shouldRender(entity)) {
+            this.renderLivingLabel(entity, entity.getEntityItem().getDisplayName(), x, y + 0.2, z, 64, true);
+        }
 
         if (this.bindEntityTexture(entity))
         {

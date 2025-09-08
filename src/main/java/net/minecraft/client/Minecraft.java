@@ -475,7 +475,7 @@ public class Minecraft implements IThreadListener, IPlayerUsage
             LogUtil.infoLog("Successfully enabled Raw Input");
         } else {
             this.mouseHelper = new MouseHelper();
-            LogUtil.infoLog("Your system does not support Raw Input");
+            LogUtil.infoLog("Your environment does not support Raw Input");
             this.rawInputNotSupported = true;
         }
         this.checkGLError("Pre startup");

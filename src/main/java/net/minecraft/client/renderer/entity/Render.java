@@ -17,6 +17,7 @@ import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.src.Config;
 import net.minecraft.util.AxisAlignedBB;
@@ -345,6 +346,7 @@ public abstract class Render<T extends Entity> implements IEntityRenderer
                 }
             }
         }
+        boolean isItemEntity = entityIn instanceof EntityItem;
         boolean isMurderer = false;
         if (murdererDetector.isEnabled() && entityIn instanceof EntityPlayer && murdererDetector.getMurderers().contains(entityIn)) {
             str = "[Murderer] " + str;
@@ -424,15 +426,15 @@ public abstract class Render<T extends Entity> implements IEntityRenderer
             int j = fontrenderer.getStringWidth(str) / 2;
             GlStateManager.disableTexture2D();
             worldrenderer.begin(7, DefaultVertexFormats.POSITION_COLOR);
-            worldrenderer.pos(-j - 3, -2 + i, 0.0D).color(0.0F, 0.0F, 0.0F, 0.65F).endVertex();
-            worldrenderer.pos(-j - 3, 9 + i, 0.0D).color(0.0F, 0.0F, 0.0F, 0.65F).endVertex();
-            worldrenderer.pos(j + 3, 9 + i, 0.0D).color(0.0F, 0.0F, 0.0F, 0.65F).endVertex();
-            worldrenderer.pos(j + 3, -2 + i, 0.0D).color(0.0F, 0.0F, 0.0F, 0.65F).endVertex();
+            worldrenderer.pos(-j - 3, -2 + i, 0.0D).color(0.0F, 0.0F, 0.0F, isItemEntity ? 0.35F : 0.65F).endVertex();
+            worldrenderer.pos(-j - 3, 9 + i, 0.0D).color(0.0F, 0.0F, 0.0F, isItemEntity ? 0.35F : 0.65F).endVertex();
+            worldrenderer.pos(j + 3, 9 + i, 0.0D).color(0.0F, 0.0F, 0.0F, isItemEntity ? 0.35F : 0.65F).endVertex();
+            worldrenderer.pos(j + 3, -2 + i, 0.0D).color(0.0F, 0.0F, 0.0F, isItemEntity ? 0.35F : 0.65F).endVertex();
             tessellator.draw();
             GlStateManager.enableTexture2D();
 
             fontrenderer.drawString(str, -fontrenderer.getStringWidth(str) / 2, i, 553648127);
-            fontrenderer.drawString(str, -fontrenderer.getStringWidth(str) / 2, i, isMurderer ? Color.RED.getRGB() : -1);
+            fontrenderer.drawString(str, -fontrenderer.getStringWidth(str) / 2, i, isItemEntity ? Color.LIGHT_GRAY.getRGB() : isMurderer ? Color.RED.getRGB() : -1);
 
             GlStateManager.enableDepth();
             GlStateManager.depthMask(true);

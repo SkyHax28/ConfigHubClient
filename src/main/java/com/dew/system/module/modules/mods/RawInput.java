@@ -14,7 +14,7 @@ public class RawInput extends Module {
     @Override
     public void onEnable() {
         if (mc.rawInputNotSupported) {
-            LogUtil.printChat("Your system does not support Raw Input");
+            LogUtil.printChat("Your environment does not support Raw Input");
         }
     }
 }
