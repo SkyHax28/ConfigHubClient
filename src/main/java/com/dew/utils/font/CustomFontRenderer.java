@@ -2,7 +2,7 @@ package com.dew.utils.font;
 
 import com.dew.DewCommon;
 import com.dew.IMinecraft;
-import com.dew.system.module.modules.player.StreamerMode;
+import com.dew.system.module.modules.mods.Streamer;
 import com.dew.utils.LogUtil;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
@@ -94,7 +94,7 @@ public class CustomFontRenderer {
     }
 
     public float getStringWidth(String text, float size) {
-        if (StreamerMode.shouldReplace() && DewCommon.moduleManager.getModule(StreamerMode.class).isEnabled()) {
+        if (Streamer.shouldReplace() && DewCommon.moduleManager.getModule(Streamer.class).isEnabled()) {
             String sessionName = IMinecraft.mc.getSession().getUsername();
             if (text.contains(sessionName)) {
                 String censored = new String(new char[sessionName.length()]).replace("\0", "*");
@@ -120,7 +120,7 @@ public class CustomFontRenderer {
     }
 
     public void drawString(String text, float x, float y, int color, float size) {
-        if (StreamerMode.shouldReplace() && DewCommon.moduleManager.getModule(StreamerMode.class).isEnabled()) {
+        if (Streamer.shouldReplace() && DewCommon.moduleManager.getModule(Streamer.class).isEnabled()) {
             String sessionName = IMinecraft.mc.getSession().getUsername();
             if (text.contains(sessionName)) {
                 String censored = new String(new char[sessionName.length()]).replace("\0", "*");
@@ -147,7 +147,7 @@ public class CustomFontRenderer {
     }
 
     public void drawStringWithShadow(String text, float x, float y, int color, float size) {
-        if (StreamerMode.shouldReplace() && DewCommon.moduleManager.getModule(StreamerMode.class).isEnabled()) {
+        if (Streamer.shouldReplace() && DewCommon.moduleManager.getModule(Streamer.class).isEnabled()) {
             String sessionName = IMinecraft.mc.getSession().getUsername();
             if (text.contains(sessionName)) {
                 String censored = new String(new char[sessionName.length()]).replace("\0", "*");

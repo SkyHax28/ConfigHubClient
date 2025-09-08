@@ -30,6 +30,8 @@ import net.optifine.shaders.Shaders;
 import org.apache.commons.lang3.tuple.Pair;
 import org.lwjgl.opengl.GL11;
 
+import java.awt.*;
+
 public abstract class Render<T extends Entity> implements IEntityRenderer
 {
     private static final ResourceLocation shadowTextures = new ResourceLocation("textures/misc/shadow.png");
@@ -343,8 +345,10 @@ public abstract class Render<T extends Entity> implements IEntityRenderer
                 }
             }
         }
+        boolean isMurderer = false;
         if (murdererDetector.isEnabled() && entityIn instanceof EntityPlayer && murdererDetector.getMurderers().contains(entityIn)) {
             str = "[Murderer] " + str;
+            isMurderer = true;
         }
         if (!throughWalls) {
             if (d0 <= (double) (maxDistance * maxDistance)) {
@@ -382,7 +386,7 @@ public abstract class Render<T extends Entity> implements IEntityRenderer
                 fontrenderer.drawString(str, -fontrenderer.getStringWidth(str) / 2, i, 553648127);
                 GlStateManager.enableDepth();
                 GlStateManager.depthMask(true);
-                fontrenderer.drawString(str, -fontrenderer.getStringWidth(str) / 2, i, -1);
+                fontrenderer.drawString(str, -fontrenderer.getStringWidth(str) / 2, i, isMurderer ? Color.RED.getRGB() : -1);
                 GlStateManager.enableLighting();
                 GlStateManager.disableBlend();
                 GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
@@ -428,7 +432,7 @@ public abstract class Render<T extends Entity> implements IEntityRenderer
             GlStateManager.enableTexture2D();
 
             fontrenderer.drawString(str, -fontrenderer.getStringWidth(str) / 2, i, 553648127);
-            fontrenderer.drawString(str, -fontrenderer.getStringWidth(str) / 2, i, -1);
+            fontrenderer.drawString(str, -fontrenderer.getStringWidth(str) / 2, i, isMurderer ? Color.RED.getRGB() : -1);
 
             GlStateManager.enableDepth();
             GlStateManager.depthMask(true);

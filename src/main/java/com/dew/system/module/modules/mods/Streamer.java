@@ -1,14 +1,14 @@
-package com.dew.system.module.modules.player;
+package com.dew.system.module.modules.mods;
 
 import com.dew.DewCommon;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
 import org.lwjgl.input.Keyboard;
 
-public class StreamerMode extends Module {
+public class Streamer extends Module {
 
-    public StreamerMode() {
-        super("Streamer Mode", ModuleCategory.PLAYER, Keyboard.KEY_NONE, false, true, true);
+    public Streamer() {
+        super("Streamer", ModuleCategory.MODS, Keyboard.KEY_NONE, false, true, true);
     }
 
     public static boolean shouldReplace() {

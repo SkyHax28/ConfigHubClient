@@ -46,6 +46,7 @@ public class Scaffold extends Module {
     private static final BooleanValue noRotationHitCheck = new BooleanValue("No Rotation Hit Check", false);
     public static final BooleanValue preferHighestStack = new BooleanValue("Prefer Highest Stack", true);
     public static final BooleanValue noSprint = new BooleanValue("No Sprint", false);
+    public static final BooleanValue andromeda = new BooleanValue("Andromeda", false, () -> mode.get().equals("Normal"));
     private final EnumFacing[] facingsArray = EnumFacing.values();
     public boolean holdingBlock = false;
     public boolean jumped = false;
@@ -60,7 +61,7 @@ public class Scaffold extends Module {
     private boolean doTellyInThisJump = true;
     private BlockPos lastPlacedPos = null;
     private boolean needSnapRotationReset = false;
-
+    private boolean andromed = false;
     public Scaffold() {
         super("Scaffold", ModuleCategory.PLAYER, Keyboard.KEY_NONE, false, true, true);
     }
@@ -121,6 +122,7 @@ public class Scaffold extends Module {
         hypGroundCheck = false;
         jumped = false;
         needSnapRotationReset = false;
+        andromed = false;
         if (towered) {
             if (towerMode.get().equals("Vanilla")) {
                 MovementUtil.stopYMotion();
@@ -336,7 +338,7 @@ public class Scaffold extends Module {
             for (BlockPos offset : line) {
                 BlockPos expandPos = below.add(offset.getX(), 0, offset.getZ());
 
-                if (expandPos.getY() > playerY) continue;
+                if (expandPos.getY() > playerY && !andromed) continue;
                 if (!mc.theWorld.getBlockState(expandPos).getBlock().isReplaceable(mc.theWorld, expandPos)) continue;
 
                 PlaceResult expandResult = tryPlaceBlock(expandPos);
@@ -350,7 +352,7 @@ public class Scaffold extends Module {
             }
         }
 
-        if (!mc.theWorld.getBlockState(below).getBlock().isReplaceable(mc.theWorld, below) || below.getY() > playerY) return;
+        if (!mc.theWorld.getBlockState(below).getBlock().isReplaceable(mc.theWorld, below) || below.getY() > playerY && !andromed) return;
 
         PlaceResult result = tryPlaceBlock(below);
         if (result == PlaceResult.SUCCESS) {
@@ -363,7 +365,7 @@ public class Scaffold extends Module {
 
         for (EnumFacing dir : EnumFacing.values()) {
             BlockPos neighbor = below.offset(dir);
-            if (neighbor.getY() > playerY) continue;
+            if (neighbor.getY() > playerY && !andromed) continue;
             PlaceResult neighborResult = tryPlaceBlock(neighbor);
 
             if (neighborResult == PlaceResult.FAIL_ROTATION) return;
@@ -390,7 +392,7 @@ public class Scaffold extends Module {
                 if (!closedSet.add(current.pos)) continue;
 
                 if (mc.thePlayer.getDistanceSqToCenter(current.pos) > maxDistanceSq) continue;
-                if (current.pos.getY() > playerY) continue;
+                if (current.pos.getY() > playerY && !andromed) continue;
 
                 if (canPlaceAt(current.pos)) {
                     PlaceResult placeRes = tryPlaceBlock(current.pos);
@@ -407,7 +409,7 @@ public class Scaffold extends Module {
                 for (EnumFacing dir : EnumFacing.values()) {
                     BlockPos next = current.pos.offset(dir);
 
-                    if (next.getY() > playerY) continue;
+                    if (next.getY() > playerY && !andromed) continue;
 
                     if (!closedSet.contains(next) && isAirLike(next)) {
                         double gCost = current.gCost + 1;
@@ -524,6 +526,10 @@ public class Scaffold extends Module {
             keepY = (int) mc.thePlayer.posY - 1;
         } else {
             keepY = (int) mc.thePlayer.posY;
+
+            if (andromeda.get() && andromed) {
+                keepY += 2;
+            }
         }
     }
 
@@ -676,7 +682,7 @@ public class Scaffold extends Module {
             BlockPos neighbor = pos.offset(facing);
 
             int playerY = (int) mc.thePlayer.posY - 1;
-            if (neighbor.getY() > playerY) continue;
+            if (neighbor.getY() > playerY && !andromed) continue;
 
             IBlockState state = mc.theWorld.getBlockState(neighbor);
             Block block = state.getBlock();
@@ -714,6 +720,15 @@ public class Scaffold extends Module {
                 delay = 0;
                 if (!mode.get().equals("Hypixel") && !mode.get().equals("Prediction") && rotationMode.get().equals("Snap") && DewCommon.rotationManager.isRotating()) {
                     needSnapRotationReset = true;
+                }
+                if (andromed) {
+                    if (MovementUtil.isBlockAbovePlayer(mc.thePlayer, 1, 0.2)) {
+                        andromed = false;
+                    }
+                } else {
+                    if (MovementUtil.isBlockUnderPlayer(mc.thePlayer, 1, 0.2, false)) {
+                        andromed = true;
+                    }
                 }
                 return PlaceResult.SUCCESS;
             }
