@@ -16,7 +16,7 @@ import java.util.Map;
 
 public class SpeedModule extends Module {
 
-    public static final SelectionValue mode = new SelectionValue("Mode", "Vanilla", "Vanilla", "Hypixel", "Hypixel Prediction", "BlocksMC", "Bloxd", "Verus", "Latest NCP", "Test");
+    public static final SelectionValue mode = new SelectionValue("Mode", "Vanilla", "Vanilla", "Hypixel", "Hypixel Prediction", "BlocksMC", "Bloxd", "Verus", "Vulcan", "Latest NCP", "Test");
     public static final BooleanValue autoBHop = new BooleanValue("Auto BHop", true, () -> mode.get().equals("Vanilla"));
     public static final NumberValue speed = new NumberValue("Speed", 1, 0.1, 5.0, 0.1, () -> mode.get().equals("Vanilla"));
     public static final SelectionValue hypixelLowHopMode = new SelectionValue("Hypixel Lowhop Mode", "More Strafe", () -> mode.get().equals("Hypixel"), "More Strafe", "7 Tick");
@@ -33,6 +33,7 @@ public class SpeedModule extends Module {
         modes.put("BlocksMC", new BlocksMCSpeed());
         modes.put("Bloxd", new BloxdSpeed());
         modes.put("Verus", new VerusSpeed());
+        modes.put("Vulcan", new VulcanSpeed());
         modes.put("Latest NCP", new LatestNCPSpeed());
         modes.put("Test", new TestSpeed());
     }
