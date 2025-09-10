@@ -1,6 +1,8 @@
 package net.minecraft.client.renderer;
 
 import com.dew.DewCommon;
+import com.dew.system.event.events.DrawBlockSelectionEvent;
+import com.dew.system.event.events.TickEvent;
 import com.dew.system.module.modules.mods.FpsBooster;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -2567,6 +2569,10 @@ public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListene
 
     public void drawSelectionBox(EntityPlayer player, MovingObjectPosition movingObjectPositionIn, int execute, float partialTicks)
     {
+        DrawBlockSelectionEvent event = new DrawBlockSelectionEvent();
+        DewCommon.eventManager.call(event);
+        if (event.isCancelled()) return;
+
         if (execute == 0 && movingObjectPositionIn.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK)
         {
             GlStateManager.enableBlend();

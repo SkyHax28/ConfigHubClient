@@ -34,6 +34,9 @@ public interface EventListener {
     default void onMove(MoveEvent event) {
     }
 
+    default void onDrawBlockSelection(DrawBlockSelectionEvent event) {
+    }
+
     default void onRender3D(Render3DEvent event) {
     }
 
