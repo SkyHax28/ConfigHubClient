@@ -472,7 +472,7 @@ public class Minecraft implements IThreadListener, IPlayerUsage
         if (direct || raw) {
             environment = direct && !raw ? "DirectInputEnvironmentPlugin" : "DirectAndRawInputEnvironmentPlugin";
             this.mouseHelper = new RawInputMouseHelper();
-            LogUtil.infoLog("Successfully enabled Raw Input");
+            LogUtil.infoLog("Allowed access to raw input");
         } else {
             this.mouseHelper = new MouseHelper();
             LogUtil.infoLog("Your environment does not support Raw Input");
