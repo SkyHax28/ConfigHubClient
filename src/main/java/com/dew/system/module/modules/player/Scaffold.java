@@ -34,6 +34,7 @@ public class Scaffold extends Module {
     private static final SelectionValue mode = new SelectionValue("Mode", "Normal", "Normal", "Telly", "Hypixel", "Prediction");
     private static final SelectionValue swingMode = new SelectionValue("Swing Mode", "Packet", "Normal", "Packet");
     private static final SelectionValue rotationMode = new SelectionValue("Rotation Mode", "Normal", () -> mode.get().equals("Normal") || mode.get().equals("Telly"), "Normal", "Snap");
+    public static final BooleanValue simpleRotator = new BooleanValue("Simple Rotator", false, () -> mode.get().equals("Normal") || mode.get().equals("Telly") || mode.get().equals("Prediction"));
     private static final NumberValue tellyTwoJumpRotation = new NumberValue("Telly 2 Jump Rotation", 10.0, 0.0, 180.0, 5.0, () -> mode.get().equals("Telly"));
     private static final NumberValue tellyThreeJumpRotation = new NumberValue("Telly 3 Jump Rotation", 35.0, 0.0, 180.0, 5.0, () -> mode.get().equals("Telly"));
     private static final NumberValue rotationSpeed = new NumberValue("Rotation Speed", 60.0, 0.0, 180.0, 5.0, () -> mode.get().equals("Normal") || mode.get().equals("Telly"));
@@ -42,7 +43,7 @@ public class Scaffold extends Module {
     private static final NumberValue placeDelay = new NumberValue("Place Delay", 0.0, 0.0, 3.0, 1.0, () -> mode.get().equals("Normal") || mode.get().equals("Telly"));
     private static final SelectionValue towerMode = new SelectionValue("Tower Mode", "OFF", "OFF", "Vanilla", "Hypixel");
     private static final SelectionValue onlyTowerWhen = new SelectionValue("Only Tower When", "Always", () -> towerMode.get().equals("Vanilla"), "Always", "Standing", "Moving");
-    private static final SelectionValue edgeSafeMode = new SelectionValue("Edge Safe Mode", "OFF", () -> mode.get().equals("Normal") || mode.get().equals("Hypixel"), "OFF", "Safewalk", "Sneak");
+    private static final SelectionValue edgeSafeMode = new SelectionValue("Edge Safe Mode", "OFF", () -> mode.get().equals("Normal") || mode.get().equals("Hypixel"), "OFF", "Safewalk", "Ground Safewalk", "Sneak");
     private static final BooleanValue noRotationHitCheck = new BooleanValue("No Rotation Hit Check", false);
     public static final BooleanValue preferHighestStack = new BooleanValue("Prefer Highest Stack", true);
     public static final BooleanValue noSprint = new BooleanValue("No Sprint", false);
@@ -522,8 +523,13 @@ public class Scaffold extends Module {
     public void onMove(MoveEvent event) {
         if (mc.thePlayer == null || mc.theWorld == null) return;
 
-        if (edgeSafeMode.get().equals("Safewalk") && !mode.get().equals("Telly") && !mode.get().equals("Prediction")) {
-            event.isSafeWalk = true;
+        if (!mode.get().equals("Telly") && !mode.get().equals("Prediction")) {
+            if (edgeSafeMode.get().equals("Safewalk")) {
+                event.isSafeWalk = true;
+            } else if (edgeSafeMode.get().equals("Ground Safewalk")) {
+                event.isSafeWalk = true;
+                event.onlySafeOnGround = true;
+            }
         }
     }
 
@@ -707,7 +713,7 @@ public class Scaffold extends Module {
             if (needSnapRotationReset) return PlaceResult.FAIL_ROTATION;
 
             if (modeValue.equals("Normal") || modeValue.equals("Telly") || modeValue.equals("Prediction")) {
-                boolean canPlace = DewCommon.rotationManager.faceBlockWithFacing(neighbor, opposite, rotationSpeedVal, true);
+                boolean canPlace = DewCommon.rotationManager.faceBlockWithFacing(neighbor, opposite, rotationSpeedVal, simpleRotator.get(), true);
                 if (!noRotationHitCheck.get() && !canPlace) return PlaceResult.FAIL_ROTATION;
             }
 

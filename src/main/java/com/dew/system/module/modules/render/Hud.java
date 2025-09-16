@@ -568,7 +568,7 @@ public class Hud extends Module {
         if (features.isSelected("Potion Hud")) {
             GL11.glPushMatrix();
             float rightX = sr.getScaledWidth();
-            float bottomY = sr.getScaledHeight();
+            float bottomY = sr.getScaledHeight() - (features.isSelected("Packet Monitor") ? 230 : 0);
             GL11.glTranslatef(rightX, bottomY, 0);
             GL11.glScalef(scale, scale, 1f);
             GL11.glTranslatef(-rightX, -bottomY, 0);

@@ -6,6 +6,7 @@ import com.dew.system.module.modules.combat.Backtrack;
 import com.dew.system.module.modules.combat.RotRandomizer;
 import com.dew.utils.LogUtil;
 import com.dew.utils.MovementUtil;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.*;
@@ -198,28 +199,57 @@ public class RotationManager {
         return canHitBlockAtRotationWithoutFacing(pos, getClientYaw(), getClientPitch(), maxRange);
     }
 
-    public boolean faceBlockWithFacing(BlockPos pos, EnumFacing facing, float rotationSpeed, boolean noRotationJitters) {
+    public boolean faceBlockWithFacing(BlockPos pos, EnumFacing facing, float rotationSpeed, boolean simple, boolean noRotationJitters) {
         Vec3 eyePos = mc.thePlayer.getPositionEyes(1.0f);
 
-        Vec3 hitVec = new Vec3(
-                pos.getX() + 0.5 + facing.getFrontOffsetX() * 0.5,
-                pos.getY() + 0.5 + facing.getFrontOffsetY() * 0.5,
-                pos.getZ() + 0.5 + facing.getFrontOffsetZ() * 0.5
-        );
+        if (simple) {
+            IBlockState blockState = mc.theWorld.getBlockState(pos);
+            AxisAlignedBB boundingBox = blockState.getBlock().getCollisionBoundingBox(mc.theWorld, pos, blockState);
+            if (boundingBox == null) {
+                boundingBox = new AxisAlignedBB(pos.getX(), pos.getY(), pos.getZ(), pos.getX() + 1, pos.getY() + 1, pos.getZ() + 1);
+            }
 
-        double diffX = hitVec.xCoord - eyePos.xCoord;
-        double diffY = hitVec.yCoord - eyePos.yCoord;
-        double diffZ = hitVec.zCoord - eyePos.zCoord;
+            double clampedX = MathHelper.clamp_double(eyePos.xCoord, boundingBox.minX, boundingBox.maxX);
+            double clampedY = MathHelper.clamp_double(eyePos.yCoord, boundingBox.minY, boundingBox.maxY);
+            double clampedZ = MathHelper.clamp_double(eyePos.zCoord, boundingBox.minZ, boundingBox.maxZ);
 
-        double diffXZ = Math.sqrt(diffX * diffX + diffZ * diffZ);
+            Vec3 hitVec = new Vec3(clampedX, clampedY, clampedZ);
 
-        float targetYaw = (float) (Math.toDegrees(Math.atan2(diffZ, diffX)) - 90.0F);
-        float targetPitch = (float) -Math.toDegrees(Math.atan2(diffY, diffXZ));
+            double diffX = hitVec.xCoord - eyePos.xCoord;
+            double diffY = hitVec.yCoord - eyePos.yCoord;
+            double diffZ = hitVec.zCoord - eyePos.zCoord;
 
-        targetYaw = MathHelper.wrapAngleTo180_float(targetYaw);
-        targetPitch = MathHelper.wrapAngleTo180_float(targetPitch);
+            double diffXZ = Math.sqrt(diffX * diffX + diffZ * diffZ);
 
-        rotateToward(targetYaw, targetPitch, rotationSpeed, noRotationJitters);
+            float targetYaw = (float) (Math.toDegrees(Math.atan2(diffZ, diffX)) - 90.0F);
+            float targetPitch = (float) -Math.toDegrees(Math.atan2(diffY, diffXZ));
+
+            targetYaw = MathHelper.wrapAngleTo180_float(targetYaw);
+            targetPitch = MathHelper.wrapAngleTo180_float(targetPitch);
+
+            rotateToward(targetYaw, targetPitch, rotationSpeed, noRotationJitters);
+        } else {
+            Vec3 hitVec = new Vec3(
+                    pos.getX() + 0.5 + facing.getFrontOffsetX() * 0.5,
+                    pos.getY() + 0.5 + facing.getFrontOffsetY() * 0.5,
+                    pos.getZ() + 0.5 + facing.getFrontOffsetZ() * 0.5
+            );
+
+            double diffX = hitVec.xCoord - eyePos.xCoord;
+            double diffY = hitVec.yCoord - eyePos.yCoord;
+            double diffZ = hitVec.zCoord - eyePos.zCoord;
+
+            double diffXZ = Math.sqrt(diffX * diffX + diffZ * diffZ);
+
+            float targetYaw = (float) (Math.toDegrees(Math.atan2(diffZ, diffX)) - 90.0F);
+            float targetPitch = (float) -Math.toDegrees(Math.atan2(diffY, diffXZ));
+
+            targetYaw = MathHelper.wrapAngleTo180_float(targetYaw);
+            targetPitch = MathHelper.wrapAngleTo180_float(targetPitch);
+
+            rotateToward(targetYaw, targetPitch, rotationSpeed, noRotationJitters);
+        }
+
         return canHitBlockAtRotation(pos, facing, getClientYaw(), getClientPitch());
     }
 
@@ -328,89 +358,17 @@ public class RotationManager {
     }
 
     public boolean canHitBlockAtRotation(BlockPos targetPos, EnumFacing facing, float yaw, float pitch) {
+        boolean canHit = false;
         double reach = mc.playerController.getBlockReachDistance();
-        Vec3 eyePos = mc.thePlayer.getPositionEyes(1.0f);
-        Vec3 look = getLookVecFromRotations(yaw, pitch);
+        MovingObjectPosition mop = mc.thePlayer.rayTrace(reach, 1.0f);
 
-        double planeCoord;
-        double t;
-        double PARALLEL_EPS = 1e-8;
-        switch (facing) {
-            case WEST:
-                planeCoord = targetPos.getX();
-                if (Math.abs(look.xCoord) < PARALLEL_EPS) return false;
-                t = (planeCoord - eyePos.xCoord) / look.xCoord;
-                break;
-            case EAST:
-                planeCoord = targetPos.getX() + 1.0;
-                if (Math.abs(look.xCoord) < PARALLEL_EPS) return false;
-                t = (planeCoord - eyePos.xCoord) / look.xCoord;
-                break;
-            case DOWN:
-                planeCoord = targetPos.getY();
-                if (Math.abs(look.yCoord) < PARALLEL_EPS) return false;
-                t = (planeCoord - eyePos.yCoord) / look.yCoord;
-                break;
-            case UP:
-                planeCoord = targetPos.getY() + 1.0;
-                if (Math.abs(look.yCoord) < PARALLEL_EPS) return false;
-                t = (planeCoord - eyePos.yCoord) / look.yCoord;
-                break;
-            case NORTH:
-                planeCoord = targetPos.getZ();
-                if (Math.abs(look.zCoord) < PARALLEL_EPS) return false;
-                t = (planeCoord - eyePos.zCoord) / look.zCoord;
-                break;
-            case SOUTH:
-                planeCoord = targetPos.getZ() + 1.0;
-                if (Math.abs(look.zCoord) < PARALLEL_EPS) return false;
-                t = (planeCoord - eyePos.zCoord) / look.zCoord;
-                break;
-            default:
-                return false;
+        if (mop != null && mop.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {
+            if (mop.getBlockPos().equals(targetPos) && mop.sideHit == facing) {
+                canHit = true;
+            }
         }
 
-        double EPS = 1e-6;
-        if (!(t > EPS && t <= reach + EPS)) return false;
-        Vec3 intersect = eyePos.addVector(look.xCoord * t, look.yCoord * t, look.zCoord * t);
-        if (!isPointOnFace(intersect, targetPos, facing, EPS)) return false;
-
-        MovingObjectPosition mop = mc.theWorld.rayTraceBlocks(eyePos, intersect, false, true, false);
-        if (mop == null) {
-            return true;
-        }
-
-        BlockPos hitPos = mop.getBlockPos();
-        if (hitPos != null && hitPos.equals(targetPos)) {
-            if (mop.sideHit == facing) return true;
-
-            double dx = mop.hitVec.xCoord - intersect.xCoord;
-            double dy = mop.hitVec.yCoord - intersect.yCoord;
-            double dz = mop.hitVec.zCoord - intersect.zCoord;
-            return dx * dx + dy * dy + dz * dz <= (1e-6 * 1e-6);
-        }
-
-        return false;
-    }
-
-    private boolean isPointOnFace(Vec3 p, BlockPos pos, EnumFacing face, double eps) {
-        double minX = pos.getX(), maxX = pos.getX() + 1.0;
-        double minY = pos.getY(), maxY = pos.getY() + 1.0;
-        double minZ = pos.getZ(), maxZ = pos.getZ() + 1.0;
-
-        switch (face) {
-            case WEST: case EAST:
-                return p.yCoord >= minY - eps && p.yCoord <= maxY + eps
-                        && p.zCoord >= minZ - eps && p.zCoord <= maxZ + eps;
-            case DOWN: case UP:
-                return p.xCoord >= minX - eps && p.xCoord <= maxX + eps
-                        && p.zCoord >= minZ - eps && p.zCoord <= maxZ + eps;
-            case NORTH: case SOUTH:
-                return p.xCoord >= minX - eps && p.xCoord <= maxX + eps
-                        && p.yCoord >= minY - eps && p.yCoord <= maxY + eps;
-            default:
-                return false;
-        }
+        return canHit;
     }
 
     private Vec3 getLookVecFromRotations(float yaw, float pitch) {

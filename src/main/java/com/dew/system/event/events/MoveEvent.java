@@ -11,6 +11,7 @@ public class MoveEvent extends EventArgument {
     public double y;
     public double z;
     public boolean isSafeWalk = false;
+    public boolean onlySafeOnGround = false;
 
     public MoveEvent(double x, double y, double z) {
         this.x = x;

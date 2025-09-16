@@ -523,7 +523,7 @@ public class Aura extends Module {
         double hitZ = neighbor.getZ() + 0.5 + 0.5 * opposite.getFrontOffsetZ();
         net.minecraft.util.Vec3 hitVec = new net.minecraft.util.Vec3(hitX, hitY, hitZ);
 
-        if (DewCommon.rotationManager.faceBlockWithFacing(neighbor, placeFacing, rotationSpeed.get().floatValue(), true)) {
+        if (DewCommon.rotationManager.faceBlockWithFacing(neighbor, placeFacing, rotationSpeed.get().floatValue(), false, true)) {
             if (mc.thePlayer.inventory.currentItem != blockSlot) {
                 mc.thePlayer.inventory.currentItem = blockSlot;
                 mc.playerController.updateController();
