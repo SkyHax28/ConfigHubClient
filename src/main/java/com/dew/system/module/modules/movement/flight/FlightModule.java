@@ -14,11 +14,19 @@ import java.util.Map;
 public class FlightModule extends Module {
 
     private static final SelectionValue mode = new SelectionValue("Mode", "Vanilla", "Vanilla", "No Clip", "Fake Collision", "Hypixel Prediction", "Bloxd", "Verus", "Test");
-    public static final NumberValue horizontalSpeed = new NumberValue("Horizontal Speed", 3, 0.1, 10.0, 0.1, () -> mode.get().equals("Vanilla") || mode.get().equals("No Clip"));
-    public static final NumberValue verticalSpeed = new NumberValue("Vertical Speed", 2, 0.1, 10.0, 0.1, () -> mode.get().equals("Vanilla") || mode.get().equals("No Clip"));
+    private static final NumberValue horizontalSpeed = new NumberValue("Horizontal Speed", 3, 0.1, 10.0, 0.1, () -> mode.get().equals("Vanilla") || mode.get().equals("No Clip"));
+    private static final NumberValue verticalSpeed = new NumberValue("Vertical Speed", 2, 0.1, 10.0, 0.1, () -> mode.get().equals("Vanilla") || mode.get().equals("No Clip"));
     private final Map<String, FlightMode> modes = new HashMap<>();
     private FlightMode currentMode = null;
     private String lastModeName = null;
+
+    public double getHorizontalSpeed() {
+        return horizontalSpeed.get();
+    }
+
+    public double getVerticalSpeed() {
+        return verticalSpeed.get();
+    }
 
     public FlightModule() {
         super("Flight", ModuleCategory.MOVEMENT, Keyboard.KEY_NONE, false, true, true);

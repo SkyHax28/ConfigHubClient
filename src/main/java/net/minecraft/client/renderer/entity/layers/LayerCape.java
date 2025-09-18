@@ -29,7 +29,7 @@ public class LayerCape implements LayerRenderer<AbstractClientPlayer>
         SilentView silentViewModule = DewCommon.moduleManager.getModule(SilentView.class);
         RotationManager rotationManager = DewCommon.rotationManager;
         MongoManager mongoManager = DewCommon.mongoManager;
-        boolean semiVisible = rotationManager.isRotating() && silentViewModule.isEnabled() && SilentView.mode.get().equals("GameSense") && entitylivingbaseIn instanceof EntityPlayerSP;
+        boolean semiVisible = rotationManager.isRotating() && silentViewModule.isEnabled() && DewCommon.moduleManager.getModule(SilentView.class).getMode().equals("GameSense") && entitylivingbaseIn instanceof EntityPlayerSP;
         if (semiVisible) return;
         if (entitylivingbaseIn.hasPlayerInfo() && !entitylivingbaseIn.isInvisible() && entitylivingbaseIn.isWearing(EnumPlayerModelParts.CAPE) && entitylivingbaseIn.getLocationCape() != null || mongoManager.online.stream().anyMatch(p -> p.getLeft().equals(entitylivingbaseIn))) {
             GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);

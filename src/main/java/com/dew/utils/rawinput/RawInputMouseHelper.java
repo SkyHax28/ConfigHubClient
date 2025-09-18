@@ -24,7 +24,7 @@ public class RawInputMouseHelper extends MouseHelper {
             RawInputThread.INSTANCE.start();
         }
 
-        if (DewCommon.moduleManager.getModule(RawInput.class).isEnabled() && !RawInputThread.INSTANCE.mice.isEmpty() && RawInputThread.INSTANCE.isAlive()) {
+        if (RawInput.shouldReplace() && DewCommon.moduleManager.getModule(RawInput.class).isEnabled() && !RawInputThread.INSTANCE.mice.isEmpty() && RawInputThread.INSTANCE.isAlive()) {
             this.deltaX = RawInputThread.INSTANCE.dx.getAndSet(0);
             this.deltaY = RawInputThread.INSTANCE.dy.getAndSet(0);
 

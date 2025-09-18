@@ -314,7 +314,7 @@ public abstract class RendererLivingEntity<T extends EntityLivingBase> extends R
             );
         }
 
-        if (IMinecraft.mc.gameSettings.thirdPersonView == 0 || !rotationManager.isRotating() || !silentViewModule.isEnabled() || !SilentView.mode.get().equals("GameSense") || ghostPlayer == null) return;
+        if (IMinecraft.mc.gameSettings.thirdPersonView == 0 || !rotationManager.isRotating() || !silentViewModule.isEnabled() || !DewCommon.moduleManager.getModule(SilentView.class).getMode().equals("GameSense") || ghostPlayer == null) return;
 
         float renderPitch = rotationManager.getInterpolatedPitch(ticks);
         float renderYaw = rotationManager.getInterpolatedYaw(ticks);
@@ -407,7 +407,7 @@ public abstract class RendererLivingEntity<T extends EntityLivingBase> extends R
     {
         SilentView silentViewModule = DewCommon.moduleManager.getModule(SilentView.class);
         RotationManager rotationManager = DewCommon.rotationManager;
-        boolean semiVisible = rotationManager.isRotating() && silentViewModule.isEnabled() && SilentView.mode.get().equals("GameSense") && ghostPlayer != null && entitylivingbaseIn instanceof EntityPlayerSP;
+        boolean semiVisible = rotationManager.isRotating() && silentViewModule.isEnabled() && DewCommon.moduleManager.getModule(SilentView.class).getMode().equals("GameSense") && ghostPlayer != null && entitylivingbaseIn instanceof EntityPlayerSP;
         boolean flag = !entitylivingbaseIn.isInvisible();
         boolean flag1 = !flag && !entitylivingbaseIn.isInvisibleToPlayer(Minecraft.getMinecraft().thePlayer);
 

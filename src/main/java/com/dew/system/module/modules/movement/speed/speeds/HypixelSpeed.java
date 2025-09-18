@@ -56,7 +56,7 @@ public class HypixelSpeed implements SpeedMode {
         preMotionEventTicks = mc.thePlayer.onGround ? 0 : preMotionEventTicks + 1;
 
         if (DewCommon.moduleManager.getModule(Disabler.class).canLowHop()) {
-            if (SpeedModule.hypixelLowHopMode.get().equals("More Strafe")) {
+            if (DewCommon.moduleManager.getModule(SpeedModule.class).getHypixelLowHopMode().equals("More Strafe")) {
                 if (mc.thePlayer.onGround) {
                     if (MovementUtil.isMoving()) {
                         mc.thePlayer.jump();
@@ -112,7 +112,7 @@ public class HypixelSpeed implements SpeedMode {
         preUpdateEventTicks = mc.thePlayer.onGround ? 0 : preUpdateEventTicks + 1;
 
         if (DewCommon.moduleManager.getModule(Disabler.class).canLowHop()) {
-            if (SpeedModule.hypixelLowHopMode.get().equals("7 Tick")) {
+            if (DewCommon.moduleManager.getModule(SpeedModule.class).getHypixelLowHopMode().equals("7 Tick")) {
                 if (mc.thePlayer.onGround) {
                     if (MovementUtil.isMoving()) {
                         mc.thePlayer.jump();

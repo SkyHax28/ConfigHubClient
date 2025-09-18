@@ -16,10 +16,10 @@ import java.util.Map;
 
 public class SpeedModule extends Module {
 
-    public static final SelectionValue mode = new SelectionValue("Mode", "Vanilla", "Vanilla", "Hypixel", "Hypixel Prediction", "BlocksMC", "Bloxd", "Verus", "Vulcan", "Latest NCP", "Test");
-    public static final BooleanValue autoBHop = new BooleanValue("Auto BHop", true, () -> mode.get().equals("Vanilla"));
-    public static final NumberValue speed = new NumberValue("Speed", 1, 0.1, 5.0, 0.1, () -> mode.get().equals("Vanilla"));
-    public static final SelectionValue hypixelLowHopMode = new SelectionValue("Hypixel Lowhop Mode", "More Strafe", () -> mode.get().equals("Hypixel"), "More Strafe", "7 Tick");
+    private static final SelectionValue mode = new SelectionValue("Mode", "Vanilla", "Vanilla", "Hypixel", "Hypixel Prediction", "BlocksMC", "Bloxd", "Verus", "Vulcan", "Latest NCP", "Test");
+    private static final BooleanValue autoBHop = new BooleanValue("Auto BHop", true, () -> mode.get().equals("Vanilla"));
+    private static final NumberValue speed = new NumberValue("Speed", 1, 0.1, 5.0, 0.1, () -> mode.get().equals("Vanilla"));
+    private static final SelectionValue hypixelLowHopMode = new SelectionValue("Hypixel Lowhop Mode", "More Strafe", () -> mode.get().equals("Hypixel"), "More Strafe", "7 Tick");
     private final Map<String, SpeedMode> modes = new HashMap<>();
     private SpeedMode currentMode = null;
     private String lastModeName = null;
@@ -40,6 +40,18 @@ public class SpeedModule extends Module {
 
     public String getMode() {
         return mode.get();
+    }
+
+    public String getHypixelLowHopMode() {
+        return hypixelLowHopMode.get();
+    }
+
+    public boolean isAutoBhop() {
+        return autoBHop.get();
+    }
+
+    public double getSpeed() {
+        return speed.get();
     }
 
     @Override

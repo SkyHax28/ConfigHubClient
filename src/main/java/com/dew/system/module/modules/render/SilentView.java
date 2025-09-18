@@ -7,7 +7,7 @@ import org.lwjgl.input.Keyboard;
 
 public class SilentView extends Module {
 
-    public static final SelectionValue mode = new SelectionValue("Mode", "Normal", "Normal", "GameSense");
+    private static final SelectionValue mode = new SelectionValue("Mode", "Normal", "Normal", "GameSense", "Legacy");
 
     public SilentView() {
         super("Silent View", ModuleCategory.RENDER, Keyboard.KEY_NONE, true, false, true);
@@ -15,6 +15,10 @@ public class SilentView extends Module {
 
     @Override
     public String tag() {
+        return mode.get();
+    }
+
+    public String getMode() {
         return mode.get();
     }
 }

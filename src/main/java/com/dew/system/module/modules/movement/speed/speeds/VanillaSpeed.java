@@ -1,5 +1,6 @@
 package com.dew.system.module.modules.movement.speed.speeds;
 
+import com.dew.DewCommon;
 import com.dew.system.event.events.*;
 import com.dew.system.module.modules.movement.speed.SpeedMode;
 import com.dew.system.module.modules.movement.speed.SpeedModule;
@@ -33,10 +34,10 @@ public class VanillaSpeed implements SpeedMode {
 
         MovementUtil.mcJumpNoBoost = true;
 
-        if (SpeedModule.autoBHop.get() && mc.thePlayer.onGround && MovementUtil.isMoving())
+        if (DewCommon.moduleManager.getModule(SpeedModule.class).isAutoBhop() && mc.thePlayer.onGround && MovementUtil.isMoving())
             mc.thePlayer.jump();
 
-        MovementUtil.strafe(SpeedModule.speed.get());
+        MovementUtil.strafe(DewCommon.moduleManager.getModule(SpeedModule.class).getSpeed());
     }
 
     @Override

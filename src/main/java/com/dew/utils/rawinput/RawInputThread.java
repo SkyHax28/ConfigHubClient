@@ -32,7 +32,7 @@ public final class RawInputThread extends Thread {
 
         while (true) {
             try {
-                if (DewCommon.moduleManager.getModule(RawInput.class).isEnabled()) {
+                if (RawInput.shouldReplace() && DewCommon.moduleManager.getModule(RawInput.class).isEnabled()) {
                     for (Mouse mouse : mice) {
                         if (!mouse.poll()) {
                             rescan();

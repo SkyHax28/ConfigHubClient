@@ -1,5 +1,6 @@
 package com.dew.system.module.modules.movement.flight.flies;
 
+import com.dew.DewCommon;
 import com.dew.system.event.events.*;
 import com.dew.system.module.modules.movement.flight.FlightMode;
 import com.dew.system.module.modules.movement.flight.FlightModule;
@@ -33,11 +34,11 @@ public class VanillaFlight implements FlightMode {
 
         double yMotion = 0;
         if (mc.gameSettings.keyBindJump.isKeyDown())
-            yMotion += FlightModule.verticalSpeed.get();
+            yMotion += DewCommon.moduleManager.getModule(FlightModule.class).getVerticalSpeed();
         if (mc.gameSettings.keyBindSneak.isKeyDown())
-            yMotion -= FlightModule.verticalSpeed.get();
+            yMotion -= DewCommon.moduleManager.getModule(FlightModule.class).getVerticalSpeed();
 
-        MovementUtil.strafe(FlightModule.horizontalSpeed.get());
+        MovementUtil.strafe(DewCommon.moduleManager.getModule(FlightModule.class).getHorizontalSpeed());
         mc.thePlayer.motionY = yMotion;
     }
 

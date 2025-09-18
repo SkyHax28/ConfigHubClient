@@ -1,5 +1,6 @@
 package com.dew.system.module.modules.mods;
 
+import com.dew.DewCommon;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
 import com.dew.utils.LogUtil;
@@ -16,5 +17,9 @@ public class RawInput extends Module {
         if (mc.rawInputNotSupported) {
             LogUtil.printChat("Your environment does not support Raw Input");
         }
+    }
+
+    public static boolean shouldReplace() {
+        return DewCommon.moduleManager != null;
     }
 }

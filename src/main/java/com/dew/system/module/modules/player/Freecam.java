@@ -78,7 +78,7 @@ public class Freecam extends Module {
 
         Packet<?> packet = event.packet;
 
-        if (packet instanceof C0BPacketEntityAction && (((C0BPacketEntityAction) packet).getAction() == C0BPacketEntityAction.Action.STOP_SPRINTING || ((C0BPacketEntityAction) packet).getAction() == C0BPacketEntityAction.Action.START_SPRINTING)) {
+        if (packet instanceof C0BPacketEntityAction && (((C0BPacketEntityAction) packet).getAction() == C0BPacketEntityAction.Action.START_SNEAKING || ((C0BPacketEntityAction) packet).getAction() == C0BPacketEntityAction.Action.STOP_SNEAKING || ((C0BPacketEntityAction) packet).getAction() == C0BPacketEntityAction.Action.STOP_SPRINTING || ((C0BPacketEntityAction) packet).getAction() == C0BPacketEntityAction.Action.START_SPRINTING)) {
             event.cancel();
         }
     }

@@ -34,7 +34,7 @@ public class Scaffold extends Module {
     private static final SelectionValue mode = new SelectionValue("Mode", "Normal", "Normal", "Telly", "Hypixel", "Prediction");
     private static final SelectionValue swingMode = new SelectionValue("Swing Mode", "Packet", "Normal", "Packet");
     private static final SelectionValue rotationMode = new SelectionValue("Rotation Mode", "Normal", () -> mode.get().equals("Normal") || mode.get().equals("Telly"), "Normal", "Snap");
-    public static final BooleanValue simpleRotator = new BooleanValue("Simple Rotator", false, () -> mode.get().equals("Normal") || mode.get().equals("Telly") || mode.get().equals("Prediction"));
+    private static final BooleanValue simpleRotator = new BooleanValue("Simple Rotator", false, () -> mode.get().equals("Normal") || mode.get().equals("Telly") || mode.get().equals("Prediction"));
     private static final NumberValue tellyTwoJumpRotation = new NumberValue("Telly 2 Jump Rotation", 10.0, 0.0, 180.0, 5.0, () -> mode.get().equals("Telly"));
     private static final NumberValue tellyThreeJumpRotation = new NumberValue("Telly 3 Jump Rotation", 35.0, 0.0, 180.0, 5.0, () -> mode.get().equals("Telly"));
     private static final NumberValue rotationSpeed = new NumberValue("Rotation Speed", 60.0, 0.0, 180.0, 5.0, () -> mode.get().equals("Normal") || mode.get().equals("Telly"));
@@ -45,9 +45,9 @@ public class Scaffold extends Module {
     private static final SelectionValue onlyTowerWhen = new SelectionValue("Only Tower When", "Always", () -> towerMode.get().equals("Vanilla"), "Always", "Standing", "Moving");
     private static final SelectionValue edgeSafeMode = new SelectionValue("Edge Safe Mode", "OFF", () -> mode.get().equals("Normal") || mode.get().equals("Hypixel"), "OFF", "Safewalk", "Ground Safewalk", "Sneak");
     private static final BooleanValue noRotationHitCheck = new BooleanValue("No Rotation Hit Check", false);
-    public static final BooleanValue preferHighestStack = new BooleanValue("Prefer Highest Stack", true);
-    public static final BooleanValue noSprint = new BooleanValue("No Sprint", false);
-    public static final BooleanValue andromeda = new BooleanValue("Andromeda", false, () -> mode.get().equals("Normal"));
+    private static final BooleanValue preferHighestStack = new BooleanValue("Prefer Highest Stack", true);
+    private static final BooleanValue noSprint = new BooleanValue("No Sprint", false);
+    private static final BooleanValue andromeda = new BooleanValue("Andromeda", false, () -> mode.get().equals("Normal"));
     private final EnumFacing[] facingsArray = EnumFacing.values();
     public boolean holdingBlock = false;
     public boolean jumped = false;
@@ -65,6 +65,10 @@ public class Scaffold extends Module {
     private boolean andromed = false;
     public Scaffold() {
         super("Scaffold", ModuleCategory.PLAYER, Keyboard.KEY_NONE, false, true, true);
+    }
+
+    public boolean isNoSprint() {
+        return noSprint.get();
     }
 
     public int getOriginalSlot() {
