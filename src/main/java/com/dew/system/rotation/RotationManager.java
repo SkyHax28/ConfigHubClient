@@ -2,7 +2,7 @@ package com.dew.system.rotation;
 
 import com.dew.DewCommon;
 import com.dew.IMinecraft;
-import com.dew.system.module.modules.combat.Backtrack;
+import com.dew.system.module.modules.combat.PingReach;
 import com.dew.system.module.modules.combat.RotRandomizer;
 import com.dew.utils.LogUtil;
 import com.dew.utils.MovementUtil;
@@ -167,9 +167,9 @@ public class RotationManager {
     }
 
     public boolean faceEntity(Entity entity, float rotationSpeed, boolean noRotationJitters, boolean reducedPitchRotation, double maxRange) {
-        Entity backTrackEntity = DewCommon.moduleManager.getModule(Backtrack.class).getBestBacktrackEntity(entity);
-        if (entity != backTrackEntity && mc.thePlayer.getDistanceToEntity(backTrackEntity) < mc.thePlayer.getDistanceToEntity(entity)) {
-            entity = backTrackEntity;
+        Entity pingEntity = DewCommon.moduleManager.getModule(PingReach.class).getBestBacktrackEntity(entity);
+        if (entity != pingEntity && mc.thePlayer.getDistanceToEntity(pingEntity) < mc.thePlayer.getDistanceToEntity(entity)) {
+            entity = pingEntity;
         }
         float[] rotations = getRotationsTo(entity.posX, entity.posY + (entity.getEyeHeight() / 2.0), entity.posZ);
 

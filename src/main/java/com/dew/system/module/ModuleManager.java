@@ -28,7 +28,7 @@ public class ModuleManager implements EventListener {
                 new Scaffold(), new KeepSprint(), new NameTags(), new Chams(),
                 new Velocity(), new CameraNoClip(), new AutoTool(), new Breaker(),
                 new ESP(), new Fullbright(), new Xray(), new NoBreakDelay(),
-                new Manager(), new Stealer(), new Backtrack(), new AutoPot(),
+                new Manager(), new Stealer(), new PingReach(), new AutoPot(),
                 new AutoWalkAI(), new Phase(), new FreeLook(), new LongJump(),
                 new Sprint(), new TargetStrafe(), new AutoBlock(), new FastBow(),
                 new FastUse(), new Teams(), new HitSelect(), new NoHitDelay(),
@@ -42,7 +42,7 @@ public class ModuleManager implements EventListener {
                 new NoRender(), new AntiFalseFlag(), new Highlighter(), new RotRandomizer(),
                 new HighJump(), new Timer(), new ViaCollision(), new Plugins(),
                 new Spammer(), new PacketChatLimiter(), new BlockOverlay(), new Streamer(),
-                new RawInput(), new Blink(), new FarmHuntESP()
+                new RawInput(), new Blink(), new FarmHuntESP(), new Backtrack()
         ));
 
         DewCommon.eventManager.register(this);

@@ -199,7 +199,7 @@ public class Aura extends Module {
     }
 
     private boolean attack(Entity entity, boolean canHit, long currentTime) {
-        if ((ReachCalculator.canReachToAttack(mc.thePlayer, DewCommon.moduleManager.getModule(Backtrack.class).getBestBacktrackEntity(entity), this.getAttackRange(), throughWalls.get()) || ReachCalculator.canReachToAttack(mc.thePlayer, entity, this.getAttackRange(), throughWalls.get())) && (canHit || noRotationHitCheck.get())) {
+        if ((ReachCalculator.canReachToAttack(mc.thePlayer, DewCommon.moduleManager.getModule(PingReach.class).getBestBacktrackEntity(entity), this.getAttackRange(), throughWalls.get()) || ReachCalculator.canReachToAttack(mc.thePlayer, entity, this.getAttackRange(), throughWalls.get())) && (canHit || noRotationHitCheck.get())) {
             if (currentTime - lastAttackTime >= nextAttackDelay) {
                 if (tpAura.get()) {
                     new Thread(() -> {
