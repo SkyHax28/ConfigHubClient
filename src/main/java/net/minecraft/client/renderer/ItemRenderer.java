@@ -244,7 +244,7 @@ public class ItemRenderer
         GlStateManager.translate(f, f1, f2);
     }
 
-    private void performDrinking(AbstractClientPlayer clientPlayer, float partialTicks)
+    private void performDrinking(AbstractClientPlayer clientPlayer, float partialTicks, boolean isFood)
     {
         float f = (float)clientPlayer.getItemInUseCount() - partialTicks + 1.0F;
         float f1 = f / (float)this.itemToRender.getMaxItemUseDuration();
@@ -258,7 +258,7 @@ public class ItemRenderer
         GlStateManager.translate(0.0F, f2, 0.0F);
         float f3 = 1.0F - (float)Math.pow((double)f1, 27.0D);
 
-        if (DewCommon.moduleManager.getModule(Animations.class).getOldAnimations().isSelected("Potion")) {
+        if (DewCommon.moduleManager.getModule(Animations.class).isEnabled() && (isFood && DewCommon.moduleManager.getModule(Animations.class).getOldAnimations().isSelected("Food") || !isFood && DewCommon.moduleManager.getModule(Animations.class).getOldAnimations().isSelected("Potion"))) {
             GlStateManager.translate(f3 * 0.66F, f3 * -0.5F, f3 * 0.0F);
             GlStateManager.rotate(f3 * 90.0F, 0.0F, 1.0F, 0.0F);
             GlStateManager.rotate(f3 * 5.0F, 1.0F, 0.0F, 0.0F);
@@ -287,7 +287,7 @@ public class ItemRenderer
 
     private void doBowTransformations(float partialTicks, AbstractClientPlayer clientPlayer)
     {
-        if (DewCommon.moduleManager.getModule(Animations.class).getOldAnimations().isSelected("Bow")) {
+        if (DewCommon.moduleManager.getModule(Animations.class).isEnabled() && DewCommon.moduleManager.getModule(Animations.class).getOldAnimations().isSelected("Bow")) {
             GlStateManager.translate(-0.2D, 0.0D, -0.175D);
             GlStateManager.rotate(1.0F, 0.0F, 0.0F, -1.25F);
         }
@@ -395,12 +395,12 @@ public class ItemRenderer
                             break;
 
                         case EAT:
-                            this.performDrinking(abstractclientplayer, partialTicks);
+                            this.performDrinking(abstractclientplayer, partialTicks, true);
                             this.transformFirstPersonItem(f, animationsModule.isEnabled() && animationsModule.getOldAnimations().isSelected("Food") ? f1 : 0.0F);
                             break;
 
                         case DRINK:
-                            this.performDrinking(abstractclientplayer, partialTicks);
+                            this.performDrinking(abstractclientplayer, partialTicks, false);
                             this.transformFirstPersonItem(f, animationsModule.isEnabled() && animationsModule.getOldAnimations().isSelected("Potion") ? f1 : 0.0F);
                             break;
 

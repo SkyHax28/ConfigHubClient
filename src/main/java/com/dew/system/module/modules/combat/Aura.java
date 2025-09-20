@@ -216,7 +216,6 @@ public class Aura extends Module {
                         DewCommon.eventManager.call(event);
 
                         AttackOrder.sendFixedPacketAttack(mc.thePlayer, entity, !swingMode.get().equals("Normal"));
-                        mc.thePlayer.onEnchantmentCritical(entity);
 
                         if (shouldTp) {
                             Collections.reverse(paths);
