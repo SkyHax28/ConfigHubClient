@@ -5,8 +5,8 @@ import com.dew.system.event.EventPriority;
 import com.dew.system.event.events.*;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
-import com.dew.system.settingsvalue.BooleanValue;
 import com.dew.utils.*;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.Packet;
@@ -16,6 +16,7 @@ import net.minecraft.network.play.client.C02PacketUseEntity;
 import net.minecraft.network.play.server.*;
 import net.minecraft.util.AxisAlignedBB;
 import org.lwjgl.input.Keyboard;
+import org.lwjgl.opengl.GL11;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -23,9 +24,6 @@ import java.util.Iterator;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Backtrack extends Module {
-    private static final BooleanValue resetOnVelocity = new BooleanValue("Reset On Velocity", true);
-    private static final BooleanValue resetOnLagging = new BooleanValue("Reset On Lagging", true);
-
     private final List<Packet<INetHandlerPlayClient>> storagePackets = new CopyOnWriteArrayList<>();
     private final List<Entity> storageEntities = new CopyOnWriteArrayList<>();
     private final LinkedList<EntityPacketLoc> storageEntityMove = new LinkedList<>();
@@ -149,6 +147,46 @@ public class Backtrack extends Module {
     }
 
     @Override
+    public void onRender3D(Render3DEvent event) {
+        if (mc.thePlayer == null || mc.theWorld == null || !needFreeze) return;
+
+        try {
+            for (Entity entity : storageEntities) {
+                if (entity == null || entity.isDead || !(entity instanceof EntityPlayer)) continue;
+
+                double x = entity.serverPosX / 32.0;
+                double y = entity.serverPosY / 32.0;
+                double z = entity.serverPosZ / 32.0;
+
+                double renderX = x - mc.getRenderManager().viewerPosX;
+                double renderY = y - mc.getRenderManager().viewerPosY;
+                double renderZ = z - mc.getRenderManager().viewerPosZ;
+
+                AxisAlignedBB boundingBox = new AxisAlignedBB(
+                        renderX - 0.4, renderY, renderZ - 0.4,
+                        renderX + 0.4, renderY + 1.8, renderZ + 0.4
+                );
+
+                GlStateManager.pushMatrix();
+                GlStateManager.disableTexture2D();
+                GlStateManager.disableLighting();
+                GlStateManager.disableDepth();
+                GlStateManager.enableBlend();
+                GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+
+                RenderUtil.drawFilledBox(boundingBox, 1f, 0f, 0f, 0.3f);
+
+                GlStateManager.enableDepth();
+                GlStateManager.enableTexture2D();
+                GlStateManager.enableLighting();
+                GlStateManager.disableBlend();
+                GlStateManager.popMatrix();
+            }
+        } catch (Exception e) {
+        }
+    }
+
+    @Override
     public void onLoadWorld(LoadWorldEvent event) {
         try {
             attacked = null;
@@ -253,7 +291,7 @@ public class Backtrack extends Module {
 
     private void handleOtherServerPackets(ReceivedPacketEvent event, Packet<?> packet, ServerPacketStorage storage) {
         try {
-            if ((packet instanceof S12PacketEntityVelocity && resetOnVelocity.get()) || (packet instanceof S08PacketPlayerPosLook && resetOnLagging.get())) {
+            if (packet instanceof S12PacketEntityVelocity) {
                 storagePackets.add(storage.packet);
                 event.cancel();
                 releasePackets();
