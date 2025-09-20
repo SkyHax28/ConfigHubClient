@@ -4,6 +4,7 @@ import com.dew.DewCommon;
 import com.dew.system.module.ModuleCategory;
 import com.dew.system.module.modules.render.ClickGui;
 import com.dew.utils.Lerper;
+import com.dew.utils.shader.BlurUtil;
 import javafx.scene.transform.Scale;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
@@ -47,6 +48,8 @@ public class NewClickGuiScreen extends GuiScreen {
 
         int centerX = width / 2;
         int centerY = height / 2;
+
+        BlurUtil.drawBlurredRect(0, 0, mc.displayWidth, mc.displayHeight, 10);
 
         GL11.glPushMatrix();
 

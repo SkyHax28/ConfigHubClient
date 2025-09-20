@@ -7,6 +7,7 @@ import com.dew.system.module.ModuleCategory;
 import com.dew.system.settingsvalue.*;
 import com.dew.utils.Lerper;
 import com.dew.utils.font.CustomFontRenderer;
+import com.dew.utils.shader.BlurUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
@@ -69,6 +70,8 @@ public class ClickGuiScreen extends GuiScreen {
         int y = (int) ClickGuiState.animatedY;
         int w = (int) ClickGuiState.animatedWidth;
         int h = (int) ClickGuiState.animatedHeight;
+
+        BlurUtil.drawBlurredRect(0, 0, mc.displayWidth, mc.displayHeight, 10);
 
         drawRect(x, y, x + w, y + h, new Color(20, 20, 20, 200).getRGB());
 

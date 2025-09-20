@@ -16,6 +16,7 @@ import com.dew.utils.LogUtil;
 import com.dew.utils.font.CustomFontRenderer;
 import com.dew.utils.pathfinder.MainPathFinder;
 import com.dew.utils.pathfinder.SmartPlayerNavigator;
+import com.dew.utils.shader.BlurUtil;
 import de.florianmichael.viamcp.ViaMCP;
 import net.minecraft.util.ResourceLocation;
 
@@ -71,6 +72,9 @@ public class DewCommon {
         smartPlayerNavigator = new SmartPlayerNavigator();
         clickGuiScreen = new NewClickGuiScreen();
         mongoManager = new MongoManager();
+        if (!BlurUtil.isInitialized()) {
+            BlurUtil.initBlurShader();
+        }
         Font font;
         try {
             InputStream is = mc.getResourceManager()

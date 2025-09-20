@@ -7,6 +7,7 @@ import com.dew.utils.LibraryChecker;
 import com.dew.utils.LogUtil;
 import com.dew.utils.McChanges;
 import com.dew.utils.rawinput.RawInputMouseHelper;
+import com.dew.utils.shader.BlurUtil;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -1353,6 +1354,7 @@ public class Minecraft implements IThreadListener, IPlayerUsage
     public void shutdown()
     {
         DewCommon.mongoManager.shutdown();
+        BlurUtil.cleanup();
         this.running = false;
     }
 

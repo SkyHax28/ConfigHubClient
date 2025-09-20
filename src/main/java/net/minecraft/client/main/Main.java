@@ -1,8 +1,8 @@
 package net.minecraft.client.main;
 
 import com.dew.DewCommon;
-import com.dew.IMinecraft;
 import com.dew.system.userdata.DataSaver;
+import com.dew.utils.shader.BlurUtil;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.mojang.authlib.properties.PropertyMap;
@@ -113,6 +113,7 @@ public class Main
             {
                 Minecraft.stopIntegratedServer();
                 DewCommon.mongoManager.shutdown();
+                BlurUtil.cleanup();
             }
         });
         Thread.currentThread().setName("Client thread");
