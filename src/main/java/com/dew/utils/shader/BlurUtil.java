@@ -92,7 +92,7 @@ public class BlurUtil {
 
             createFramebuffers();
 
-            System.out.println("init BlurShader");
+            System.out.println("init blurShader");
 
         } catch (Exception e) {
             System.err.println("Failed to initialize blur shader: " + e.getMessage());
