@@ -4,6 +4,7 @@ import com.dew.system.event.events.TickEvent;
 import com.dew.system.event.events.LoadWorldEvent;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
+import com.dew.system.settingsvalue.NumberValue;
 import com.dew.utils.PacketUtil;
 import net.minecraft.client.entity.EntityOtherPlayerMP;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -17,6 +18,7 @@ public class PingReach extends Module {
     private long maxHistoryTime = 0;
     private double smoothHistoryTime = 0;
     private final Map<UUID, List<PositionRecord>> positionHistory = new HashMap<>();
+    private static final NumberValue maxPingRange = new NumberValue("Max Ping Range", 40.0, 5.0, 100.0, 5.0);
     public PingReach() {
         super("Ping Reach", ModuleCategory.COMBAT, Keyboard.KEY_NONE, false, true, true);
     }
@@ -44,7 +46,7 @@ public class PingReach extends Module {
             ping = 0;
         }
 
-        double targetTime = Math.min(ping, 30);
+        double targetTime = Math.min(ping, maxPingRange.get().intValue());
         smoothHistoryTime += (targetTime - smoothHistoryTime) * mc.timer.renderPartialTicks;
         maxHistoryTime = Math.round(smoothHistoryTime);
 
