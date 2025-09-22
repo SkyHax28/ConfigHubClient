@@ -70,7 +70,6 @@ public class ESP extends Module {
             renderNametagAndEnchantmentGlint = true;
         }
 
-        // 各パラメータを事前に決定
         float radius = glow ? 3.5f : 1.5f;
         float intensity = glow ? 0.4f : 0.8f;
 
