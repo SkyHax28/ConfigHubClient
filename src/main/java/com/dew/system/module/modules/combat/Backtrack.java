@@ -39,7 +39,7 @@ public class Backtrack extends Module {
 
     @Override
     public EventPriority getPriority() {
-        return EventPriority.HIGHEST;
+        return EventPriority.LOWEST;
     }
 
     @Override
