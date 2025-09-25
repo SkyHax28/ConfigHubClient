@@ -47,6 +47,7 @@ public class Scaffold extends Module {
     private static final BooleanValue noRotationHitCheck = new BooleanValue("No Rotation Hit Check", false);
     private static final BooleanValue preferHighestStack = new BooleanValue("Prefer Highest Stack", true);
     private static final BooleanValue noSprint = new BooleanValue("No Sprint", false);
+    private static final BooleanValue autoPlaceHackPlacer = new BooleanValue("Auto Place Hack Placer", false);
     private static final BooleanValue andromeda = new BooleanValue("Andromeda", false, () -> mode.get().equals("Normal"));
     private final EnumFacing[] facingsArray = EnumFacing.values();
     public boolean holdingBlock = false;
@@ -147,9 +148,16 @@ public class Scaffold extends Module {
 
     @Override
     public void onKeyPressable(KeyPressableEvent event) {
-        if (mc.thePlayer == null || mc.theWorld == null) return;
+        if (!autoPlaceHackPlacer.get()) {
+            this.doMainFunctions(false);
+        }
+    }
 
-        this.doMainFunctions(false);
+    @Override
+    public void onDrawBlockSelection(DrawBlockSelectionEvent event) {
+        if (autoPlaceHackPlacer.get()) {
+            this.doMainFunctions(false);
+        }
     }
 
     @Override
@@ -217,6 +225,8 @@ public class Scaffold extends Module {
     }
 
     private void doMainFunctions(boolean isLivingUpdateEvent) {
+        if (mc.thePlayer == null || mc.theWorld == null) return;
+
         boolean antiTelly = (mode.get().equals("Telly") || mode.get().equals("Prediction")) && !doTellyInThisJump && !Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) && (MovementUtil.isDiagonal(6f) || !mode.get().equals("Prediction"));
 
         if (!isLivingUpdateEvent) {

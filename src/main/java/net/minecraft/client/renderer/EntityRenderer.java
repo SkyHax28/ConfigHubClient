@@ -1,6 +1,7 @@
 package net.minecraft.client.renderer;
 
 import com.dew.DewCommon;
+import com.dew.system.event.events.DrawBlockSelectionEvent;
 import com.dew.system.event.events.Render3DEvent;
 import com.dew.system.module.modules.mods.FreeLook;
 import com.dew.system.module.modules.movement.speed.SpeedModule;
@@ -1698,7 +1699,10 @@ public class EntityRenderer implements IResourceManagerReloadListener
             GlStateManager.popMatrix();
             GlStateManager.pushMatrix();
 
-            if (this.mc.objectMouseOver != null && entity.isInsideOfMaterial(Material.water) && flag1)
+            DrawBlockSelectionEvent event = new DrawBlockSelectionEvent();
+            DewCommon.eventManager.call(event);
+
+            if (!event.isCancelled() && this.mc.objectMouseOver != null && entity.isInsideOfMaterial(Material.water) && flag1)
             {
                 EntityPlayer entityplayer = (EntityPlayer)entity;
                 GlStateManager.disableAlpha();

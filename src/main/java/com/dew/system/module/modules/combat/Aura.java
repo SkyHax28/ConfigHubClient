@@ -17,10 +17,7 @@ import com.dew.system.settingsvalue.BooleanValue;
 import com.dew.system.settingsvalue.MultiSelectionValue;
 import com.dew.system.settingsvalue.NumberValue;
 import com.dew.system.settingsvalue.SelectionValue;
-import com.dew.utils.MovementUtil;
-import com.dew.utils.PacketUtil;
-import com.dew.utils.ReachCalculator;
-import com.dew.utils.TimerUtil;
+import com.dew.utils.*;
 import com.dew.utils.pathfinder.Vec3;
 import de.florianmichael.viamcp.fixes.AttackOrder;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -86,7 +83,7 @@ public class Aura extends Module {
 
     public boolean isInAutoBlockMode() {
         AutoBlock autoBlockModule = DewCommon.moduleManager.getModule(AutoBlock.class);
-        return this.isEnabled() && autoBlockModule.isEnabled() && target != null && autoBlockModule.isHoldingSword() && (!autoBlockModule.getMode().equals("Legit") || ReachCalculator.canReachToAttack(mc.thePlayer, target, this.getAttackRange(), throughWalls.get()));
+        return this.isEnabled() && autoBlockModule.isEnabled() && target != null && autoBlockModule.isHoldingSword() && (!autoBlockModule.getMode().equals("Legit") || AaBbUtil.distanceTo(mc.thePlayer.getPositionEyes(1f), target.getEntityBoundingBox()) <= this.getAttackRange());
     }
 
     @Override
@@ -199,7 +196,7 @@ public class Aura extends Module {
     }
 
     private boolean attack(Entity entity, boolean canHit, long currentTime) {
-        if ((ReachCalculator.canReachToAttack(mc.thePlayer, DewCommon.moduleManager.getModule(PingReach.class).getBestBacktrackEntity(entity), this.getAttackRange(), throughWalls.get()) || ReachCalculator.canReachToAttack(mc.thePlayer, entity, this.getAttackRange(), throughWalls.get())) && (canHit || noRotationHitCheck.get())) {
+        if ((AaBbUtil.distanceTo(mc.thePlayer.getPositionEyes(1f), DewCommon.moduleManager.getModule(PingReach.class).getBestBacktrackEntity(entity).getEntityBoundingBox()) <= this.getAttackRange() || AaBbUtil.distanceTo(mc.thePlayer.getPositionEyes(1f), entity.getEntityBoundingBox()) <= this.getAttackRange()) && (canHit || noRotationHitCheck.get())) {
             if (currentTime - lastAttackTime >= nextAttackDelay) {
                 if (tpAura.get()) {
                     new Thread(() -> {

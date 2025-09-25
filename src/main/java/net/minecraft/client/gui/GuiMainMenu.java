@@ -569,7 +569,7 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
         String s = "Minecraft 1.8.9";
 
         int yy = this.height / 2 + 48;
-        DewCommon.customFontRenderer.drawCenteredStringWithShadow("Quit drugs, " + DataSaver.userName, this.width / 2f, yy + 15, -1, 0.35f);
+        DewCommon.customFontRenderer.drawCenteredStringWithShadow("This is Aspw. I love you, " + DataSaver.userName, this.width / 2f, yy + 15, -1, 0.35f);
 
         if (this.mc.isDemo())
         {

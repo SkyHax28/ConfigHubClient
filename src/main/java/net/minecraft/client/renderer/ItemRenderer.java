@@ -360,8 +360,13 @@ public class ItemRenderer
             final float var9 = MathHelper.sin(MathHelper.sqrt_float(f1) * (float) Math.PI);
 
             if (this.itemToRender != null) {
+                boolean renderMap = this.itemToRender.getItem() instanceof ItemMap;
+                boolean shouldBlock = !renderMap && (animationsModule.isVisualBlocking() && this.itemToRender.getItem() instanceof ItemSword || animationsModule.shouldForceBlock(mc.thePlayer));
+                boolean shouldBlock2 = !shouldBlock && abstractclientplayer.getItemInUseCount() > 0;
+                boolean shouldBlock3 = shouldBlock2 && this.itemToRender.getItemUseAction() == EnumAction.BLOCK;
+
                 if (animationsModule.isEnabled() && animationsModule.getOldAnimations().isSelected("First Person")) {
-                    if (this.itemToRender.getItem() instanceof ItemSword) {
+                    if (!shouldBlock3 && this.itemToRender.getItem() instanceof ItemSword) {
                         GlStateManager.translate(0.0F, 0.0F, -0.02F);
                         GlStateManager.rotate(1.0F, 0.0F, 0.0F, -0.1F);
                     } else if (this.itemToRender.getItem() instanceof ItemPotion) {
@@ -381,11 +386,11 @@ public class ItemRenderer
                     }
                 }
 
-                if (this.itemToRender.getItem() instanceof ItemMap) {
+                if (renderMap) {
                     this.renderItemMap(abstractclientplayer, f2, f, f1);
-                } else if (animationsModule.isVisualBlocking() && this.itemToRender.getItem() instanceof ItemSword || animationsModule.shouldForceBlock(mc.thePlayer)) {
+                } else if (shouldBlock) {
                     this.renderSwordAnimations(animationsModule, f, f1, var9);
-                } else if (abstractclientplayer.getItemInUseCount() > 0) {
+                } else if (shouldBlock2) {
                     EnumAction enumaction = this.itemToRender.getItemUseAction();
 
                     switch (enumaction)
