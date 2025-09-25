@@ -15,18 +15,18 @@ import net.minecraft.network.play.INetHandlerPlayClient;
 import net.minecraft.network.play.client.C02PacketUseEntity;
 import net.minecraft.network.play.server.*;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.Vec3;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Iterator;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Backtrack extends Module {
     private final List<Packet<INetHandlerPlayClient>> storagePackets = new CopyOnWriteArrayList<>();
     private final List<Entity> storageEntities = new CopyOnWriteArrayList<>();
     private final LinkedList<EntityPacketLoc> storageEntityMove = new LinkedList<>();
+    private final Map<Integer, double[]> lastServerPos = new HashMap<>();
 
     private final Clock timer = new Clock();
     private Entity attacked;
@@ -154,13 +154,29 @@ public class Backtrack extends Module {
             for (Entity entity : storageEntities) {
                 if (entity == null || entity.isDead || !(entity instanceof EntityPlayer)) continue;
 
+                double prevX, prevY, prevZ;
                 double x = entity.serverPosX / 32.0;
                 double y = entity.serverPosY / 32.0;
                 double z = entity.serverPosZ / 32.0;
 
-                double renderX = x - mc.getRenderManager().viewerPosX;
-                double renderY = y - mc.getRenderManager().viewerPosY;
-                double renderZ = z - mc.getRenderManager().viewerPosZ;
+                float partialTicks = event.partialTicks;
+
+                double[] prev = lastServerPos.get(entity.getEntityId());
+                if (prev != null) {
+                    prevX = prev[0];
+                    prevY = prev[1];
+                    prevZ = prev[2];
+                } else {
+                    prevX = x;
+                    prevY = y;
+                    prevZ = z;
+                }
+
+                Vec3 lerpedPos = Lerper.lerpVec3(new Vec3(prevX, prevY, prevZ), new Vec3(x, y, z), partialTicks);
+
+                double renderX = lerpedPos.xCoord - mc.getRenderManager().viewerPosX;
+                double renderY = lerpedPos.yCoord - mc.getRenderManager().viewerPosY;
+                double renderZ = lerpedPos.zCoord - mc.getRenderManager().viewerPosZ;
 
                 AxisAlignedBB boundingBox = new AxisAlignedBB(
                         renderX - 0.4, renderY, renderZ - 0.4,
@@ -168,21 +184,26 @@ public class Backtrack extends Module {
                 );
 
                 GlStateManager.pushMatrix();
-                GlStateManager.disableTexture2D();
-                GlStateManager.disableLighting();
-                GlStateManager.disableDepth();
                 GlStateManager.enableBlend();
-                GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+                GlStateManager.disableTexture2D();
+                GlStateManager.disableDepth();
+                GlStateManager.depthMask(false);
+                GlStateManager.disableLighting();
+                GlStateManager.disableCull();
+                GlStateManager.tryBlendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
 
                 RenderUtil.drawFilledBox(boundingBox, 1f, 0f, 0f, 0.3f);
 
+                GlStateManager.enableCull();
+                GlStateManager.depthMask(true);
                 GlStateManager.enableDepth();
                 GlStateManager.enableTexture2D();
-                GlStateManager.enableLighting();
                 GlStateManager.disableBlend();
                 GlStateManager.popMatrix();
+
+                lastServerPos.put(entity.getEntityId(), new double[]{x, y, z});
             }
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
     }
 

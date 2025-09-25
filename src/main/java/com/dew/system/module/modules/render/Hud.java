@@ -18,6 +18,7 @@ import com.dew.system.module.modules.player.Scaffold;
 import com.dew.system.settingsvalue.BooleanValue;
 import com.dew.system.settingsvalue.MultiSelectionValue;
 import com.dew.system.settingsvalue.NumberValue;
+import com.dew.system.settingsvalue.SelectionValue;
 import com.dew.system.userdata.DataSaver;
 import com.dew.system.viapatcher.PlayerFixer;
 import com.dew.utils.*;
@@ -51,7 +52,8 @@ import java.util.stream.Collectors;
 
 public class Hud extends Module {
 
-    private static final MultiSelectionValue features = new MultiSelectionValue("Features", Arrays.asList("Watermark", "Module List", "Potion Hud", "Target Hud", "Armor Hud", "Packet Monitor"), "Watermark", "Module List", "Potion Hud", "Target Hud", "Armor Hud", "Packet Monitor");
+    private static final MultiSelectionValue features = new MultiSelectionValue("Features", Arrays.asList("Watermark", "Water Info", "Module List", "Potion Hud", "Target Hud", "Armor Hud", "Packet Monitor"), "Watermark", "Water Info", "Module List", "Potion Hud", "Target Hud", "Armor Hud", "Packet Monitor");
+    private static final SelectionValue watermarkPosition = new SelectionValue("Watermark Position", "Left Top", () -> features.isSelected("Watermark"), "Left Top", "Center Top");
     private static final NumberValue uiScale = new NumberValue("UI Scale", 1.0, 0.5, 2.0, 0.1);
     private static final BooleanValue disableAchievementsNotification = new BooleanValue("Disable Achievements Notification", true);
     private final Map<Module, Float> animationProgress = new HashMap<>();
@@ -315,11 +317,11 @@ public class Hud extends Module {
 
         if (features.isSelected("Watermark")) {
             GL11.glPushMatrix();
-            float centerX = sr.getScaledWidth() / 2f;
+            float glXPos = watermarkPosition.get().equals("Left Top") ? 0f : sr.getScaledWidth() / 2f;
             float topY = 0f;
-            GL11.glTranslatef(centerX, topY, 0);
+            GL11.glTranslatef(glXPos, topY, 0);
             GL11.glScalef(scale, scale, 1f);
-            GL11.glTranslatef(-centerX, -topY, 0);
+            GL11.glTranslatef(-glXPos, -topY, 0);
 
             String clientName = DewCommon.clientName;
             String renderVersion = IMinecraft.mc.isSingleplayer() || ViaLoadingBase.getInstance().getTargetVersion().getVersion() == ViaLoadingBase.getInstance().getNativeVersion() ? "Native" : ViaLoadingBase.getInstance().getTargetVersion().getName();
@@ -333,12 +335,12 @@ public class Hud extends Module {
             float time = (System.currentTimeMillis() % (int) speed) / speed;
 
             float displayHeight = 14f;
-            int x = (int) ((sr.getScaledWidth() - watermarkWidthLerp) / 2);
-            int y = BossStatus.bossName != null && BossStatus.statusBarTime > 0 ? 28 : 8;
+            int x = watermarkPosition.get().equals("Left Top") ? 10 : (int) ((sr.getScaledWidth() - watermarkWidthLerp) / 2);
+            int y = watermarkPosition.get().equals("Center Top") && BossStatus.bossName != null && BossStatus.statusBarTime > 0 ? 28 : 8;
 
             int alpha = 255;
-            Color bgColor = new Color(10, 10, 10, (int)(170 * (alpha / 255f)));
-            int softAlpha = (int)(alpha * 0.22);
+            Color bgColor = new Color(10, 10, 10, (int) (170 * (alpha / 255f)));
+            int softAlpha = (int) (alpha * 0.22);
 
             drawBlurredBackground(
                     x - 3, y - 2,
@@ -361,10 +363,26 @@ public class Hud extends Module {
                 charX += fontRenderer.getStringWidth(String.valueOf(c), fontSize);
             }
 
+            GL11.glPopMatrix();
+        }
+
+        if (features.isSelected("Water Info")) {
+            float displayHeight = 14f;
+            int y = BossStatus.bossName != null && BossStatus.statusBarTime > 0 ? 28 : 8;
+
+            int alpha = 255;
+            Color bgColor = new Color(10, 10, 10, (int) (170 * (alpha / 255f)));
+            int softAlpha = (int) (alpha * 0.22);
+
             if (mc.thePlayer != null) {
+                GL11.glPushMatrix();
+                float centerX = sr.getScaledWidth() / 2f;
+                float topY = 0f;
+                GL11.glTranslatef(centerX, topY, 0);
+                GL11.glScalef(scale, scale, 1f);
+                GL11.glTranslatef(-centerX, -topY, 0);
+
                 String burningText = mc.thePlayer.isBurning() ? "Burning!" : "";
-                String damageInfo = mc.thePlayer.hurtTime != 0 ? "Invulnerable: " + mc.thePlayer.hurtTime : "";
-                String flyInfo = mc.thePlayer.capabilities.isFlying ? "Flying" : mc.thePlayer.capabilities.allowFlying ? "Flyable" : "";
                 String blockInfo = DewCommon.moduleManager.getModule(Scaffold.class).isEnabled() || DewCommon.moduleManager.getModule(BridgeAssist.class).isEnabled() && DewCommon.moduleManager.getModule(BridgeAssist.class).isBridging() ? this.getTotalValidBlocksInHotbar() + " blocks available" : "";
 
                 List<EntityPlayer> murderers = DewCommon.moduleManager.getModule(MurdererDetector.class).getMurderers();
@@ -387,8 +405,6 @@ public class Hud extends Module {
 
                 String combinedText = "";
                 if (!burningText.isEmpty()) combinedText += burningText;
-                if (!damageInfo.isEmpty()) combinedText += (combinedText.isEmpty() ? "" : "  ") + damageInfo;
-                if (!flyInfo.isEmpty()) combinedText += (combinedText.isEmpty() ? "" : "  ") + flyInfo;
                 if (!blockInfo.isEmpty()) combinedText += (combinedText.isEmpty() ? "" : "  ") + blockInfo;
                 if (!murdererInfo.isEmpty()) combinedText += (combinedText.isEmpty() ? "" : "  ") + murdererInfo;
                 if (!breakingInfo.isEmpty()) combinedText += (combinedText.isEmpty() ? "" : "  ") + breakingInfo;
@@ -426,28 +442,6 @@ public class Hud extends Module {
                                 fontSize
                         );
                         xPos += fontRenderer.getStringWidth(burningText + "  ", fontSize);
-                    }
-
-                    if (!damageInfo.isEmpty()) {
-                        fontRenderer.drawString(
-                                damageInfo,
-                                xPos,
-                                y + displayHeight + 1.5f,
-                                new Color(255, 215, 0, alpha).getRGB(),
-                                fontSize
-                        );
-                        xPos += fontRenderer.getStringWidth(damageInfo + "  ", fontSize);
-                    }
-
-                    if (!flyInfo.isEmpty()) {
-                        fontRenderer.drawString(
-                                flyInfo,
-                                xPos,
-                                y + displayHeight + 1.5f,
-                                new Color(255, 215, 0, alpha).getRGB(),
-                                fontSize
-                        );
-                        xPos += fontRenderer.getStringWidth(flyInfo + "  ", fontSize);
                     }
 
                     if (!blockInfo.isEmpty()) {
@@ -560,9 +554,9 @@ public class Hud extends Module {
                         );
                     }
                 }
-            }
 
-            GL11.glPopMatrix();
+                GL11.glPopMatrix();
+            }
         }
 
         if (features.isSelected("Potion Hud")) {
