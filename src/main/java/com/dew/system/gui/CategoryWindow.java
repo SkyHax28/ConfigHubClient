@@ -3,6 +3,7 @@ package com.dew.system.gui;
 import com.dew.DewCommon;
 import com.dew.IMinecraft;
 import com.dew.system.module.ModuleCategory;
+import com.dew.utils.Lerper;
 import com.dew.utils.LogUtil;
 import net.minecraft.client.gui.Gui;
 
@@ -18,11 +19,21 @@ public class CategoryWindow {
     private final List<ModuleButton> moduleButtons = new ArrayList<>();
     private final List<String> moduleConfigList;
     private final List<String> bindConfigList;
-    private final int configButtonHeight = 14;
-    public int x, y, headerHeight = 16;
+    private final int configButtonHeight = 18;
+    public int x, y, headerHeight = 22;
     public boolean open;
     private boolean dragging;
     private int dragX, dragY;
+
+    private float expandAnimation = 0f;
+    private long lastTime = System.currentTimeMillis();
+
+    private static final Color BACKGROUND_PRIMARY = new Color(25, 25, 35, 240);
+    private static final Color BACKGROUND_SECONDARY = new Color(35, 35, 45, 220);
+    private static final Color ACCENT_COLOR = new Color(100, 150, 255, 200);
+    private static final Color HOVER_COLOR = new Color(120, 170, 255, 150);
+    private static final Color TEXT_PRIMARY = new Color(255, 255, 255, 255);
+    private static final Color BORDER_COLOR = new Color(60, 60, 80, 180);
 
     private final String categoryTitle;
 
@@ -34,6 +45,8 @@ public class CategoryWindow {
         this.x = state.x;
         this.y = state.y;
         this.open = state.open;
+
+        this.expandAnimation = open ? 1f : 0f;
 
         DewCommon.moduleManager.getModules().stream()
                 .filter(m -> m.category == category)
@@ -70,41 +83,100 @@ public class CategoryWindow {
 
     public void draw(int mouseX, int mouseY) {
         updatePosition(mouseX, mouseY);
+        updateAnimations();
 
         for (ModuleButton btn : moduleButtons) {
             btn.updateHeightAnimation();
         }
 
-        drawBlurRect(x, y, x + ClickGuiState.NEW_GUI_WIDTH, y + headerHeight, new Color(0, 0, 0, 170));
+        boolean headerHovered = mouseX >= x && mouseX <= x + ClickGuiState.NEW_GUI_WIDTH &&
+                mouseY >= y && mouseY <= y + headerHeight;
 
-        Gui.drawRect(x, y, x + ClickGuiState.NEW_GUI_WIDTH, y + 1, new Color(85, 153, 255, 180).getRGB());
-        Gui.drawRect(x, y + headerHeight - 1, x + ClickGuiState.NEW_GUI_WIDTH, y + headerHeight, new Color(85, 153, 255, 120).getRGB());
+        drawGradientRect(x, y, x + ClickGuiState.NEW_GUI_WIDTH, y + headerHeight,
+                BACKGROUND_PRIMARY, BACKGROUND_SECONDARY);
+
+        if (headerHovered) {
+            drawRect(x, y, x + ClickGuiState.NEW_GUI_WIDTH, y + headerHeight,
+                    new Color(HOVER_COLOR.getRed(), HOVER_COLOR.getGreen(), HOVER_COLOR.getBlue(), 30));
+        }
+
+        drawRect(x, y, x + ClickGuiState.NEW_GUI_WIDTH, y + 2, ACCENT_COLOR);
+
+        drawBorder(x, y, x + ClickGuiState.NEW_GUI_WIDTH, y + headerHeight, BORDER_COLOR);
 
         DewCommon.customFontRenderer.drawCenteredStringWithShadow(
                 categoryTitle,
                 x + ClickGuiState.NEW_GUI_WIDTH / 2f,
-                y + 1,
-                Color.WHITE.getRGB(),
-                0.35f
+                y + 4,
+                TEXT_PRIMARY.getRGB(),
+                0.4f
         );
 
-        if (open) {
-            if (category == ModuleCategory.MODULE_CONFIG_MANAGER) {
-                renderConfigThingy(moduleConfigList, mouseX, mouseY);
-            } else if (category == ModuleCategory.BIND_CONFIG_MANAGER) {
-                renderConfigThingy(bindConfigList, mouseX, mouseY);
+        if (expandAnimation > 0.01f) {
+            int contentHeight = calculateContentHeight();
+            int animatedHeight = (int)(contentHeight * expandAnimation);
+
+            if (animatedHeight > 0) {
+                drawGradientRect(x, y + headerHeight, x + ClickGuiState.NEW_GUI_WIDTH,
+                        y + headerHeight + animatedHeight,
+                        new Color(BACKGROUND_SECONDARY.getRed(), BACKGROUND_SECONDARY.getGreen(),
+                                BACKGROUND_SECONDARY.getBlue(), (int)(BACKGROUND_SECONDARY.getAlpha() * expandAnimation)),
+                        new Color(BACKGROUND_PRIMARY.getRed(), BACKGROUND_PRIMARY.getGreen(),
+                                BACKGROUND_PRIMARY.getBlue(), (int)(BACKGROUND_PRIMARY.getAlpha() * expandAnimation)));
+
+                drawBorder(x, y + headerHeight, x + ClickGuiState.NEW_GUI_WIDTH,
+                        y + headerHeight + animatedHeight,
+                        new Color(BORDER_COLOR.getRed(), BORDER_COLOR.getGreen(),
+                                BORDER_COLOR.getBlue(), (int)(BORDER_COLOR.getAlpha() * expandAnimation)));
             }
 
-            int yOffset = headerHeight;
-            for (ModuleButton btn : moduleButtons) {
-                btn.draw(x, y + yOffset, ClickGuiState.NEW_GUI_WIDTH, mouseX, mouseY);
-                yOffset += btn.getHeight();
+            if (open && expandAnimation > 0.8f) {
+                if (category == ModuleCategory.MODULE_CONFIG_MANAGER) {
+                    renderConfigThingy(moduleConfigList, mouseX, mouseY);
+                } else if (category == ModuleCategory.BIND_CONFIG_MANAGER) {
+                    renderConfigThingy(bindConfigList, mouseX, mouseY);
+                }
+
+                int yOffset = headerHeight;
+                for (ModuleButton btn : moduleButtons) {
+                    btn.draw(x, y + yOffset, ClickGuiState.NEW_GUI_WIDTH, mouseX, mouseY);
+                    yOffset += btn.getHeight();
+                }
             }
         }
 
         ClickGuiState.windowStates.get(category).x = x;
         ClickGuiState.windowStates.get(category).y = y;
         ClickGuiState.windowStates.get(category).open = open;
+    }
+
+    private void updateAnimations() {
+        long currentTime = System.currentTimeMillis();
+        float deltaTime = (currentTime - lastTime) / 1000f;
+        lastTime = currentTime;
+
+        float targetExpand = open ? 1f : 0f;
+        float speed = 10f;
+
+        if (Math.abs(expandAnimation - targetExpand) > 0.01f) {
+            expandAnimation = Lerper.lerp(expandAnimation, targetExpand, speed * deltaTime);
+            expandAnimation = Math.max(0f, Math.min(1f, expandAnimation));
+        }
+    }
+
+    private int calculateContentHeight() {
+        if (category == ModuleCategory.MODULE_CONFIG_MANAGER ||
+                category == ModuleCategory.BIND_CONFIG_MANAGER) {
+            List<String> configList = category == ModuleCategory.MODULE_CONFIG_MANAGER ?
+                    moduleConfigList : bindConfigList;
+            return configButtonHeight * (configList.size() + 1);
+        }
+
+        int height = 0;
+        for (ModuleButton btn : moduleButtons) {
+            height += btn.getHeight();
+        }
+        return height;
     }
 
     private void renderConfigThingy(List<String> configList, int mouseX, int mouseY) {
@@ -127,7 +199,8 @@ public class CategoryWindow {
     }
 
     public void mouseClicked(int mouseX, int mouseY, int button) {
-        if (mouseX >= x && mouseX <= x + ClickGuiState.NEW_GUI_WIDTH && mouseY >= y && mouseY <= y + headerHeight) {
+        if (mouseX >= x && mouseX <= x + ClickGuiState.NEW_GUI_WIDTH &&
+                mouseY >= y && mouseY <= y + headerHeight) {
             if (button == 0) {
                 dragging = true;
                 dragX = mouseX - x;
@@ -278,11 +351,27 @@ public class CategoryWindow {
         }
     }
 
-    private void drawBlurRect(int left, int top, int right, int bottom, Color color) {
-        for (int i = 0; i < 6; i++) {
-            int alpha = (int) (color.getAlpha() * (1f - (i / 6f)));
-            Color blurred = new Color(color.getRed(), color.getGreen(), color.getBlue(), alpha);
-            Gui.drawRect(left - i, top - i, right + i, bottom + i, blurred.getRGB());
+    private void drawRect(int left, int top, int right, int bottom, Color color) {
+        Gui.drawRect(left, top, right, bottom, color.getRGB());
+    }
+
+    private void drawGradientRect(int left, int top, int right, int bottom, Color startColor, Color endColor) {
+        int steps = bottom - top;
+        for (int i = 0; i < steps; i++) {
+            float ratio = (float) i / steps;
+            int r = (int) (startColor.getRed() + (endColor.getRed() - startColor.getRed()) * ratio);
+            int g = (int) (startColor.getGreen() + (endColor.getGreen() - startColor.getGreen()) * ratio);
+            int b = (int) (startColor.getBlue() + (endColor.getBlue() - startColor.getBlue()) * ratio);
+            int a = (int) (startColor.getAlpha() + (endColor.getAlpha() - startColor.getAlpha()) * ratio);
+
+            Gui.drawRect(left, top + i, right, top + i + 1, new Color(r, g, b, a).getRGB());
         }
+    }
+
+    private void drawBorder(int left, int top, int right, int bottom, Color color) {
+        Gui.drawRect(left, top, left + 1, bottom, color.getRGB());
+        Gui.drawRect(right - 1, top, right, bottom, color.getRGB());
+        Gui.drawRect(left, top, right, top + 1, color.getRGB());
+        Gui.drawRect(left, bottom - 1, right, bottom, color.getRGB());
     }
 }

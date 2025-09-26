@@ -78,7 +78,7 @@ public class DewCommon {
         Font font;
         try {
             InputStream is = mc.getResourceManager()
-                    .getResource(new ResourceLocation("minecraft", "dew/Helvetica.ttf"))
+                    .getResource(new ResourceLocation("minecraft", "dew/Montserrat.ttf"))
                     .getInputStream();
 
             font = Font.createFont(Font.TRUETYPE_FONT, is).deriveFont(32f);
