@@ -441,7 +441,7 @@ public class Aura extends Module {
         double closestDistance = Double.MAX_VALUE;
 
         for (Entity entity : mc.theWorld.loadedEntityList) {
-            if (shouldNotAttack(entity) || entity instanceof EntityPlayerSP) continue;
+            if (shouldNotAttack(entity) || entity instanceof EntityPlayerSP || !throughWalls.get() && !mc.thePlayer.canEntityBeSeen(entity)) continue;
             if (entity instanceof EntityLivingBase) {
                 double distance = mc.thePlayer.getDistanceToEntity(entity);
                 if (distance <= range && distance < closestDistance) {

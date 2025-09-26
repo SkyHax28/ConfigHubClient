@@ -236,6 +236,55 @@ public class ItemRenderer
         GlStateManager.enableCull();
     }
 
+    private void renderFluxPlayerArm(AbstractClientPlayer clientPlayer, float equipProgress, float swingProgress)
+    {
+        GlStateManager.translate(0.64000005F, -0.6F, -0.71999997F);
+        GlStateManager.translate(0.0F, equipProgress * -0.6F, 0.0F);
+        GlStateManager.rotate(45.0F, 0.0F, 1.0F, 0.0F);
+        float f3 = MathHelper.sin(swingProgress * swingProgress * (float)Math.PI);
+        float f4 = MathHelper.sin(MathHelper.sqrt_float(swingProgress) * (float)Math.PI);
+        GlStateManager.rotate(f4 * 70.0F, 0.0F, 1.0F, 0.0F);
+        GlStateManager.rotate(f3 * -20.0F, 0.0F, 0.0F, 1.0F);
+        this.mc.getTextureManager().bindTexture(clientPlayer.getLocationSkin());
+        GlStateManager.translate(-1.0F, 3.6F, 3.5F);
+        GlStateManager.rotate(120.0F, 0.0F, 0.0F, 1.0F);
+        GlStateManager.rotate(200.0F, 1.0F, 0.0F, 0.0F);
+        GlStateManager.rotate(-135.0F, 0.0F, 1.0F, 0.0F);
+        GlStateManager.scale(1.0F, 1.0F, 1.0F);
+        GlStateManager.translate(5.6F, 0.0F, 0.0F);
+        Render<AbstractClientPlayer> render = this.renderManager.<AbstractClientPlayer>getEntityRenderObject(this.mc.thePlayer);
+        GlStateManager.disableCull();
+        RenderPlayer renderplayer = (RenderPlayer)render;
+        renderplayer.renderRightArm(this.mc.thePlayer);
+        GlStateManager.enableCull();
+    }
+
+    private void renderDynamicPlayerArm(AbstractClientPlayer clientPlayer, float equipProgress, float swingProgress)
+    {
+        float f = -0.4F * MathHelper.sin(MathHelper.sqrt_float(swingProgress) * (float)Math.PI);
+        float f2 = -0.45F * MathHelper.sin(swingProgress * (float)Math.PI);
+        GlStateManager.translate(f, 0f, f2);
+        GlStateManager.translate(0.64000005F, -0.6F, -0.71999997F);
+        GlStateManager.translate(0.0F, equipProgress * -0.6F, 0.0F);
+        GlStateManager.rotate(45.0F, 0.0F, 1.0F, 0.0F);
+        float f3 = MathHelper.sin(swingProgress * swingProgress * (float)Math.PI);
+        float f4 = MathHelper.sin(MathHelper.sqrt_float(swingProgress) * (float)Math.PI);
+        GlStateManager.rotate(f4 * 70.0F, 0.0F, 1.0F, 0.0F);
+        GlStateManager.rotate(f3 * -20.0F, 0.0F, 0.0F, 1.0F);
+        this.mc.getTextureManager().bindTexture(clientPlayer.getLocationSkin());
+        GlStateManager.translate(-1.0F, 3.6F, 3.5F);
+        GlStateManager.rotate(120.0F, 0.0F, 0.0F, 1.0F);
+        GlStateManager.rotate(200.0F, 1.0F, 0.0F, 0.0F);
+        GlStateManager.rotate(-135.0F, 0.0F, 1.0F, 0.0F);
+        GlStateManager.scale(1.0F, 1.0F, 1.0F);
+        GlStateManager.translate(5.6F, 0.0F, 0.0F);
+        Render<AbstractClientPlayer> render = this.renderManager.<AbstractClientPlayer>getEntityRenderObject(this.mc.thePlayer);
+        GlStateManager.disableCull();
+        RenderPlayer renderplayer = (RenderPlayer)render;
+        renderplayer.renderRightArm(this.mc.thePlayer);
+        GlStateManager.enableCull();
+    }
+
     private void doDynamicItemUsedTransformations(float swingProgress)
     {
         float f = -0.5F * MathHelper.sin(MathHelper.sqrt_float(swingProgress) * (float)Math.PI);
@@ -448,7 +497,23 @@ public class ItemRenderer
             }
             else if (!abstractclientplayer.isInvisible())
             {
-                this.renderPlayerArm(abstractclientplayer, f, f1);
+                if (animationsModule.isEnabled()) {
+                    switch (animationsModule.getSwingAnimation().get().toLowerCase()) {
+                        case "vanilla":
+                            this.renderPlayerArm(abstractclientplayer, f, f1);
+                            break;
+
+                        case "flux":
+                            this.renderFluxPlayerArm(abstractclientplayer, f, f1);
+                            break;
+
+                        case "dynamic":
+                            this.renderDynamicPlayerArm(abstractclientplayer, f, f1);
+                            break;
+                    }
+                } else {
+                    this.renderPlayerArm(abstractclientplayer, f, f1);
+                }
             }
 
             GlStateManager.popMatrix();
