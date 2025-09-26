@@ -236,6 +236,13 @@ public class ItemRenderer
         GlStateManager.enableCull();
     }
 
+    private void doDynamicItemUsedTransformations(float swingProgress)
+    {
+        float f = -0.5F * MathHelper.sin(MathHelper.sqrt_float(swingProgress) * (float)Math.PI);
+        float f2 = -0.25F * MathHelper.sin(swingProgress * (float)Math.PI);
+        GlStateManager.translate(f, 0f, f2);
+    }
+
     private void doItemUsedTransformations(float swingProgress)
     {
         float f = -0.4F * MathHelper.sin(MathHelper.sqrt_float(swingProgress) * (float)Math.PI);
@@ -420,9 +427,20 @@ public class ItemRenderer
                 }
                 else
                 {
-                    if (!animationsModule.isEnabled() || !animationsModule.doFluxSwing()) {
+                    if (animationsModule.isEnabled()) {
+                        switch (animationsModule.getSwingAnimation().get().toLowerCase()) {
+                            case "vanilla":
+                                this.doItemUsedTransformations(f1);
+                                break;
+
+                            case "dynamic":
+                                this.doDynamicItemUsedTransformations(f1);
+                                break;
+                        }
+                    } else {
                         this.doItemUsedTransformations(f1);
                     }
+
                     this.transformFirstPersonItem(f, f1);
                 }
 
