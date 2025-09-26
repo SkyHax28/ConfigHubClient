@@ -18,6 +18,7 @@ public class Animations extends Module {
     private static final BooleanValue customSwingSpeed = new BooleanValue("Custom Swing Speed", false);
     private static final NumberValue swingSpeed = new NumberValue("Swing Speed", 9.0, -5.0, 20.0, 1.0, customSwingSpeed::get);
     private static final NumberValue itemScale = new NumberValue("Item Scale", 0.0, -2.0, 2.0, 0.1);
+    private static final BooleanValue fluxSwing = new BooleanValue("Flux Swing", false);
     private static final BooleanValue forceBlockWhenSwinging = new BooleanValue("Force block while swinging", false);
     private boolean visualBlocking = false;
 
@@ -35,6 +36,10 @@ public class Animations extends Module {
 
     public boolean shouldCustomSwingSpeed() {
         return customSwingSpeed.get();
+    }
+
+    public boolean doFluxSwing() {
+        return fluxSwing.get();
     }
 
     public int getSwingSpeed() {

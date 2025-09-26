@@ -420,7 +420,9 @@ public class ItemRenderer
                 }
                 else
                 {
-                    this.doItemUsedTransformations(f1);
+                    if (!animationsModule.isEnabled() || !animationsModule.doFluxSwing()) {
+                        this.doItemUsedTransformations(f1);
+                    }
                     this.transformFirstPersonItem(f, f1);
                 }
 
