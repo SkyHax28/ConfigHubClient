@@ -1,12 +1,24 @@
 package net.minecraft.client.gui;
 
+import com.dew.DewCommon;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.util.MathHelper;
 
+import java.awt.*;
+
 public class GuiOptionSlider extends GuiButton
 {
+    private static final Color BACKGROUND_PRIMARY = new Color(25, 25, 35, 240);
+    private static final Color BACKGROUND_SECONDARY = new Color(35, 35, 45, 220);
+    private static final Color ACCENT_COLOR = new Color(100, 150, 255, 200);
+    private static final Color HOVER_COLOR = new Color(120, 170, 255, 150);
+    private static final Color TEXT_PRIMARY = new Color(255, 255, 255, 255);
+    private static final Color TEXT_DISABLED = new Color(160, 160, 160, 255);
+    private static final Color BORDER_COLOR = new Color(60, 60, 80, 180);
+    private static final Color SLIDER_HANDLE = new Color(255, 255, 255, 255);
+
     private float sliderValue;
     public boolean dragging;
     private GameSettings.Options options;
@@ -35,24 +47,86 @@ public class GuiOptionSlider extends GuiButton
         return 0;
     }
 
-    protected void mouseDragged(Minecraft mc, int mouseX, int mouseY)
-    {
-        if (this.visible)
-        {
-            if (this.dragging)
-            {
-                this.sliderValue = (float)(mouseX - (this.xPosition + 4)) / (float)(this.width - 8);
-                this.sliderValue = MathHelper.clamp_float(this.sliderValue, 0.0F, 1.0F);
-                float f = this.options.denormalizeValue(this.sliderValue);
-                mc.gameSettings.setOptionFloatValue(this.options, f);
-                this.sliderValue = this.options.normalizeValue(f);
-                this.displayString = mc.gameSettings.getKeyBinding(this.options);
+    @Override
+    public void drawButton(Minecraft mc, int mouseX, int mouseY) {
+        if (this.visible) {
+            this.hovered = mouseX >= this.xPosition && mouseY >= this.yPosition &&
+                    mouseX < this.xPosition + this.width && mouseY < this.yPosition + this.height;
+
+            drawGradientRect(this.xPosition, this.yPosition,
+                    this.xPosition + this.width, this.yPosition + this.height,
+                    BACKGROUND_PRIMARY, BACKGROUND_SECONDARY);
+
+            if (this.hovered && this.enabled) {
+                Color hoverOverlay = new Color(HOVER_COLOR.getRed(), HOVER_COLOR.getGreen(),
+                        HOVER_COLOR.getBlue(), 30);
+                drawRect(this.xPosition, this.yPosition,
+                        this.xPosition + this.width, this.yPosition + this.height,
+                        hoverOverlay);
             }
 
-            mc.getTextureManager().bindTexture(buttonTextures);
-            GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-            this.drawTexturedModalRect(this.xPosition + (int)(this.sliderValue * (float)(this.width - 8)), this.yPosition, 0, 66, 4, 20);
-            this.drawTexturedModalRect(this.xPosition + (int)(this.sliderValue * (float)(this.width - 8)) + 4, this.yPosition, 196, 66, 4, 20);
+            drawRect(this.xPosition, this.yPosition,
+                    this.xPosition + this.width, this.yPosition + 2,
+                    this.enabled ? ACCENT_COLOR : new Color(80, 80, 80, 200));
+
+            drawBorder(this.xPosition, this.yPosition,
+                    this.xPosition + this.width, this.yPosition + this.height,
+                    BORDER_COLOR);
+
+            drawSliderTrack();
+
+            Color textColor = this.enabled ? TEXT_PRIMARY : TEXT_DISABLED;
+
+            drawCenteredString(
+                    mc.fontRendererObj,
+                    this.displayString,
+                    this.xPosition + this.width / 2,
+                    this.yPosition + 5,
+                    textColor.getRGB()
+            );
+
+            this.mouseDragged(mc, mouseX, mouseY);
+        }
+    }
+
+    private void drawSliderTrack() {
+        int trackHeight = 4;
+        int trackY = this.yPosition + this.height - 6;
+
+        drawRect(this.xPosition + 4, trackY,
+                this.xPosition + this.width - 4, trackY + trackHeight,
+                new Color(60, 60, 80, 200).getRGB());
+
+        int progressWidth = (int)((this.width - 8) * this.sliderValue);
+        if (progressWidth > 0) {
+            Color progressColor = this.enabled ? ACCENT_COLOR : new Color(80, 80, 80, 200);
+            drawRect(this.xPosition + 4, trackY,
+                    this.xPosition + 4 + progressWidth, trackY + trackHeight,
+                    progressColor.getRGB());
+        }
+
+        int handleX = this.xPosition + 4 + (int)((this.width - 8) * this.sliderValue) - 3;
+        int handleY = trackY - 2;
+        int handleWidth = 6;
+        int handleHeight = trackHeight + 4;
+
+        Color handleColor = this.enabled ? SLIDER_HANDLE : TEXT_DISABLED;
+        drawRect(handleX, handleY, handleX + handleWidth, handleY + handleHeight,
+                handleColor.getRGB());
+
+        drawBorder(handleX, handleY, handleX + handleWidth, handleY + handleHeight, BORDER_COLOR);
+    }
+
+    protected void mouseDragged(Minecraft mc, int mouseX, int mouseY)
+    {
+        if (this.visible && this.dragging)
+        {
+            this.sliderValue = (float)(mouseX - (this.xPosition + 4)) / (float)(this.width - 8);
+            this.sliderValue = MathHelper.clamp_float(this.sliderValue, 0.0F, 1.0F);
+            float f = this.options.denormalizeValue(this.sliderValue);
+            mc.gameSettings.setOptionFloatValue(this.options, f);
+            this.sliderValue = this.options.normalizeValue(f);
+            this.displayString = mc.gameSettings.getKeyBinding(this.options);
         }
     }
 
@@ -76,5 +150,29 @@ public class GuiOptionSlider extends GuiButton
     public void mouseReleased(int mouseX, int mouseY)
     {
         this.dragging = false;
+    }
+
+    private void drawRect(int left, int top, int right, int bottom, Color color) {
+        drawRect(left, top, right, bottom, color.getRGB());
+    }
+
+    private void drawGradientRect(int left, int top, int right, int bottom, Color startColor, Color endColor) {
+        int steps = bottom - top;
+        for (int i = 0; i < steps; i++) {
+            float ratio = (float) i / steps;
+            int r = (int) (startColor.getRed() + (endColor.getRed() - startColor.getRed()) * ratio);
+            int g = (int) (startColor.getGreen() + (endColor.getGreen() - startColor.getGreen()) * ratio);
+            int b = (int) (startColor.getBlue() + (endColor.getBlue() - startColor.getBlue()) * ratio);
+            int a = (int) (startColor.getAlpha() + (endColor.getAlpha() - startColor.getAlpha()) * ratio);
+
+            drawRect(left, top + i, right, top + i + 1, new Color(r, g, b, a).getRGB());
+        }
+    }
+
+    private void drawBorder(int left, int top, int right, int bottom, Color color) {
+        drawRect(left, top, left + 1, bottom, color.getRGB());
+        drawRect(right - 1, top, right, bottom, color.getRGB());
+        drawRect(left, top, right, top + 1, color.getRGB());
+        drawRect(left, bottom - 1, right, bottom, color.getRGB());
     }
 }

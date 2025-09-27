@@ -13,8 +13,9 @@ import java.util.Arrays;
 
 public class Animations extends Module {
 
-    private static final SelectionValue blockAnimation = new SelectionValue("Block Animation", "Legacy", "Vanilla", "Legacy", "Wag", "Strike", "Phong", "Div", "Elegant", "Dash", "Exhibition Push", "Exhibition Swang", "Exhibition Swonk");
+    private static final SelectionValue blockAnimation = new SelectionValue("Block Animation", "Legacy", "Vanilla", "Legacy", "Wag", "Strike", "Phong", "Div", "Elegant", "Pendulum", "Zen", "Bush", "Flow", "Precision", "Surge", "Drift", "Focus", "Pulse", "Hentai Bush", "Tide", "Dash", "Exhibition Push", "Exhibition Swang", "Exhibition Swonk");
     private static final SelectionValue swingAnimation = new SelectionValue("Swing Animation", "Dynamic", "Vanilla", "Flux", "Dynamic");
+    private static final BooleanValue applyHands = new BooleanValue("Apply Hands", true, () -> swingAnimation.get().equals("Flux") || swingAnimation.get().equals("Dynamic"));
     private static final MultiSelectionValue oldAnimations = new MultiSelectionValue("1.7 Animations", Arrays.asList("Food", "Potion", "Bow", "Punching During Usage"), "Food", "Potion", "Bow", "First Person", "Third Person", "Punching During Usage");
     private static final BooleanValue customSwingSpeed = new BooleanValue("Custom Swing Speed", false);
     private static final NumberValue swingSpeed = new NumberValue("Swing Speed", 9.0, -5.0, 20.0, 1.0, customSwingSpeed::get);
@@ -56,6 +57,10 @@ public class Animations extends Module {
 
     public SelectionValue getSwingAnimation() {
         return swingAnimation;
+    }
+
+    public boolean shouldApplyHands() {
+        return applyHands.get();
     }
 
     public float getItemScale() {

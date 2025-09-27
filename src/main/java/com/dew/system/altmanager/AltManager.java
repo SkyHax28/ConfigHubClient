@@ -56,6 +56,7 @@ public class AltManager {
             File altFile = new File(DewCommon.BASE_CFG_DIR, "alts.json");
             if (!altFile.exists()) {
                 LogUtil.infoLog("Alts file not found! Cannot load alts.");
+                alts.clear();
                 return;
             }
 

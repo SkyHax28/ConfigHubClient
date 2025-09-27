@@ -16,7 +16,7 @@ public class NameTags extends Module {
     }
 
     public boolean shouldRender(Entity entity) {
-        ESP ESPModule = DewCommon.moduleManager.getModule(ESP.class);
-        return (entity instanceof EntityPlayer || entity instanceof EntityItem) && !(entity instanceof EntityPlayerSP) && (!ESPModule.isEnabled() || ESPModule.isRenderNametagAndEnchantmentGlint());
+        ShaderESP shaderEspModule = DewCommon.moduleManager.getModule(ShaderESP.class);
+        return (entity instanceof EntityPlayer || entity instanceof EntityItem) && !(entity instanceof EntityPlayerSP) && (!shaderEspModule.isEnabled() || shaderEspModule.isRenderNametagAndEnchantmentGlint());
     }
 }

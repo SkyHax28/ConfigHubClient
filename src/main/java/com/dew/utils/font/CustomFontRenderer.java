@@ -4,6 +4,7 @@ import com.dew.DewCommon;
 import com.dew.IMinecraft;
 import com.dew.system.module.modules.mods.Streamer;
 import com.dew.utils.LogUtil;
+import com.dew.utils.StringHelper;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 
@@ -94,6 +95,8 @@ public class CustomFontRenderer {
     }
 
     public float getStringWidth(String text, float size) {
+        text = StringHelper.removeMcColorCodes(text);
+
         if (Streamer.shouldReplace() && DewCommon.moduleManager.getModule(Streamer.class).isEnabled()) {
             String sessionName = IMinecraft.mc.getSession().getUsername();
             if (text.contains(sessionName)) {
@@ -120,6 +123,8 @@ public class CustomFontRenderer {
     }
 
     public void drawString(String text, float x, float y, int color, float size) {
+        text = StringHelper.removeMcColorCodes(text);
+
         if (Streamer.shouldReplace() && DewCommon.moduleManager.getModule(Streamer.class).isEnabled()) {
             String sessionName = IMinecraft.mc.getSession().getUsername();
             if (text.contains(sessionName)) {
@@ -147,6 +152,8 @@ public class CustomFontRenderer {
     }
 
     public void drawStringWithShadow(String text, float x, float y, int color, float size) {
+        text = StringHelper.removeMcColorCodes(text);
+
         if (Streamer.shouldReplace() && DewCommon.moduleManager.getModule(Streamer.class).isEnabled()) {
             String sessionName = IMinecraft.mc.getSession().getUsername();
             if (text.contains(sessionName)) {

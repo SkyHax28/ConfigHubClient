@@ -88,7 +88,7 @@ public class Aura extends Module {
 
     @Override
     public String tag() {
-        return mode.get();
+        return mode.get() + " " + attackTiming.get();
     }
 
     @Override
@@ -367,7 +367,7 @@ public class Aura extends Module {
         }
 
         if (burstNextTick) {
-            currentTimerSpeed = 5f;
+            currentTimerSpeed = 8f;
             TimerUtil.setTimerSpeed(currentTimerSpeed);
             burstNextTick = false;
             slowNextTick = true;
@@ -375,7 +375,7 @@ public class Aura extends Module {
         }
 
         if (slowNextTick) {
-            currentTimerSpeed = 0.25f;
+            currentTimerSpeed = 0.1f;
             TimerUtil.setTimerSpeed(currentTimerSpeed);
             tickableTick = tickDelay.get().intValue();
             slowNextTick = false;

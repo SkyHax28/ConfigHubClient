@@ -27,7 +27,7 @@ public class ModuleManager implements EventListener {
                 new MurdererDetector(), new NoFall(), new SilentView(), new InvMove(), new NoSlow(),
                 new Scaffold(), new KeepSprint(), new NameTags(), new Chams(),
                 new Velocity(), new CameraNoClip(), new AutoTool(), new Breaker(),
-                new ESP(), new Fullbright(), new Xray(), new NoBreakDelay(),
+                new ShaderESP(), new Fullbright(), new Xray(), new NoBreakDelay(),
                 new Manager(), new Stealer(), new PingReach(), new AutoPot(),
                 new AutoWalkAI(), new Phase(), new FreeLook(), new LongJump(),
                 new Sprint(), new TargetStrafe(), new AutoBlock(), new FastBow(),

@@ -24,6 +24,11 @@ public class PingReach extends Module {
     }
 
     @Override
+    public String tag() {
+        return String.valueOf(maxPingRange.get().intValue());
+    }
+
+    @Override
     public void onDisable() {
         maxHistoryTime = 0;
         smoothHistoryTime = 0;

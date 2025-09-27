@@ -1,8 +1,10 @@
 package net.minecraft.client.gui;
 
+import com.dew.DewCommon;
 import com.google.common.collect.Lists;
 import java.io.IOException;
 import java.util.List;
+import java.awt.*;
 import net.minecraft.network.play.client.C14PacketTabComplete;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.ChatComponentText;
@@ -18,6 +20,14 @@ import org.lwjgl.input.Mouse;
 public class GuiChat extends GuiScreen
 {
     private static final Logger logger = LogManager.getLogger();
+
+    private static final Color BACKGROUND_PRIMARY = new Color(25, 25, 35, 240);
+    private static final Color BACKGROUND_SECONDARY = new Color(35, 35, 45, 220);
+    private static final Color ACCENT_COLOR = new Color(100, 150, 255, 200);
+    private static final Color TEXT_PRIMARY = new Color(255, 255, 255, 255);
+    private static final Color TEXT_PLACEHOLDER = new Color(160, 160, 160, 255);
+    private static final Color BORDER_COLOR = new Color(60, 60, 80, 180);
+
     private String historyBuffer = "";
     private int sentHistoryCursor = -1;
     private boolean playerNamesFound;
@@ -259,8 +269,9 @@ public class GuiChat extends GuiScreen
 
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
-        drawRect(2, this.height - 14, this.width - 2, this.height - 2, Integer.MIN_VALUE);
-        this.inputField.drawTextBox();
+        drawCustomChatBackground();
+        drawCustomTextField();
+
         IChatComponent ichatcomponent = this.mc.ingameGUI.getChatGUI().getChatComponent(Mouse.getX(), Mouse.getY());
 
         if (ichatcomponent != null && ichatcomponent.getChatStyle().getChatHoverEvent() != null)
@@ -269,6 +280,82 @@ public class GuiChat extends GuiScreen
         }
 
         super.drawScreen(mouseX, mouseY, partialTicks);
+    }
+
+    private void drawCustomChatBackground() {
+        int x = 2;
+        int y = this.height - 19;
+        int width = this.width - 4;
+        int height = 17;
+
+        drawGradientRect(x, y, x + width, y + height, BACKGROUND_PRIMARY, BACKGROUND_SECONDARY);
+        drawRect(x, y, x + width, y + 2, ACCENT_COLOR.getRGB());
+        drawBorder(x, y, x + width, y + height, BORDER_COLOR);
+    }
+
+    private void drawCustomTextField() {
+        String text = this.inputField.getText();
+        boolean isEmpty = text.isEmpty();
+
+        int textX = 6;
+        int textY = this.height - 16;
+
+        if (isEmpty) {
+            DewCommon.customFontRenderer.drawStringWithShadow(
+                    "Type a message...",
+                    textX,
+                    textY,
+                    TEXT_PLACEHOLDER.getRGB(),
+                    0.3f
+            );
+        } else {
+            mc.fontRendererObj.drawStringWithShadow(
+                    text,
+                    textX,
+                    textY + 3,
+                    TEXT_PRIMARY.getRGB()
+            );
+        }
+
+        if (this.inputField.isFocused()) {
+            int cursorX = textX;
+            if (!isEmpty) {
+                cursorX += mc.fontRendererObj.getStringWidth(text);
+            }
+
+            long currentTime = System.currentTimeMillis();
+            boolean showCursor = (currentTime / 500) % 2 == 0;
+
+            if (showCursor) {
+                DewCommon.customFontRenderer.drawStringWithShadow(
+                        "|",
+                        cursorX - 1.5f,
+                        textY,
+                        TEXT_PRIMARY.getRGB(),
+                        0.3f
+                );
+            }
+        }
+    }
+
+    private void drawGradientRect(int left, int top, int right, int bottom, Color startColor, Color endColor) {
+        int steps = bottom - top;
+        for (int i = 0; i < steps; i++) {
+            float ratio = (float) i / steps;
+            int r = (int) (startColor.getRed() + (endColor.getRed() - startColor.getRed()) * ratio);
+            int g = (int) (startColor.getGreen() + (endColor.getGreen() - startColor.getGreen()) * ratio);
+            int b = (int) (startColor.getBlue() + (endColor.getBlue() - startColor.getBlue()) * ratio);
+            int a = (int) (startColor.getAlpha() + (endColor.getAlpha() - startColor.getAlpha()) * ratio);
+
+            drawRect(left, top + i, right, top + i + 1, new Color(r, g, b, a).getRGB());
+        }
+    }
+
+    private void drawBorder(int left, int top, int right, int bottom, Color color) {
+        drawRect(left, top, left + 1, bottom, color.getRGB());
+        drawRect(right - 1, top, right, bottom, color.getRGB());
+        drawRect(left, top, right, top + 1, color.getRGB());
+        drawRect(left, bottom - 1, right, bottom, color.getRGB());
     }
 
     public void onAutocompleteResponse(String[] p_146406_1_)

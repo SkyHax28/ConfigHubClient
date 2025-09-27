@@ -4,7 +4,7 @@ import com.dew.DewCommon;
 import com.dew.IMinecraft;
 import com.dew.system.module.modules.render.Chams;
 import com.dew.system.module.modules.render.NameTags;
-import com.dew.system.module.modules.render.ESP;
+import com.dew.system.module.modules.render.ShaderESP;
 import com.dew.system.module.modules.render.SilentView;
 import com.dew.system.rotation.RotationManager;
 import com.google.common.collect.Lists;
@@ -772,8 +772,8 @@ public abstract class RendererLivingEntity<T extends EntityLivingBase> extends R
 
     protected boolean canRenderName(T entity)
     {
-        ESP ESPModule = DewCommon.moduleManager.getModule(ESP.class);
-        if (ESPModule.isEnabled() && !ESPModule.isRenderNametagAndEnchantmentGlint()) {
+        ShaderESP shaderEspModule = DewCommon.moduleManager.getModule(ShaderESP.class);
+        if (shaderEspModule.isEnabled() && !shaderEspModule.isRenderNametagAndEnchantmentGlint()) {
             return false;
         }
 

@@ -48,7 +48,7 @@ public class DewCommon {
     public static MongoManager mongoManager;
 
     public static void preInitClient() {
-        LogUtil.infoLog("(PRE) Initializing " + clientName + " Client...");
+        LogUtil.infoLog("(PRE) Initializing " + clientName + " Client..."); // Do not change this message (used in a Dew Launcher)
     }
 
     public static void postInitClient() {
@@ -85,11 +85,11 @@ public class DewCommon {
             LogUtil.infoLog("Loaded custom fonts");
         } catch (Exception e) {
             e.printStackTrace();
-            font = new Font("Arial", Font.PLAIN, 32);
-            LogUtil.infoLog("Failed to load custom fonts");
+            LogUtil.infoLog("Failed to load custom fonts. shutting down...");
+            mc.shutdown();
+            return;
         }
         customFontRenderer = new CustomFontRenderer(font);
-
         altManager = new AltManager();
     }
 

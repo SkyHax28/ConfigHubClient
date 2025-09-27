@@ -1,6 +1,7 @@
 package net.minecraft.client.gui;
 
 import com.dew.DewCommon;
+import com.dew.utils.Lerper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.audio.SoundHandler;
@@ -21,6 +22,14 @@ public class GuiButton extends Gui
     public boolean enabled;
     public boolean visible;
     protected boolean hovered;
+
+    private static final Color BACKGROUND_PRIMARY = new Color(25, 25, 35, 240);
+    private static final Color BACKGROUND_SECONDARY = new Color(35, 35, 45, 220);
+    private static final Color ACCENT_COLOR = new Color(100, 150, 255, 200);
+    private static final Color HOVER_COLOR = new Color(120, 170, 255, 150);
+    private static final Color TEXT_PRIMARY = new Color(255, 255, 255, 255);
+    private static final Color TEXT_DISABLED = new Color(160, 160, 160, 255);
+    private static final Color BORDER_COLOR = new Color(60, 60, 80, 180);
 
     public GuiButton(int buttonId, int x, int y, String buttonText)
     {
@@ -59,37 +68,65 @@ public class GuiButton extends Gui
 
     public void drawButton(Minecraft mc, int mouseX, int mouseY) {
         if (this.visible) {
-            FontRenderer font = mc.fontRendererObj;
             this.hovered = mouseX >= this.xPosition && mouseY >= this.yPosition &&
-                    mouseX < this.xPosition + this.width &&
-                    mouseY < this.yPosition + this.height;
+                    mouseX < this.xPosition + this.width && mouseY < this.yPosition + this.height;
 
-            int x = this.xPosition;
-            int y = this.yPosition;
-            int w = this.width;
-            int h = this.height;
+            drawGradientRect(this.xPosition, this.yPosition,
+                    this.xPosition + this.width, this.yPosition + this.height,
+                    BACKGROUND_PRIMARY, BACKGROUND_SECONDARY);
 
-            drawRect(x, y, x + w, y + h, new Color(20, 20, 20, 120).getRGB());
-
-            drawRect(x - 1, y, x, y + h, new Color(0, 0, 0, 60).getRGB());
-            drawRect(x + w, y, x + w + 1, y + h, new Color(0, 0, 0, 60).getRGB());
-            drawRect(x, y - 1, x + w, y, new Color(0, 0, 0, 60).getRGB());
-            drawRect(x, y + h, x + w, y + h + 1, new Color(0, 0, 0, 60).getRGB());
-
-            if (hovered)
-                drawRect(x, y, x + w, y + h, new Color(255, 255, 255, 30).getRGB());
-
-            int textColor = !enabled ? 0xFFAAAAAA : (hovered ? 0xFFFFD966 : 0xFFFFFFFF);
-
-            if (mc.currentScreen instanceof GuiMainMenu) {
-                this.displayString = this.displayString.replaceAll("§.", "");
-                DewCommon.customFontRenderer.drawCenteredStringWithShadow(this.displayString, x + w / 2f, y + (h - 12) / 2f, textColor, 0.32f);
-            } else {
-                drawCenteredString(font, this.displayString, x + w / 2, y + (h - 8) / 2, textColor);
+            if (this.hovered && this.enabled) {
+                Color hoverOverlay = new Color(HOVER_COLOR.getRed(), HOVER_COLOR.getGreen(),
+                        HOVER_COLOR.getBlue(), 30);
+                drawRect(this.xPosition, this.yPosition,
+                        this.xPosition + this.width, this.yPosition + this.height,
+                        hoverOverlay);
             }
+
+            drawRect(this.xPosition, this.yPosition,
+                    this.xPosition + this.width, this.yPosition + 2,
+                    this.enabled ? ACCENT_COLOR : new Color(80, 80, 80, 200));
+
+            drawBorder(this.xPosition, this.yPosition,
+                    this.xPosition + this.width, this.yPosition + this.height,
+                    BORDER_COLOR);
+
+            Color textColor = this.enabled ? TEXT_PRIMARY : TEXT_DISABLED;
+
+            drawCenteredString(
+                    mc.fontRendererObj,
+                    this.displayString,
+                    this.xPosition + this.width / 2,
+                    this.yPosition + (this.height - 6) / 2,
+                    textColor.getRGB()
+            );
 
             this.mouseDragged(mc, mouseX, mouseY);
         }
+    }
+
+    private void drawRect(int left, int top, int right, int bottom, Color color) {
+        drawRect(left, top, right, bottom, color.getRGB());
+    }
+
+    private void drawGradientRect(int left, int top, int right, int bottom, Color startColor, Color endColor) {
+        int steps = bottom - top;
+        for (int i = 0; i < steps; i++) {
+            float ratio = (float) i / steps;
+            int r = (int) (startColor.getRed() + (endColor.getRed() - startColor.getRed()) * ratio);
+            int g = (int) (startColor.getGreen() + (endColor.getGreen() - startColor.getGreen()) * ratio);
+            int b = (int) (startColor.getBlue() + (endColor.getBlue() - startColor.getBlue()) * ratio);
+            int a = (int) (startColor.getAlpha() + (endColor.getAlpha() - startColor.getAlpha()) * ratio);
+
+            drawRect(left, top + i, right, top + i + 1, new Color(r, g, b, a).getRGB());
+        }
+    }
+
+    private void drawBorder(int left, int top, int right, int bottom, Color color) {
+        drawRect(left, top, left + 1, bottom, color.getRGB());
+        drawRect(right - 1, top, right, bottom, color.getRGB());
+        drawRect(left, top, right, top + 1, color.getRGB());
+        drawRect(left, bottom - 1, right, bottom, color.getRGB());
     }
 
     protected void mouseDragged(Minecraft mc, int mouseX, int mouseY)

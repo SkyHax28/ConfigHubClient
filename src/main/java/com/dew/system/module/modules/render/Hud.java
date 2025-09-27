@@ -27,6 +27,7 @@ import de.florianmichael.vialoadingbase.ViaLoadingBase;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiChat;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
@@ -74,8 +75,6 @@ public class Hud extends Module {
     private float timeSinceLastUpdate = 0f;
     private final Deque<Integer> inboundHeights = new ArrayDeque<>();
     private final Deque<Integer> outboundHeights = new ArrayDeque<>();
-    private int inSize = 0;
-    private int outSize = 0;
     private final Deque<Integer> inboundPackets = new ArrayDeque<>();
     private final Deque<Integer> outboundPackets = new ArrayDeque<>();
     public Hud() {
@@ -93,8 +92,6 @@ public class Hud extends Module {
         inboundThisTick = 0;
         outboundThisTick = 0;
         timeSinceLastUpdate = 0f;
-        inSize = 0;
-        outSize = 0;
         inboundHeights.clear();
         outboundHeights.clear();
         inboundPackets.clear();
@@ -562,7 +559,7 @@ public class Hud extends Module {
         if (features.isSelected("Potion Hud")) {
             GL11.glPushMatrix();
             float rightX = sr.getScaledWidth();
-            float bottomY = sr.getScaledHeight() - (features.isSelected("Packet Monitor") ? 230 : 0);
+            float bottomY = sr.getScaledHeight();
             GL11.glTranslatef(rightX, bottomY, 0);
             GL11.glScalef(scale, scale, 1f);
             GL11.glTranslatef(-rightX, -bottomY, 0);
@@ -579,7 +576,7 @@ public class Hud extends Module {
                     if (potion == null) continue;
 
                     String potionName = StatCollector.translateToLocal(potion.getName()) + " " + toRoman(effect.getAmplifier() + 1);
-                    potionName = potionName.replaceAll("§.", "");
+                    potionName = StringHelper.removeMcColorCodes(potionName);
                     int durationTicks = effect.getDuration();
                     String durationStr = Potion.getDurationString(effect);
 
@@ -589,7 +586,7 @@ public class Hud extends Module {
                     int widest = Math.max(nameWidth, durationWidth);
 
                     int boxHeight = 26;
-                    int y = sr.getScaledHeight() - 40 - index * (boxHeight + 4);
+                    int y = sr.getScaledHeight() - 40 - index * (boxHeight + 4) - (features.isSelected("Packet Monitor") ? 54 : 0) - (mc.currentScreen instanceof GuiChat ? 20 : 0);
 
                     fontRenderer.drawStringWithShadow(potionName, x - widest - 8, y + 6, RenderUtil.getThemeColor(time, index).getRGB(), fontSize);
                     fontRenderer.drawStringWithShadow(durationStr, x - durationWidth - 8, y + 18, durationColor.getRGB(), fontSize);
@@ -782,8 +779,8 @@ public class Hud extends Module {
             GL11.glScalef(scale, scale, 1f);
             GL11.glTranslatef(-rightX, -bottomY, 0);
 
-            int graphWidth = 195;
-            int graphHeight = 50;
+            int graphWidth = 120;
+            int graphHeight = 45;
 
             float updateInterval = 0.03f;
             timeSinceLastUpdate += deltaTime;
@@ -809,8 +806,8 @@ public class Hud extends Module {
                 timeSinceLastUpdate -= updateInterval;
             }
 
-            int baseX = sr.getScaledWidth() - 205;
-            int baseY = sr.getScaledHeight() - graphHeight - 10;
+            int baseX = sr.getScaledWidth() - 125;
+            int baseY = sr.getScaledHeight() - graphHeight - 10 - (mc.currentScreen instanceof GuiChat ? 20 : 0);
 
             drawBlurredBackground(baseX, baseY, graphWidth, graphHeight, 6, new Color(0, 0, 0, 50).getRGB());
 
@@ -837,17 +834,6 @@ public class Hud extends Module {
                 i++;
             }
 
-            if (inboundPackets.peekLast() != null && inboundPackets.peekLast() != 0) {
-                inSize = inboundPackets.peekLast();
-            }
-
-            if (outboundPackets.peekLast() != null && outboundPackets.peekLast() != 0) {
-                outSize = outboundPackets.peekLast();
-            }
-
-            fontRenderer.drawStringWithShadow("Sent: " + inSize, baseX + 125, baseY + 24, Color.WHITE.getRGB(), fontSize);
-            fontRenderer.drawStringWithShadow("Received: " + outSize, baseX + 125, baseY + 36, Color.WHITE.getRGB(), fontSize);
-
             GL11.glPopMatrix();
         }
     }
@@ -869,7 +855,7 @@ public class Hud extends Module {
     }
 
     private String toRoman(int number) {
-        String[] romans = {"I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"};
-        return (number >= 1 && number <= 10) ? romans[number - 1] : String.valueOf(number);
+        String[] romans = {"N", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"};
+        return (number >= 0 && number <= 10) ? romans[number] : String.valueOf(number);
     }
 }

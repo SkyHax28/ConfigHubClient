@@ -17,12 +17,12 @@ import org.lwjgl.input.Keyboard;
 
 import java.awt.*;
 
-public class ESP extends Module {
+public class ShaderESP extends Module {
 
     private static final SelectionValue mode = new SelectionValue("Mode", "Glow", "Glow", "Outline");
     private boolean renderNametagAndEnchantmentGlint = true;
     private final ICamera frustum = new Frustum();
-    public ESP() {
+    public ShaderESP() {
         super("ESP", ModuleCategory.RENDER, Keyboard.KEY_NONE, false, false, true);
     }
 

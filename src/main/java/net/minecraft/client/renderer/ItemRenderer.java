@@ -497,7 +497,7 @@ public class ItemRenderer
             }
             else if (!abstractclientplayer.isInvisible())
             {
-                if (animationsModule.isEnabled()) {
+                if (animationsModule.isEnabled() && animationsModule.shouldApplyHands()) {
                     switch (animationsModule.getSwingAnimation().get().toLowerCase()) {
                         case "vanilla":
                             this.renderPlayerArm(abstractclientplayer, f, f1);
@@ -592,6 +592,148 @@ public class ItemRenderer
 
                     GlStateManager.rotate(-var9 * 22.0F, var9 / 2, 0.0F, 9.0F);
                     GlStateManager.rotate(-var9 * 50.0F, 0.8F, var9 / 2, 0F);
+
+                    this.doBlockTransformations();
+                    break;
+
+                case "pendulum":
+                    this.transformFirstPersonItem(f / 1.5F, 0.0F);
+
+                    float pendulumAngle = (float) Math.sin(var9 * Math.PI) * 45.0F;
+                    GlStateManager.translate(0.0F, 0.1F, 0.0F);
+                    GlStateManager.rotate(pendulumAngle, 0.0F, 0.0F, 1.0F);
+                    GlStateManager.rotate(-var9 * 30.0F, 1.0F, 0.0F, 0.0F);
+
+                    this.doBlockTransformations();
+                    break;
+
+                case "zen":
+                    this.transformFirstPersonItem(f / 2.0F, 0.0F);
+
+                    float zenFlow = (float) Math.sin(var9 * Math.PI * 0.5F);
+                    GlStateManager.translate(0.0F, zenFlow * 0.1F + 0.05F, 0.1F * var9);
+                    GlStateManager.rotate(zenFlow * -30.0F, 1.0F, 0.0F, 0.0F);
+                    GlStateManager.rotate(zenFlow * 15.0F, 0.0F, 1.0F, 0.0F);
+                    GlStateManager.rotate(zenFlow * 10.0F, 0.0F, 0.0F, 1.0F);
+
+                    this.doBlockTransformations();
+                    break;
+
+                case "bush":
+                    this.transformFirstPersonItem(f / 1.7F, 0.0F);
+
+                    float counterPhase = var9 < 0.4F ? -var9 / 0.4F : (var9 - 0.4F) / 0.6F;
+
+                    GlStateManager.translate(0.1F * counterPhase, 0.05F + 0.15F * Math.abs(counterPhase), 0.2F * counterPhase);
+                    GlStateManager.rotate(-20.0F + (-40.0F * counterPhase), 1.0F, 0.0F, 0.0F);
+                    GlStateManager.rotate(-30.0F * counterPhase, 0.0F, 1.0F, 0.0F);
+
+                    this.doBlockTransformations();
+                    break;
+
+                case "flow":
+                    this.transformFirstPersonItem(f / 1.4F, 0.0F);
+
+                    float flowCurve = (float) (1.0F - Math.cos(var9 * Math.PI)) * 0.5F;
+                    GlStateManager.translate(-0.2F * flowCurve, 0.1F + 0.2F * flowCurve, 0.1F * var9);
+                    GlStateManager.rotate(-45.0F * flowCurve, 1.0F, 0.0F, 0.0F);
+                    GlStateManager.rotate(30.0F * flowCurve, 0.0F, 1.0F, 0.0F);
+                    GlStateManager.rotate(-20.0F * flowCurve, 0.0F, 0.0F, 1.0F);
+
+                    this.doBlockTransformations();
+                    break;
+
+                case "precision":
+                    this.transformFirstPersonItem(0.0F, 0.0F);
+
+                    float precisionProgress = var9 * var9;
+                    GlStateManager.translate(0.0F, -0.1F * precisionProgress, 0.3F * precisionProgress);
+                    GlStateManager.rotate(-60.0F * precisionProgress, 1.0F, 0.0F, 0.0F);
+                    GlStateManager.rotate(10.0F * precisionProgress, 0.0F, 1.0F, 0.0F);
+
+                    this.doBlockTransformations();
+                    break;
+
+                case "surge":
+                    this.transformFirstPersonItem(f / 1.6F, 0.0F);
+
+                    float surgeWave = (float) Math.sin(var9 * Math.PI * 0.5F);
+                    float surgePower = surgeWave * surgeWave;
+
+                    GlStateManager.translate(-0.1F * surgePower, 0.2F * surgePower, 0.25F * surgePower);
+                    GlStateManager.rotate(-50.0F * surgePower, 1.0F, 0.0F, 0.0F);
+                    GlStateManager.rotate(25.0F * surgePower, 0.0F, 1.0F, 0.0F);
+                    GlStateManager.rotate(-15.0F * surgePower, 0.0F, 0.0F, 1.0F);
+
+                    this.doBlockTransformations();
+                    break;
+
+                case "drift":
+                    this.transformFirstPersonItem(f / 1.5F, 0.0F);
+
+                    float driftPhase1 = (float) Math.sin(var9 * Math.PI * 1.5F) * 0.8F;
+                    float driftPhase2 = (float) Math.cos(var9 * Math.PI * 2.0F) * 0.6F;
+
+                    GlStateManager.translate(0.15F * driftPhase1, 0.1F + 0.1F * Math.abs(driftPhase2), 0.15F * var9);
+                    GlStateManager.rotate(-35.0F * var9 + 20.0F * driftPhase1, 1.0F, 0.0F, 0.0F);
+                    GlStateManager.rotate(40.0F * driftPhase2, 0.0F, 1.0F, 0.0F);
+                    GlStateManager.rotate(25.0F * driftPhase1, 0.0F, 0.0F, 1.0F);
+
+                    this.doBlockTransformations();
+                    break;
+
+                case "focus":
+                    this.transformFirstPersonItem(0.0F, 0.0F);
+
+                    float focusIntensity = var9 < 0.6F ? var9 / 0.6F : 1.0F;
+                    float focusStrike = var9 > 0.6F ? (var9 - 0.6F) / 0.4F : 0.0F;
+                    focusStrike = focusStrike * focusStrike * focusStrike;
+
+                    GlStateManager.translate(0.0F, -0.05F * focusIntensity + 0.15F * focusStrike, 0.4F * focusStrike);
+                    GlStateManager.rotate(-30.0F * focusIntensity - 45.0F * focusStrike, 1.0F, 0.0F, 0.0F);
+                    GlStateManager.rotate(15.0F * focusStrike, 0.0F, 1.0F, 0.0F);
+
+                    this.doBlockTransformations();
+                    break;
+
+                case "pulse":
+                    this.transformFirstPersonItem(f / 1.8F, 0.0F);
+
+                    float pulseHeart = (float) Math.abs(Math.sin(var9 * Math.PI * 2.0F)) * var9;
+                    float pulseSmooth = (float) (1.0F - Math.cos(var9 * Math.PI)) * 0.5F;
+
+                    GlStateManager.translate(-0.05F * pulseHeart, 0.08F + 0.12F * pulseSmooth, 0.18F * pulseSmooth);
+                    GlStateManager.rotate(-40.0F * pulseSmooth + 10.0F * pulseHeart, 1.0F, 0.0F, 0.0F);
+                    GlStateManager.rotate(20.0F * pulseSmooth, 0.0F, 1.0F, 0.0F);
+                    GlStateManager.rotate(-8.0F * pulseHeart, 0.0F, 0.0F, 1.0F);
+
+                    this.doBlockTransformations();
+                    break;
+
+                case "hentai bush":
+                    this.transformFirstPersonItem(f / 2.0F, 0.0F);
+
+                    float eclipsePhase = (float) Math.sin(var9 * Math.PI);
+                    float eclipseHide = var9 < 0.5F ? var9 * 2.0F : (1.0F - var9) * 2.0F;
+
+                    GlStateManager.translate(-0.3F * eclipseHide, 0.05F + 0.2F * eclipsePhase, 0.15F * var9);
+                    GlStateManager.rotate(-25.0F * eclipsePhase - 15.0F * eclipseHide, 1.0F, 0.0F, 0.0F);
+                    GlStateManager.rotate(45.0F * eclipseHide, 0.0F, 1.0F, 0.0F);
+                    GlStateManager.rotate(-30.0F * eclipsePhase, 0.0F, 0.0F, 1.0F);
+
+                    this.doBlockTransformations();
+                    break;
+
+                case "tide":
+                    this.transformFirstPersonItem(f / 1.7F, 0.0F);
+
+                    float tideLevel = (float) (Math.sin(var9 * Math.PI * 0.5F));
+                    tideLevel = tideLevel * tideLevel;
+
+                    GlStateManager.translate(-0.15F * tideLevel, 0.12F + 0.18F * tideLevel, 0.22F * tideLevel);
+                    GlStateManager.rotate(-55.0F * tideLevel, 1.0F, 0.0F, 0.0F);
+                    GlStateManager.rotate(35.0F * tideLevel, 0.0F, 1.0F, 0.0F);
+                    GlStateManager.rotate(-12.0F * tideLevel, 0.0F, 0.0F, 1.0F);
 
                     this.doBlockTransformations();
                     break;

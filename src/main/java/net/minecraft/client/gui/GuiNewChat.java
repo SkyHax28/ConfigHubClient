@@ -1,8 +1,10 @@
 package net.minecraft.client.gui;
 
+import com.dew.DewCommon;
 import com.google.common.collect.Lists;
 import java.util.Iterator;
 import java.util.List;
+import java.awt.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.player.EntityPlayer;
@@ -21,6 +23,14 @@ public class GuiNewChat extends Gui
     private final List<ChatLine> drawnChatLines = Lists.<ChatLine>newArrayList();
     private int scrollPos;
     private boolean isScrolled;
+
+    private static final Color BACKGROUND_PRIMARY = new Color(25, 25, 35, 220);
+    private static final Color BACKGROUND_SECONDARY = new Color(35, 35, 45, 200);
+    private static final Color ACCENT_COLOR = new Color(100, 150, 255, 160);
+    private static final Color TEXT_PRIMARY = new Color(255, 255, 255, 255);
+    private static final Color BORDER_COLOR = new Color(60, 60, 80, 140);
+    private static final Color SCROLLBAR_COLOR = new Color(100, 150, 255, 200);
+    private static final Color SCROLLBAR_BACKGROUND = new Color(45, 45, 55, 180);
 
     public GuiNewChat(Minecraft mcIn)
     {
@@ -49,6 +59,44 @@ public class GuiNewChat extends Gui
                 GlStateManager.pushMatrix();
                 GlStateManager.translate(2.0F, 20.0F, 0.0F);
                 GlStateManager.scale(f1, f1, 1.0F);
+
+                int visibleMessages = 0;
+                for (int i1 = 0; i1 + this.scrollPos < this.drawnChatLines.size() && i1 < i; ++i1)
+                {
+                    ChatLine chatline = (ChatLine)this.drawnChatLines.get(i1 + this.scrollPos);
+                    if (chatline != null)
+                    {
+                        int j1 = updateCounter - chatline.getUpdatedCounter();
+                        if (j1 < 200 || flag)
+                        {
+                            double d0 = (double)j1 / 200.0D;
+                            d0 = 1.0D - d0;
+                            d0 = d0 * 10.0D;
+                            d0 = MathHelper.clamp_double(d0, 0.0D, 1.0D);
+                            d0 = d0 * d0;
+                            int l1 = (int)(255.0D * d0);
+
+                            if (flag)
+                            {
+                                l1 = 255;
+                            }
+
+                            l1 = (int)((float)l1 * f);
+
+                            if (l1 > 3)
+                            {
+                                visibleMessages++;
+                            }
+                        }
+                    }
+                }
+
+                if (visibleMessages > 0)
+                {
+                    int containerHeight = visibleMessages * 9 + 6;
+                    int backgroundAlpha = flag ? 255 : (int)(f * 180);
+                    drawModernBackground(-2, -containerHeight + 4, l + 8, 4, backgroundAlpha);
+                }
 
                 for (int i1 = 0; i1 + this.scrollPos < this.drawnChatLines.size() && i1 < i; ++i1)
                 {
@@ -79,10 +127,12 @@ public class GuiNewChat extends Gui
                             {
                                 int i2 = 0;
                                 int j2 = -i1 * 9;
-                                drawRect(i2, j2 - 9, i2 + l + 4, j2, l1 / 2 << 24);
+
                                 String s = chatline.getChatComponent().getFormattedText();
                                 GlStateManager.enableBlend();
-                                this.mc.fontRendererObj.drawStringWithShadow(s, (float)i2, (float)(j2 - 8), 16777215 + (l1 << 24));
+
+                                mc.fontRendererObj.drawStringWithShadow(s, (float)i2 + 4, (float)(j2 - 7), new Color(255, 255, 255, l1).getRGB());
+
                                 GlStateManager.disableAlpha();
                                 GlStateManager.disableBlend();
                             }
@@ -101,16 +151,64 @@ public class GuiNewChat extends Gui
 
                     if (l2 != i3)
                     {
-                        int k3 = j3 > 0 ? 170 : 96;
-                        int l3 = this.isScrolled ? 13382451 : 3355562;
-                        drawRect(0, -j3, 2, -j3 - k1, l3 + (k3 << 24));
-                        drawRect(2, -j3, 1, -j3 - k1, 13421772 + (k3 << 24));
+                        drawModernScrollbar(0, -j3 + 2, 3, -j3 - k1 + 20, l2, i3);
                     }
                 }
 
                 GlStateManager.popMatrix();
             }
         }
+    }
+
+    private void drawModernBackground(int left, int top, int right, int bottom, int alpha)
+    {
+        Color bgPrimary = new Color(BACKGROUND_PRIMARY.getRed(), BACKGROUND_PRIMARY.getGreen(),
+                BACKGROUND_PRIMARY.getBlue(), (BACKGROUND_PRIMARY.getAlpha() * alpha) / 255);
+        Color bgSecondary = new Color(BACKGROUND_SECONDARY.getRed(), BACKGROUND_SECONDARY.getGreen(),
+                BACKGROUND_SECONDARY.getBlue(), (BACKGROUND_SECONDARY.getAlpha() * alpha) / 255);
+        Color accent = new Color(ACCENT_COLOR.getRed(), ACCENT_COLOR.getGreen(),
+                ACCENT_COLOR.getBlue(), (ACCENT_COLOR.getAlpha() * alpha) / 255);
+        Color border = new Color(BORDER_COLOR.getRed(), BORDER_COLOR.getGreen(),
+                BORDER_COLOR.getBlue(), (BORDER_COLOR.getAlpha() * alpha) / 255);
+
+        drawGradientRect(left, top, right, bottom, bgPrimary, bgSecondary);
+        drawRect(left, top, right, top + 1, accent.getRGB());
+        drawBorder(left, top, right, bottom, border);
+    }
+
+    private void drawModernScrollbar(int left, int top, int right, int bottom, int totalHeight, int visibleHeight)
+    {
+        Color scrollThumb = new Color(SCROLLBAR_COLOR.getRed(), SCROLLBAR_COLOR.getGreen(), SCROLLBAR_COLOR.getBlue(), this.isScrolled ? 255 : 180);
+        drawRect(left + 1, top, right - 1, bottom, scrollThumb.getRGB());
+
+        if (this.isScrolled) {
+            Color highlight = new Color(255, 255, 255, 100);
+            drawRect(left + 1, top, left + 2, bottom, highlight.getRGB());
+        }
+    }
+
+    private void drawGradientRect(int left, int top, int right, int bottom, Color startColor, Color endColor)
+    {
+        int steps = Math.max(1, bottom - top);
+        for (int i = 0; i < steps; i++)
+        {
+            float ratio = (float) i / steps;
+            int r = (int) (startColor.getRed() + (endColor.getRed() - startColor.getRed()) * ratio);
+            int g = (int) (startColor.getGreen() + (endColor.getGreen() - startColor.getGreen()) * ratio);
+            int b = (int) (startColor.getBlue() + (endColor.getBlue() - startColor.getBlue()) * ratio);
+            int a = (int) (startColor.getAlpha() + (endColor.getAlpha() - startColor.getAlpha()) * ratio);
+
+            drawRect(left, top + i, right, top + i + 1, new Color(r, g, b, a).getRGB());
+        }
+    }
+
+    private void drawBorder(int left, int top, int right, int bottom, Color color)
+    {
+        int borderColor = color.getRGB();
+        drawRect(left, top, left + 1, bottom, borderColor);
+        drawRect(right - 1, top, right, bottom, borderColor);
+        drawRect(left, top, right, top + 1, borderColor);
+        drawRect(left, bottom - 1, right, bottom, borderColor);
     }
 
     public void clearChatMessages()

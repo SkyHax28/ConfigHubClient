@@ -64,7 +64,7 @@ public class MicrosoftAuth {
             LogUtil.infoLog("4");
 
             MCAuthToken mcAuthToken = getMCAuthToken(xblToken, xstsToken);
-            DewCommon.altManager.status = "Got MCAuth token (Copied to clipboard lol best feature 2025)";
+            DewCommon.altManager.status = "Got MCAuth token (Copied to clipboard)";
 
             Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
             StringSelection stringSelection = new StringSelection(mcAuthToken.accessToken);
