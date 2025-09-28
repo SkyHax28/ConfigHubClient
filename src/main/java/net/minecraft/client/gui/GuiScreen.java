@@ -2,6 +2,7 @@ package net.minecraft.client.gui;
 
 import com.dew.DewCommon;
 import com.dew.system.command.CommandManager;
+import com.dew.system.module.modules.mods.InputFix;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -558,9 +559,16 @@ public abstract class GuiScreen extends Gui implements GuiYesNoCallback
 
     public void handleKeyboardInput() throws IOException
     {
-        if (Keyboard.getEventKeyState())
-        {
-            this.keyTyped(Keyboard.getEventCharacter(), Keyboard.getEventKey());
+        if (DewCommon.moduleManager.getModule(InputFix.class).isEnabled()) {
+            char c = Keyboard.getEventCharacter();
+            int k = Keyboard.getEventKey();
+            if (Keyboard.getEventKeyState() || (k == 0 && Character.isDefined(c))) {
+                this.keyTyped(c, k);
+            }
+        } else {
+            if (Keyboard.getEventKeyState()) {
+                this.keyTyped(Keyboard.getEventCharacter(), Keyboard.getEventKey());
+            }
         }
 
         this.mc.dispatchKeypresses();

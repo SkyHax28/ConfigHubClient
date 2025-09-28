@@ -42,7 +42,8 @@ public class ModuleManager implements EventListener {
                 new NoRender(), new AntiFalseFlag(), new Highlighter(), new RotRandomizer(),
                 new HighJump(), new Timer(), new ViaCollision(), new Plugins(),
                 new Spammer(), new PacketChatLimiter(), new BlockOverlay(), new Streamer(),
-                new RawInput(), new Blink(), new FarmHuntESP(), new Backtrack()
+                new RawInput(), new Blink(), new FarmHuntESP(), new Backtrack(),
+                new InputFix()
         ));
 
         DewCommon.eventManager.register(this);
