@@ -101,7 +101,18 @@ public class ModuleButton {
             glowProgress = 0f;
         }
 
-        if (hasSettings) {
+        if (!module.canBeEnabled) {
+            int stripeWidth = 2;
+            Color stripeColor = new Color(255, 0, 0, 180);
+
+            Gui.drawRect(
+                    x,
+                    y + 1,
+                    x + stripeWidth,
+                    y + 17,
+                    expanded ? Color.YELLOW.getRGB() : stripeColor.getRGB()
+            );
+        } else if (hasSettings) {
             int stripeWidth = 2;
             Color stripeColor = new Color(150, 180, 255, 180);
 

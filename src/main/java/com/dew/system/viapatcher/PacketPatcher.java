@@ -3,11 +3,14 @@ package com.dew.system.viapatcher;
 import com.dew.IMinecraft;
 import com.dew.system.event.events.ReceivedPacketEvent;
 import com.dew.system.event.events.SendPacketEvent;
+import com.dew.utils.LogUtil;
 import com.viaversion.viabackwards.protocol.v1_11to1_10.Protocol1_11To1_10;
 import com.viaversion.viabackwards.protocol.v1_17_1to1_17.Protocol1_17_1To1_17;
 import com.viaversion.viabackwards.protocol.v1_17_1to1_17.storage.InventoryStateIds;
 import com.viaversion.viabackwards.protocol.v1_17to1_16_4.Protocol1_17To1_16_4;
 import com.viaversion.viabackwards.protocol.v1_17to1_16_4.storage.PlayerLastCursorItem;
+import com.viaversion.viabackwards.protocol.v1_21_6to1_21_5.Protocol1_21_6To1_21_5;
+import com.viaversion.viabackwards.protocol.v1_21_7to1_21_6.Protocol1_21_7To1_21_6;
 import com.viaversion.viarewind.protocol.v1_9to1_8.Protocol1_9To1_8;
 import com.viaversion.viarewind.protocol.v1_9to1_8.storage.BossBarStorage;
 import com.viaversion.viarewind.protocol.v1_9to1_8.storage.PlayerPositionTracker;
@@ -111,6 +114,7 @@ public class PacketPatcher {
         Protocol1_9To1_8 protocol1_9To1_8 = protocolManager.getProtocol(Protocol1_9To1_8.class);
         Protocol1_17To1_16_4 protocol1_17To1_16_4 = protocolManager.getProtocol(Protocol1_17To1_16_4.class);
         if (mc.isSingleplayer() || protocol1_9To1_8 == null || protocol1_17To1_16_4 == null) {
+            LogUtil.infoLog("Failed to apply via patches");
             return;
         }
 
@@ -252,5 +256,7 @@ public class PacketPatcher {
                 });
             }
         }, true);
+
+        LogUtil.infoLog("Applied via patches");
     }
 }

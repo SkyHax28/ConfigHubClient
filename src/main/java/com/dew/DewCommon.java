@@ -27,11 +27,11 @@ import java.io.InputStream;
 import static com.dew.IMinecraft.mc;
 
 public class DewCommon {
-
-    public static String versionUpdateDate = "September 26th";
-
     public static final File BASE_CFG_DIR = new File(mc.mcDataDir, "dew");
+
     public static String clientName = "Dew";
+    public static String versionUpdateDate = "September 28th";
+
     public static EventManager eventManager;
     public static ModuleManager moduleManager;
     public static CommandManager commandManager;

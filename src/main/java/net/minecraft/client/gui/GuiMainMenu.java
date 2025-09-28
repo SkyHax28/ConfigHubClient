@@ -284,7 +284,7 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
         );
 
         DewCommon.customFontRenderer.drawCenteredStringWithShadow(
-                "Minecraft 1.8.9 - " + DataSaver.userName,
+                "Minecraft 1.8.x to 1.21.8 - " + DataSaver.userName,
                 this.width / 2f,
                 titleY + 40,
                 new Color(180, 180, 180).getRGB(),
