@@ -107,8 +107,7 @@ public class ModuleManager implements EventListener {
                 new Blink(),
                 new FarmHuntESP(),
                 new Backtrack(),
-                new InputFix(),
-                new BuilderAssist()
+                new InputFix()
         ));
 
         DewCommon.eventManager.register(this);
