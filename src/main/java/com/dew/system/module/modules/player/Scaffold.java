@@ -81,7 +81,7 @@ public class Scaffold extends Module {
     }
 
     private boolean shouldUpdateKeepYState() {
-        return keepY == -1 || mc.thePlayer.hurtTime != 0 || mc.thePlayer.motionY <= -0.55 || !mode.get().equals("Telly") && !mode.get().equals("Prediction") && (!DewCommon.moduleManager.getModule(SpeedModule.class).isEnabled() || Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode())) || (mode.get().equals("Telly") || mode.get().equals("Prediction")) && !doTellyInThisJump;
+        return keepY == -1 || mc.thePlayer.onGround || mc.thePlayer.hurtTime != 0 || mc.thePlayer.motionY <= -0.55 || !mode.get().equals("Telly") && !mode.get().equals("Prediction") && (!DewCommon.moduleManager.getModule(SpeedModule.class).isEnabled() || Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode())) || (mode.get().equals("Telly") || mode.get().equals("Prediction")) && !doTellyInThisJump;
     }
 
     @Override
