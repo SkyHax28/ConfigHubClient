@@ -300,15 +300,7 @@ public class GuiChat extends GuiScreen
         int textX = 6;
         int textY = this.height - 16;
 
-        if (isEmpty) {
-            DewCommon.customFontRenderer.drawStringWithShadow(
-                    "Type a message...",
-                    textX,
-                    textY,
-                    TEXT_PLACEHOLDER.getRGB(),
-                    0.3f
-            );
-        } else {
+        if (!isEmpty) {
             mc.fontRendererObj.drawStringWithShadow(
                     text,
                     textX,
@@ -328,9 +320,9 @@ public class GuiChat extends GuiScreen
 
             if (showCursor) {
                 DewCommon.customFontRenderer.drawStringWithShadow(
-                        "|",
-                        cursorX - 1.5f,
-                        textY,
+                        "_",
+                        cursorX,
+                        textY + 0.5f,
                         TEXT_PRIMARY.getRGB(),
                         0.3f
                 );

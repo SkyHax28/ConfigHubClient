@@ -482,7 +482,7 @@ public class ItemRenderer
                                 this.doItemUsedTransformations(f1);
                                 break;
 
-                            case "dynamic":
+                            case "direct":
                                 this.doDynamicItemUsedTransformations(f1);
                                 break;
                         }
@@ -507,7 +507,7 @@ public class ItemRenderer
                             this.renderFluxPlayerArm(abstractclientplayer, f, f1);
                             break;
 
-                        case "dynamic":
+                        case "direct":
                             this.renderDynamicPlayerArm(abstractclientplayer, f, f1);
                             break;
                     }
