@@ -49,6 +49,7 @@ public class Scaffold extends Module {
     private static final BooleanValue noSprint = new BooleanValue("No Sprint", false);
     private static final BooleanValue autoPlaceHackPlacer = new BooleanValue("Auto Place Hack Placer", false);
     private static final BooleanValue andromeda = new BooleanValue("Andromeda", false, () -> mode.get().equals("Normal"));
+    private static final BooleanValue antiBackSprint = new BooleanValue("Anti Back Sprint", false, () -> (mode.get().equals("Normal") || mode.get().equals("Telly")) && simpleRotator.get());
     private final EnumFacing[] facingsArray = EnumFacing.values();
     public boolean holdingBlock = false;
     public boolean jumped = false;
@@ -246,7 +247,7 @@ public class Scaffold extends Module {
             switch (mode.get().toLowerCase()) {
                 case "normal":
                     if (!rotationMode.get().equals("Snap") && (DewCommon.rotationManager.isReturning() || !holdingBlock)) {
-                        DewCommon.rotationManager.rotateToward((float) (MovementUtil.getDirection() - 180f), 83f, rotationSpeed.get().floatValue(), true);
+                        DewCommon.rotationManager.rotateToward((float) (MovementUtil.getDirection() - 180f) + (antiBackSprint.get() ? 80f : 0f), 83f, rotationSpeed.get().floatValue(), true);
                     }
                     break;
 
@@ -727,7 +728,7 @@ public class Scaffold extends Module {
             if (needSnapRotationReset) return PlaceResult.FAIL_ROTATION;
 
             if (modeValue.equals("Normal") || modeValue.equals("Telly") || modeValue.equals("Prediction")) {
-                boolean canPlace = DewCommon.rotationManager.faceBlockWithFacing(neighbor, opposite, rotationSpeedVal, simpleRotator.get(), true);
+                boolean canPlace = DewCommon.rotationManager.faceBlockWithFacing(neighbor, opposite, rotationSpeedVal, simpleRotator.get(), true, antiBackSprint.get());
                 if (!noRotationHitCheck.get() && !canPlace) return PlaceResult.FAIL_ROTATION;
             }
 

@@ -199,10 +199,10 @@ public class RotationManager {
         return canHitBlockAtRotationWithoutFacing(pos, getClientYaw(), getClientPitch(), maxRange);
     }
 
-    public boolean faceBlockWithFacing(BlockPos pos, EnumFacing facing, float rotationSpeed, boolean simple, boolean noRotationJitters) {
-        Vec3 eyePos = mc.thePlayer.getPositionEyes(1.0f);
-
+    public boolean faceBlockWithFacing(BlockPos pos, EnumFacing facing, float rotationSpeed, boolean simple, boolean noRotationJitters, boolean antiBackSprint) {
         if (simple) {
+            Vec3 eyePos = mc.thePlayer.getPositionEyes(1.0f);
+
             IBlockState blockState = mc.theWorld.getBlockState(pos);
             AxisAlignedBB boundingBox = blockState.getBlock().getCollisionBoundingBox(mc.theWorld, pos, blockState);
             if (boundingBox == null) {
@@ -224,28 +224,23 @@ public class RotationManager {
             float targetYaw = (float) (Math.toDegrees(Math.atan2(diffZ, diffX)) - 90.0F);
             float targetPitch = (float) -Math.toDegrees(Math.atan2(diffY, diffXZ));
 
-            targetYaw = MathHelper.wrapAngleTo180_float(targetYaw);
+            targetYaw = MathHelper.wrapAngleTo180_float(targetYaw + (antiBackSprint ? 80f : 0f));
             targetPitch = MathHelper.wrapAngleTo180_float(targetPitch);
 
             rotateToward(targetYaw, targetPitch, rotationSpeed, noRotationJitters);
         } else {
-            Vec3 hitVec = new Vec3(
-                    pos.getX() + 0.5 + facing.getFrontOffsetX() * 0.5,
-                    pos.getY() + 0.5 + facing.getFrontOffsetY() * 0.5,
-                    pos.getZ() + 0.5 + facing.getFrontOffsetZ() * 0.5
-            );
+            double x = pos.getX() + 0.5 + facing.getFrontOffsetX() * 0.5;
+            double y = pos.getY() + 0.5 + facing.getFrontOffsetY() * 0.5;
+            double z = pos.getZ() + 0.5 + facing.getFrontOffsetZ() * 0.5;
 
-            double diffX = hitVec.xCoord - eyePos.xCoord;
-            double diffY = hitVec.yCoord - eyePos.yCoord;
-            double diffZ = hitVec.zCoord - eyePos.zCoord;
+            double diffX = x - mc.thePlayer.posX;
+            double diffY = y - (mc.thePlayer.posY + mc.thePlayer.getEyeHeight());
+            double diffZ = z - mc.thePlayer.posZ;
 
-            double diffXZ = Math.sqrt(diffX * diffX + diffZ * diffZ);
+            double dist = Math.sqrt(diffX * diffX + diffZ * diffZ);
 
-            float targetYaw = (float) (Math.toDegrees(Math.atan2(diffZ, diffX)) - 90.0F);
-            float targetPitch = (float) -Math.toDegrees(Math.atan2(diffY, diffXZ));
-
-            targetYaw = MathHelper.wrapAngleTo180_float(targetYaw);
-            targetPitch = MathHelper.wrapAngleTo180_float(targetPitch);
+            float targetYaw = (float) (Math.atan2(diffZ, diffX) * 180.0 / Math.PI) - 90.0f;
+            float targetPitch = (float) -(Math.atan2(diffY, dist) * 180.0 / Math.PI);
 
             rotateToward(targetYaw, targetPitch, rotationSpeed, noRotationJitters);
         }

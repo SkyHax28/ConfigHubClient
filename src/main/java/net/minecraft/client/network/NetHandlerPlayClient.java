@@ -1129,7 +1129,7 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient
 
         if (!flag && this.gameController.thePlayer != null)
         {
-            this.gameController.thePlayer.addChatMessage(new ChatComponentText("Unable to locate sign at " + packetIn.getPos().getX() + ", " + packetIn.getPos().getY() + ", " + packetIn.getPos().getZ()));
+            LogUtil.infoLog("Unable to locate sign at " + packetIn.getPos().getX() + ", " + packetIn.getPos().getY() + ", " + packetIn.getPos().getZ());
         }
     }
 
