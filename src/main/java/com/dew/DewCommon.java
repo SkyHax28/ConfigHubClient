@@ -31,6 +31,7 @@ public class DewCommon {
 
     public static String clientName = "Dew";
     public static String versionUpdateDate = "October 13th";
+    public static String supportedMcVersions = "Minecraft 1.8.x to 1.21.10";
 
     public static EventManager eventManager;
     public static ModuleManager moduleManager;
