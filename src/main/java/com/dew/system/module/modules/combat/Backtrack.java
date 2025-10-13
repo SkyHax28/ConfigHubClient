@@ -1,5 +1,6 @@
 package com.dew.system.module.modules.combat;
 
+import com.dew.DewCommon;
 import com.dew.system.event.EventPriority;
 import com.dew.system.event.events.*;
 import com.dew.system.module.Module;
@@ -32,13 +33,27 @@ public class Backtrack extends Module {
     private Entity lastAttackedEntity = null;
     private long smoothPointer = System.nanoTime();
     private boolean needFreeze = false;
+    private long freezeStartTime = 0L;
 
-    private static final NumberValue detectionRange = new NumberValue("Detection Range", 5.0, 0.1, 10.0, 0.1);
-    private static final NumberValue maxRange = new NumberValue("Max Range", 7.0, 0.1, 10.0, 0.1);
-    private static final NumberValue minRange = new NumberValue("Min Range", 2.9, 0.1, 10.0, 0.1);
+    private static final NumberValue detectionRange = new NumberValue("Detect Range", 8.0, 0.1, 10.0, 0.1);
+    private static final NumberValue maxRange = new NumberValue("Max Track Range", 7.5, 0.1, 10.0, 0.1);
+    private static final NumberValue minRange = new NumberValue("Min Allow Range", 1.5, 0.1, 10.0, 0.1);
+    private static final NumberValue minDelay = new NumberValue("Min Delay", 700.0, 0.0, 1000.0, 10.0);
 
     public Backtrack() {
         super("Backtrack", ModuleCategory.COMBAT, Keyboard.KEY_NONE, false, true, true);
+    }
+
+    @Override
+    public void onDisable() {
+        storagePackets.clear();
+        storageEntities.clear();
+        storageEntityMove.clear();
+        lastServerPos.clear();
+        timer.reset();
+        lastAttackedEntity = null;
+        needFreeze = false;
+        freezeStartTime = 0L;
     }
 
     @Override
@@ -118,6 +133,9 @@ public class Backtrack extends Module {
         try {
             doSmoothRelease();
 
+            long elapsedTime = System.currentTimeMillis() - freezeStartTime;
+            boolean minDelayPassed = elapsedTime >= minDelay.get();
+
             if (!storageEntities.isEmpty()) {
                 boolean shouldRelease = false;
 
@@ -140,15 +158,17 @@ public class Backtrack extends Module {
                         range = AaBbUtil.getNearestPointBB(mc.thePlayer.getPositionEyes(1F), entityBB).distanceTo(mc.thePlayer.getPositionEyes(1F)) + 0.075;
                     }
 
-                    if (range <= minRange.get()) {
-                        shouldRelease = true;
-                        break;
-                    }
-
-                    if (entity == lastAttackedEntity && timer.hasTimePassed(100)) {
-                        if (range >= minRange.get()) {
+                    if (minDelayPassed) {
+                        if (range <= minRange.get()) {
                             shouldRelease = true;
                             break;
+                        }
+
+                        if (entity == lastAttackedEntity && timer.hasTimePassed(100)) {
+                            if (range >= minRange.get()) {
+                                shouldRelease = true;
+                                break;
+                            }
                         }
                     }
                 }
@@ -229,6 +249,7 @@ public class Backtrack extends Module {
             storagePackets.clear();
             storageEntityMove.clear();
             needFreeze = false;
+            freezeStartTime = 0L;
         } catch (Exception e) {
             System.err.println("Error clearing backtrack data: " + e.getMessage());
         }
@@ -257,6 +278,7 @@ public class Backtrack extends Module {
                         timer.reset();
                         needFreeze = true;
                         smoothPointer = System.nanoTime();
+                        freezeStartTime = System.currentTimeMillis();
                     }
                     if (!storageEntities.contains(entity)) storageEntities.add(entity);
                     event.cancel();
@@ -326,6 +348,13 @@ public class Backtrack extends Module {
 
     private void handleOtherServerPackets(ReceivedPacketEvent event, Packet<?> packet, ServerPacketStorage storage) {
         try {
+            if (!DewCommon.moduleManager.getModule(Velocity.class).isEnabled() && packet instanceof S12PacketEntityVelocity && mc.theWorld.getEntityByID(((S12PacketEntityVelocity) packet).getEntityID()) == mc.thePlayer) {
+                storagePackets.add(storage.packet);
+                event.cancel();
+                releasePackets();
+                return;
+            }
+
             if (needFreeze && !event.isCancelled()) {
                 if (packet instanceof S19PacketEntityStatus && ((S19PacketEntityStatus) packet).getOpCode() == 2) {
                     return;
@@ -342,6 +371,7 @@ public class Backtrack extends Module {
         try {
             lastAttackedEntity = null;
             smoothPointer = System.nanoTime();
+            freezeStartTime = 0L;
             INetHandlerPlayClient netHandler = mc.getNetHandler();
 
             if (storagePackets.isEmpty()) return;
@@ -373,6 +403,7 @@ public class Backtrack extends Module {
             needFreeze = false;
         } catch (Exception e) {
             needFreeze = false;
+            freezeStartTime = 0L;
             storagePackets.clear();
             storageEntities.clear();
             synchronized (storageEntityMove) {
