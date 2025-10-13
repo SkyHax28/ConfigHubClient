@@ -1,10 +1,10 @@
 package com.dew.system.module.modules.combat;
 
-import com.dew.DewCommon;
 import com.dew.system.event.EventPriority;
 import com.dew.system.event.events.*;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
+import com.dew.system.settingsvalue.NumberValue;
 import com.dew.utils.*;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
@@ -29,9 +29,13 @@ public class Backtrack extends Module {
     private final Map<Integer, double[]> lastServerPos = new HashMap<>();
 
     private final Clock timer = new Clock();
-    private Entity attacked;
+    private Entity lastAttackedEntity = null;
     private long smoothPointer = System.nanoTime();
     private boolean needFreeze = false;
+
+    private static final NumberValue detectionRange = new NumberValue("Detection Range", 5.0, 0.1, 10.0, 0.1);
+    private static final NumberValue maxRange = new NumberValue("Max Range", 7.0, 0.1, 10.0, 0.1);
+    private static final NumberValue minRange = new NumberValue("Min Range", 2.9, 0.1, 10.0, 0.1);
 
     public Backtrack() {
         super("Backtrack", ModuleCategory.COMBAT, Keyboard.KEY_NONE, false, true, true);
@@ -40,6 +44,14 @@ public class Backtrack extends Module {
     @Override
     public EventPriority getPriority() {
         return EventPriority.LOWEST;
+    }
+
+    @Override
+    public void onAttack(AttackEvent event) {
+        Entity target = event.target;
+        if (target != null) {
+            this.lastAttackedEntity = target;
+        }
     }
 
     @Override
@@ -77,9 +89,11 @@ public class Backtrack extends Module {
             C02PacketUseEntity useEntity = (C02PacketUseEntity) packet;
             if (useEntity.getAction() == C02PacketUseEntity.Action.ATTACK && needFreeze) {
                 try {
-                    attacked = useEntity.getEntityFromWorld(mc.theWorld);
-                } catch (Exception e) {
-                    attacked = null;
+                    Entity entity = useEntity.getEntityFromWorld(mc.theWorld);
+                    if (entity != null) {
+                        this.lastAttackedEntity = entity;
+                    }
+                } catch (Exception ignored) {
                 }
             }
         }
@@ -119,20 +133,20 @@ public class Backtrack extends Module {
                     double y = entity.serverPosY / 32.0;
                     double z = entity.serverPosZ / 32.0;
 
-                    AxisAlignedBB entityBB = new AxisAlignedBB(x - 0.4F, y - 0.1F, z - 0.4F, x + 0.4F, y + 1.9F, z + 0.4F);
+                    AxisAlignedBB entityBB = new AxisAlignedBB(x - 0.4, y - 0.1F, z - 0.4, x + 0.4, y + 1.9, z + 0.4);
                     double range = AaBbUtil.getLookingTargetRange(entityBB, mc.thePlayer);
 
                     if (range == Double.MAX_VALUE) {
                         range = AaBbUtil.getNearestPointBB(mc.thePlayer.getPositionEyes(1F), entityBB).distanceTo(mc.thePlayer.getPositionEyes(1F)) + 0.075;
                     }
 
-                    if (range <= 2.9) {
+                    if (range <= minRange.get()) {
                         shouldRelease = true;
                         break;
                     }
 
-                    if (entity == attacked && timer.hasTimePassed(100)) {
-                        if (range >= 2.9) {
+                    if (entity == lastAttackedEntity && timer.hasTimePassed(100)) {
+                        if (range >= minRange.get()) {
                             shouldRelease = true;
                             break;
                         }
@@ -172,11 +186,11 @@ public class Backtrack extends Module {
                     prevZ = z;
                 }
 
-                Vec3 lerpedPos = Lerper.lerpVec3(new Vec3(prevX, prevY, prevZ), new Vec3(x, y, z), partialTicks);
+                Vec3 fixedPos = Lerper.lerpVec3(new Vec3(prevX, prevY, prevZ), new Vec3(x, y, z), partialTicks);
 
-                double renderX = lerpedPos.xCoord - mc.getRenderManager().viewerPosX;
-                double renderY = lerpedPos.yCoord - mc.getRenderManager().viewerPosY;
-                double renderZ = lerpedPos.zCoord - mc.getRenderManager().viewerPosZ;
+                double renderX = fixedPos.xCoord - mc.getRenderManager().viewerPosX;
+                double renderY = fixedPos.yCoord - mc.getRenderManager().viewerPosY;
+                double renderZ = fixedPos.zCoord - mc.getRenderManager().viewerPosZ;
 
                 AxisAlignedBB boundingBox = new AxisAlignedBB(
                         renderX - 0.4, renderY, renderZ - 0.4,
@@ -210,7 +224,7 @@ public class Backtrack extends Module {
     @Override
     public void onLoadWorld(LoadWorldEvent event) {
         try {
-            attacked = null;
+            lastAttackedEntity = null;
             storageEntities.clear();
             storagePackets.clear();
             storageEntityMove.clear();
@@ -233,12 +247,12 @@ public class Backtrack extends Module {
             double y = entity.serverPosY / 32.0;
             double z = entity.serverPosZ / 32.0;
 
-            AxisAlignedBB afterBB = new AxisAlignedBB(x - 0.4F, y - 0.1F, z - 0.4F, x + 0.4F, y + 1.9F, z + 0.4F);
+            AxisAlignedBB afterBB = new AxisAlignedBB(x - 0.4, y - 0.1F, z - 0.4, x + 0.4, y + 1.9, z + 0.4);
             double afterRange = AaBbUtil.getNearestPointBB(mc.thePlayer.getPositionEyes(1f), afterBB).distanceTo(mc.thePlayer.getPositionEyes(1F));
             double beforeRange = AaBbUtil.distanceTo(mc.thePlayer.getPositionEyes(1f), entity.getEntityBoundingBox());
 
-            if (beforeRange <= 3.2) {
-                if (afterRange >= 2.9 && afterRange <= 5.0 && afterRange > beforeRange + 0.02 && ((EntityPlayer) entity).hurtTime <= getCalculatedMaxHurtTime()) {
+            if (beforeRange <= detectionRange.get()) {
+                if (afterRange >= minRange.get() && afterRange <= maxRange.get() && afterRange > beforeRange + 0.02 && ((EntityPlayer) entity).hurtTime <= getCalculatedMaxHurtTime()) {
                     if (!needFreeze) {
                         timer.reset();
                         needFreeze = true;
@@ -312,13 +326,6 @@ public class Backtrack extends Module {
 
     private void handleOtherServerPackets(ReceivedPacketEvent event, Packet<?> packet, ServerPacketStorage storage) {
         try {
-            if (packet instanceof S12PacketEntityVelocity) {
-                storagePackets.add(storage.packet);
-                event.cancel();
-                releasePackets();
-                return;
-            }
-
             if (needFreeze && !event.isCancelled()) {
                 if (packet instanceof S19PacketEntityStatus && ((S19PacketEntityStatus) packet).getOpCode() == 2) {
                     return;
@@ -333,7 +340,7 @@ public class Backtrack extends Module {
 
     private void releasePackets() {
         try {
-            attacked = null;
+            lastAttackedEntity = null;
             smoothPointer = System.nanoTime();
             INetHandlerPlayClient netHandler = mc.getNetHandler();
 
@@ -376,16 +383,7 @@ public class Backtrack extends Module {
 
     private void doSmoothRelease() {
         try {
-            Entity target = null;
-            try {
-                if (DewCommon.moduleManager != null) {
-                    Aura auraModule = DewCommon.moduleManager.getModule(Aura.class);
-                    if (auraModule != null) {
-                        target = auraModule.target;
-                    }
-                }
-            } catch (Exception ignored) {
-            }
+            Entity target = this.lastAttackedEntity;
 
             boolean found = false;
             long bestTimeStamp = Math.max(smoothPointer, System.nanoTime() - 200 * 1_000_000);

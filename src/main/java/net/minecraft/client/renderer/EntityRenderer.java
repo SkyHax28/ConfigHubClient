@@ -525,8 +525,16 @@ public class EntityRenderer implements IResourceManagerReloadListener
         }
     }
 
+    private long lastRenderTime = System.nanoTime();
+    private float zoomFOV = 1.0F;
+
     private float getFOVModifier(float partialTicks, boolean useFOVSetting)
     {
+        long now = System.nanoTime();
+        float deltaTime = (now - lastRenderTime) / 1_000_000_000.0f;
+        lastRenderTime = now;
+        deltaTime = Math.min(deltaTime, 0.05f);
+
         if (this.debugView)
         {
             return 90.0F;
@@ -554,6 +562,9 @@ public class EntityRenderer implements IResourceManagerReloadListener
                 flag = GameSettings.isKeyDown(this.mc.gameSettings.ofKeyBindZoom);
             }
 
+            float zoomSpeed = deltaTime * 4f;
+            float targetZoom = 1.0F;
+
             if (flag)
             {
                 if (!Config.zoomMode)
@@ -564,10 +575,7 @@ public class EntityRenderer implements IResourceManagerReloadListener
                     this.mc.renderGlobal.displayListEntitiesDirty = true;
                 }
 
-                if (Config.zoomMode)
-                {
-                    f /= 4.0F;
-                }
+                targetZoom = 0.25F;
             }
             else if (Config.zoomMode)
             {
@@ -577,6 +585,10 @@ public class EntityRenderer implements IResourceManagerReloadListener
                 this.mouseFilterYAxis = new MouseFilter();
                 this.mc.renderGlobal.displayListEntitiesDirty = true;
             }
+
+            this.zoomFOV = Lerper.lerp(zoomFOV, targetZoom, deltaTime * 10f);
+
+            f *= this.zoomFOV;
 
             if (entity instanceof EntityLivingBase && ((EntityLivingBase)entity).getHealth() <= 0.0F)
             {

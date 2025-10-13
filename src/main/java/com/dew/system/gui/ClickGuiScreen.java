@@ -4,6 +4,7 @@ import com.dew.DewCommon;
 import com.dew.IMinecraft;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
+import com.dew.system.module.modules.visual.ClickGui;
 import com.dew.system.settingsvalue.*;
 import com.dew.utils.Lerper;
 import com.dew.utils.font.CustomFontRenderer;
@@ -71,7 +72,9 @@ public class ClickGuiScreen extends GuiScreen {
         int w = (int) ClickGuiState.animatedWidth;
         int h = (int) ClickGuiState.animatedHeight;
 
-        BlurUtil.drawBlurredRect(0, 0, mc.displayWidth, mc.displayHeight, 10);
+        if (DewCommon.moduleManager.getModule(ClickGui.class).renderBlur()) {
+            BlurUtil.drawBlurredRect(0, 0, mc.displayWidth, mc.displayHeight, 10);
+        }
 
         drawRect(x, y, x + w, y + h, new Color(20, 20, 20, 200).getRGB());
 

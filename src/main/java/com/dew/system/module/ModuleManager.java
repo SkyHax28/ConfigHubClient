@@ -102,7 +102,8 @@ public class ModuleManager implements EventListener {
                 new Streamer(),
                 new RawInput(),
                 new Blink(),
-                new Backtrack()
+                new Backtrack(),
+                new MotionBlur()
         ));
 
         DewCommon.eventManager.register(this);

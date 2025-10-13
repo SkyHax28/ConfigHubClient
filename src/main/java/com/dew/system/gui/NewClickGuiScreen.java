@@ -47,7 +47,9 @@ public class NewClickGuiScreen extends GuiScreen {
         int centerX = width / 2;
         int centerY = height / 2;
 
-        BlurUtil.drawBlurredRect(0, 0, mc.displayWidth, mc.displayHeight, 10);
+        if (DewCommon.moduleManager.getModule(ClickGui.class).renderBlur()) {
+            BlurUtil.drawBlurredRect(0, 0, mc.displayWidth, mc.displayHeight, 10);
+        }
 
         GL11.glPushMatrix();
 

@@ -33,7 +33,7 @@ public class GuiIngameMenu extends GuiScreen
         GuiButton reconnect2Button;
         this.buttonList.add(new GuiButton(1, this.width / 2 - 100, this.height / 4 + 120 + i, 98, 20, "Disconnect"));
         this.buttonList.add(reconnect1Button = new GuiButton(8, this.width / 2 + 2, this.height / 4 + 120 + i, 98, 20, "Reconnect"));
-        this.buttonList.add(new GuiButton(10, this.width / 2 - 100, this.height / 4 + 168 + i, 98, 20, "Clean Memory"));
+        this.buttonList.add(new GuiButton(10, this.width / 2 - 100, this.height / 4 + 168 + i, 98, 20, "Call System.gc()"));
         this.buttonList.add(reconnect2Button = new GuiButton(9, this.width / 2 + 2, this.height / 4 + 168 + i, 98, 20, "Reconnect Crack"));
         this.buttonList.add(new GuiButton(11, this.width / 2 + 2, this.height / 4 + 192 + i, 98, 20, "Reconnect Mullvad"));
         this.buttonList.add(disableAuraButton = new GuiButton(12, this.width / 2 - 100, this.height / 4 + 192 + i, 98, 20, "Disable Aura"));
