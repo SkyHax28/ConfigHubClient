@@ -2,7 +2,7 @@ package net.minecraft.client;
 
 import com.dew.DewCommon;
 import com.dew.system.event.events.*;
-import com.dew.system.module.modules.render.Animations;
+import com.dew.system.module.modules.visual.Animations;
 import com.dew.utils.LibraryChecker;
 import com.dew.utils.LogUtil;
 import com.dew.utils.McChanges;

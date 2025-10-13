@@ -1,7 +1,7 @@
 package net.minecraft.client.renderer.entity.layers;
 
 import com.dew.DewCommon;
-import com.dew.system.module.modules.render.ShaderESP;
+import com.dew.system.module.modules.visual.ShaderESP;
 import com.google.common.collect.Maps;
 import java.util.Map;
 import net.minecraft.client.model.ModelBase;

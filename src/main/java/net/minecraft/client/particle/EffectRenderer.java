@@ -1,8 +1,6 @@
 package net.minecraft.client.particle;
 
-import com.dew.DewCommon;
 import com.dew.IMinecraft;
-import com.dew.system.module.modules.mods.FpsBooster;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -187,13 +185,11 @@ public class EffectRenderer
 
     private void updateEffectAlphaLayer(List<EntityFX> entitiesFX)
     {
-        if (DewCommon.moduleManager.getModule(FpsBooster.class).isEnabled()) {
-            final int max = 2000;
-            if (entitiesFX.size() > max) {
-                int removeCount = entitiesFX.size() - max;
-                for (int i = 0; i < removeCount; i++) {
-                    entitiesFX.get(i).setDead();
-                }
+        final int max = 2000;
+        if (entitiesFX.size() > max) {
+            int removeCount = entitiesFX.size() - max;
+            for (int i = 0; i < removeCount; i++) {
+                entitiesFX.get(i).setDead();
             }
         }
 

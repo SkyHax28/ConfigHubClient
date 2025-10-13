@@ -3,7 +3,7 @@ package com.dew.system.rotation;
 import com.dew.DewCommon;
 import com.dew.IMinecraft;
 import com.dew.system.module.modules.combat.PingReach;
-import com.dew.system.module.modules.combat.RotRandomizer;
+import com.dew.system.module.modules.other.RotRandomizer;
 import com.dew.utils.LogUtil;
 import com.dew.utils.MovementUtil;
 import net.minecraft.block.state.IBlockState;
@@ -63,14 +63,14 @@ public class RotationManager {
             float yawDiff = MathHelper.wrapAngleTo180_float(targetYaw - this.clientYaw);
             float pitchDiff = MathHelper.wrapAngleTo180_float(targetPitch - this.clientPitch);
 
-            float returnSpeed = 30.0f;
+            float returnSpeed = 40.0f;
             yawDiff = MathHelper.clamp_float(yawDiff, -returnSpeed, returnSpeed);
             pitchDiff = MathHelper.clamp_float(pitchDiff, -returnSpeed, returnSpeed);
 
             yawDiff += getSecureRandom() * 0.3f;
             pitchDiff += getSecureRandom() * 0.3f;
 
-            if (Math.abs(yawDiff) < 1f && Math.abs(pitchDiff) < 15f) {
+            if (Math.abs(yawDiff) < 1f && Math.abs(pitchDiff) < 1f) {
                 this.updateRotations();
 
                 mc.thePlayer.prevRenderArmYaw = this.clientYaw;

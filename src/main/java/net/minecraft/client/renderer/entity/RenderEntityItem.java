@@ -3,8 +3,8 @@ package net.minecraft.client.renderer.entity;
 import java.util.*;
 
 import com.dew.DewCommon;
-import com.dew.system.module.modules.mods.ItemPhysics;
-import com.dew.system.module.modules.render.NameTags;
+import com.dew.system.module.modules.visual.ItemPhysics;
+import com.dew.system.module.modules.visual.NameTags;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.texture.TextureMap;

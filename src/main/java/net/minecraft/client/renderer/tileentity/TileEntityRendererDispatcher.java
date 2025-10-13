@@ -1,8 +1,7 @@
 package net.minecraft.client.renderer.tileentity;
 
 import com.dew.DewCommon;
-import com.dew.system.module.modules.render.Chams;
-import com.dew.system.module.modules.render.Xray;
+import com.dew.system.module.modules.visual.Chams;
 import com.google.common.collect.Maps;
 import java.util.Map;
 import net.minecraft.client.Minecraft;

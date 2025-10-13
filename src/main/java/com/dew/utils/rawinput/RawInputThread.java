@@ -2,7 +2,7 @@ package com.dew.utils.rawinput;
 
 import com.dew.DewCommon;
 import com.dew.IMinecraft;
-import com.dew.system.module.modules.mods.RawInput;
+import com.dew.system.module.modules.other.RawInput;
 import net.java.games.input.ControllerEnvironment;
 import net.java.games.input.Mouse;
 
@@ -32,7 +32,7 @@ public final class RawInputThread extends Thread {
 
         while (true) {
             try {
-                if (RawInput.shouldReplace() && DewCommon.moduleManager.getModule(RawInput.class).isEnabled()) {
+                if (RawInput.shouldReplace() && DewCommon.moduleManager.getModule(RawInput.class).isEnabled() && !IMinecraft.mc.gameSettings.touchscreen) {
                     for (Mouse mouse : mice) {
                         if (!mouse.poll()) {
                             rescan();

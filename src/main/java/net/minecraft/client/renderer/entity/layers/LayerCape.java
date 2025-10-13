@@ -1,7 +1,7 @@
 package net.minecraft.client.renderer.entity.layers;
 
 import com.dew.DewCommon;
-import com.dew.system.module.modules.render.SilentView;
+import com.dew.system.module.modules.visual.SilentView;
 import com.dew.system.mongodb.MongoManager;
 import com.dew.system.rotation.RotationManager;
 import com.dew.system.special.CapeImageLoader;

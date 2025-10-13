@@ -8,7 +8,7 @@ import com.dew.system.module.ModuleCategory;
 import com.dew.system.module.modules.exploit.SafetySwitchv2000;
 import com.dew.system.module.modules.movement.MoveFix;
 import com.dew.system.module.modules.movement.speed.SpeedModule;
-import com.dew.system.module.modules.render.Hud;
+import com.dew.system.module.modules.visual.Hud;
 import com.dew.system.settingsvalue.BooleanValue;
 import com.dew.system.settingsvalue.NumberValue;
 import com.dew.system.settingsvalue.SelectionValue;
@@ -78,7 +78,7 @@ public class Scaffold extends Module {
     }
 
     private boolean canTower() {
-        return (onlyTowerWhen.get().equals("Always") || onlyTowerWhen.get().equals("Standing") && !MovementUtil.isMoving() || onlyTowerWhen.get().equals("Moving") && MovementUtil.isMoving()) && Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) && MovementUtil.isBlockUnderPlayer(mc.thePlayer, 3, 2, false) && !MovementUtil.isBlockAbovePlayer(mc.thePlayer, 1, 0.3) && DewCommon.moduleManager.getModule(Hud.class).getTotalValidBlocksInHotbar() > 0;
+        return (onlyTowerWhen.get().equals("Always") || onlyTowerWhen.get().equals("Standing") && !MovementUtil.isMoving() || onlyTowerWhen.get().equals("Moving") && MovementUtil.isMoving()) && Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) && MovementUtil.isBlockUnderPlayer(mc.thePlayer, 2, 1, false) && !MovementUtil.isBlockAbovePlayer(mc.thePlayer, 1, 0.3) && DewCommon.moduleManager.getModule(Hud.class).getTotalValidBlocksInHotbar() > 0;
     }
 
     private boolean shouldUpdateKeepYState() {

@@ -2,9 +2,6 @@ package net.minecraft.network.play.server;
 
 import java.io.IOException;
 
-import com.dew.DewCommon;
-import com.dew.system.module.modules.exploit.AutoAuth;
-import com.dew.utils.LogUtil;
 import net.minecraft.network.Packet;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.play.INetHandlerPlayClient;

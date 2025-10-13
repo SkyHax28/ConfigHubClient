@@ -35,11 +35,27 @@ public class CategoryWindow {
     private static final Color TEXT_PRIMARY = new Color(255, 255, 255, 255);
     private static final Color BORDER_COLOR = new Color(60, 60, 80, 180);
 
+    private static final int ACCENT_RGB = ACCENT_COLOR.getRGB();
+    private static final int TEXT_PRIMARY_RGB = TEXT_PRIMARY.getRGB();
+    private static final int HOVER_RGB = new Color(85, 153, 255, 100).getRGB();
+    private static final int CONFIG_BG_RGB = new Color(0, 0, 0, 100).getRGB();
+    private static final int WHITE_RGB = Color.WHITE.getRGB();
+
     private final String categoryTitle;
+
+    private boolean needsContentHeightRecalc = true;
+    private int cachedContentHeight = 0;
 
     public CategoryWindow(ModuleCategory category, int x, int y) {
         this.category = category;
-        this.categoryTitle = formatCategoryName(category.name());
+
+        if (this.category == ModuleCategory.MODULE_CONFIG_MANAGER) {
+            this.categoryTitle = "Module Configs";
+        } else if (this.category == ModuleCategory.BIND_CONFIG_MANAGER) {
+            this.categoryTitle = "Bind Configs";
+        } else {
+            this.categoryTitle = formatCategoryName(category.name());
+        }
 
         ClickGuiState.WindowState state = ClickGuiState.getOrCreate(category, x, y);
         this.x = state.x;
@@ -96,11 +112,11 @@ public class CategoryWindow {
                 BACKGROUND_PRIMARY, BACKGROUND_SECONDARY);
 
         if (headerHovered) {
-            drawRect(x, y, x + ClickGuiState.NEW_GUI_WIDTH, y + headerHeight,
-                    new Color(HOVER_COLOR.getRed(), HOVER_COLOR.getGreen(), HOVER_COLOR.getBlue(), 30));
+            Gui.drawRect(x, y, x + ClickGuiState.NEW_GUI_WIDTH, y + headerHeight,
+                    new Color(HOVER_COLOR.getRed(), HOVER_COLOR.getGreen(), HOVER_COLOR.getBlue(), 30).getRGB());
         }
 
-        drawRect(x, y, x + ClickGuiState.NEW_GUI_WIDTH, y + 2, ACCENT_COLOR);
+        Gui.drawRect(x, y, x + ClickGuiState.NEW_GUI_WIDTH, y + 2, ACCENT_RGB);
 
         drawBorder(x, y, x + ClickGuiState.NEW_GUI_WIDTH, y + headerHeight, BORDER_COLOR);
 
@@ -108,26 +124,30 @@ public class CategoryWindow {
                 categoryTitle,
                 x + ClickGuiState.NEW_GUI_WIDTH / 2f,
                 y + 4,
-                TEXT_PRIMARY.getRGB(),
-                0.4f
+                TEXT_PRIMARY_RGB,
+                0.37f
         );
 
         if (expandAnimation > 0.01f) {
-            int contentHeight = calculateContentHeight();
+            int contentHeight = getCachedContentHeight();
             int animatedHeight = (int)(contentHeight * expandAnimation);
 
             if (animatedHeight > 0) {
+                int bgAlpha = (int)(BACKGROUND_SECONDARY.getAlpha() * expandAnimation);
+                int bgAlpha2 = (int)(BACKGROUND_PRIMARY.getAlpha() * expandAnimation);
+                int borderAlpha = (int)(BORDER_COLOR.getAlpha() * expandAnimation);
+
                 drawGradientRect(x, y + headerHeight, x + ClickGuiState.NEW_GUI_WIDTH,
                         y + headerHeight + animatedHeight,
                         new Color(BACKGROUND_SECONDARY.getRed(), BACKGROUND_SECONDARY.getGreen(),
-                                BACKGROUND_SECONDARY.getBlue(), (int)(BACKGROUND_SECONDARY.getAlpha() * expandAnimation)),
+                                BACKGROUND_SECONDARY.getBlue(), bgAlpha),
                         new Color(BACKGROUND_PRIMARY.getRed(), BACKGROUND_PRIMARY.getGreen(),
-                                BACKGROUND_PRIMARY.getBlue(), (int)(BACKGROUND_PRIMARY.getAlpha() * expandAnimation)));
+                                BACKGROUND_PRIMARY.getBlue(), bgAlpha2));
 
                 drawBorder(x, y + headerHeight, x + ClickGuiState.NEW_GUI_WIDTH,
                         y + headerHeight + animatedHeight,
                         new Color(BORDER_COLOR.getRed(), BORDER_COLOR.getGreen(),
-                                BORDER_COLOR.getBlue(), (int)(BORDER_COLOR.getAlpha() * expandAnimation)));
+                                BORDER_COLOR.getBlue(), borderAlpha));
             }
 
             if (open && expandAnimation > 0.8f) {
@@ -164,6 +184,14 @@ public class CategoryWindow {
         }
     }
 
+    private int getCachedContentHeight() {
+        if (needsContentHeightRecalc) {
+            cachedContentHeight = calculateContentHeight();
+            needsContentHeightRecalc = false;
+        }
+        return cachedContentHeight;
+    }
+
     private int calculateContentHeight() {
         if (category == ModuleCategory.MODULE_CONFIG_MANAGER ||
                 category == ModuleCategory.BIND_CONFIG_MANAGER) {
@@ -182,18 +210,22 @@ public class CategoryWindow {
     private void renderConfigThingy(List<String> configList, int mouseX, int mouseY) {
         int yOffset = headerHeight;
 
-        boolean hovered = mouseX >= x && mouseX <= x + ClickGuiState.NEW_GUI_WIDTH && mouseY >= y + yOffset && mouseY <= y + yOffset + configButtonHeight - 1;
-        Color bgColor = hovered ? new Color(85, 153, 255, 100) : new Color(0, 0, 0, 100);
-        Gui.drawRect(x, y + yOffset, x + ClickGuiState.NEW_GUI_WIDTH, y + yOffset + configButtonHeight, bgColor.getRGB());
-        DewCommon.customFontRenderer.drawCenteredStringWithShadow("Open folder", x + ClickGuiState.NEW_GUI_WIDTH / 2f, y + yOffset + 3, Color.WHITE.getRGB(), 0.3f);
+        boolean hovered = mouseX >= x && mouseX <= x + ClickGuiState.NEW_GUI_WIDTH &&
+                mouseY >= y + yOffset && mouseY <= y + yOffset + configButtonHeight - 1;
+        int bgColor = hovered ? HOVER_RGB : CONFIG_BG_RGB;
+        Gui.drawRect(x, y + yOffset, x + ClickGuiState.NEW_GUI_WIDTH, y + yOffset + configButtonHeight, bgColor);
+        DewCommon.customFontRenderer.drawCenteredStringWithShadow("Open folder",
+                x + ClickGuiState.NEW_GUI_WIDTH / 2f, y + yOffset + 3, WHITE_RGB, 0.3f);
 
         yOffset += configButtonHeight;
 
         for (String config : configList) {
-            boolean hoveredConfig = mouseX >= x && mouseX <= x + ClickGuiState.NEW_GUI_WIDTH && mouseY >= y + yOffset && mouseY <= y + yOffset + configButtonHeight - 1;
-            Color bgColorConfig = hoveredConfig ? new Color(85, 153, 255, 100) : new Color(0, 0, 0, 100);
-            Gui.drawRect(x, y + yOffset, x + ClickGuiState.NEW_GUI_WIDTH, y + yOffset + configButtonHeight, bgColorConfig.getRGB());
-            DewCommon.customFontRenderer.drawCenteredStringWithShadow(config, x + ClickGuiState.NEW_GUI_WIDTH / 2f, y + yOffset + 3, Color.WHITE.getRGB(), 0.3f);
+            boolean hoveredConfig = mouseX >= x && mouseX <= x + ClickGuiState.NEW_GUI_WIDTH &&
+                    mouseY >= y + yOffset && mouseY <= y + yOffset + configButtonHeight - 1;
+            int bgColorConfig = hoveredConfig ? HOVER_RGB : CONFIG_BG_RGB;
+            Gui.drawRect(x, y + yOffset, x + ClickGuiState.NEW_GUI_WIDTH, y + yOffset + configButtonHeight, bgColorConfig);
+            DewCommon.customFontRenderer.drawCenteredStringWithShadow(config,
+                    x + ClickGuiState.NEW_GUI_WIDTH / 2f, y + yOffset + 3, WHITE_RGB, 0.3f);
             yOffset += configButtonHeight;
         }
     }
@@ -207,6 +239,7 @@ public class CategoryWindow {
                 dragY = mouseY - y;
             } else if (button == 1) {
                 this.open = !this.open;
+                needsContentHeightRecalc = true;
             }
         }
 
@@ -351,10 +384,6 @@ public class CategoryWindow {
         }
     }
 
-    private void drawRect(int left, int top, int right, int bottom, Color color) {
-        Gui.drawRect(left, top, right, bottom, color.getRGB());
-    }
-
     private void drawGradientRect(int left, int top, int right, int bottom, Color startColor, Color endColor) {
         int steps = bottom - top;
         for (int i = 0; i < steps; i++) {
@@ -369,9 +398,10 @@ public class CategoryWindow {
     }
 
     private void drawBorder(int left, int top, int right, int bottom, Color color) {
-        Gui.drawRect(left, top, left + 1, bottom, color.getRGB());
-        Gui.drawRect(right - 1, top, right, bottom, color.getRGB());
-        Gui.drawRect(left, top, right, top + 1, color.getRGB());
-        Gui.drawRect(left, bottom - 1, right, bottom, color.getRGB());
+        int rgb = color.getRGB();
+        Gui.drawRect(left, top, left + 1, bottom, rgb);
+        Gui.drawRect(right - 1, top, right, bottom, rgb);
+        Gui.drawRect(left, top, right, top + 1, rgb);
+        Gui.drawRect(left, bottom - 1, right, bottom, rgb);
     }
 }

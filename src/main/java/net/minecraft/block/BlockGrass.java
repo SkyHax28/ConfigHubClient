@@ -3,7 +3,7 @@ package net.minecraft.block;
 import java.util.Random;
 
 import com.dew.DewCommon;
-import com.dew.system.module.modules.render.Xray;
+import com.dew.system.module.modules.visual.Xray;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyBool;

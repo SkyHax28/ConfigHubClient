@@ -5,9 +5,9 @@ public enum ModuleCategory {
     MOVEMENT,
     PLAYER,
     EXPLOIT,
-    RENDER,
+    VISUAL,
+    OTHER,
     GHOST,
-    MODS,
 
     MODULE_CONFIG_MANAGER,
     BIND_CONFIG_MANAGER

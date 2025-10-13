@@ -1,7 +1,8 @@
 package com.dew.utils.rawinput;
 
 import com.dew.DewCommon;
-import com.dew.system.module.modules.mods.RawInput;
+import com.dew.IMinecraft;
+import com.dew.system.module.modules.other.RawInput;
 import net.minecraft.util.MouseHelper;
 import org.lwjgl.input.Mouse;
 
@@ -24,7 +25,7 @@ public class RawInputMouseHelper extends MouseHelper {
             RawInputThread.INSTANCE.start();
         }
 
-        if (RawInput.shouldReplace() && DewCommon.moduleManager.getModule(RawInput.class).isEnabled() && !RawInputThread.INSTANCE.mice.isEmpty() && RawInputThread.INSTANCE.isAlive()) {
+        if (RawInput.shouldReplace() && DewCommon.moduleManager.getModule(RawInput.class).isEnabled() && !RawInputThread.INSTANCE.mice.isEmpty() && RawInputThread.INSTANCE.isAlive() && !IMinecraft.mc.gameSettings.touchscreen) {
             this.deltaX = RawInputThread.INSTANCE.dx.getAndSet(0);
             this.deltaY = RawInputThread.INSTANCE.dy.getAndSet(0);
 

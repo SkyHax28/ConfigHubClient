@@ -2,8 +2,8 @@ package net.minecraft.client.renderer.entity;
 
 import com.dew.DewCommon;
 import com.dew.IMinecraft;
-import com.dew.system.module.modules.exploit.MurdererDetector;
-import com.dew.system.module.modules.render.NameTags;
+import com.dew.system.module.modules.other.MurdererDetector;
+import com.dew.system.module.modules.visual.NameTags;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;

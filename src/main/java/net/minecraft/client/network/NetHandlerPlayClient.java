@@ -1,7 +1,7 @@
 package net.minecraft.client.network;
 
 import com.dew.DewCommon;
-import com.dew.system.module.modules.exploit.AutoAuth;
+import com.dew.system.module.modules.other.AutoAuth;
 import com.dew.utils.LogUtil;
 import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.FutureCallback;
@@ -200,7 +200,6 @@ import net.minecraft.tileentity.TileEntityMobSpawner;
 import net.minecraft.tileentity.TileEntitySign;
 import net.minecraft.tileentity.TileEntitySkull;
 import net.minecraft.util.BlockPos;
-import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.EnumFacing;

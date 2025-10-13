@@ -1,7 +1,7 @@
 package net.minecraft.client.renderer;
 
 import com.dew.DewCommon;
-import com.dew.system.module.modules.render.Xray;
+import com.dew.system.module.modules.visual.Xray;
 import com.google.common.primitives.Floats;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;

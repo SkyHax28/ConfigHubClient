@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 import com.dew.DewCommon;
-import com.dew.system.module.modules.render.ShaderESP;
+import com.dew.system.module.modules.visual.ShaderESP;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockDirt;
 import net.minecraft.block.BlockDoublePlant;

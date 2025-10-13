@@ -3,7 +3,7 @@ package com.dew.system.module;
 import com.dew.DewCommon;
 import com.dew.IMinecraft;
 import com.dew.system.event.EventListener;
-import com.dew.system.module.modules.render.Hud;
+import com.dew.system.module.modules.visual.Hud;
 import com.dew.system.settingsvalue.Value;
 import net.minecraft.client.Minecraft;
 

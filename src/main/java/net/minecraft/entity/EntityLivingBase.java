@@ -1,7 +1,6 @@
 package net.minecraft.entity;
 
 import com.dew.DewCommon;
-import com.dew.IMinecraft;
 import com.dew.system.event.events.PostUpdateEvent;
 import com.dew.system.event.events.PreUpdateEvent;
 import com.dew.system.module.modules.combat.Aura;
@@ -13,8 +12,8 @@ import com.dew.system.module.modules.movement.flight.FlightModule;
 import com.dew.system.module.modules.movement.speed.SpeedModule;
 import com.dew.system.module.modules.player.NoJumpDelay;
 import com.dew.system.module.modules.player.Sprint;
-import com.dew.system.module.modules.render.Animations;
-import com.dew.system.module.modules.render.SilentView;
+import com.dew.system.module.modules.visual.Animations;
+import com.dew.system.module.modules.visual.SilentView;
 import com.dew.system.rotation.RotationManager;
 import com.dew.system.viapatcher.MovePatcher;
 import com.dew.utils.MovementUtil;

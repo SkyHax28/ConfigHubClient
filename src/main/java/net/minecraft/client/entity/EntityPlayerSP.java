@@ -3,7 +3,7 @@ package net.minecraft.client.entity;
 import com.dew.DewCommon;
 import com.dew.system.event.events.*;
 import com.dew.system.module.modules.exploit.AntiFalseFlag;
-import com.dew.system.module.modules.movement.AutoWalkAI;
+import com.dew.system.module.modules.dev.AutoWalkAI;
 import com.dew.system.module.modules.movement.InvMove;
 import com.dew.system.module.modules.movement.NoSlow;
 import com.dew.system.module.modules.player.Freecam;
@@ -636,7 +636,7 @@ public class EntityPlayerSP extends AbstractClientPlayer
     {
         PlayerFixer.handlePlayerSize();
 
-        if (DewCommon.moduleManager.getModule(InvMove.class).canMoveFreely() && (!DewCommon.moduleManager.getModule(Freecam.class).isEnabled() && !DewCommon.moduleManager.getModule(AutoWalkAI.class).isEnabled() || mc.currentScreen != null)) {
+        if (DewCommon.moduleManager.getModule(InvMove.class).canMoveFreely() && (!DewCommon.moduleManager.getModule(Freecam.class).isEnabled()/* && !DewCommon.moduleManager.getModule(AutoWalkAI.class).isEnabled()*/ || mc.currentScreen != null)) {
             List<KeyBinding> movementKeys = Arrays.asList(
                     mc.gameSettings.keyBindForward,
                     mc.gameSettings.keyBindBack,

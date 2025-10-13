@@ -1,9 +1,9 @@
 package net.minecraft.client.renderer.entity;
 
 import com.dew.DewCommon;
-import com.dew.system.module.modules.render.Animations;
-import com.dew.system.module.modules.render.NameTags;
-import com.dew.system.module.modules.render.Highlighter;
+import com.dew.system.module.modules.visual.Animations;
+import com.dew.system.module.modules.visual.NameTags;
+import com.dew.system.module.modules.visual.Highlighter;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.model.ModelPlayer;

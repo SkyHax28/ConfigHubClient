@@ -2,12 +2,10 @@ package com.dew.system.gui;
 
 import com.dew.DewCommon;
 import com.dew.system.module.ModuleCategory;
-import com.dew.system.module.modules.render.ClickGui;
+import com.dew.system.module.modules.visual.ClickGui;
 import com.dew.utils.Lerper;
 import com.dew.utils.shader.BlurUtil;
-import javafx.scene.transform.Scale;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.ScaledResolution;
 import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;

@@ -1,8 +1,6 @@
 package net.minecraft.client.renderer.entity;
 
-import com.dew.DewCommon;
 import com.dew.IMinecraft;
-import com.dew.system.module.modules.mods.FpsBooster;
 import com.google.common.collect.Maps;
 import java.util.Collections;
 import java.util.Map;
@@ -371,7 +369,7 @@ public class RenderManager
 
     public boolean doRenderEntity(Entity entity, double x, double y, double z, float entityYaw, float partialTicks, boolean hideDebugBox)
     {
-        boolean isSimplifiedRendering = DewCommon.moduleManager.getModule(FpsBooster.class).isEnabled() && entity.getDistanceSqToEntity(IMinecraft.mc.thePlayer) > 8 * 8;
+        boolean isSimplifiedRendering = entity.getDistanceSqToEntity(IMinecraft.mc.thePlayer) > 8 * 8;
 
         Render<Entity> render = null;
 

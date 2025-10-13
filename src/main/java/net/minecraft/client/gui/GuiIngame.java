@@ -2,13 +2,12 @@ package net.minecraft.client.gui;
 
 import com.dew.DewCommon;
 import com.dew.system.event.events.Render2DEvent;
-import com.dew.system.module.modules.render.Hud;
-import com.dew.system.module.modules.render.NoRender;
+import com.dew.system.module.modules.visual.Hud;
+import com.dew.system.module.modules.visual.Canceller;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
-import java.awt.*;
 import java.util.Collection;
 import java.util.List;
 import java.util.Random;
@@ -49,7 +48,6 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StringUtils;
 import net.minecraft.world.border.WorldBorder;
 import net.optifine.CustomColors;
-import org.lwjgl.opengl.GL11;
 
 public class GuiIngame extends Gui
 {
@@ -496,7 +494,7 @@ public class GuiIngame extends Gui
 
     protected boolean showCrosshair()
     {
-        if (mc.gameSettings.thirdPersonView != 0 && DewCommon.moduleManager.getModule(NoRender.class).isEnabled() && DewCommon.moduleManager.getModule(NoRender.class).getSelectedCancels().isSelected("ThirdPerson Crosshair")) return false;
+        if (mc.gameSettings.thirdPersonView != 0) return false;
 
         if (this.mc.gameSettings.showDebugInfo && !this.mc.thePlayer.hasReducedDebug() && !this.mc.gameSettings.reducedDebugInfo)
         {
@@ -536,7 +534,7 @@ public class GuiIngame extends Gui
 
     private void renderScoreboard(ScoreObjective objective, ScaledResolution scaledRes)
     {
-        if (DewCommon.moduleManager.getModule(NoRender.class).isEnabled() && DewCommon.moduleManager.getModule(NoRender.class).getSelectedCancels().isSelected("Scoreboard")) return;
+        if (DewCommon.moduleManager.getModule(Canceller.class).isEnabled() && DewCommon.moduleManager.getModule(Canceller.class).getSelectedCancels().isSelected("Scoreboard")) return;
 
         Scoreboard scoreboard = objective.getScoreboard();
         Collection<Score> collection = scoreboard.getSortedScores(objective);

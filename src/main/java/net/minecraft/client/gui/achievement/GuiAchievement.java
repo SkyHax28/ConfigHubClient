@@ -1,7 +1,7 @@
 package net.minecraft.client.gui.achievement;
 
 import com.dew.DewCommon;
-import com.dew.system.module.modules.render.Hud;
+import com.dew.system.module.modules.visual.Hud;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;

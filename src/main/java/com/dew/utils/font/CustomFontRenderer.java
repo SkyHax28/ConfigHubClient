@@ -2,7 +2,7 @@ package com.dew.utils.font;
 
 import com.dew.DewCommon;
 import com.dew.IMinecraft;
-import com.dew.system.module.modules.mods.Streamer;
+import com.dew.system.module.modules.visual.Streamer;
 import com.dew.utils.LogUtil;
 import com.dew.utils.StringHelper;
 import org.lwjgl.BufferUtils;

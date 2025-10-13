@@ -9,7 +9,7 @@ import java.util.Set;
 import com.dew.DewCommon;
 import com.dew.system.module.modules.movement.flight.FlightModule;
 import com.dew.system.module.modules.player.Freecam;
-import com.dew.system.module.modules.render.Xray;
+import com.dew.system.module.modules.visual.Xray;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.IntegerCache;

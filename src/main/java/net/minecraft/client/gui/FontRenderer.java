@@ -2,7 +2,7 @@ package net.minecraft.client.gui;
 
 import com.dew.DewCommon;
 import com.dew.IMinecraft;
-import com.dew.system.module.modules.mods.Streamer;
+import com.dew.system.module.modules.visual.Streamer;
 import com.ibm.icu.text.ArabicShaping;
 import com.ibm.icu.text.ArabicShapingException;
 import com.ibm.icu.text.Bidi;

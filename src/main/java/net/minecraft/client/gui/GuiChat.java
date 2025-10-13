@@ -311,20 +311,23 @@ public class GuiChat extends GuiScreen
 
         if (this.inputField.isFocused()) {
             int cursorX = textX;
-            if (!isEmpty) {
-                cursorX += mc.fontRendererObj.getStringWidth(text);
+
+            int cursorPos = this.inputField.getCursorPosition();
+            if (cursorPos > 0 && !isEmpty) {
+                String textBeforeCursor = text.substring(0, Math.min(cursorPos, text.length()));
+                cursorX += mc.fontRendererObj.getStringWidth(textBeforeCursor);
             }
 
             long currentTime = System.currentTimeMillis();
             boolean showCursor = (currentTime / 500) % 2 == 0;
 
             if (showCursor) {
-                DewCommon.customFontRenderer.drawStringWithShadow(
-                        "_",
-                        cursorX,
-                        textY + 0.5f,
+                DewCommon.customFontRenderer.drawString(
+                        "|",
+                        cursorX - 1f,
+                        textY + 0.85f,
                         TEXT_PRIMARY.getRGB(),
-                        0.3f
+                        0.27f
                 );
             }
         }

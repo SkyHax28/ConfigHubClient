@@ -1,7 +1,7 @@
 package com.dew.system.settingsvalue;
 
 import com.dew.DewCommon;
-import com.dew.system.module.modules.render.Hud;
+import com.dew.system.module.modules.visual.Hud;
 
 import java.util.function.Supplier;
 

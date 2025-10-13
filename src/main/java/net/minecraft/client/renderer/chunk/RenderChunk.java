@@ -1,7 +1,7 @@
 package net.minecraft.client.renderer.chunk;
 
 import com.dew.DewCommon;
-import com.dew.system.module.modules.render.Xray;
+import com.dew.system.module.modules.visual.Xray;
 import com.google.common.collect.Sets;
 import java.nio.FloatBuffer;
 import java.util.BitSet;

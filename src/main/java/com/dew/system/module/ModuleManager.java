@@ -5,12 +5,12 @@ import com.dew.system.event.EventListener;
 import com.dew.system.module.modules.combat.*;
 import com.dew.system.module.modules.exploit.*;
 import com.dew.system.module.modules.ghost.*;
-import com.dew.system.module.modules.mods.*;
+import com.dew.system.module.modules.other.*;
 import com.dew.system.module.modules.movement.*;
 import com.dew.system.module.modules.movement.flight.FlightModule;
 import com.dew.system.module.modules.movement.speed.SpeedModule;
 import com.dew.system.module.modules.player.*;
-import com.dew.system.module.modules.render.*;
+import com.dew.system.module.modules.visual.*;
 import com.dew.utils.LogUtil;
 
 import java.util.Arrays;
@@ -51,7 +51,6 @@ public class ModuleManager implements EventListener {
                 new Stealer(),
                 new PingReach(),
                 new AutoPot(),
-                new AutoWalkAI(),
                 new Phase(),
                 new FreeLook(),
                 new LongJump(),
@@ -80,7 +79,6 @@ public class ModuleManager implements EventListener {
                 new Trajectories(),
                 new PacketBlaster(),
                 new PixelPartyAssist(),
-                new FpsBooster(),
                 new CivBreak(),
                 new LightningDetector(),
                 new Spider(),
@@ -91,7 +89,7 @@ public class ModuleManager implements EventListener {
                 new QuakeAura(),
                 new AutoAimPractice(),
                 new Jesus(),
-                new NoRender(),
+                new Canceller(),
                 new AntiFalseFlag(),
                 new Highlighter(),
                 new RotRandomizer(),
@@ -99,15 +97,12 @@ public class ModuleManager implements EventListener {
                 new Timer(),
                 new ViaCollision(),
                 new Plugins(),
-                new Spammer(),
-                new PacketChatLimiter(),
-                new BlockOverlay(),
+                new Promoter(),
+                new BlockOutline(),
                 new Streamer(),
                 new RawInput(),
                 new Blink(),
-                new FarmHuntESP(),
-                new Backtrack(),
-                new InputFix()
+                new Backtrack()
         ));
 
         DewCommon.eventManager.register(this);

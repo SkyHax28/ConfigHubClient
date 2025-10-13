@@ -2,10 +2,10 @@ package net.minecraft.client.renderer.entity;
 
 import com.dew.DewCommon;
 import com.dew.IMinecraft;
-import com.dew.system.module.modules.render.Chams;
-import com.dew.system.module.modules.render.NameTags;
-import com.dew.system.module.modules.render.ShaderESP;
-import com.dew.system.module.modules.render.SilentView;
+import com.dew.system.module.modules.visual.Chams;
+import com.dew.system.module.modules.visual.NameTags;
+import com.dew.system.module.modules.visual.ShaderESP;
+import com.dew.system.module.modules.visual.SilentView;
 import com.dew.system.rotation.RotationManager;
 import com.google.common.collect.Lists;
 import java.nio.FloatBuffer;

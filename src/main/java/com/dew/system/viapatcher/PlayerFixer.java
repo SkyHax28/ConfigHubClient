@@ -2,7 +2,7 @@ package com.dew.system.viapatcher;
 
 import com.dew.DewCommon;
 import com.dew.IMinecraft;
-import com.dew.system.module.modules.exploit.ViaCollision;
+import com.dew.system.module.modules.other.ViaCollision;
 import com.dew.utils.Lerper;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
