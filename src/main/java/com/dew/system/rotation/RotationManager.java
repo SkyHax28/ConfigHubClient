@@ -171,10 +171,22 @@ public class RotationManager {
         if (entity != pingEntity && mc.thePlayer.getDistanceToEntity(pingEntity) < mc.thePlayer.getDistanceToEntity(entity)) {
             entity = pingEntity;
         }
-        float[] rotations = getRotationsTo(entity.posX, entity.posY + (entity.getEyeHeight() / 2.0), entity.posZ);
 
-        float targetYaw = rotations[0];
-        float targetPitch = rotations[1];
+        final double xDif = entity.posX - mc.thePlayer.posX;
+        final double zDif = entity.posZ - mc.thePlayer.posZ;
+
+        final double TO_RADS = 180.0D / StrictMath.PI;
+
+        final AxisAlignedBB entityBB = entity.getEntityBoundingBox().expand(0.1F, 0.1F, 0.1F);
+        final double playerEyePos = (mc.thePlayer.posY + mc.thePlayer.getEyeHeight());
+        final double yDif = playerEyePos > entityBB.maxY ? entityBB.maxY - playerEyePos :
+                playerEyePos < entityBB.minY ? entityBB.minY - playerEyePos :
+                        0;
+
+        final double fDist = MathHelper.sqrt_double(xDif * xDif + zDif * zDif);
+
+        float targetYaw = (float) (StrictMath.atan2(zDif, xDif) * TO_RADS) - 90.0F;
+        float targetPitch = (float) (-(StrictMath.atan2(yDif, fDist) * TO_RADS));
 
         float currentPitch = getClientPitch();
 

@@ -2,6 +2,7 @@ package net.minecraft.client.renderer.entity;
 
 import com.dew.DewCommon;
 import com.dew.IMinecraft;
+import com.dew.system.module.modules.player.Scaffold;
 import com.dew.system.module.modules.visual.Chams;
 import com.dew.system.module.modules.visual.NameTags;
 import com.dew.system.module.modules.visual.ShaderESP;
@@ -136,6 +137,22 @@ public abstract class RendererLivingEntity<T extends EntityLivingBase> extends R
             {
                 float f = this.interpolateRotation(entity.prevRenderYawOffset, entity.renderYawOffset, partialTicks);
                 float f1 = this.interpolateRotation(entity.prevRotationYawHead, entity.rotationYawHead, partialTicks);
+
+                SilentView silentViewModule = DewCommon.moduleManager.getModule(SilentView.class);
+                RotationManager rotationManager = DewCommon.rotationManager;
+                boolean respectCoolJitter = false/*DewCommon.moduleManager.getModule(SilentView.class).getMode().equals("Cool") && DewCommon.moduleManager.getModule(Scaffold.class).isEnabled()*/;
+                boolean shouldRotate = entity instanceof EntityPlayerSP && silentViewModule.isEnabled() && (DewCommon.moduleManager.getModule(SilentView.class).getMode().equals("Cool") || DewCommon.moduleManager.getModule(SilentView.class).getMode().equals("GameSense")) && rotationManager.isRotating() && !rotationManager.isReturning();
+
+                if (shouldRotate) {
+                    if (respectCoolJitter) {
+                        f = rotationManager.getClientYaw();
+                        f1 = rotationManager.getClientYaw();
+                    } else {
+                        f = rotationManager.getInterpolatedYaw(partialTicks);
+                        f1 = rotationManager.getInterpolatedYaw(partialTicks);
+                    }
+                }
+
                 float f2 = f1 - f;
 
                 if (this.mainModel.isRiding && entity.ridingEntity instanceof EntityLivingBase)
@@ -166,6 +183,15 @@ public abstract class RendererLivingEntity<T extends EntityLivingBase> extends R
                 }
 
                 float f7 = entity.prevRotationPitch + (entity.rotationPitch - entity.prevRotationPitch) * partialTicks;
+
+                if (shouldRotate) {
+                    if (respectCoolJitter) {
+                        f7 = rotationManager.getClientPitch();
+                    } else {
+                        f7 = rotationManager.getInterpolatedPitch(partialTicks);
+                    }
+                }
+
                 this.renderLivingAt(entity, x, y, z);
                 float f8 = this.handleRotationFloat(entity, partialTicks);
                 this.rotateCorpse(entity, f8, f, partialTicks);
@@ -314,15 +340,10 @@ public abstract class RendererLivingEntity<T extends EntityLivingBase> extends R
             );
         }
 
-        if (IMinecraft.mc.gameSettings.thirdPersonView == 0 || !rotationManager.isRotating() || !silentViewModule.isEnabled() || !DewCommon.moduleManager.getModule(SilentView.class).getMode().equals("GameSense") || ghostPlayer == null) return;
+        if (IMinecraft.mc.gameSettings.thirdPersonView == 0 || !rotationManager.isRotating() || rotationManager.isReturning() || !silentViewModule.isEnabled() || !DewCommon.moduleManager.getModule(SilentView.class).getMode().equals("GameSense") || ghostPlayer == null) return;
 
         float renderPitch = rotationManager.getInterpolatedPitch(ticks);
         float renderYaw = rotationManager.getInterpolatedYaw(ticks);
-
-        realPlayer.rotationYawHead = realPlayer.rotationYaw;
-        realPlayer.renderYawOffset = realPlayer.rotationYaw;
-        realPlayer.prevRotationYawHead = realPlayer.rotationYaw;
-        realPlayer.prevRenderYawOffset = realPlayer.rotationYaw;
 
         ghostPlayer.copyLocationAndAnglesFrom(realPlayer);
         ghostPlayer.rotationYaw = renderYaw;
@@ -407,7 +428,7 @@ public abstract class RendererLivingEntity<T extends EntityLivingBase> extends R
     {
         SilentView silentViewModule = DewCommon.moduleManager.getModule(SilentView.class);
         RotationManager rotationManager = DewCommon.rotationManager;
-        boolean semiVisible = rotationManager.isRotating() && silentViewModule.isEnabled() && DewCommon.moduleManager.getModule(SilentView.class).getMode().equals("GameSense") && ghostPlayer != null && entitylivingbaseIn instanceof EntityPlayerSP;
+        boolean semiVisible = rotationManager.isRotating() && !rotationManager.isReturning() && silentViewModule.isEnabled() && DewCommon.moduleManager.getModule(SilentView.class).getMode().equals("GameSense") && ghostPlayer != null && entitylivingbaseIn instanceof EntityPlayerSP;
         boolean flag = !entitylivingbaseIn.isInvisible();
         boolean flag1 = !flag && !entitylivingbaseIn.isInvisibleToPlayer(Minecraft.getMinecraft().thePlayer);
 

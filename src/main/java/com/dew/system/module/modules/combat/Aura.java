@@ -284,6 +284,8 @@ public class Aura extends Module {
             return;
         }
 
+        boolean setBlocker = mc.thePlayer.isSwingInProgress || swingMode.get().equals("Packet");
+
         switch (mode.get().toLowerCase()) {
             case "single":
                 target = getHighestThreatTarget(this.getTargetRange());
@@ -293,7 +295,7 @@ public class Aura extends Module {
                         return;
                     }
                     if (visualAutoBlock.get()) {
-                        DewCommon.moduleManager.getModule(Animations.class).setVisualBlocking(mc.thePlayer.isSwingInProgress || swingMode.get().equals("Packet"));
+                        DewCommon.moduleManager.getModule(Animations.class).setVisualBlocking(setBlocker);
                     }
                     long currentTime = System.currentTimeMillis();
                     boolean canHit = this.rotateToTargetAndIsCanHit(target);
@@ -319,7 +321,7 @@ public class Aura extends Module {
                 if (!targetsList.isEmpty()) {
                     targeted = true;
                     if (visualAutoBlock.get()) {
-                        DewCommon.moduleManager.getModule(Animations.class).setVisualBlocking(mc.thePlayer.isSwingInProgress || swingMode.get().equals("Packet"));
+                        DewCommon.moduleManager.getModule(Animations.class).setVisualBlocking(setBlocker);
                     }
 
                     target = targetsList.get(0);

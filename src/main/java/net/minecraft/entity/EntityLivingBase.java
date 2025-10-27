@@ -1709,16 +1709,8 @@ public abstract class EntityLivingBase extends Entity
         SilentView silentViewModule = DewCommon.moduleManager.getModule(SilentView.class);
         RotationManager rotationManager = DewCommon.rotationManager;
         float fakeRotationYaw = this.rotationYaw;
-        boolean legacyFake = false;
 
-        if (silentViewModule.isEnabled() && DewCommon.moduleManager.getModule(SilentView.class).getMode().equals("Legacy") && this instanceof EntityPlayerSP) {
-            float yaw = rotationManager.isRotating() ? rotationManager.getClientYaw() : this.rotationYaw;
-            fakeRotationYaw = yaw;
-            this.rotationYawHead = yaw;
-            legacyFake = true;
-        }
-
-        if (silentViewModule.isEnabled() && rotationManager.isRotating() && DewCommon.moduleManager.getModule(SilentView.class).getMode().equals("Normal") && this instanceof EntityPlayerSP) {
+        if (silentViewModule.isEnabled() && rotationManager.isRotating() && DewCommon.moduleManager.getModule(SilentView.class).getMode().equals("Smooth") && this instanceof EntityPlayerSP) {
             if (this.swingProgress > 0.0F) {
                 p_110146_1_ = rotationManager.getClientYaw();
             }
@@ -1731,16 +1723,12 @@ public abstract class EntityLivingBase extends Entity
         float f1 = MathHelper.wrapAngleTo180_float(fakeRotationYaw - this.renderYawOffset);
         boolean flag = f1 < -90.0F || f1 >= 90.0F;
 
-        if (!legacyFake) {
-            if (f1 < -75.0F) {
-                f1 = -75.0F;
-            }
+        if (f1 < -75.0F) {
+            f1 = -75.0F;
+        }
 
-            if (f1 >= 75.0F) {
-                f1 = 75.0F;
-            }
-        } else {
-            f1 = 0f;
+        if (f1 >= 75.0F) {
+            f1 = 75.0F;
         }
 
         this.renderYawOffset = fakeRotationYaw - f1;
