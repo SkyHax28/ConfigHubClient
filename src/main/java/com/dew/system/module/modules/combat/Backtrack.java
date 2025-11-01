@@ -78,7 +78,7 @@ public class Backtrack extends Module {
 
     @Override
     public void onReceivedPacket(ReceivedPacketEvent event) {
-        if (event != null && event.packet != null) {
+        if (event != null && event.packet != null && !(event.packet instanceof S29PacketSoundEffect) && !(event.packet instanceof S28PacketEffect)) {
             this.onPacket(event, event.packet);
         }
     }

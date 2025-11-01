@@ -31,10 +31,12 @@ import java.util.*;
 
 public class Scaffold extends Module {
 
-    private static final SelectionValue mode = new SelectionValue("Mode", "Normal", "Normal", "Telly", "Hypixel", "Prediction");
+    private static final SelectionValue mode = new SelectionValue("Mode", "Normal", "Normal", "Telly", "Hypixel");
     private static final SelectionValue swingMode = new SelectionValue("Swing Mode", "Packet", "Normal", "Packet");
     private static final SelectionValue rotationMode = new SelectionValue("Rotation Mode", "Normal", () -> mode.get().equals("Normal") || mode.get().equals("Telly"), "Normal", "Snap");
-    private static final BooleanValue simpleRotator = new BooleanValue("Simple Rotator", false, () -> mode.get().equals("Normal") || mode.get().equals("Telly") || mode.get().equals("Prediction"));
+    private static final BooleanValue simpleRotator = new BooleanValue("Simple Rotator", false, () -> mode.get().equals("Normal") || mode.get().equals("Telly"));
+    private static final NumberValue antiPlaceUntil = new NumberValue("Anti Place Until", 3.0, 1.0, 6.0, 1.0, () -> mode.get().equals("Telly"));
+    private static final NumberValue tellyOneJumpRotation = new NumberValue("Telly 1 Jump Rotation", 0.0, 0.0, 180.0, 5.0, () -> mode.get().equals("Telly"));
     private static final NumberValue tellyTwoJumpRotation = new NumberValue("Telly 2 Jump Rotation", 10.0, 0.0, 180.0, 5.0, () -> mode.get().equals("Telly"));
     private static final NumberValue tellyThreeJumpRotation = new NumberValue("Telly 3 Jump Rotation", 35.0, 0.0, 180.0, 5.0, () -> mode.get().equals("Telly"));
     private static final NumberValue rotationSpeed = new NumberValue("Rotation Speed", 60.0, 0.0, 180.0, 5.0, () -> mode.get().equals("Normal") || mode.get().equals("Telly"));
@@ -49,6 +51,7 @@ public class Scaffold extends Module {
     private static final BooleanValue noSprint = new BooleanValue("No Sprint", false);
     private static final BooleanValue autoPlaceHackPlacer = new BooleanValue("Auto Place Hack Placer", false);
     private static final BooleanValue renderBlock = new BooleanValue("Render Block", false);
+    private static final BooleanValue diagonalSafer = new BooleanValue("Diagonal Safer", false, () -> mode.get().equals("Telly"));
     private static final BooleanValue andromeda = new BooleanValue("Andromeda", false, () -> mode.get().equals("Normal"));
     private static final BooleanValue antiBackSprint = new BooleanValue("Anti Back Sprint", false, () -> (mode.get().equals("Normal") || mode.get().equals("Telly")) && simpleRotator.get());
     private BlockData blockData;
@@ -84,7 +87,7 @@ public class Scaffold extends Module {
     }
 
     private boolean shouldUpdateKeepYState() {
-        return keepY == -1 || mc.thePlayer.onGround || mc.thePlayer.hurtTime != 0 || mc.thePlayer.motionY <= -0.55 || !mode.get().equals("Telly") && !mode.get().equals("Prediction") && (!DewCommon.moduleManager.getModule(SpeedModule.class).isEnabled() || Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode())) || (mode.get().equals("Telly") || mode.get().equals("Prediction")) && !doTellyInThisJump;
+        return keepY == -1 || mc.thePlayer.onGround || mc.thePlayer.hurtTime != 0 || mc.thePlayer.motionY <= -0.55 || !mode.get().equals("Telly") && (!DewCommon.moduleManager.getModule(SpeedModule.class).isEnabled() || Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode())) || mode.get().equals("Telly") && !doTellyInThisJump;
     }
 
     @Override
@@ -213,21 +216,18 @@ public class Scaffold extends Module {
     }
 
     private float getTellyRotSpeed() {
-        if (jumpTicks == 2) {
-            return tellyTwoJumpRotation.get().floatValue();
+        switch (jumpTicks) {
+            case 1: return tellyOneJumpRotation.get().floatValue();
+            case 2: return tellyTwoJumpRotation.get().floatValue();
+            case 3: return tellyThreeJumpRotation.get().floatValue();
         }
-
-        if (jumpTicks == 3) {
-            return tellyThreeJumpRotation.get().floatValue();
-        }
-
-        return 0f;
+        return rotationSpeed.get().floatValue();
     }
 
     private void doMainFunctions(boolean isLivingUpdateEvent) {
         if (mc.thePlayer == null || mc.theWorld == null) return;
 
-        boolean antiTelly = (mode.get().equals("Telly") || mode.get().equals("Prediction")) && !doTellyInThisJump && !Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) && (MovementUtil.isDiagonal(6f) || !mode.get().equals("Prediction"));
+        boolean antiTelly = mode.get().equals("Telly") && !doTellyInThisJump && !Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode());
 
         if (!isLivingUpdateEvent) {
             if (MovementUtil.isBlockAbovePlayer(mc.thePlayer, 1, 0.2)) {
@@ -240,7 +240,7 @@ public class Scaffold extends Module {
             }
 
             if (mc.thePlayer.onGround) {
-                doTellyInThisJump = !Keyboard.isKeyDown(mc.gameSettings.keyBindSneak.getKeyCode()) && !mc.thePlayer.isPotionActive(Potion.jump) && !mc.thePlayer.isPotionActive(Potion.moveSpeed) && !Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) && Keyboard.isKeyDown(mc.gameSettings.keyBindForward.getKeyCode()) && (!MovementUtil.isDiagonal(6f) || mode.get().equals("Prediction")) && !MovementUtil.isBlockAbovePlayer(mc.thePlayer, 1, 0.3);
+                doTellyInThisJump = !Keyboard.isKeyDown(mc.gameSettings.keyBindSneak.getKeyCode()) && !mc.thePlayer.isPotionActive(Potion.jump) && !mc.thePlayer.isPotionActive(Potion.moveSpeed) && !Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) && Keyboard.isKeyDown(mc.gameSettings.keyBindForward.getKeyCode()) && (!MovementUtil.isDiagonal(6f) || !diagonalSafer.get()) && !MovementUtil.isBlockAbovePlayer(mc.thePlayer, 1, 0.3);
             }
 
             switch (mode.get().toLowerCase()) {
@@ -268,7 +268,7 @@ public class Scaffold extends Module {
         }
 
         if (isLivingUpdateEvent) {
-            if (noSprint.get() || DewCommon.moduleManager.getModule(MoveFix.class).isEnabled() && Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) || (mode.get().equals("Telly") || mode.get().equals("Prediction")) && antiTelly || mode.get().equals("Prediction") && !mc.thePlayer.onGround) {
+            if (noSprint.get() || DewCommon.moduleManager.getModule(MoveFix.class).isEnabled() && Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) || mode.get().equals("Telly") && antiTelly) {
                 mc.thePlayer.setSprinting(false);
             }
             return;
@@ -493,30 +493,20 @@ public class Scaffold extends Module {
 
     private void tellyFunction() {
         if (this.shouldTellyDoNotPlaceBlocks()) {
-            if (mode.get().equals("Prediction")) {
-                if (jumpTicks == 0) {
-                    DewCommon.rotationManager.rotateToward((float) MovementUtil.getDirection(), 90f, 180f, true);
-                } else if (jumpTicks == 1) {
-                    DewCommon.rotationManager.rotateToward((float) MovementUtil.getDirection() + 180f, 85f, 50f, true);
-                } else if (jumpTicks == 2) {
-                    DewCommon.rotationManager.rotateToward((float) MovementUtil.getDirection() + 180f, 70f, 30f, true);
-                }
-            } else {
-                if (jumpTicks <= 1) {
-                    DewCommon.rotationManager.rotateToward((float) MovementUtil.getDirection(), 80f, 180f, true);
-                } else if (jumpTicks <= 3) {
-                    DewCommon.rotationManager.rotateToward((float) (MovementUtil.getDirection() + 180f), 80f, this.getTellyRotSpeed(), true);
-                }
+            if (jumpTicks <= 0) {
+                DewCommon.rotationManager.rotateToward((float) MovementUtil.getDirection(), 80f, 180f, true);
+            } else if (jumpTicks <= antiPlaceUntil.get().intValue()) {
+                DewCommon.rotationManager.rotateToward((float) (MovementUtil.getDirection() + 180f), 80f, this.getTellyRotSpeed(), true);
             }
 
-            if (mc.thePlayer.posY > 0.0D && mc.thePlayer.onGround && this.isNearEdge()) {
+            if (mc.thePlayer.posY > 0.0D && mc.thePlayer.onGround && this.isNearEdge() && mc.thePlayer.isSprinting()) {
                 mc.thePlayer.jump();
             }
         }
     }
 
     private void edgeCheck() {
-        if (edgeSafeMode.get().equals("Sneak") && this.isNearEdge() && !mode.get().equals("Telly") && !mode.get().equals("Prediction") || (mode.get().equals("Telly") || mode.get().equals("Prediction")) && mc.thePlayer.onGround && this.isNearEdge() && !doTellyInThisJump) {
+        if (edgeSafeMode.get().equals("Sneak") && this.isNearEdge() && !mode.get().equals("Telly") || mode.get().equals("Telly") && mc.thePlayer.onGround && this.isNearEdge() && !doTellyInThisJump) {
             mc.gameSettings.keyBindSneak.setKeyDown(true);
             isSneaking = true;
         } else if (isSneaking) {
@@ -537,7 +527,7 @@ public class Scaffold extends Module {
     public void onMove(MoveEvent event) {
         if (mc.thePlayer == null || mc.theWorld == null) return;
 
-        if (!mode.get().equals("Telly") && !mode.get().equals("Prediction")) {
+        if (!mode.get().equals("Telly")) {
             if (edgeSafeMode.get().equals("Safewalk")) {
                 event.isSafeWalk = true;
             } else if (edgeSafeMode.get().equals("Ground Safewalk")) {
@@ -610,15 +600,11 @@ public class Scaffold extends Module {
     }
 
     private boolean shouldTellyDoNotPlaceBlocks() {
-        if (mode.get().equals("Telly") || mode.get().equals("Prediction")) {
+        if (mode.get().equals("Telly")) {
             if (!doTellyInThisJump) return false;
             if (mc.thePlayer.hurtTime != 0 || mc.thePlayer.motionY <= -0.55) return false;
             if (towered) return true;
-            if (mode.get().equals("Telly")) {
-                return jumpTicks <= 3;
-            } else {
-                return jumpTicks <= 2;
-            }
+            return jumpTicks <= antiPlaceUntil.get().intValue();
         }
 
         return false;
@@ -659,14 +645,14 @@ public class Scaffold extends Module {
         if (!holdingBlock) return PlaceResult.FAIL_OTHER;
 
         String modeValue = mode.get();
-        float rotationSpeedVal = mode.get().equals("Prediction") ? 25f : rotationSpeed.get().floatValue();
+        float rotationSpeedVal = rotationSpeed.get().floatValue();
 
         blockData = this.getBlockData(pos);
 
         if (blockData == null) return PlaceResult.FAIL_OTHER;
         if (needSnapRotationReset) return PlaceResult.FAIL_ROTATION;
 
-        if (modeValue.equals("Normal") || modeValue.equals("Telly") || modeValue.equals("Prediction")) {
+        if (modeValue.equals("Normal") || modeValue.equals("Telly")) {
             boolean canPlace = DewCommon.rotationManager.faceBlockWithFacing(blockData.position, blockData.face, rotationSpeedVal, simpleRotator.get(), true, antiBackSprint.get());
             if (!noRotationHitCheck.get() && !canPlace) return PlaceResult.FAIL_ROTATION;
         }
@@ -686,7 +672,7 @@ public class Scaffold extends Module {
                 }
             }
             delay = 0;
-            if (!mode.get().equals("Hypixel") && !mode.get().equals("Prediction") && rotationMode.get().equals("Snap") && DewCommon.rotationManager.isRotating()) {
+            if (!mode.get().equals("Hypixel") && rotationMode.get().equals("Snap") && DewCommon.rotationManager.isRotating()) {
                 needSnapRotationReset = true;
             }
             if (andromed) {

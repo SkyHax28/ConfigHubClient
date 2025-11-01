@@ -43,9 +43,6 @@ public class CategoryWindow {
 
     private final String categoryTitle;
 
-    private boolean needsContentHeightRecalc = true;
-    private int cachedContentHeight = 0;
-
     public CategoryWindow(ModuleCategory category, int x, int y) {
         this.category = category;
 
@@ -129,7 +126,7 @@ public class CategoryWindow {
         );
 
         if (expandAnimation > 0.01f) {
-            int contentHeight = getCachedContentHeight();
+            int contentHeight = calculateContentHeight();
             int animatedHeight = (int)(contentHeight * expandAnimation);
 
             if (animatedHeight > 0) {
@@ -184,14 +181,6 @@ public class CategoryWindow {
         }
     }
 
-    private int getCachedContentHeight() {
-        if (needsContentHeightRecalc) {
-            cachedContentHeight = calculateContentHeight();
-            needsContentHeightRecalc = false;
-        }
-        return cachedContentHeight;
-    }
-
     private int calculateContentHeight() {
         if (category == ModuleCategory.MODULE_CONFIG_MANAGER ||
                 category == ModuleCategory.BIND_CONFIG_MANAGER) {
@@ -239,7 +228,6 @@ public class CategoryWindow {
                 dragY = mouseY - y;
             } else if (button == 1) {
                 this.open = !this.open;
-                needsContentHeightRecalc = true;
             }
         }
 

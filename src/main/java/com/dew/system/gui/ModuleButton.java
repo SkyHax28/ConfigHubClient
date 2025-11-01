@@ -19,39 +19,16 @@ public class ModuleButton {
 
     private long lastUpdateTime = System.nanoTime();
 
-    private static final Color COLOR_ENABLED_BG = new Color(85, 153, 255, 90);
-    private static final Color COLOR_DISABLED_BG = new Color(10, 10, 10, 120);
-    private static final Color COLOR_HOVER = new Color(255, 255, 255, 50);
-    private static final int COLOR_HOVER_RGB = COLOR_HOVER.getRGB();
-    private static final Color COLOR_TOP_BORDER = new Color(85, 153, 255, 180);
-    private static final int COLOR_TOP_BORDER_RGB = COLOR_TOP_BORDER.getRGB();
-    private static final Color COLOR_BOTTOM_BORDER = new Color(85, 153, 255, 120);
-    private static final int COLOR_BOTTOM_BORDER_RGB = COLOR_BOTTOM_BORDER.getRGB();
-    private static final int WHITE_RGB = Color.WHITE.getRGB();
-    private static final int LIGHT_GRAY_RGB = Color.LIGHT_GRAY.getRGB();
-    private static final int YELLOW_RGB = Color.YELLOW.getRGB();
-    private static final Color COLOR_DISABLED_STRIPE = new Color(255, 0, 0, 180);
-    private static final int COLOR_DISABLED_STRIPE_RGB = COLOR_DISABLED_STRIPE.getRGB();
-    private static final Color COLOR_SETTINGS_STRIPE = new Color(150, 180, 255, 180);
-    private static final int COLOR_SETTINGS_STRIPE_RGB = COLOR_SETTINGS_STRIPE.getRGB();
-
-    private boolean cachedHasSettings = false;
-    private String cachedKeyInfo = null;
-    private float cachedKeyInfoWidth = 0;
-    private int lastKeyCode = -1;
-
     public ModuleButton(Module module) {
         this.module = module;
     }
 
     private void updateVisibleComponents() {
         List<ValueComponentHolder> newList = new ArrayList<>();
-        boolean hasVisibleComponents = false;
 
         for (Value<?> v : module.getValues()) {
             if (!v.isVisible()) continue;
 
-            hasVisibleComponents = true;
             ValueComponentHolder existingHolder = null;
             for (ValueComponentHolder holder : valueComponents) {
                 if (holder.value == v) {
@@ -67,11 +44,8 @@ public class ModuleButton {
             }
         }
 
-        if (newList.size() != valueComponents.size() || hasVisibleComponents != cachedHasSettings) {
-            valueComponents.clear();
-            valueComponents.addAll(newList);
-            cachedHasSettings = hasVisibleComponents;
-        }
+        valueComponents.clear();
+        valueComponents.addAll(newList);
     }
 
     private ValueComponent createComponentFor(Value<?> v) {
@@ -92,75 +66,71 @@ public class ModuleButton {
         boolean hasSettings = !valueComponents.isEmpty();
         boolean isHovered = mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + 17;
         boolean expanded = module.isGuiExpanded();
-        boolean enabled = module.isEnabled();
 
-        drawBlurRect(x, y, x + width, y + 18, enabled ? COLOR_ENABLED_BG : COLOR_DISABLED_BG);
+        drawBlurRect(x, y, x + width, y + 18, module.isEnabled() ? new Color(85, 153, 255, 90) : new Color(10, 10, 10, 120));
 
         if (isHovered) {
-            Gui.drawRect(x, y, x + width, y + 18, COLOR_HOVER_RGB);
+            Gui.drawRect(x, y, x + width, y + 18, new Color(255, 255, 255, 50).getRGB());
         }
 
-        Gui.drawRect(x, y, x + width, y + 1, COLOR_TOP_BORDER_RGB);
-        Gui.drawRect(x, y + 17, x + width, y + 18, COLOR_BOTTOM_BORDER_RGB);
+        Gui.drawRect(x, y, x + width, y + 1, new Color(85, 153, 255, 180).getRGB());
+        Gui.drawRect(x, y + 17, x + width, y + 18, new Color(85, 153, 255, 120).getRGB());
 
-        DewCommon.customFontRenderer.drawStringWithShadow(module.name, x + 4 + (hasSettings ? 2 : 0), y + 2, WHITE_RGB, 0.35f);
+        DewCommon.customFontRenderer.drawStringWithShadow(module.name, x + 4 + (hasSettings ? 2 : 0), y + 2, Color.WHITE.getRGB(), 0.35f);
 
         if (module.key != Keyboard.KEY_NONE) {
-            if (module.key != lastKeyCode) {
-                String keyName = Keyboard.getKeyName(module.key);
-                cachedKeyInfo = "(" + keyName + ")";
-                cachedKeyInfoWidth = DewCommon.customFontRenderer.getStringWidth(cachedKeyInfo, 0.35f);
-                lastKeyCode = module.key;
-            }
-            if (cachedKeyInfo != null) {
-                DewCommon.customFontRenderer.drawStringWithShadow(cachedKeyInfo,
-                        x + width - cachedKeyInfoWidth - 2, y + 2, LIGHT_GRAY_RGB, 0.35f);
-            }
+            String keyInfo = "(" + Keyboard.getKeyName(module.key) + ")";
+            DewCommon.customFontRenderer.drawStringWithShadow(keyInfo, x + width - DewCommon.customFontRenderer.getStringWidth(keyInfo, 0.35f) - 2, y + 2, Color.LIGHT_GRAY.getRGB(), 0.35f);
         }
 
-        if (enabled) {
+        if (module.isEnabled()) {
             glowProgress += 0.02f;
-            drawGlowEffect(x, y, width, glowProgress);
+
+            float phase = (float) Math.sin(glowProgress);
+            int barHeight = 2;
+
+            for (int i = 0; i < width; i++) {
+                float fade = (float) (Math.sin((i / (float) width + glowProgress) * Math.PI * 2) * 0.5 + 0.5);
+                int alpha = (int) (fade * 50);
+
+                Color c = new Color(255, 200, 150, alpha);
+
+                Gui.drawRect(x + i, y + (int) (16 + phase * 1.5f), x + i + 1, y + (int) (16 + phase * 1.5f) + barHeight, c.getRGB());
+            }
         } else {
             glowProgress = 0f;
         }
 
-        drawSideBar(x, y, expanded, hasSettings);
+        if (!module.canBeEnabled) {
+            int stripeWidth = 2;
+            Color stripeColor = new Color(255, 0, 0, 180);
 
-        if (currentHeight > 18f && expanded) {
+            Gui.drawRect(
+                    x,
+                    y + 1,
+                    x + stripeWidth,
+                    y + 17,
+                    expanded ? Color.YELLOW.getRGB() : stripeColor.getRGB()
+            );
+        } else if (hasSettings) {
+            int stripeWidth = 2;
+            Color stripeColor = new Color(150, 180, 255, 180);
+
+            Gui.drawRect(
+                    x,
+                    y + 1,
+                    x + stripeWidth,
+                    y + 17,
+                    expanded ? Color.YELLOW.getRGB() : stripeColor.getRGB()
+            );
+        }
+
+        if (currentHeight > 18f && module.isGuiExpanded()) {
             int yOffset = 18;
             for (ValueComponentHolder holder : valueComponents) {
                 holder.component.draw(x + 4, y + yOffset, width - 8, mouseX, mouseY);
                 yOffset += holder.component.getHeight();
             }
-        }
-    }
-
-    private void drawGlowEffect(int x, int y, int width, float glowProgress) {
-        int barHeight = 2;
-        float phase = (float) Math.sin(glowProgress);
-
-        for (int i = 0; i < width; i++) {
-            float fade = (float) (Math.sin((i / (float) width + glowProgress) * Math.PI * 2) * 0.5 + 0.5);
-            int alpha = (int) (fade * 50);
-
-            if (alpha > 0) {
-                Color c = new Color(255, 200, 150, alpha);
-                Gui.drawRect(x + i, y + (int) (16 + phase * 1.5f), x + i + 1, y + (int) (16 + phase * 1.5f) + barHeight, c.getRGB());
-            }
-        }
-    }
-
-    private void drawSideBar(int x, int y, boolean expanded, boolean hasSettings) {
-        int stripeWidth = 2;
-        int stripeColor = YELLOW_RGB;
-
-        if (!expanded) {
-            stripeColor = module.canBeEnabled ? (hasSettings ? COLOR_SETTINGS_STRIPE_RGB : 0) : COLOR_DISABLED_STRIPE_RGB;
-        }
-
-        if (stripeColor != 0 && (hasSettings || !module.canBeEnabled)) {
-            Gui.drawRect(x, y + 1, x + stripeWidth, y + 17, stripeColor);
         }
     }
 
@@ -214,16 +184,9 @@ public class ModuleButton {
     }
 
     private void drawBlurRect(int left, int top, int right, int bottom, Color color) {
-        int baseAlpha = color.getAlpha();
-        int r = color.getRed();
-        int g = color.getGreen();
-        int b = color.getBlue();
-
         for (int i = 0; i < 6; i++) {
-            int alpha = (int) (baseAlpha * (1f - (i / 6f)));
-            if (alpha <= 0) break;
-
-            Color blurred = new Color(r, g, b, alpha);
+            int alpha = (int) (color.getAlpha() * (1f - (i / 6f)));
+            Color blurred = new Color(color.getRed(), color.getGreen(), color.getBlue(), alpha);
             Gui.drawRect(left - i, top - i, right + i, bottom + i, blurred.getRGB());
         }
     }
