@@ -5,6 +5,7 @@ import net.minecraft.block.BlockAir;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityOtherPlayerMP;
 import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.stats.StatFileWriter;
 import net.minecraft.util.BlockPos;
@@ -92,5 +93,34 @@ public class PredictUtil {
 
         togglePredictingState(player, false);
         return finalPlayer;
+    }
+
+    public static EntityPlayer predictOthers(Entity target, boolean predict, float predictSize) {
+        EntityPlayerSP player = mc.thePlayer;
+
+        double posX = target.posX + (predict ? (target.posX - target.prevPosX) * predictSize : 0.0);
+        double posY = target.posY + (predict ? (target.posY - target.prevPosY) * predictSize : 0.0);
+        double posZ = target.posZ + (predict ? (target.posZ - target.prevPosZ) * predictSize : 0.0);
+
+        double motionX = predict ? (target.posX - target.prevPosX) : target.motionX;
+        double motionY = predict ? (target.posY - target.prevPosY) : target.motionY;
+        double motionZ = predict ? (target.posZ - target.prevPosZ) : target.motionZ;
+
+        EntityOtherPlayerMP predictedPlayer = new EntityOtherPlayerMP(mc.theWorld,
+                target instanceof EntityPlayer ? ((EntityPlayer) target).getGameProfile() : player.getGameProfile());
+
+        predictedPlayer.setPosition(posX, posY, posZ);
+        predictedPlayer.motionX = motionX;
+        predictedPlayer.motionY = motionY;
+        predictedPlayer.motionZ = motionZ;
+
+        if (target instanceof EntityPlayer) {
+            EntityPlayer targetPlayer = (EntityPlayer) target;
+            predictedPlayer.setSprinting(targetPlayer.isSprinting());
+            predictedPlayer.setSneaking(targetPlayer.isSneaking());
+            predictedPlayer.onGround = targetPlayer.onGround;
+        }
+
+        return predictedPlayer;
     }
 }

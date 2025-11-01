@@ -28,7 +28,7 @@ public class QuakeAura extends Module {
 
         if (targets.isEmpty()) return;
         EntityPlayer closestTarget = targets.get(0);
-        EntityPlayer predictedEntityPlayer = PredictUtil.predictFinalState(closestTarget, 6);
+        EntityPlayer predictedEntityPlayer = PredictUtil.predictOthers(closestTarget, true, 2f);
 
         if (DewCommon.rotationManager.faceEntity(predictedEntityPlayer, mc.thePlayer.onGround ? 180f : 45f, true, false, 200)) {
             if (mc.thePlayer.canEntityBeSeen(predictedEntityPlayer)) {

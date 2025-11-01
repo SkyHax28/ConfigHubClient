@@ -1,5 +1,6 @@
 package com.dew.system.module.modules.visual;
 
+import com.dew.system.event.events.PreUpdateEvent;
 import com.dew.system.event.events.ReceivedPacketEvent;
 import com.dew.system.event.events.Render2DEvent;
 import com.dew.system.module.Module;
@@ -26,7 +27,7 @@ public class Ambience extends Module {
     }
 
     @Override
-    public void onRender2D(Render2DEvent event) {
+    public void onPreUpdate(PreUpdateEvent event) {
         if (mc.theWorld == null) return;
 
         this.update();
