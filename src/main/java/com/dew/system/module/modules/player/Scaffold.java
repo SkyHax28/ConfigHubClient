@@ -51,6 +51,7 @@ public class Scaffold extends Module {
     private static final BooleanValue noSprint = new BooleanValue("No Sprint", false);
     private static final BooleanValue autoPlaceHackPlacer = new BooleanValue("Auto Place Hack Placer", false);
     private static final BooleanValue renderBlock = new BooleanValue("Render Block", false);
+    private static final BooleanValue keepYJump = new BooleanValue("Keep Y Jump", false, () -> mode.get().equals("Normal"));
     private static final BooleanValue diagonalSafer = new BooleanValue("Diagonal Safer", false, () -> mode.get().equals("Telly"));
     private static final BooleanValue andromeda = new BooleanValue("Andromeda", false, () -> mode.get().equals("Normal"));
     private static final BooleanValue antiBackSprint = new BooleanValue("Anti Back Sprint", false, () -> (mode.get().equals("Normal") || mode.get().equals("Telly")) && simpleRotator.get());
@@ -87,7 +88,7 @@ public class Scaffold extends Module {
     }
 
     private boolean shouldUpdateKeepYState() {
-        return keepY == -1 || mc.thePlayer.onGround || mc.thePlayer.hurtTime != 0 || mc.thePlayer.motionY <= -0.55 || !mode.get().equals("Telly") && (!DewCommon.moduleManager.getModule(SpeedModule.class).isEnabled() || Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode())) || mode.get().equals("Telly") && !doTellyInThisJump;
+        return keepY == -1 || mc.thePlayer.onGround || mc.thePlayer.hurtTime != 0 || mc.thePlayer.motionY <= -0.55 || !mode.get().equals("Telly") && (!DewCommon.moduleManager.getModule(SpeedModule.class).isEnabled() && !keepYJump.get() || mc.thePlayer.onGround || Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode())) || mode.get().equals("Telly") && !doTellyInThisJump;
     }
 
     @Override
@@ -276,6 +277,10 @@ public class Scaffold extends Module {
 
         if (shouldUpdateKeepYState() && (!antiTelly || keepY == -1)) {
             this.updateKeepY();
+        }
+
+        if (mode.get().equals("Normal") && keepYJump.get() && mc.thePlayer.onGround && !Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode())) {
+            mc.thePlayer.jump();
         }
 
         if (this.shouldTellyDoNotPlaceBlocks()) {
@@ -499,7 +504,7 @@ public class Scaffold extends Module {
                 DewCommon.rotationManager.rotateToward((float) (MovementUtil.getDirection() + 180f), 80f, this.getTellyRotSpeed(), true);
             }
 
-            if (mc.thePlayer.posY > 0.0D && mc.thePlayer.onGround && this.isNearEdge() && mc.thePlayer.isSprinting()) {
+            if (mc.thePlayer.posY > 0.0D && mc.thePlayer.onGround && this.isNearEdge() && mc.thePlayer.isSprinting() && !Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode())) {
                 mc.thePlayer.jump();
             }
         }
