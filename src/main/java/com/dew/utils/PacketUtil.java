@@ -7,6 +7,7 @@ import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement;
+import net.minecraft.util.BlockPos;
 
 import java.util.ArrayList;
 
@@ -40,7 +41,8 @@ public class PacketUtil {
     }
 
     public static void sendVerusMagicPacket() {
-        sendPacket(new C08PacketPlayerBlockPlacement(mc.thePlayer.getPosition().add(0.0, -10E-4, 0.0), 1, new ItemStack(Blocks.stone.getItem(mc.theWorld, mc.thePlayer.getPosition().add(0.0, -10E-4, 0.0))), 0.0F, 0.5F + ((float) Math.random()) * 0.44F, 0.0F));
+        BlockPos downPos = mc.thePlayer.getPosition().add(0.0, -1.5, 0.0);
+        sendPacket(new C08PacketPlayerBlockPlacement(downPos, 1, new ItemStack(Blocks.stone.getItem(mc.theWorld, downPos)), 0.0F, 0.5F + ((float) Math.random()) * 0.44F, 0.0F));
     }
 
     public static void processPacketClientSide(Packet<?> packet) {

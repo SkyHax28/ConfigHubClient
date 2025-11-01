@@ -17,8 +17,8 @@ import com.dew.utils.PacketUtil;
 import com.dew.utils.RenderUtil;
 import net.minecraft.block.*;
 import net.minecraft.block.material.Material;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.client.C0APacketAnimation;
@@ -48,9 +48,11 @@ public class Scaffold extends Module {
     private static final BooleanValue preferHighestStack = new BooleanValue("Prefer Highest Stack", true);
     private static final BooleanValue noSprint = new BooleanValue("No Sprint", false);
     private static final BooleanValue autoPlaceHackPlacer = new BooleanValue("Auto Place Hack Placer", false);
+    private static final BooleanValue renderBlock = new BooleanValue("Render Block", false);
     private static final BooleanValue andromeda = new BooleanValue("Andromeda", false, () -> mode.get().equals("Normal"));
     private static final BooleanValue antiBackSprint = new BooleanValue("Anti Back Sprint", false, () -> (mode.get().equals("Normal") || mode.get().equals("Telly")) && simpleRotator.get());
-    private final EnumFacing[] facingsArray = EnumFacing.values();
+    private BlockData blockData;
+    private final List<Block> invalid = Arrays.asList(Blocks.anvil, Blocks.air, Blocks.water, Blocks.fire, Blocks.flowing_water, Blocks.lava, Blocks.flowing_lava, Blocks.chest, Blocks.anvil, Blocks.enchanting_table, Blocks.chest, Blocks.ender_chest, Blocks.gravel);
     public boolean holdingBlock = false;
     public boolean jumped = false;
     private int keepY = -1;
@@ -148,10 +150,17 @@ public class Scaffold extends Module {
     }
 
     @Override
-    public void onKeyPressable(KeyPressableEvent event) {
+    public void onPreUpdate(PreUpdateEvent event) {
         if (!autoPlaceHackPlacer.get()) {
             this.doMainFunctions(false);
         }
+
+        if (mc.thePlayer == null || mc.theWorld == null) return;
+
+        jumpTicks = mc.thePlayer.onGround ? 0 : jumpTicks + 1;
+        delay++;
+
+        this.tellyFunction();
     }
 
     @Override
@@ -159,16 +168,6 @@ public class Scaffold extends Module {
         if (autoPlaceHackPlacer.get()) {
             this.doMainFunctions(false);
         }
-    }
-
-    @Override
-    public void onPreUpdate(PreUpdateEvent event) {
-        if (mc.thePlayer == null || mc.theWorld == null) return;
-
-        jumpTicks = mc.thePlayer.onGround ? 0 : jumpTicks + 1;
-        delay++;
-
-        this.tellyFunction();
     }
 
     @Override
@@ -181,7 +180,7 @@ public class Scaffold extends Module {
 
     @Override
     public void onRender3D(Render3DEvent event) {
-        if (mc.thePlayer == null || mc.theWorld == null || lastPlacedPos == null) return;
+        if (mc.thePlayer == null || mc.theWorld == null || lastPlacedPos == null || !renderBlock.get()) return;
 
         double renderX = mc.getRenderManager().viewerPosX;
         double renderY = mc.getRenderManager().viewerPosY;
@@ -656,114 +655,134 @@ public class Scaffold extends Module {
         return false;
     }
 
-    private static final EnumFacing[] FACINGS = EnumFacing.values();
-    private static final float[][] FACING_VECTORS = new float[FACINGS.length][3];
-    static {
-        for (int i = 0; i < FACINGS.length; i++) {
-            EnumFacing f = FACINGS[i];
-            FACING_VECTORS[i][0] = f.getFrontOffsetX();
-            FACING_VECTORS[i][1] = f.getFrontOffsetY();
-            FACING_VECTORS[i][2] = f.getFrontOffsetZ();
-        }
-    }
-
-    private EnumFacing facingFromRotation(float yaw, float pitch) {
-        float cosPitch = MathHelper.cos(-pitch * 0.017453292F);
-        float sinPitch = MathHelper.sin(-pitch * 0.017453292F);
-        float cosYaw = MathHelper.cos(-yaw * 0.017453292F - (float)Math.PI);
-        float sinYaw = MathHelper.sin(-yaw * 0.017453292F - (float)Math.PI);
-
-        float lookX = sinYaw * cosPitch;
-        float lookZ = cosYaw * cosPitch;
-
-        float bestDot = -Float.MAX_VALUE;
-        EnumFacing bestFacing = EnumFacing.NORTH;
-        for (int i = 0; i < FACING_VECTORS.length; i++) {
-            float dot = lookX * FACING_VECTORS[i][0] + sinPitch * FACING_VECTORS[i][1] + lookZ * FACING_VECTORS[i][2];
-            if (dot > bestDot) {
-                bestDot = dot;
-                bestFacing = FACINGS[i];
-            }
-        }
-        return bestFacing;
-    }
-
     private PlaceResult tryPlaceBlock(BlockPos pos) {
         if (!holdingBlock) return PlaceResult.FAIL_OTHER;
 
         String modeValue = mode.get();
         float rotationSpeedVal = mode.get().equals("Prediction") ? 25f : rotationSpeed.get().floatValue();
 
-        EnumFacing preferredFacing = facingFromRotation(
-                mc.thePlayer.rotationYaw,
-                0f
-        );
+        blockData = this.getBlockData(pos);
 
-        EnumFacing[] orderedFacings = new EnumFacing[6];
-        orderedFacings[0] = preferredFacing;
-        int idx = 1;
-        for (EnumFacing facing : facingsArray) {
-            if (facing != preferredFacing) orderedFacings[idx++] = facing;
+        if (blockData == null) return PlaceResult.FAIL_OTHER;
+        if (needSnapRotationReset) return PlaceResult.FAIL_ROTATION;
+
+        if (modeValue.equals("Normal") || modeValue.equals("Telly") || modeValue.equals("Prediction")) {
+            boolean canPlace = DewCommon.rotationManager.faceBlockWithFacing(blockData.position, blockData.face, rotationSpeedVal, simpleRotator.get(), true, antiBackSprint.get());
+            if (!noRotationHitCheck.get() && !canPlace) return PlaceResult.FAIL_ROTATION;
         }
 
-        for (EnumFacing facing : orderedFacings) {
-            if (facing == EnumFacing.UP && andromed) continue;
-            BlockPos neighbor = pos.offset(facing);
-
-            int playerY = (int) mc.thePlayer.posY - 1;
-            if (neighbor.getY() > playerY && !andromed) continue;
-
-            IBlockState state = mc.theWorld.getBlockState(neighbor);
-            Block block = state.getBlock();
-
-            if (!block.canCollideCheck(state, false)) continue;
-
-            EnumFacing opposite = facing.getOpposite();
-
-            double hitX = neighbor.getX() + 0.5 + 0.5 * opposite.getFrontOffsetX();
-            double hitY = neighbor.getY() + 0.5 + ((float) Math.random()) * 0.44F;
-            double hitZ = neighbor.getZ() + 0.5 + 0.5 * opposite.getFrontOffsetZ();
-            Vec3 hitVec = new Vec3(hitX, hitY, hitZ);
-
-            if (needSnapRotationReset) return PlaceResult.FAIL_ROTATION;
-
-            if (modeValue.equals("Normal") || modeValue.equals("Telly") || modeValue.equals("Prediction")) {
-                boolean canPlace = DewCommon.rotationManager.faceBlockWithFacing(neighbor, opposite, rotationSpeedVal, simpleRotator.get(), true, antiBackSprint.get());
-                if (!noRotationHitCheck.get() && !canPlace) return PlaceResult.FAIL_ROTATION;
+        ItemStack itemstack = mc.thePlayer.inventory.getCurrentItem();
+        if (mc.playerController.onPlayerRightClick(mc.thePlayer, mc.theWorld, itemstack, blockData.position, blockData.face, new Vec3(blockData.position.getX() + Math.random(), blockData.position.getY() + Math.random(), blockData.position.getZ() + Math.random()))) {
+            if (swingMode.get().equals("Normal")) {
+                mc.thePlayer.swingItem();
+            } else {
+                PacketUtil.sendPacket(new C0APacketAnimation());
             }
-
-            ItemStack itemstack = mc.thePlayer.inventory.getCurrentItem();
-            if (mc.playerController.onPlayerRightClick(mc.thePlayer, mc.theWorld, itemstack, neighbor, opposite, hitVec)) {
-                if (swingMode.get().equals("Normal")) {
-                    mc.thePlayer.swingItem();
-                } else {
-                    PacketUtil.sendPacket(new C0APacketAnimation());
+            if (itemstack != null) {
+                if (itemstack.stackSize == 0) {
+                    mc.thePlayer.inventory.mainInventory[mc.thePlayer.inventory.currentItem] = null;
+                } else if (mc.playerController.isInCreativeMode()) {
+                    mc.entityRenderer.itemRenderer.resetEquippedProgress();
                 }
-                if (itemstack != null) {
-                    if (itemstack.stackSize == 0) {
-                        mc.thePlayer.inventory.mainInventory[mc.thePlayer.inventory.currentItem] = null;
-                    } else if (mc.playerController.isInCreativeMode()) {
-                        mc.entityRenderer.itemRenderer.resetEquippedProgress();
-                    }
-                }
-                delay = 0;
-                if (!mode.get().equals("Hypixel") && !mode.get().equals("Prediction") && rotationMode.get().equals("Snap") && DewCommon.rotationManager.isRotating()) {
-                    needSnapRotationReset = true;
-                }
-                if (andromed) {
-                    if (MovementUtil.isBlockAbovePlayer(mc.thePlayer, 1, 0.2)) {
-                        andromed = false;
-                    }
-                } else {
-                    if (MovementUtil.isBlockUnderPlayer(mc.thePlayer, 1, 0.2, false)) {
-                        andromed = true;
-                    }
-                }
-                return PlaceResult.SUCCESS;
             }
+            delay = 0;
+            if (!mode.get().equals("Hypixel") && !mode.get().equals("Prediction") && rotationMode.get().equals("Snap") && DewCommon.rotationManager.isRotating()) {
+                needSnapRotationReset = true;
+            }
+            if (andromed) {
+                if (MovementUtil.isBlockAbovePlayer(mc.thePlayer, 1, 0.2)) {
+                    andromed = false;
+                }
+            } else {
+                if (MovementUtil.isBlockUnderPlayer(mc.thePlayer, 1, 0.2, false)) {
+                    andromed = true;
+                }
+            }
+            return PlaceResult.SUCCESS;
         }
 
         return PlaceResult.FAIL_OTHER;
+    }
+
+    private class BlockData {
+        public BlockPos position;
+        public EnumFacing face;
+
+        public BlockData(BlockPos position, EnumFacing face) {
+            this.position = position;
+            this.face = face;
+        }
+    }
+
+    private BlockData getBlockData(BlockPos pos) {
+        if (!invalid.contains(mc.theWorld.getBlockState(pos.add(0, -1, 0)).getBlock())) {
+            return new BlockData(pos.add(0, -1, 0), EnumFacing.UP);
+        }
+        if (!invalid.contains(mc.theWorld.getBlockState(pos.add(-1, 0, 0)).getBlock())) {
+            return new BlockData(pos.add(-1, 0, 0), EnumFacing.EAST);
+        }
+        if (!invalid.contains(mc.theWorld.getBlockState(pos.add(1, 0, 0)).getBlock())) {
+            return new BlockData(pos.add(1, 0, 0), EnumFacing.WEST);
+        }
+        if (!invalid.contains(mc.theWorld.getBlockState(pos.add(0, 0, -1)).getBlock())) {
+            return new BlockData(pos.add(0, 0, -1), EnumFacing.SOUTH);
+        }
+        if (!invalid.contains(mc.theWorld.getBlockState(pos.add(0, 0, 1)).getBlock())) {
+            return new BlockData(pos.add(0, 0, 1), EnumFacing.NORTH);
+        }
+        BlockPos add = pos.add(-1, 0, 0);
+        if (!invalid.contains(mc.theWorld.getBlockState(add.add(-1, 0, 0)).getBlock())) {
+            return new BlockData(add.add(-1, 0, 0), EnumFacing.EAST);
+        }
+        if (!invalid.contains(mc.theWorld.getBlockState(add.add(1, 0, 0)).getBlock())) {
+            return new BlockData(add.add(1, 0, 0), EnumFacing.WEST);
+        }
+        if (!invalid.contains(mc.theWorld.getBlockState(add.add(0, 0, -1)).getBlock())) {
+            return new BlockData(add.add(0, 0, -1), EnumFacing.SOUTH);
+        }
+        if (!invalid.contains(mc.theWorld.getBlockState(add.add(0, 0, 1)).getBlock())) {
+            return new BlockData(add.add(0, 0, 1), EnumFacing.NORTH);
+        }
+        BlockPos add2 = pos.add(1, 0, 0);
+        if (!invalid.contains(mc.theWorld.getBlockState(add2.add(-1, 0, 0)).getBlock())) {
+            return new BlockData(add2.add(-1, 0, 0), EnumFacing.EAST);
+        }
+        if (!invalid.contains(mc.theWorld.getBlockState(add2.add(1, 0, 0)).getBlock())) {
+            return new BlockData(add2.add(1, 0, 0), EnumFacing.WEST);
+        }
+        if (!invalid.contains(mc.theWorld.getBlockState(add2.add(0, 0, -1)).getBlock())) {
+            return new BlockData(add2.add(0, 0, -1), EnumFacing.SOUTH);
+        }
+        if (!invalid.contains(mc.theWorld.getBlockState(add2.add(0, 0, 1)).getBlock())) {
+            return new BlockData(add2.add(0, 0, 1), EnumFacing.NORTH);
+        }
+        BlockPos add3 = pos.add(0, 0, -1);
+        if (!invalid.contains(mc.theWorld.getBlockState(add3.add(-1, 0, 0)).getBlock())) {
+            return new BlockData(add3.add(-1, 0, 0), EnumFacing.EAST);
+        }
+        if (!invalid.contains(mc.theWorld.getBlockState(add3.add(1, 0, 0)).getBlock())) {
+            return new BlockData(add3.add(1, 0, 0), EnumFacing.WEST);
+        }
+        if (!invalid.contains(mc.theWorld.getBlockState(add3.add(0, 0, -1)).getBlock())) {
+            return new BlockData(add3.add(0, 0, -1), EnumFacing.SOUTH);
+        }
+        if (!invalid.contains(mc.theWorld.getBlockState(add3.add(0, 0, 1)).getBlock())) {
+            return new BlockData(add3.add(0, 0, 1), EnumFacing.NORTH);
+        }
+        BlockPos add4 = pos.add(0, 0, 1);
+        if (!invalid.contains(mc.theWorld.getBlockState(add4.add(-1, 0, 0)).getBlock())) {
+            return new BlockData(add4.add(-1, 0, 0), EnumFacing.EAST);
+        }
+        if (!invalid.contains(mc.theWorld.getBlockState(add4.add(1, 0, 0)).getBlock())) {
+            return new BlockData(add4.add(1, 0, 0), EnumFacing.WEST);
+        }
+        if (!invalid.contains(mc.theWorld.getBlockState(add4.add(0, 0, -1)).getBlock())) {
+            return new BlockData(add4.add(0, 0, -1), EnumFacing.SOUTH);
+        }
+        if (!invalid.contains(mc.theWorld.getBlockState(add4.add(0, 0, 1)).getBlock())) {
+            return new BlockData(add4.add(0, 0, 1), EnumFacing.NORTH);
+        }
+        return null;
     }
 
     private int getValidBlockSlot() {
