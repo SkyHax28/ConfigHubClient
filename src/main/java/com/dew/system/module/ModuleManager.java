@@ -103,7 +103,8 @@ public class ModuleManager implements EventListener {
                 new RawInput(),
                 new Blink(),
                 new Backtrack(),
-                new TickBase()
+                new TickBase(),
+                new SpinBot()
         ));
 
         DewCommon.eventManager.register(this);
