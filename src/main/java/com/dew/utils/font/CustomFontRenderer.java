@@ -181,7 +181,7 @@ public class CustomFontRenderer {
     }
 
     private void renderText(String text, float x, float y, int color, float size) {
-        y -= 0.8f;
+        y -= 1.3f;
 
         float scale = Math.min(size, 1.0f);
 

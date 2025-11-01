@@ -225,11 +225,9 @@ public class Aura extends Module {
                     if (objectCheck.get()) {
                         if (mc.objectMouseOver != null && mc.objectMouseOver.entityHit != null && mc.objectMouseOver.entityHit == entity && !mc.thePlayer.isUsingItem()) {
                             AttackOrder.sendFixedAttack(mc.thePlayer, mc.objectMouseOver.entityHit, !swingMode.get().equals("Normal"));
-                            mc.thePlayer.onEnchantmentCritical(mc.objectMouseOver.entityHit);
                         }
                     } else {
                         AttackOrder.sendFixedAttack(mc.thePlayer, entity, !swingMode.get().equals("Normal"));
-                        mc.thePlayer.onEnchantmentCritical(entity);
                     }
                 }
 
@@ -284,7 +282,7 @@ public class Aura extends Module {
             return;
         }
 
-        boolean setBlocker = mc.thePlayer.isSwingInProgress || swingMode.get().equals("Packet");
+        boolean setBlocker = true; // mc.thePlayer.isSwingInProgress || swingMode.get().equals("Packet")
 
         switch (mode.get().toLowerCase()) {
             case "single":
