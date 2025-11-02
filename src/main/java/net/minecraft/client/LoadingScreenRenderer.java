@@ -98,7 +98,7 @@ public class LoadingScreenRenderer implements IProgressUpdate
 
     public void setLoadingProgress(int progress)
     {
-        if (!this.mc.running)
+        /*if (!this.mc.running)
         {
             if (!this.loadingSuccess)
             {
@@ -217,7 +217,7 @@ public class LoadingScreenRenderer implements IProgressUpdate
                     ;
                 }
             }
-        }
+        }*/
     }
 
     public void setDoneWorking()

@@ -13,6 +13,8 @@ import static org.lwjgl.opengl.GL11.GL_LINE_STRIP;
 
 public class RenderUtil {
 
+    public static boolean batchModelRendering = true;
+
     public static void glColor(final Color color) {
         final float red = color.getRed() / 255F;
         final float green = color.getGreen() / 255F;

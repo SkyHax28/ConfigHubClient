@@ -29,7 +29,6 @@ public class GuiDownloadTerrain extends GuiScreen
     {
         this.buttonList.clear();
         this.buttonList.add(new GuiButton(0, this.width / 2 - 100, this.height / 4 + 120 + 12, I18n.format("gui.cancel")));
-        this.buttonList.add(new GuiButton(1, this.width / 2 - 100, this.height / 4 + 120 + 36, "Force join (Do not recommend)"));
     }
 
     public void updateScreen()
@@ -79,10 +78,6 @@ public class GuiDownloadTerrain extends GuiScreen
             } else {
                 this.mc.displayGuiScreen(new GuiMultiplayer(new GuiMainMenu()));
             }
-        }
-
-        if (button.id == 1) {
-            this.mc.displayGuiScreen(null);
         }
     }
 }

@@ -225,39 +225,33 @@ public class GuiPlayerTabOverlay extends Gui
 
     protected void drawPing(int p_175245_1_, int p_175245_2_, int p_175245_3_, NetworkPlayerInfo networkPlayerInfoIn)
     {
-        GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-        this.mc.getTextureManager().bindTexture(icons);
-        int i = 0;
-        int j = 0;
+        int ping = networkPlayerInfoIn.getResponseTime();
+        int x = (p_175245_2_ + p_175245_1_) - (mc.bitFontRendererObj.getStringWidth(String.valueOf(ping)) >> 1) - 2;
+        int y = p_175245_3_ + 2;
 
-        if (networkPlayerInfoIn.getResponseTime() < 0)
-        {
-            j = 5;
-        }
-        else if (networkPlayerInfoIn.getResponseTime() < 150)
-        {
-            j = 0;
-        }
-        else if (networkPlayerInfoIn.getResponseTime() < 300)
-        {
-            j = 1;
-        }
-        else if (networkPlayerInfoIn.getResponseTime() < 600)
-        {
-            j = 2;
-        }
-        else if (networkPlayerInfoIn.getResponseTime() < 1000)
-        {
-            j = 3;
-        }
-        else
-        {
-            j = 4;
+        int color;
+
+        if (ping > 500) {
+            color = 11141120;
+        } else if (ping > 300) {
+            color = 11184640;
+        } else if (ping > 200) {
+            color = 11193344;
+        } else if (ping > 135) {
+            color = 2128640;
+        } else if (ping > 70) {
+            color = 39168;
+        } else if (ping >= 0) {
+            color = 47872;
+        } else {
+            color = 11141120;
         }
 
-        this.zLevel += 100.0F;
-        this.drawTexturedModalRect(p_175245_2_ + p_175245_1_ - 11, p_175245_3_, 0 + i * 10, 176 + j * 8, 10, 8);
-        this.zLevel -= 100.0F;
+        GlStateManager.pushMatrix();
+        GlStateManager.scale(0.5f, 0.5f, 0.5f);
+        mc.bitFontRendererObj.drawStringWithShadow("   " + (ping == 0 ? "?" : ping), (2 * x) - 10, 2 * y, color);
+        GlStateManager.scale(2.0f, 2.0f, 2.0f);
+        GlStateManager.popMatrix();
     }
 
     private void drawScoreboardValues(ScoreObjective p_175247_1_, int p_175247_2_, String p_175247_3_, int p_175247_4_, int p_175247_5_, NetworkPlayerInfo p_175247_6_)

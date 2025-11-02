@@ -1171,6 +1171,10 @@ public class Minecraft implements IThreadListener, IPlayerUsage
 
     public int getLimitFramerate()
     {
+        if (!Display.isActive()) {
+            return 30;
+        }
+
         return this.gameSettings.limitFramerate;
     }
 
@@ -2322,7 +2326,6 @@ public class Minecraft implements IThreadListener, IPlayerUsage
         LeaveWorldEvent leaveWorldEvent = new LeaveWorldEvent();
         DewCommon.eventManager.call(leaveWorldEvent);
 
-        System.gc();
         this.systemTime = 0L;
     }
 

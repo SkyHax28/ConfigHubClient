@@ -1645,6 +1645,8 @@ public abstract class World implements IBlockAccess
 
     public void updateEntityWithOptionalForce(Entity entityIn, boolean forceUpdate)
     {
+        if (!this.isRemote && !forceUpdate) return;
+
         int i = MathHelper.floor_double(entityIn.posX);
         int j = MathHelper.floor_double(entityIn.posZ);
         int k = 32;

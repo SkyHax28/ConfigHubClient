@@ -375,7 +375,7 @@ public class ItemRenderer
 
     private void doCrazyBlockTransformations()
     {
-        GlStateManager.translate(0.0F, -0.3F, 0.0F);
+        GlStateManager.translate(0.0F, -0.25F, -0.04F);
 
         GlStateManager.translate(-0.5F, 0.2F, 0.0F);
         GlStateManager.rotate(30.0F, 0.0F, 1.0F, 0.0F);

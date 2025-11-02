@@ -241,7 +241,7 @@ public class Scaffold extends Module {
             }
 
             if (mc.thePlayer.onGround) {
-                doTellyInThisJump = !Keyboard.isKeyDown(mc.gameSettings.keyBindSneak.getKeyCode()) && !mc.thePlayer.isPotionActive(Potion.jump) && !mc.thePlayer.isPotionActive(Potion.moveSpeed) && !Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) && Keyboard.isKeyDown(mc.gameSettings.keyBindForward.getKeyCode()) && (!MovementUtil.isDiagonal(6f) || !diagonalSafer.get()) && !MovementUtil.isBlockAbovePlayer(mc.thePlayer, 1, 0.3);
+                doTellyInThisJump = !Keyboard.isKeyDown(mc.gameSettings.keyBindSneak.getKeyCode()) && !mc.thePlayer.isPotionActive(Potion.jump) && !Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) && Keyboard.isKeyDown(mc.gameSettings.keyBindForward.getKeyCode()) && (!MovementUtil.isDiagonal(6f) || !diagonalSafer.get()) && !MovementUtil.isBlockAbovePlayer(mc.thePlayer, 1, 0.3);
             }
 
             switch (mode.get().toLowerCase()) {

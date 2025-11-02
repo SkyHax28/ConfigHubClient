@@ -27,7 +27,7 @@ public class ShaderESP extends Module {
     }
 
     private boolean shouldRender(Entity entity) {
-        return entity instanceof EntityPlayer && (!(entity instanceof EntityPlayerSP) || mc.gameSettings.thirdPersonView != 0);
+        return entity instanceof EntityPlayer && !(entity instanceof EntityPlayerSP);
     }
 
     public boolean isRenderNametagAndEnchantmentGlint() {

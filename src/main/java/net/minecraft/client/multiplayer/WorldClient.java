@@ -285,7 +285,7 @@ public class WorldClient extends World
         boolean flag = this.mc.playerController.getCurrentGameType() == WorldSettings.GameType.CREATIVE && itemstack != null && Block.getBlockFromItem(itemstack.getItem()) == Blocks.barrier || DewCommon.moduleManager.getModule(BarrierVision.class).isEnabled();
         BlockPos.MutableBlockPos blockpos$mutableblockpos = new BlockPos.MutableBlockPos();
 
-        for (int j = 0; j < 1000; ++j)
+        for (int j = 0; j < 100; ++j)
         {
             int k = posX + this.rand.nextInt(i) - this.rand.nextInt(i);
             int l = posY + this.rand.nextInt(i) - this.rand.nextInt(i);

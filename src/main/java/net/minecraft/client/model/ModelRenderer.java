@@ -1,5 +1,6 @@
 package net.minecraft.client.model;
 
+import com.dew.utils.RenderUtil;
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.List;
@@ -8,6 +9,7 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.WorldRenderer;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.src.Config;
 import net.minecraft.util.ResourceLocation;
 import net.optifine.entity.model.anim.ModelUpdater;
@@ -28,6 +30,7 @@ public class ModelRenderer
     public float rotateAngleY;
     public float rotateAngleZ;
     private boolean compiled;
+    private boolean compiledState;
     private int displayList;
     public boolean mirror;
     public boolean showModel;
@@ -133,6 +136,10 @@ public class ModelRenderer
 
     public void render(float p_78785_1_)
     {
+        if (compiledState != RenderUtil.batchModelRendering) {
+            this.compiled = false;
+        }
+
         if (!this.isHidden && this.showModel)
         {
             this.checkResetDisplayList();
@@ -383,6 +390,11 @@ public class ModelRenderer
         GL11.glNewList(this.displayList, GL11.GL_COMPILE);
         WorldRenderer worldrenderer = Tessellator.getInstance().getWorldRenderer();
 
+        this.compiledState = RenderUtil.batchModelRendering;
+        if (RenderUtil.batchModelRendering) {
+            Tessellator.getInstance().getWorldRenderer().begin(7, DefaultVertexFormats.OLDMODEL_POSITION_TEX_NORMAL);
+        }
+
         for (int i = 0; i < this.cubeList.size(); ++i)
         {
             ((ModelBox)this.cubeList.get(i)).render(worldrenderer, scale);
@@ -392,6 +404,10 @@ public class ModelRenderer
         {
             ModelSprite modelsprite = (ModelSprite)this.spriteList.get(j);
             modelsprite.render(Tessellator.getInstance(), scale);
+        }
+
+        if (RenderUtil.batchModelRendering) {
+            Tessellator.getInstance().draw();
         }
 
         GL11.glEndList();

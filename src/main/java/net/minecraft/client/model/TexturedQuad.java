@@ -1,5 +1,6 @@
 package net.minecraft.client.model;
 
+import com.dew.utils.RenderUtil;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
@@ -12,6 +13,7 @@ public class TexturedQuad
     public PositionTextureVertex[] vertexPositions;
     public int nVertices;
     private boolean invertNormal;
+    private boolean drawOnSelf;
 
     public TexturedQuad(PositionTextureVertex[] vertices)
     {
@@ -58,13 +60,9 @@ public class TexturedQuad
             f2 = -f2;
         }
 
-        if (Config.isShaders())
-        {
-            renderer.begin(7, SVertexFormat.defVertexFormatTextured);
-        }
-        else
-        {
-            renderer.begin(7, DefaultVertexFormats.OLDMODEL_POSITION_TEX_NORMAL);
+        this.drawOnSelf = !renderer.isDrawing();
+        if (this.drawOnSelf || !RenderUtil.batchModelRendering) {
+            renderer.begin(7, DefaultVertexFormats.POSITION_TEX_NORMAL);
         }
 
         for (int i = 0; i < 4; ++i)
@@ -73,6 +71,8 @@ public class TexturedQuad
             renderer.pos(positiontexturevertex.vector3D.xCoord * (double)scale, positiontexturevertex.vector3D.yCoord * (double)scale, positiontexturevertex.vector3D.zCoord * (double)scale).tex((double)positiontexturevertex.texturePositionX, (double)positiontexturevertex.texturePositionY).normal(f, f1, f2).endVertex();
         }
 
-        Tessellator.getInstance().draw();
+        if (this.drawOnSelf || !RenderUtil.batchModelRendering) {
+            Tessellator.getInstance().draw();
+        }
     }
 }
