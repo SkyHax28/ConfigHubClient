@@ -48,10 +48,11 @@ public class Aura extends Module {
     private static final NumberValue attackRange = new NumberValue("Attack Range", 3.0, 0.1, 6.0, 0.1);
     private static final NumberValue maxCps = new NumberValue("Max CPS", 17.0, 0.0, 20.0, 0.1);
     private static final NumberValue minCps = new NumberValue("Min CPS", 5.0, 0.0, 20.0, 0.1);
-    private static final NumberValue rotationSpeed = new NumberValue("Rotation Speed", 60.0, 0.0, 180.0, 5.0);
     private static final MultiSelectionValue targets = new MultiSelectionValue("Targets", Arrays.asList("Player", "Mob", "Animal", "Living"), "Player", "Mob", "Animal", "Living", "Dead", "Teammate");
-    private static final BooleanValue reducedPitchRotation = new BooleanValue("Reduced Pitch Rotation", true);
-    private static final BooleanValue noRotationHitCheck = new BooleanValue("No Rotation Hit Check", false);
+    private static final SelectionValue rotationMode = new SelectionValue("Rotation Mode", "Normal", "OFF", "Normal");
+    private static final NumberValue rotationSpeed = new NumberValue("Rotation Speed", 60.0, 0.0, 180.0, 5.0, () -> !rotationMode.get().equals("OFF"));
+    private static final BooleanValue reducedPitchRotation = new BooleanValue("Reduced Pitch Rotation", true, () -> !rotationMode.get().equals("OFF"));
+    private static final BooleanValue noRotationHitCheck = new BooleanValue("No Rotation Hit Check", false, () -> !rotationMode.get().equals("OFF"));
     private static final BooleanValue throughWalls = new BooleanValue("Through Walls", true);
     private static final BooleanValue visualAutoBlock = new BooleanValue("Visual Auto Block", true);
     private static final BooleanValue timerRange = new BooleanValue("Timer Range", false);
@@ -348,6 +349,7 @@ public class Aura extends Module {
     }
 
     private boolean rotateToTargetAndIsCanHit(Entity entity) {
+        if (rotationMode.get().equals("OFF")) return true;
         return DewCommon.rotationManager.faceEntity(entity, rotationSpeed.get().floatValue(), false, reducedPitchRotation.get(), mc.playerController.getBlockReachDistance());
     }
 
@@ -519,7 +521,15 @@ public class Aura extends Module {
         double hitZ = neighbor.getZ() + 0.5 + 0.5 * opposite.getFrontOffsetZ();
         net.minecraft.util.Vec3 hitVec = new net.minecraft.util.Vec3(hitX, hitY, hitZ);
 
-        if (DewCommon.rotationManager.faceBlockWithFacing(neighbor, placeFacing, rotationSpeed.get().floatValue(), false, true, false)) {
+        boolean canHit = false;
+
+        if (rotationMode.get().equals("OFF")) {
+            canHit = true;
+        } else if (rotationMode.get().equals("Normal") && DewCommon.rotationManager.faceBlockWithFacing(neighbor, placeFacing, rotationSpeed.get().floatValue(), false, true, false)) {
+            canHit = true;
+        }
+
+        if (canHit) {
             if (mc.thePlayer.inventory.currentItem != blockSlot) {
                 mc.thePlayer.inventory.currentItem = blockSlot;
                 mc.playerController.updateController();

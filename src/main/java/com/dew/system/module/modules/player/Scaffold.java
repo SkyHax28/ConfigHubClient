@@ -33,7 +33,7 @@ public class Scaffold extends Module {
 
     private static final SelectionValue mode = new SelectionValue("Mode", "Normal", "Normal", "Telly", "Hypixel");
     private static final SelectionValue swingMode = new SelectionValue("Swing Mode", "Packet", "Normal", "Packet");
-    private static final SelectionValue rotationMode = new SelectionValue("Rotation Mode", "Normal", () -> mode.get().equals("Normal") || mode.get().equals("Telly"), "Normal", "Snap");
+    private static final SelectionValue rotationMode = new SelectionValue("Rotation Mode", "Normal", () -> mode.get().equals("Normal") || mode.get().equals("Telly"), "OFF", "Normal", "Snap");
     private static final BooleanValue simpleRotator = new BooleanValue("Simple Rotator", false, () -> mode.get().equals("Normal") || mode.get().equals("Telly"));
     private static final NumberValue antiPlaceUntil = new NumberValue("Anti Place Until", 3.0, 1.0, 6.0, 1.0, () -> mode.get().equals("Telly"));
     private static final NumberValue tellyOneJumpRotation = new NumberValue("Telly 1 Jump Rotation", 0.0, 0.0, 180.0, 5.0, () -> mode.get().equals("Telly"));
@@ -46,7 +46,7 @@ public class Scaffold extends Module {
     private static final SelectionValue towerMode = new SelectionValue("Tower Mode", "OFF", "OFF", "Vanilla", "Hypixel");
     private static final SelectionValue onlyTowerWhen = new SelectionValue("Only Tower When", "Always", () -> towerMode.get().equals("Vanilla"), "Always", "Standing", "Moving");
     private static final SelectionValue edgeSafeMode = new SelectionValue("Edge Safe Mode", "OFF", () -> mode.get().equals("Normal") || mode.get().equals("Hypixel"), "OFF", "Safewalk", "Ground Safewalk", "Sneak");
-    private static final BooleanValue noRotationHitCheck = new BooleanValue("No Rotation Hit Check", false);
+    private static final BooleanValue noRotationHitCheck = new BooleanValue("No Rotation Hit Check", false, () -> !rotationMode.get().equals("OFF"));
     private static final BooleanValue preferHighestStack = new BooleanValue("Prefer Highest Stack", true);
     private static final BooleanValue noSprint = new BooleanValue("No Sprint", false);
     private static final BooleanValue autoPlaceHackPlacer = new BooleanValue("Auto Place Hack Placer", false);
@@ -246,19 +246,19 @@ public class Scaffold extends Module {
 
             switch (mode.get().toLowerCase()) {
                 case "normal":
-                    if (!rotationMode.get().equals("Snap") && (DewCommon.rotationManager.isReturning() || !holdingBlock)) {
+                    if (!rotationMode.get().equals("OFF") && !rotationMode.get().equals("Snap") && (DewCommon.rotationManager.isReturning() || !holdingBlock)) {
                         DewCommon.rotationManager.rotateToward((float) (MovementUtil.getDirection() - 180f) + (antiBackSprint.get() ? 80f : 0f), 83f, rotationSpeed.get().floatValue(), true);
                     }
                     break;
 
                 case "hypixel":
                     if (mc.thePlayer.ticksExisted % 2 == 0) {
-                        DewCommon.rotationManager.faceBlockHypixelSafe(180f, true);
+                        DewCommon.rotationManager.faceBlockHypixelSafe(180f, true, !rotationMode.get().equals("OFF"));
                     }
                     break;
 
                 case "telly":
-                    if (!rotationMode.get().equals("Snap") && (!this.shouldTellyDoNotPlaceBlocks() && !antiTelly && (DewCommon.rotationManager.isReturning() || !holdingBlock))) {
+                    if (!rotationMode.get().equals("OFF") && !rotationMode.get().equals("Snap") && (!this.shouldTellyDoNotPlaceBlocks() && !antiTelly && (DewCommon.rotationManager.isReturning() || !holdingBlock))) {
                         DewCommon.rotationManager.rotateToward((float) (MovementUtil.getDirection() - 180f), 83f, rotationSpeed.get().floatValue(), true);
                     }
                     break;
@@ -498,10 +498,12 @@ public class Scaffold extends Module {
 
     private void tellyFunction() {
         if (this.shouldTellyDoNotPlaceBlocks()) {
-            if (jumpTicks <= 0) {
-                DewCommon.rotationManager.rotateToward((float) MovementUtil.getDirection(), 80f, 180f, true);
-            } else if (jumpTicks <= antiPlaceUntil.get().intValue()) {
-                DewCommon.rotationManager.rotateToward((float) (MovementUtil.getDirection() + 180f) + (antiBackSprint.get() ? 80f : 0f), 80f, this.getTellyRotSpeed(), true);
+            if (!rotationMode.get().equals("OFF")) {
+                if (jumpTicks <= 0) {
+                    DewCommon.rotationManager.rotateToward((float) MovementUtil.getDirection(), 80f, 180f, true);
+                } else if (jumpTicks <= antiPlaceUntil.get().intValue()) {
+                    DewCommon.rotationManager.rotateToward((float) (MovementUtil.getDirection() + 180f) + (antiBackSprint.get() ? 80f : 0f), 80f, this.getTellyRotSpeed(), true);
+                }
             }
 
             if (mc.thePlayer.posY > 0.0D && mc.thePlayer.onGround && this.isNearEdge() && mc.thePlayer.isSprinting() && !Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode())) {
@@ -657,9 +659,11 @@ public class Scaffold extends Module {
         if (blockData == null) return PlaceResult.FAIL_OTHER;
         if (needSnapRotationReset) return PlaceResult.FAIL_ROTATION;
 
-        if (modeValue.equals("Normal") || modeValue.equals("Telly")) {
-            boolean canPlace = DewCommon.rotationManager.faceBlockWithFacing(blockData.position, blockData.face, rotationSpeedVal, simpleRotator.get(), true, antiBackSprint.get());
-            if (!noRotationHitCheck.get() && !canPlace) return PlaceResult.FAIL_ROTATION;
+        if (!rotationMode.get().equals("OFF")) {
+            if (modeValue.equals("Normal") || modeValue.equals("Telly")) {
+                boolean canPlace = DewCommon.rotationManager.faceBlockWithFacing(blockData.position, blockData.face, rotationSpeedVal, simpleRotator.get(), true, antiBackSprint.get());
+                if (!noRotationHitCheck.get() && !canPlace) return PlaceResult.FAIL_ROTATION;
+            }
         }
 
         ItemStack itemstack = mc.thePlayer.inventory.getCurrentItem();

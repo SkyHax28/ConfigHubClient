@@ -260,8 +260,11 @@ public class RotationManager {
         return canHitBlockAtRotation(pos, facing, getClientYaw(), getClientPitch());
     }
 
-    public void faceBlockHypixelSafe(float rotationSpeed, boolean slowdown) {
-        rotateToward(snapToHypYaw((float) MovementUtil.getDirection(), slowdown), 80f, rotationSpeed, true);
+    public void faceBlockHypixelSafe(float rotationSpeed, boolean slowdown, boolean rotate) {
+        float yaw = snapToHypYaw((float) MovementUtil.getDirection(), slowdown);
+        if (rotate) {
+            rotateToward(yaw, 80f, rotationSpeed, true);
+        }
     }
 
     public float tellySwap(float yaw) {

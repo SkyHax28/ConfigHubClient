@@ -1,6 +1,7 @@
 package com.dew.system.module.modules.other;
 
 import com.dew.DewCommon;
+import com.dew.system.event.EventPriority;
 import com.dew.system.event.events.PreUpdateEvent;
 import com.dew.system.module.Module;
 import com.dew.system.module.ModuleCategory;
@@ -13,6 +14,11 @@ public class SpinBot extends Module {
     private static final NumberValue pitch = new NumberValue("Pitch", 90.0, -90.0, 90.0, 5.0);
     public SpinBot() {
         super("Spin Bot", ModuleCategory.OTHER, Keyboard.KEY_NONE, false, true, true);
+    }
+
+    @Override
+    public EventPriority getPriority() {
+        return EventPriority.LOWEST;
     }
 
     @Override
