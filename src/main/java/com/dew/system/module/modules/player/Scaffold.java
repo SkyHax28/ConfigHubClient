@@ -35,6 +35,7 @@ public class Scaffold extends Module {
     private static final SelectionValue swingMode = new SelectionValue("Swing Mode", "Packet", "Normal", "Packet");
     private static final SelectionValue rotationMode = new SelectionValue("Rotation Mode", "Normal", () -> mode.get().equals("Normal") || mode.get().equals("Telly"), "OFF", "Normal", "Snap");
     private static final BooleanValue simpleRotator = new BooleanValue("Simple Rotator", false, () -> mode.get().equals("Normal") || mode.get().equals("Telly"));
+    private static final SelectionValue tellyJumpMode = new SelectionValue("Telly Jump Mode", "Edge Only", () -> mode.get().equals("Telly"), "Edge Only", "Ground");
     private static final NumberValue antiPlaceUntil = new NumberValue("Anti Place Until", 3.0, 1.0, 6.0, 1.0, () -> mode.get().equals("Telly"));
     private static final NumberValue tellyOneJumpRotation = new NumberValue("Telly 1 Jump Rotation", 0.0, 0.0, 180.0, 5.0, () -> mode.get().equals("Telly"));
     private static final NumberValue tellyTwoJumpRotation = new NumberValue("Telly 2 Jump Rotation", 10.0, 0.0, 180.0, 5.0, () -> mode.get().equals("Telly"));
@@ -279,7 +280,7 @@ public class Scaffold extends Module {
             this.updateKeepY();
         }
 
-        if (mode.get().equals("Normal") && keepYJump.get() && mc.thePlayer.onGround && !Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode())) {
+        if (mode.get().equals("Normal") && keepYJump.get() && mc.thePlayer.posY > 0.0D && mc.thePlayer.onGround && !Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode())) {
             mc.thePlayer.jump();
         }
 
@@ -506,7 +507,7 @@ public class Scaffold extends Module {
                 }
             }
 
-            if (mc.thePlayer.posY > 0.0D && mc.thePlayer.onGround && this.isNearEdge() && mc.thePlayer.isSprinting() && !Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode())) {
+            if (mc.thePlayer.posY > 0.0D && mc.thePlayer.onGround && (tellyJumpMode.get().equals("Edge Only") && this.isNearEdge() || tellyJumpMode.get().equals("Ground")) && mc.thePlayer.isSprinting() && !Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode())) {
                 mc.thePlayer.jump();
             }
         }
