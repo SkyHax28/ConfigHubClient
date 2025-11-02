@@ -767,6 +767,12 @@ public class ItemRenderer
 
                     this.doBlockTransformations();
                     break;
+
+                case "coinful":
+                    GlStateManager.translate(-0.05F, 0.0F, -0.1F);
+                    this.transformFirstPersonItem(f, f1);
+                    this.doBlockTransformations();
+                    break;
             }
         } else {
             this.transformFirstPersonItem(f, 0.0F);

@@ -14,7 +14,7 @@ import java.util.Collections;
 
 public class Animations extends Module {
 
-    private static final SelectionValue blockAnimation = new SelectionValue("Block Animation", "Legacy", "Vanilla", "Legacy", "Wag", "Strike", "Phong", "Div", "Elegant", "Pendulum", "Zen", "Bush", "Flow", "Precision", "Surge", "Drift", "Focus", "Pulse", "Hentai Bush", "Tide", "Dash", "Exhibition Push", "Exhibition Swang", "Exhibition Swonk");
+    private static final SelectionValue blockAnimation = new SelectionValue("Block Animation", "Legacy", "Vanilla", "Legacy", "Wag", "Strike", "Phong", "Div", "Elegant", "Pendulum", "Zen", "Bush", "Flow", "Precision", "Surge", "Drift", "Focus", "Pulse", "Hentai Bush", "Tide", "Dash", "Exhibition Push", "Exhibition Swang", "Exhibition Swonk", "Coinful");
     private static final SelectionValue swingAnimation = new SelectionValue("Swing Animation", "Vanilla", "Vanilla", "Flux", "Direct");
     private static final BooleanValue applyHands = new BooleanValue("Apply Hands", true, () -> swingAnimation.get().equals("Flux") || swingAnimation.get().equals("Direct"));
     private static final MultiSelectionValue oldAnimations = new MultiSelectionValue("1.7 Animations", Collections.emptyList(), "Food", "Potion", "Bow", "First Person", "Third Person", "Punching During Usage");

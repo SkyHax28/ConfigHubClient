@@ -154,7 +154,7 @@ public class Scaffold extends Module {
     }
 
     @Override
-    public void onPreUpdate(PreUpdateEvent event) {
+    public void onTick(TickEvent event) {
         if (!autoPlaceHackPlacer.get()) {
             this.doMainFunctions(false);
         }
