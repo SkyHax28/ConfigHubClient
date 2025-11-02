@@ -501,7 +501,7 @@ public class Scaffold extends Module {
             if (jumpTicks <= 0) {
                 DewCommon.rotationManager.rotateToward((float) MovementUtil.getDirection(), 80f, 180f, true);
             } else if (jumpTicks <= antiPlaceUntil.get().intValue()) {
-                DewCommon.rotationManager.rotateToward((float) (MovementUtil.getDirection() + 180f), 80f, this.getTellyRotSpeed(), true);
+                DewCommon.rotationManager.rotateToward((float) (MovementUtil.getDirection() + 180f) + (antiBackSprint.get() ? 80f : 0f), 80f, this.getTellyRotSpeed(), true);
             }
 
             if (mc.thePlayer.posY > 0.0D && mc.thePlayer.onGround && this.isNearEdge() && mc.thePlayer.isSprinting() && !Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode())) {
@@ -544,7 +544,7 @@ public class Scaffold extends Module {
 
     private void updateKeepY() {
         if (keepY == -1 && (mc.thePlayer.hurtTime != 0 || mc.thePlayer.motionY <= -0.55)) {
-            keepY = (int) mc.thePlayer.posY - 1;
+            keepY = (int) (mc.thePlayer.posY - 1.5);
         } else {
             keepY = (int) mc.thePlayer.posY;
 
@@ -706,74 +706,63 @@ public class Scaffold extends Module {
     }
 
     private BlockData getBlockData(BlockPos pos) {
-        if (!invalid.contains(mc.theWorld.getBlockState(pos.add(0, -1, 0)).getBlock())) {
-            return new BlockData(pos.add(0, -1, 0), EnumFacing.UP);
+        OffsetAndFacing[] offsets = {
+                new OffsetAndFacing(0, -1, 0, EnumFacing.UP),
+                new OffsetAndFacing(-1, 0, 0, EnumFacing.EAST),
+                new OffsetAndFacing(1, 0, 0, EnumFacing.WEST),
+                new OffsetAndFacing(0, 0, -1, EnumFacing.SOUTH),
+                new OffsetAndFacing(0, 0, 1, EnumFacing.NORTH)
+        };
+
+        for (OffsetAndFacing offset : offsets) {
+            BlockData result = checkBlock(pos, offset.x, offset.y, offset.z, offset.facing);
+            if (result != null) return result;
         }
-        if (!invalid.contains(mc.theWorld.getBlockState(pos.add(-1, 0, 0)).getBlock())) {
-            return new BlockData(pos.add(-1, 0, 0), EnumFacing.EAST);
+
+        if (!andromed) {
+            BlockPos[] neighbors = {
+                    pos.add(-1, 0, 0),
+                    pos.add(1, 0, 0),
+                    pos.add(0, 0, -1),
+                    pos.add(0, 0, 1)
+            };
+
+            OffsetAndFacing[] horizontalOffsets = {
+                    new OffsetAndFacing(-1, 0, 0, EnumFacing.EAST),
+                    new OffsetAndFacing(1, 0, 0, EnumFacing.WEST),
+                    new OffsetAndFacing(0, 0, -1, EnumFacing.SOUTH),
+                    new OffsetAndFacing(0, 0, 1, EnumFacing.NORTH)
+            };
+
+            for (BlockPos neighbor : neighbors) {
+                for (OffsetAndFacing offset : horizontalOffsets) {
+                    BlockData result = checkBlock(neighbor, offset.x, offset.y, offset.z, offset.facing);
+                    if (result != null) return result;
+                }
+            }
         }
-        if (!invalid.contains(mc.theWorld.getBlockState(pos.add(1, 0, 0)).getBlock())) {
-            return new BlockData(pos.add(1, 0, 0), EnumFacing.WEST);
-        }
-        if (!invalid.contains(mc.theWorld.getBlockState(pos.add(0, 0, -1)).getBlock())) {
-            return new BlockData(pos.add(0, 0, -1), EnumFacing.SOUTH);
-        }
-        if (!invalid.contains(mc.theWorld.getBlockState(pos.add(0, 0, 1)).getBlock())) {
-            return new BlockData(pos.add(0, 0, 1), EnumFacing.NORTH);
-        }
-        BlockPos add = pos.add(-1, 0, 0);
-        if (!invalid.contains(mc.theWorld.getBlockState(add.add(-1, 0, 0)).getBlock())) {
-            return new BlockData(add.add(-1, 0, 0), EnumFacing.EAST);
-        }
-        if (!invalid.contains(mc.theWorld.getBlockState(add.add(1, 0, 0)).getBlock())) {
-            return new BlockData(add.add(1, 0, 0), EnumFacing.WEST);
-        }
-        if (!invalid.contains(mc.theWorld.getBlockState(add.add(0, 0, -1)).getBlock())) {
-            return new BlockData(add.add(0, 0, -1), EnumFacing.SOUTH);
-        }
-        if (!invalid.contains(mc.theWorld.getBlockState(add.add(0, 0, 1)).getBlock())) {
-            return new BlockData(add.add(0, 0, 1), EnumFacing.NORTH);
-        }
-        BlockPos add2 = pos.add(1, 0, 0);
-        if (!invalid.contains(mc.theWorld.getBlockState(add2.add(-1, 0, 0)).getBlock())) {
-            return new BlockData(add2.add(-1, 0, 0), EnumFacing.EAST);
-        }
-        if (!invalid.contains(mc.theWorld.getBlockState(add2.add(1, 0, 0)).getBlock())) {
-            return new BlockData(add2.add(1, 0, 0), EnumFacing.WEST);
-        }
-        if (!invalid.contains(mc.theWorld.getBlockState(add2.add(0, 0, -1)).getBlock())) {
-            return new BlockData(add2.add(0, 0, -1), EnumFacing.SOUTH);
-        }
-        if (!invalid.contains(mc.theWorld.getBlockState(add2.add(0, 0, 1)).getBlock())) {
-            return new BlockData(add2.add(0, 0, 1), EnumFacing.NORTH);
-        }
-        BlockPos add3 = pos.add(0, 0, -1);
-        if (!invalid.contains(mc.theWorld.getBlockState(add3.add(-1, 0, 0)).getBlock())) {
-            return new BlockData(add3.add(-1, 0, 0), EnumFacing.EAST);
-        }
-        if (!invalid.contains(mc.theWorld.getBlockState(add3.add(1, 0, 0)).getBlock())) {
-            return new BlockData(add3.add(1, 0, 0), EnumFacing.WEST);
-        }
-        if (!invalid.contains(mc.theWorld.getBlockState(add3.add(0, 0, -1)).getBlock())) {
-            return new BlockData(add3.add(0, 0, -1), EnumFacing.SOUTH);
-        }
-        if (!invalid.contains(mc.theWorld.getBlockState(add3.add(0, 0, 1)).getBlock())) {
-            return new BlockData(add3.add(0, 0, 1), EnumFacing.NORTH);
-        }
-        BlockPos add4 = pos.add(0, 0, 1);
-        if (!invalid.contains(mc.theWorld.getBlockState(add4.add(-1, 0, 0)).getBlock())) {
-            return new BlockData(add4.add(-1, 0, 0), EnumFacing.EAST);
-        }
-        if (!invalid.contains(mc.theWorld.getBlockState(add4.add(1, 0, 0)).getBlock())) {
-            return new BlockData(add4.add(1, 0, 0), EnumFacing.WEST);
-        }
-        if (!invalid.contains(mc.theWorld.getBlockState(add4.add(0, 0, -1)).getBlock())) {
-            return new BlockData(add4.add(0, 0, -1), EnumFacing.SOUTH);
-        }
-        if (!invalid.contains(mc.theWorld.getBlockState(add4.add(0, 0, 1)).getBlock())) {
-            return new BlockData(add4.add(0, 0, 1), EnumFacing.NORTH);
+
+        return null;
+    }
+
+    private BlockData checkBlock(BlockPos base, int dx, int dy, int dz, EnumFacing facing) {
+        BlockPos targetPos = base.add(dx, dy, dz);
+        if (!invalid.contains(mc.theWorld.getBlockState(targetPos).getBlock())) {
+            return new BlockData(targetPos, facing);
         }
         return null;
+    }
+
+    private static class OffsetAndFacing {
+        final int x, y, z;
+        final EnumFacing facing;
+
+        OffsetAndFacing(int x, int y, int z, EnumFacing facing) {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+            this.facing = facing;
+        }
     }
 
     private int getValidBlockSlot() {
