@@ -36,10 +36,14 @@ public class Scaffold extends Module {
     private static final SelectionValue rotationMode = new SelectionValue("Rotation Mode", "Normal", () -> mode.get().equals("Normal") || mode.get().equals("Telly"), "OFF", "Normal", "Snap");
     private static final BooleanValue simpleRotator = new BooleanValue("Simple Rotator", false, () -> mode.get().equals("Normal") || mode.get().equals("Telly"));
     private static final SelectionValue tellyJumpMode = new SelectionValue("Telly Jump Mode", "Edge Only", () -> mode.get().equals("Telly"), "Edge Only", "Ground");
-    private static final NumberValue antiPlaceUntil = new NumberValue("Anti Place Until", 3.0, 1.0, 6.0, 1.0, () -> mode.get().equals("Telly"));
-    private static final NumberValue tellyOneJumpRotation = new NumberValue("Telly 1 Jump Rotation", 0.0, 0.0, 180.0, 5.0, () -> mode.get().equals("Telly"));
-    private static final NumberValue tellyTwoJumpRotation = new NumberValue("Telly 2 Jump Rotation", 10.0, 0.0, 180.0, 5.0, () -> mode.get().equals("Telly"));
-    private static final NumberValue tellyThreeJumpRotation = new NumberValue("Telly 3 Jump Rotation", 35.0, 0.0, 180.0, 5.0, () -> mode.get().equals("Telly"));
+    private static final NumberValue antiPlaceUntil = new NumberValue("Anti Place Until", 3.0, 1.0, 7.0, 1.0, () -> mode.get().equals("Telly"));
+    private static final NumberValue tellyOneJumpRotation = new NumberValue("Telly 1 Jump Rotation", 0.0, 0.0, 180.0, 5.0, () -> mode.get().equals("Telly") && antiPlaceUntil.get().intValue() <= 1);
+    private static final NumberValue tellyTwoJumpRotation = new NumberValue("Telly 2 Jump Rotation", 10.0, 0.0, 180.0, 5.0, () -> mode.get().equals("Telly") && antiPlaceUntil.get().intValue() <= 2);
+    private static final NumberValue tellyThreeJumpRotation = new NumberValue("Telly 3 Jump Rotation", 35.0, 0.0, 180.0, 5.0, () -> mode.get().equals("Telly") && antiPlaceUntil.get().intValue() <= 3);
+    private static final NumberValue tellyFourJumpRotation = new NumberValue("Telly 4 Jump Rotation", 35.0, 0.0, 180.0, 5.0, () -> mode.get().equals("Telly") && antiPlaceUntil.get().intValue() <= 4);
+    private static final NumberValue tellyFiveJumpRotation = new NumberValue("Telly 5 Jump Rotation", 35.0, 0.0, 180.0, 5.0, () -> mode.get().equals("Telly") && antiPlaceUntil.get().intValue() <= 5);
+    private static final NumberValue tellySixJumpRotation = new NumberValue("Telly 6 Jump Rotation", 35.0, 0.0, 180.0, 5.0, () -> mode.get().equals("Telly") && antiPlaceUntil.get().intValue() <= 6);
+    private static final NumberValue tellySevenJumpRotation = new NumberValue("Telly 7 Jump Rotation", 35.0, 0.0, 180.0, 5.0, () -> mode.get().equals("Telly") && antiPlaceUntil.get().intValue() <= 7);
     private static final NumberValue rotationSpeed = new NumberValue("Rotation Speed", 60.0, 0.0, 180.0, 5.0, () -> mode.get().equals("Normal") || mode.get().equals("Telly"));
     private static final NumberValue clutchRange = new NumberValue("Clutch Range", 3.0, 1.0, 6.0, 1.0);
     private static final NumberValue expandRange = new NumberValue("Expand Range", 0.0, 0.0, 5.0, 1.0);
@@ -222,6 +226,10 @@ public class Scaffold extends Module {
             case 1: return tellyOneJumpRotation.get().floatValue();
             case 2: return tellyTwoJumpRotation.get().floatValue();
             case 3: return tellyThreeJumpRotation.get().floatValue();
+            case 4: return tellyFourJumpRotation.get().floatValue();
+            case 5: return tellyFiveJumpRotation.get().floatValue();
+            case 6: return tellySixJumpRotation.get().floatValue();
+            case 7: return tellySevenJumpRotation.get().floatValue();
         }
         return rotationSpeed.get().floatValue();
     }
@@ -551,7 +559,7 @@ public class Scaffold extends Module {
         } else {
             keepY = (int) mc.thePlayer.posY;
 
-            if (andromeda.get() && andromed) {
+            if (mode.get().equals("Normal") && andromeda.get() && andromed) {
                 keepY += 2;
             }
         }
