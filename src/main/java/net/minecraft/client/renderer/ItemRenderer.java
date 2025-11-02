@@ -375,7 +375,7 @@ public class ItemRenderer
 
     private void doCrazyBlockTransformations()
     {
-        GlStateManager.translate(0.0F, -0.2F, 0.0F);
+        GlStateManager.translate(0.0F, -0.3F, 0.0F);
 
         GlStateManager.translate(-0.5F, 0.2F, 0.0F);
         GlStateManager.rotate(30.0F, 0.0F, 1.0F, 0.0F);
@@ -524,6 +524,9 @@ public class ItemRenderer
 
     private void renderSwordAnimations(Animations animationsModule, float f, float f1, float var9) {
         if (animationsModule.isEnabled()) {
+            if (!animationsModule.doBlockEquipAnimation()) {
+                f = 0.0F;
+            }
             switch (animationsModule.getBlockAnimation().get().toLowerCase()) {
                 case "vanilla":
                     this.transformFirstPersonItem(f, f1);

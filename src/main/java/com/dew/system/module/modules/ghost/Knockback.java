@@ -15,13 +15,14 @@ import org.lwjgl.input.Keyboard;
 
 public class Knockback extends Module {
 
-    private static final SelectionValue mode = new SelectionValue("Mode", "WTap", "WTap", "Legit", "Rapid", "Backtap", "Packet", "Init Packet", "Legit Packet", "Dual Packet");
+    private static final SelectionValue mode = new SelectionValue("Mode", "WTap", "WTap", "Silent", "Legit", "Rapid", "Backtap", "Packet", "Init Packet", "Legit Packet", "Dual Packet");
     private static final NumberValue minDelayValue = new NumberValue("Min Delay", 50.0, 50.0, 500.0, 1.0);
     private static final NumberValue maxDelayValue = new NumberValue("Max Delay", 50.0, 50.0, 500.0, 1.0);
     private final Clock attackDelay = new Clock();
     private boolean isHit = false;
     private float delay = 0f;
-
+    private boolean shouldWTap = false;
+    private int wTapTicks = 0;
     public Knockback() {
         super("Knockback", ModuleCategory.GHOST, Keyboard.KEY_NONE, false, true, true);
     }
@@ -45,6 +46,8 @@ public class Knockback extends Module {
         attackDelay.reset();
         isHit = false;
         delay = 0f;
+        shouldWTap = false;
+        wTapTicks = 0;
     }
 
     @Override
@@ -55,6 +58,25 @@ public class Knockback extends Module {
             }
 
             isHit = false;
+        }
+
+        if (mode.get().equals("Silent")) {
+            if (shouldWTap && wTapTicks > 0) {
+                if (wTapTicks == 2) {
+                    if (!mc.gameSettings.keyBindForward.isPressed()) {
+                        shouldWTap = false;
+                        wTapTicks = 0;
+                        return;
+                    }
+                    mc.thePlayer.setSprinting(false);
+                } else if (wTapTicks == 1) {
+                    PacketUtil.sendPacket(new C0BPacketEntityAction(mc.thePlayer, C0BPacketEntityAction.Action.START_SPRINTING));
+                    mc.thePlayer.serverSprintState = true;
+                    mc.thePlayer.setSprinting(true);
+                    shouldWTap = false;
+                }
+                wTapTicks--;
+            }
         }
     }
 
@@ -121,6 +143,11 @@ public class Knockback extends Module {
                         mc.thePlayer.sendStartSprintingPacket();
                     }
                     mc.thePlayer.serverSprintState = true;
+                    break;
+
+                case "silent":
+                    shouldWTap = true;
+                    wTapTicks = 2;
                     break;
             }
         }
