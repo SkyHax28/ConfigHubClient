@@ -318,7 +318,7 @@ public class GuiOverlayDebug extends Gui
             }
 
             list.add("");
-            String renderVersion = IMinecraft.mc.isSingleplayer() || ViaLoadingBase.getInstance().getTargetVersion().getVersion() == ViaLoadingBase.getInstance().getNativeVersion() ? "Native" : ViaLoadingBase.getInstance().getTargetVersion().getName();
+            String renderVersion = IMinecraft.mc.isSingleplayer() ? ProtocolVersion.v1_8.getName() : ViaLoadingBase.getInstance().getTargetVersion().getName();
             list.add("Protocol: " + renderVersion);
 
             return list;

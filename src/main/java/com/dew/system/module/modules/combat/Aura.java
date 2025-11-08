@@ -12,7 +12,7 @@ import com.dew.system.module.modules.player.AutoTool;
 import com.dew.system.module.modules.player.Breaker;
 import com.dew.system.module.modules.player.Freecam;
 import com.dew.system.module.modules.player.Scaffold;
-import com.dew.system.module.modules.visual.Animations;
+import com.dew.system.module.modules.visual.ItemAnimations;
 import com.dew.system.settingsvalue.BooleanValue;
 import com.dew.system.settingsvalue.MultiSelectionValue;
 import com.dew.system.settingsvalue.NumberValue;
@@ -144,7 +144,7 @@ public class Aura extends Module {
         lastThrowTime = 0L;
         target = null;
         targeted = false;
-        DewCommon.moduleManager.getModule(Animations.class).setVisualBlocking(false);
+        DewCommon.moduleManager.getModule(ItemAnimations.class).setVisualBlocking(false);
     }
 
     public String getAttackTiming() {
@@ -294,7 +294,7 @@ public class Aura extends Module {
                         return;
                     }
                     if (visualAutoBlock.get()) {
-                        DewCommon.moduleManager.getModule(Animations.class).setVisualBlocking(setBlocker);
+                        DewCommon.moduleManager.getModule(ItemAnimations.class).setVisualBlocking(setBlocker);
                     }
                     long currentTime = System.currentTimeMillis();
                     boolean canHit = this.rotateToTargetAndIsCanHit(target);
@@ -320,7 +320,7 @@ public class Aura extends Module {
                 if (!targetsList.isEmpty()) {
                     targeted = true;
                     if (visualAutoBlock.get()) {
-                        DewCommon.moduleManager.getModule(Animations.class).setVisualBlocking(setBlocker);
+                        DewCommon.moduleManager.getModule(ItemAnimations.class).setVisualBlocking(setBlocker);
                     }
 
                     target = targetsList.get(0);

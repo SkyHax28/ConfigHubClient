@@ -1,7 +1,7 @@
 package net.minecraft.client.renderer.entity;
 
 import com.dew.DewCommon;
-import com.dew.system.module.modules.visual.Animations;
+import com.dew.system.module.modules.visual.ItemAnimations;
 import com.dew.system.module.modules.visual.NameTags;
 import com.dew.system.module.modules.visual.Highlighter;
 import net.minecraft.client.entity.AbstractClientPlayer;
@@ -97,7 +97,7 @@ public class RenderPlayer extends RendererLivingEntity<AbstractClientPlayer>
             modelplayer.aimedBow = false;
             modelplayer.isSneak = clientPlayer.isSneaking();
 
-            if (clientPlayer instanceof EntityPlayerSP && itemstack != null && (itemstack.getItem() instanceof ItemSword && DewCommon.moduleManager.getModule(Animations.class).isVisualBlocking() || DewCommon.moduleManager.getModule(Animations.class).shouldForceBlock(clientPlayer))) {
+            if (clientPlayer instanceof EntityPlayerSP && itemstack != null && (itemstack.getItem() instanceof ItemSword && DewCommon.moduleManager.getModule(ItemAnimations.class).isVisualBlocking() || DewCommon.moduleManager.getModule(ItemAnimations.class).shouldForceBlock(clientPlayer))) {
                 modelplayer.heldItemRight = 3;
                 return;
             }

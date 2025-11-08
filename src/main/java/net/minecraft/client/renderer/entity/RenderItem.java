@@ -220,7 +220,7 @@ public class RenderItem implements IResourceManagerReloadListener
     private void renderEffect(IBakedModel model)
     {
         ShaderESP shaderEspModule = DewCommon.moduleManager.getModule(ShaderESP.class);
-        if (shaderEspModule.isEnabled() && !shaderEspModule.isRenderNametagAndEnchantmentGlint()) {
+        if (shaderEspModule.isEnabled() && !shaderEspModule.isRenderingESP()) {
             return;
         }
 

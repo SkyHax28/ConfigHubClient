@@ -2,7 +2,7 @@ package net.minecraft.client;
 
 import com.dew.DewCommon;
 import com.dew.system.event.events.*;
-import com.dew.system.module.modules.visual.Animations;
+import com.dew.system.module.modules.visual.ItemAnimations;
 import com.dew.utils.LibraryChecker;
 import com.dew.utils.LogUtil;
 import com.dew.utils.McChanges;
@@ -1413,7 +1413,7 @@ public class Minecraft implements IThreadListener, IPlayerUsage
                 BlockPos blockpos = this.objectMouseOver.getBlockPos();
 
                 if (this.thePlayer.isUsingItem()) {
-                    if (this.theWorld.getBlockState(blockpos).getBlock().getMaterial() != Material.air && DewCommon.moduleManager.getModule(Animations.class).isEnabled() && DewCommon.moduleManager.getModule(Animations.class).getOldAnimations().isSelected("Punching During Usage")) {
+                    if (this.theWorld.getBlockState(blockpos).getBlock().getMaterial() != Material.air && DewCommon.moduleManager.getModule(ItemAnimations.class).isEnabled() && DewCommon.moduleManager.getModule(ItemAnimations.class).getOldAnimations().isSelected("Punching During Usage")) {
                         this.effectRenderer.addBlockHitEffects(blockpos, this.objectMouseOver.sideHit);
                         this.thePlayer.swingItemWithoutPacket();
                     }

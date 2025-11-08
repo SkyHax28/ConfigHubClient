@@ -5,8 +5,8 @@ import com.dew.IMinecraft;
 import com.dew.system.module.modules.combat.AutoPot;
 import com.dew.system.module.modules.player.AutoTool;
 import com.dew.system.module.modules.player.Scaffold;
-import com.dew.system.module.modules.visual.Animations;
-import com.dew.system.module.modules.visual.SilentView;
+import com.dew.system.module.modules.visual.ItemAnimations;
+import com.dew.system.module.modules.visual.Rotations;
 import com.dew.system.rotation.RotationManager;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
@@ -165,14 +165,14 @@ public class ModelBiped extends ModelBase
 
             case 3:
                 this.bipedRightArm.rotateAngleX = this.bipedRightArm.rotateAngleX * 0.5F - ((float)Math.PI / 10F) * (float)this.heldItemRight;
-                this.bipedRightArm.rotateAngleY = DewCommon.moduleManager.getModule(Animations.class).isEnabled() && DewCommon.moduleManager.getModule(Animations.class).getOldAnimations().isSelected("Third Person") ? 0.0F : -0.5235988F;
+                this.bipedRightArm.rotateAngleY = DewCommon.moduleManager.getModule(ItemAnimations.class).isEnabled() && DewCommon.moduleManager.getModule(ItemAnimations.class).getOldAnimations().isSelected("Third Person") ? 0.0F : -0.5235988F;
         }
 
         this.bipedLeftArm.rotateAngleY = 0.0F;
 
-        SilentView silentViewModule = DewCommon.moduleManager.getModule(SilentView.class);
+        Rotations rotationsModule = DewCommon.moduleManager.getModule(Rotations.class);
         RotationManager rotationManager = DewCommon.rotationManager;
-        if (entityIn instanceof EntityPlayer && entityIn.equals(IMinecraft.mc.thePlayer) && silentViewModule.isEnabled() && rotationManager.isRotating() && DewCommon.moduleManager.getModule(SilentView.class).getMode().equals("Smooth")) {
+        if (entityIn instanceof EntityPlayer && entityIn.equals(IMinecraft.mc.thePlayer) && rotationsModule.isEnabled() && rotationManager.isRotating() && DewCommon.moduleManager.getModule(Rotations.class).getMode().equals("Smooth")) {
             bipedHead.rotateAngleX = (float) Math.toRadians(rotationManager.getInterpolatedPitch(IMinecraft.mc.timer.renderPartialTicks));
         }
 

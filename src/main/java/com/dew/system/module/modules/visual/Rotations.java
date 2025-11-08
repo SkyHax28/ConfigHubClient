@@ -5,12 +5,12 @@ import com.dew.system.module.ModuleCategory;
 import com.dew.system.settingsvalue.SelectionValue;
 import org.lwjgl.input.Keyboard;
 
-public class SilentView extends Module {
+public class Rotations extends Module {
 
-    private static final SelectionValue mode = new SelectionValue("Mode", "Cool", "Cool", "Smooth", "GameSense");
+    private static final SelectionValue mode = new SelectionValue("Mode", "Smooth", "Smooth", "Cool", "GameSense");
 
-    public SilentView() {
-        super("Silent View", ModuleCategory.VISUAL, Keyboard.KEY_NONE, true, false, true);
+    public Rotations() {
+        super("Rotations", ModuleCategory.VISUAL, Keyboard.KEY_NONE, true, false, true);
     }
 
     @Override

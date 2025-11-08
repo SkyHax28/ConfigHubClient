@@ -9,6 +9,7 @@ import com.dew.system.module.modules.combat.Aura;
 import com.dew.utils.RandomUtil;
 import com.dew.utils.ServerUtil;
 import com.dew.utils.VPNUtil;
+import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
 import de.florianmichael.vialoadingbase.ViaLoadingBase;
 import net.minecraft.client.gui.achievement.GuiAchievements;
 import net.minecraft.client.gui.achievement.GuiStats;
@@ -143,7 +144,7 @@ public class GuiIngameMenu extends GuiScreen
         this.drawDefaultBackground();
         this.drawCenteredString(this.fontRendererObj, I18n.format("menu.game", new Object[0]), this.width / 2, 40, 16777215);
         this.drawCenteredString(IMinecraft.mc.bitFontRendererObj, "Currently Logged Into: " + mc.session.getUsername(), width / 2, 5, 0xFFFFFF);
-        String renderVersion = IMinecraft.mc.isSingleplayer() || ViaLoadingBase.getInstance().getTargetVersion().getVersion() == ViaLoadingBase.getInstance().getNativeVersion() ? "Native" : ViaLoadingBase.getInstance().getTargetVersion().getName();
+        String renderVersion = IMinecraft.mc.isSingleplayer() ? ProtocolVersion.v1_8.getName() : ViaLoadingBase.getInstance().getTargetVersion().getName();
         this.drawCenteredString(IMinecraft.mc.bitFontRendererObj, "Protocol: " + renderVersion, width / 2, 16, 0xFFFFFF);
         super.drawScreen(mouseX, mouseY, partialTicks);
     }

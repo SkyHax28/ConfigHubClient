@@ -158,7 +158,7 @@ public abstract class LayerArmorBase<T extends ModelBase> implements LayerRender
     private void renderGlint(EntityLivingBase entitylivingbaseIn, T modelbaseIn, float p_177183_3_, float p_177183_4_, float partialTicks, float p_177183_6_, float p_177183_7_, float p_177183_8_, float scale)
     {
         ShaderESP shaderEspModule = DewCommon.moduleManager.getModule(ShaderESP.class);
-        if (shaderEspModule.isEnabled() && !shaderEspModule.isRenderNametagAndEnchantmentGlint()) {
+        if (shaderEspModule.isEnabled() && !shaderEspModule.isRenderingESP()) {
             return;
         }
 

@@ -4,7 +4,7 @@ import com.dew.DewCommon;
 import com.dew.system.module.modules.combat.AutoPot;
 import com.dew.system.module.modules.player.AutoTool;
 import com.dew.system.module.modules.player.Scaffold;
-import com.dew.system.module.modules.visual.Animations;
+import com.dew.system.module.modules.visual.ItemAnimations;
 import com.dew.system.module.modules.visual.Canceller;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockCarpet;
@@ -314,7 +314,7 @@ public class ItemRenderer
         GlStateManager.translate(0.0F, f2, 0.0F);
         float f3 = 1.0F - (float)Math.pow((double)f1, 27.0D);
 
-        if (DewCommon.moduleManager.getModule(Animations.class).isEnabled() && (isFood && DewCommon.moduleManager.getModule(Animations.class).getOldAnimations().isSelected("Food") || !isFood && DewCommon.moduleManager.getModule(Animations.class).getOldAnimations().isSelected("Potion"))) {
+        if (DewCommon.moduleManager.getModule(ItemAnimations.class).isEnabled() && (isFood && DewCommon.moduleManager.getModule(ItemAnimations.class).getOldAnimations().isSelected("Food") || !isFood && DewCommon.moduleManager.getModule(ItemAnimations.class).getOldAnimations().isSelected("Potion"))) {
             GlStateManager.translate(f3 * 0.66F, f3 * -0.5F, f3 * 0.0F);
             GlStateManager.rotate(f3 * 90.0F, 0.0F, 1.0F, 0.0F);
             GlStateManager.rotate(f3 * 5.0F, 1.0F, 0.0F, 0.0F);
@@ -329,7 +329,7 @@ public class ItemRenderer
 
     private void transformFirstPersonItem(float equipProgress, float swingProgress)
     {
-        float scale = DewCommon.moduleManager.getModule(Animations.class).getItemScale() / 10f;
+        float scale = DewCommon.moduleManager.getModule(ItemAnimations.class).getItemScale() / 10f;
         GlStateManager.translate(0.56F, -0.52F, -0.71999997F);
         GlStateManager.translate(0.0F, equipProgress * -0.6F, 0.0F);
         GlStateManager.rotate(45.0F, 0.0F, 1.0F, 0.0F);
@@ -343,7 +343,7 @@ public class ItemRenderer
 
     private void doBowTransformations(float partialTicks, AbstractClientPlayer clientPlayer)
     {
-        if (DewCommon.moduleManager.getModule(Animations.class).isEnabled() && DewCommon.moduleManager.getModule(Animations.class).getOldAnimations().isSelected("Bow")) {
+        if (DewCommon.moduleManager.getModule(ItemAnimations.class).isEnabled() && DewCommon.moduleManager.getModule(ItemAnimations.class).getOldAnimations().isSelected("Bow")) {
             GlStateManager.translate(-0.2D, 0.0D, -0.175D);
             GlStateManager.rotate(1.0F, 0.0F, 0.0F, -1.25F);
         }
@@ -412,16 +412,16 @@ public class ItemRenderer
             GlStateManager.enableRescaleNormal();
             GlStateManager.pushMatrix();
 
-            Animations animationsModule = DewCommon.moduleManager.getModule(Animations.class);
+            ItemAnimations itemAnimationsModule = DewCommon.moduleManager.getModule(ItemAnimations.class);
             final float var9 = MathHelper.sin(MathHelper.sqrt_float(f1) * (float) Math.PI);
 
             if (this.itemToRender != null) {
                 boolean renderMap = this.itemToRender.getItem() instanceof ItemMap;
-                boolean shouldBlock = !renderMap && (animationsModule.isVisualBlocking() && this.itemToRender.getItem() instanceof ItemSword || animationsModule.shouldForceBlock(mc.thePlayer));
+                boolean shouldBlock = !renderMap && (itemAnimationsModule.isVisualBlocking() && this.itemToRender.getItem() instanceof ItemSword || itemAnimationsModule.shouldForceBlock(mc.thePlayer));
                 boolean shouldBlock2 = !shouldBlock && abstractclientplayer.getItemInUseCount() > 0;
                 boolean shouldBlock3 = shouldBlock2 && this.itemToRender.getItemUseAction() == EnumAction.BLOCK;
 
-                if (animationsModule.isEnabled() && animationsModule.getOldAnimations().isSelected("First Person")) {
+                if (itemAnimationsModule.isEnabled() && itemAnimationsModule.getOldAnimations().isSelected("First Person")) {
                     if (!shouldBlock3 && this.itemToRender.getItem() instanceof ItemSword) {
                         GlStateManager.translate(0.0F, 0.0F, -0.02F);
                         GlStateManager.rotate(1.0F, 0.0F, 0.0F, -0.1F);
@@ -445,7 +445,7 @@ public class ItemRenderer
                 if (renderMap) {
                     this.renderItemMap(abstractclientplayer, f2, f, f1);
                 } else if (shouldBlock) {
-                    this.renderSwordAnimations(animationsModule, f, f1, var9);
+                    this.renderSwordAnimations(itemAnimationsModule, f, f1, var9);
                 } else if (shouldBlock2) {
                     EnumAction enumaction = this.itemToRender.getItemUseAction();
 
@@ -457,27 +457,27 @@ public class ItemRenderer
 
                         case EAT:
                             this.performDrinking(abstractclientplayer, partialTicks, true);
-                            this.transformFirstPersonItem(f, animationsModule.isEnabled() && animationsModule.getOldAnimations().isSelected("Food") ? f1 : 0.0F);
+                            this.transformFirstPersonItem(f, itemAnimationsModule.isEnabled() && itemAnimationsModule.getOldAnimations().isSelected("Food") ? f1 : 0.0F);
                             break;
 
                         case DRINK:
                             this.performDrinking(abstractclientplayer, partialTicks, false);
-                            this.transformFirstPersonItem(f, animationsModule.isEnabled() && animationsModule.getOldAnimations().isSelected("Potion") ? f1 : 0.0F);
+                            this.transformFirstPersonItem(f, itemAnimationsModule.isEnabled() && itemAnimationsModule.getOldAnimations().isSelected("Potion") ? f1 : 0.0F);
                             break;
 
                         case BLOCK:
-                            this.renderSwordAnimations(animationsModule, f, f1, var9);
+                            this.renderSwordAnimations(itemAnimationsModule, f, f1, var9);
                             break;
 
                         case BOW:
-                            this.transformFirstPersonItem(f, animationsModule.isEnabled() && animationsModule.getOldAnimations().isSelected("Bow") ? f1 : 0.0F);
+                            this.transformFirstPersonItem(f, itemAnimationsModule.isEnabled() && itemAnimationsModule.getOldAnimations().isSelected("Bow") ? f1 : 0.0F);
                             this.doBowTransformations(partialTicks, abstractclientplayer);
                     }
                 }
                 else
                 {
-                    if (animationsModule.isEnabled()) {
-                        switch (animationsModule.getSwingAnimation().get().toLowerCase()) {
+                    if (itemAnimationsModule.isEnabled()) {
+                        switch (itemAnimationsModule.getSwingAnimation().get().toLowerCase()) {
                             case "vanilla":
                                 this.doItemUsedTransformations(f1);
                                 break;
@@ -497,8 +497,8 @@ public class ItemRenderer
             }
             else if (!abstractclientplayer.isInvisible())
             {
-                if (animationsModule.isEnabled() && animationsModule.shouldApplyHands()) {
-                    switch (animationsModule.getSwingAnimation().get().toLowerCase()) {
+                if (itemAnimationsModule.isEnabled() && itemAnimationsModule.shouldApplyHands()) {
+                    switch (itemAnimationsModule.getSwingAnimation().get().toLowerCase()) {
                         case "vanilla":
                             this.renderPlayerArm(abstractclientplayer, f, f1);
                             break;
@@ -522,12 +522,12 @@ public class ItemRenderer
         }
     }
 
-    private void renderSwordAnimations(Animations animationsModule, float f, float f1, float var9) {
-        if (animationsModule.isEnabled()) {
-            if (!animationsModule.doBlockEquipAnimation()) {
+    private void renderSwordAnimations(ItemAnimations itemAnimationsModule, float f, float f1, float var9) {
+        if (itemAnimationsModule.isEnabled()) {
+            if (!itemAnimationsModule.doBlockEquipAnimation()) {
                 f = 0.0F;
             }
-            switch (animationsModule.getBlockAnimation().get().toLowerCase()) {
+            switch (itemAnimationsModule.getBlockAnimation().get().toLowerCase()) {
                 case "vanilla":
                     this.transformFirstPersonItem(f, f1);
                     this.doBlockTransformations();

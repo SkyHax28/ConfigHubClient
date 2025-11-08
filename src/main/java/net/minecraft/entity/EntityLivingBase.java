@@ -12,8 +12,8 @@ import com.dew.system.module.modules.movement.flight.FlightModule;
 import com.dew.system.module.modules.movement.speed.SpeedModule;
 import com.dew.system.module.modules.player.NoJumpDelay;
 import com.dew.system.module.modules.player.Sprint;
-import com.dew.system.module.modules.visual.Animations;
-import com.dew.system.module.modules.visual.SilentView;
+import com.dew.system.module.modules.visual.ItemAnimations;
+import com.dew.system.module.modules.visual.Rotations;
 import com.dew.system.rotation.RotationManager;
 import com.dew.system.viapatcher.MovePatcher;
 import com.dew.utils.MovementUtil;
@@ -1151,9 +1151,9 @@ public abstract class EntityLivingBase extends Entity
 
     private int getArmSwingAnimationEnd()
     {
-        Animations animationsModule = DewCommon.moduleManager.getModule(Animations.class);
-        if (animationsModule.isEnabled() && animationsModule.shouldCustomSwingSpeed() && this instanceof EntityPlayerSP) {
-            return animationsModule.getSwingSpeed() + 6;
+        ItemAnimations itemAnimationsModule = DewCommon.moduleManager.getModule(ItemAnimations.class);
+        if (itemAnimationsModule.isEnabled() && itemAnimationsModule.shouldCustomSwingSpeed() && this instanceof EntityPlayerSP) {
+            return itemAnimationsModule.getSwingSpeed() + 6;
         }
 
         return this.isPotionActive(Potion.digSpeed) ? 6 - (1 + this.getActivePotionEffect(Potion.digSpeed).getAmplifier()) * 1 : (this.isPotionActive(Potion.digSlowdown) ? 6 + (1 + this.getActivePotionEffect(Potion.digSlowdown).getAmplifier()) * 2 : 6);
@@ -1706,11 +1706,11 @@ public abstract class EntityLivingBase extends Entity
 
     protected float updateDistance(float p_110146_1_, float p_110146_2_)
     {
-        SilentView silentViewModule = DewCommon.moduleManager.getModule(SilentView.class);
+        Rotations rotationsModule = DewCommon.moduleManager.getModule(Rotations.class);
         RotationManager rotationManager = DewCommon.rotationManager;
         float fakeRotationYaw = this.rotationYaw;
 
-        if (silentViewModule.isEnabled() && rotationManager.isRotating() && DewCommon.moduleManager.getModule(SilentView.class).getMode().equals("Smooth") && this instanceof EntityPlayerSP) {
+        if (rotationsModule.isEnabled() && rotationManager.isRotating() && DewCommon.moduleManager.getModule(Rotations.class).getMode().equals("Smooth") && this instanceof EntityPlayerSP) {
             if (this.swingProgress > 0.0F) {
                 p_110146_1_ = rotationManager.getClientYaw();
             }

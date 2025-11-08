@@ -12,21 +12,21 @@ import org.lwjgl.input.Keyboard;
 import java.util.Arrays;
 import java.util.Collections;
 
-public class Animations extends Module {
+public class ItemAnimations extends Module {
 
     private static final SelectionValue blockAnimation = new SelectionValue("Block Animation", "Legacy", "Vanilla", "Legacy", "Wag", "Strike", "Phong", "Div", "Elegant", "Pendulum", "Zen", "Bush", "Flow", "Precision", "Surge", "Drift", "Focus", "Pulse", "Hentai Bush", "Tide", "Dash", "Exhibition Push", "Exhibition Swang", "Exhibition Swonk", "Coinful");
     private static final SelectionValue swingAnimation = new SelectionValue("Swing Animation", "Vanilla", "Vanilla", "Flux", "Direct");
     private static final BooleanValue applyHands = new BooleanValue("Apply Hands", true, () -> swingAnimation.get().equals("Flux") || swingAnimation.get().equals("Direct"));
-    private static final MultiSelectionValue oldAnimations = new MultiSelectionValue("1.7 Animations", Collections.emptyList(), "Food", "Potion", "Bow", "First Person", "Third Person", "Punching During Usage");
+    private static final MultiSelectionValue oldAnimations = new MultiSelectionValue("1.7 Animations", Arrays.asList("Food", "Potion", "Bow", "First Person", "Third Person", "Punching During Usage"), "Food", "Potion", "Bow", "First Person", "Third Person", "Punching During Usage");
     private static final BooleanValue customSwingSpeed = new BooleanValue("Custom Swing Speed", false);
     private static final NumberValue swingSpeed = new NumberValue("Swing Speed", 9.0, -5.0, 20.0, 1.0, customSwingSpeed::get);
     private static final NumberValue itemScale = new NumberValue("Item Scale", 0.0, -2.0, 2.0, 0.1);
-    private static final BooleanValue blockEquipAnimation = new BooleanValue("Block equip animation", false);
+    private static final BooleanValue blockEquipAnimation = new BooleanValue("Block equip animation", true);
     private static final BooleanValue forceBlockWhileSwing = new BooleanValue("Force block while swing", false);
     private boolean visualBlocking = false;
 
-    public Animations() {
-        super("Animations", ModuleCategory.VISUAL, Keyboard.KEY_NONE, true, false, true);
+    public ItemAnimations() {
+        super("Item Animations", ModuleCategory.VISUAL, Keyboard.KEY_NONE, true, false, true);
     }
 
     public boolean doBlockEquipAnimation() {

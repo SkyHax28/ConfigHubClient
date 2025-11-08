@@ -89,6 +89,8 @@ public class FlightModule extends Module {
 
     @Override
     public void onPreMotion(PreMotionEvent event) {
+        mc.thePlayer.distanceWalkedModified = 0f;
+
         if (currentMode != null)
             currentMode.onPreMotion(event);
     }

@@ -2,11 +2,10 @@ package net.minecraft.client.renderer.entity;
 
 import com.dew.DewCommon;
 import com.dew.IMinecraft;
-import com.dew.system.module.modules.player.Scaffold;
 import com.dew.system.module.modules.visual.Chams;
 import com.dew.system.module.modules.visual.NameTags;
 import com.dew.system.module.modules.visual.ShaderESP;
-import com.dew.system.module.modules.visual.SilentView;
+import com.dew.system.module.modules.visual.Rotations;
 import com.dew.system.rotation.RotationManager;
 import com.google.common.collect.Lists;
 import java.nio.FloatBuffer;
@@ -138,10 +137,11 @@ public abstract class RendererLivingEntity<T extends EntityLivingBase> extends R
                 float f = this.interpolateRotation(entity.prevRenderYawOffset, entity.renderYawOffset, partialTicks);
                 float f1 = this.interpolateRotation(entity.prevRotationYawHead, entity.rotationYawHead, partialTicks);
 
-                SilentView silentViewModule = DewCommon.moduleManager.getModule(SilentView.class);
+                Rotations rotationsModule = DewCommon.moduleManager.getModule(Rotations.class);
+                ShaderESP shaderEspModule = DewCommon.moduleManager.getModule(ShaderESP.class);
                 RotationManager rotationManager = DewCommon.rotationManager;
                 boolean respectCoolJitter = false/*DewCommon.moduleManager.getModule(SilentView.class).getMode().equals("Cool") && DewCommon.moduleManager.getModule(Scaffold.class).isEnabled()*/;
-                boolean shouldRotate = entity instanceof EntityPlayerSP && silentViewModule.isEnabled() && (DewCommon.moduleManager.getModule(SilentView.class).getMode().equals("Cool") || DewCommon.moduleManager.getModule(SilentView.class).getMode().equals("GameSense")) && rotationManager.isRotating() && !rotationManager.isReturning();
+                boolean shouldRotate = entity instanceof EntityPlayerSP && rotationsModule.isEnabled() && (DewCommon.moduleManager.getModule(Rotations.class).getMode().equals("Cool") || DewCommon.moduleManager.getModule(Rotations.class).getMode().equals("GameSense") && (!shaderEspModule.isEnabled() || shaderEspModule.isRenderingESP())) && rotationManager.isRotating() && !rotationManager.isReturning();
 
                 if (shouldRotate) {
                     if (respectCoolJitter) {
@@ -330,7 +330,8 @@ public abstract class RendererLivingEntity<T extends EntityLivingBase> extends R
     private EntityOtherPlayerMP ghostPlayer = null;
 
     private void inRenderPlayer(EntityPlayer realPlayer, float f, float f6, float f5, float f2, float ticks) {
-        SilentView silentViewModule = DewCommon.moduleManager.getModule(SilentView.class);
+        Rotations rotationsModule = DewCommon.moduleManager.getModule(Rotations.class);
+        ShaderESP shaderEspModule = DewCommon.moduleManager.getModule(ShaderESP.class);
         RotationManager rotationManager = DewCommon.rotationManager;
 
         if (IMinecraft.mc.theWorld != null && IMinecraft.mc.getSession().getProfile() != null && (ghostPlayer == null || ghostPlayer.getGameProfile() != IMinecraft.mc.getSession().getProfile())) {
@@ -340,7 +341,7 @@ public abstract class RendererLivingEntity<T extends EntityLivingBase> extends R
             );
         }
 
-        if (IMinecraft.mc.gameSettings.thirdPersonView == 0 || !rotationManager.isRotating() || rotationManager.isReturning() || !silentViewModule.isEnabled() || !DewCommon.moduleManager.getModule(SilentView.class).getMode().equals("GameSense") || ghostPlayer == null) return;
+        if (IMinecraft.mc.gameSettings.thirdPersonView == 0 || !rotationManager.isRotating() || rotationManager.isReturning() || !rotationsModule.isEnabled() || !DewCommon.moduleManager.getModule(Rotations.class).getMode().equals("GameSense") || ghostPlayer == null || shaderEspModule.isEnabled() && !shaderEspModule.isRenderingESP()) return;
 
         float renderPitch = rotationManager.getInterpolatedPitch(ticks);
         float renderYaw = rotationManager.getInterpolatedYaw(ticks);
@@ -426,9 +427,9 @@ public abstract class RendererLivingEntity<T extends EntityLivingBase> extends R
 
     protected void renderModel(T entitylivingbaseIn, float p_77036_2_, float p_77036_3_, float p_77036_4_, float p_77036_5_, float p_77036_6_, float scaleFactor)
     {
-        SilentView silentViewModule = DewCommon.moduleManager.getModule(SilentView.class);
+        Rotations rotationsModule = DewCommon.moduleManager.getModule(Rotations.class);
         RotationManager rotationManager = DewCommon.rotationManager;
-        boolean semiVisible = rotationManager.isRotating() && !rotationManager.isReturning() && silentViewModule.isEnabled() && DewCommon.moduleManager.getModule(SilentView.class).getMode().equals("GameSense") && ghostPlayer != null && entitylivingbaseIn instanceof EntityPlayerSP;
+        boolean semiVisible = rotationManager.isRotating() && !rotationManager.isReturning() && rotationsModule.isEnabled() && DewCommon.moduleManager.getModule(Rotations.class).getMode().equals("GameSense") && ghostPlayer != null && entitylivingbaseIn instanceof EntityPlayerSP;
         boolean flag = !entitylivingbaseIn.isInvisible();
         boolean flag1 = !flag && !entitylivingbaseIn.isInvisibleToPlayer(Minecraft.getMinecraft().thePlayer);
 
@@ -794,7 +795,7 @@ public abstract class RendererLivingEntity<T extends EntityLivingBase> extends R
     protected boolean canRenderName(T entity)
     {
         ShaderESP shaderEspModule = DewCommon.moduleManager.getModule(ShaderESP.class);
-        if (shaderEspModule.isEnabled() && !shaderEspModule.isRenderNametagAndEnchantmentGlint()) {
+        if (shaderEspModule.isEnabled() && !shaderEspModule.isRenderingESP()) {
             return false;
         }
 

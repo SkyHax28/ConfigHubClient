@@ -23,7 +23,7 @@ public class ModuleManager implements EventListener {
     public ModuleManager() {
         this.modules.addAll(Arrays.asList(
                 new MoveFix(),
-                new Animations(),
+                new ItemAnimations(),
                 new ClickGui(),
                 new Aura(),
                 new FlightModule(),
@@ -32,7 +32,7 @@ public class ModuleManager implements EventListener {
                 new SpeedModule(),
                 new MurdererDetector(),
                 new NoFall(),
-                new SilentView(),
+                new Rotations(),
                 new InvMove(),
                 new NoSlow(),
                 new Scaffold(),
@@ -65,7 +65,7 @@ public class ModuleManager implements EventListener {
                 new Knockback(),
                 new BloxdPhysics(),
                 new Step(),
-                new ItemPhysics(),
+                new Physics(),
                 new Ambience(),
                 new NoJumpDelay(),
                 new SafetySwitchv2000(),

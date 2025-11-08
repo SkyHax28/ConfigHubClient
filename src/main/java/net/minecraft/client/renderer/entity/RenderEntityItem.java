@@ -3,7 +3,7 @@ package net.minecraft.client.renderer.entity;
 import java.util.*;
 
 import com.dew.DewCommon;
-import com.dew.system.module.modules.visual.ItemPhysics;
+import com.dew.system.module.modules.visual.Physics;
 import com.dew.system.module.modules.visual.NameTags;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
@@ -49,11 +49,11 @@ public class RenderEntityItem extends Render<EntityItem>
             boolean flag = p_177077_9_.isGui3d();
             int i = this.func_177078_a(itemstack);
             float f = 0.25F;
-            float f1 = !itemIn.onGround || !DewCommon.moduleManager.getModule(ItemPhysics.class).isEnabled() ? MathHelper.sin(((float)itemIn.getAge() + p_177077_8_) / 10.0F + itemIn.hoverStart) * 0.1F + 0.1F : 0.0F;
+            float f1 = !itemIn.onGround || !DewCommon.moduleManager.getModule(Physics.class).isEnabled() ? MathHelper.sin(((float)itemIn.getAge() + p_177077_8_) / 10.0F + itemIn.hoverStart) * 0.1F + 0.1F : 0.0F;
             float f2 = p_177077_9_.getItemCameraTransforms().getTransform(ItemCameraTransforms.TransformType.GROUND).scale.y;
             GlStateManager.translate((float)p_177077_2_, (float)p_177077_4_ + f1 + 0.25F * f2, (float)p_177077_6_);
 
-            if (DewCommon.moduleManager.getModule(ItemPhysics.class).isEnabled()) {
+            if (DewCommon.moduleManager.getModule(Physics.class).isEnabled()) {
                 int entityId = itemIn.getEntityId();
                 boolean onGround = itemIn.onGround;
 
@@ -154,7 +154,7 @@ public class RenderEntityItem extends Render<EntityItem>
         IBakedModel ibakedmodel = this.itemRenderer.getItemModelMesher().getItemModel(itemstack);
         int i = this.func_177077_a(entity, x, y, z, partialTicks, ibakedmodel);
 
-        float itemSize = DewCommon.moduleManager.getModule(ItemPhysics.class).isEnabled() ? 0.72f : 0.5f;
+        float itemSize = DewCommon.moduleManager.getModule(Physics.class).isEnabled() ? 0.72f : 0.5f;
 
         for (int j = 0; j < i; ++j)
         {
@@ -179,7 +179,7 @@ public class RenderEntityItem extends Render<EntityItem>
             {
                 GlStateManager.pushMatrix();
 
-                if (DewCommon.moduleManager.getModule(ItemPhysics.class).isEnabled()) {
+                if (DewCommon.moduleManager.getModule(Physics.class).isEnabled()) {
                     GlStateManager.scale(itemSize * 2f, itemSize * 2f, itemSize * 2f);
                 }
                 ibakedmodel.getItemCameraTransforms().applyTransform(ItemCameraTransforms.TransformType.GROUND);

@@ -20,28 +20,28 @@ import java.awt.*;
 public class ShaderESP extends Module {
 
     private static final SelectionValue mode = new SelectionValue("Mode", "Glow", "Glow", "Outline");
-    private boolean renderNametagAndEnchantmentGlint = true;
+    private boolean render = true;
     private final ICamera frustum = new Frustum();
     public ShaderESP() {
         super("Shader ESP", ModuleCategory.VISUAL, Keyboard.KEY_NONE, false, false, true);
     }
 
     private boolean shouldRender(Entity entity) {
-        return entity instanceof EntityPlayer && !(entity instanceof EntityPlayerSP);
+        return entity instanceof EntityPlayer && (!(entity instanceof EntityPlayerSP) || mc.gameSettings.thirdPersonView != 0);
     }
 
-    public boolean isRenderNametagAndEnchantmentGlint() {
-        return this.renderNametagAndEnchantmentGlint;
+    public boolean isRenderingESP() {
+        return this.render;
     }
 
     @Override
     public void onDisable() {
-        renderNametagAndEnchantmentGlint = true;
+        render = true;
     }
 
     @Override
     public void onLoadWorld(LoadWorldEvent event) {
-        renderNametagAndEnchantmentGlint = true;
+        render = true;
     }
 
     @Override
@@ -51,7 +51,7 @@ public class ShaderESP extends Module {
 
         shader.startDraw(event.partialTicks);
 
-        renderNametagAndEnchantmentGlint = false;
+        render = false;
         try {
             Entity view = mc.getRenderViewEntity();
             if (view != null) {
@@ -67,11 +67,11 @@ public class ShaderESP extends Module {
                 }
             }
         } finally {
-            renderNametagAndEnchantmentGlint = true;
+            render = true;
         }
 
-        float radius = glow ? 3.5f : 1.5f;
-        float intensity = glow ? 0.4f : 0.8f;
+        float radius = glow ? 2f : 1f;
+        float intensity = glow ? 1.8f : 1f;
 
         shader.stopDraw(Color.WHITE, radius, intensity);
     }

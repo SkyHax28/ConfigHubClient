@@ -1,12 +1,11 @@
 package net.minecraft.client.renderer.entity.layers;
 
 import com.dew.DewCommon;
-import com.dew.system.module.modules.visual.SilentView;
+import com.dew.system.module.modules.visual.Rotations;
 import com.dew.system.mongodb.MongoManager;
 import com.dew.system.rotation.RotationManager;
 import com.dew.system.special.CapeImageLoader;
 import net.minecraft.client.entity.AbstractClientPlayer;
-import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.RenderPlayer;
 import net.minecraft.entity.player.EntityPlayer;
@@ -26,7 +25,7 @@ public class LayerCape implements LayerRenderer<AbstractClientPlayer>
 
     public void doRenderLayer(AbstractClientPlayer entitylivingbaseIn, float p_177141_2_, float p_177141_3_, float partialTicks, float p_177141_5_, float p_177141_6_, float p_177141_7_, float scale)
     {
-        SilentView silentViewModule = DewCommon.moduleManager.getModule(SilentView.class);
+        Rotations rotationsModule = DewCommon.moduleManager.getModule(Rotations.class);
         RotationManager rotationManager = DewCommon.rotationManager;
         MongoManager mongoManager = DewCommon.mongoManager;
         if (entitylivingbaseIn.hasPlayerInfo() && !entitylivingbaseIn.isInvisible() && entitylivingbaseIn.isWearing(EnumPlayerModelParts.CAPE) && entitylivingbaseIn.getLocationCape() != null || mongoManager.online.stream().anyMatch(p -> p.getLeft().equals(entitylivingbaseIn))) {
@@ -58,7 +57,7 @@ public class LayerCape implements LayerRenderer<AbstractClientPlayer>
             double d0 = entitylivingbaseIn.prevChasingPosX + (entitylivingbaseIn.chasingPosX - entitylivingbaseIn.prevChasingPosX) * (double)partialTicks - (entitylivingbaseIn.prevPosX + (entitylivingbaseIn.posX - entitylivingbaseIn.prevPosX) * (double)partialTicks);
             double d1 = entitylivingbaseIn.prevChasingPosY + (entitylivingbaseIn.chasingPosY - entitylivingbaseIn.prevChasingPosY) * (double)partialTicks - (entitylivingbaseIn.prevPosY + (entitylivingbaseIn.posY - entitylivingbaseIn.prevPosY) * (double)partialTicks);
             double d2 = entitylivingbaseIn.prevChasingPosZ + (entitylivingbaseIn.chasingPosZ - entitylivingbaseIn.prevChasingPosZ) * (double)partialTicks - (entitylivingbaseIn.prevPosZ + (entitylivingbaseIn.posZ - entitylivingbaseIn.prevPosZ) * (double)partialTicks);
-            float f = entitylivingbaseIn.prevRenderYawOffset + (entitylivingbaseIn.renderYawOffset - entitylivingbaseIn.prevRenderYawOffset) * partialTicks;
+            float f = entitylivingbaseIn.prevRotationYaw + (entitylivingbaseIn.rotationYaw - entitylivingbaseIn.prevRotationYaw) * partialTicks;
             double d3 = (double)MathHelper.sin(f * (float)Math.PI / 180.0F);
             double d4 = (double)(-MathHelper.cos(f * (float)Math.PI / 180.0F));
             float f1 = (float)d1 * 10.0F;
