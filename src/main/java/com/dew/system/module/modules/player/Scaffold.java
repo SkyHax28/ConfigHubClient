@@ -732,7 +732,7 @@ public class Scaffold extends Module {
             if (result != null) return result;
         }
 
-        if (!andromed) {
+        /*if (!andromed) {
             BlockPos[] neighbors = {
                     pos.add(-1, 0, 0),
                     pos.add(1, 0, 0),
@@ -753,7 +753,7 @@ public class Scaffold extends Module {
                     if (result != null) return result;
                 }
             }
-        }
+        }*/
 
         return null;
     }

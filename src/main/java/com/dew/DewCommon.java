@@ -30,7 +30,7 @@ public class DewCommon {
     public static final File BASE_CFG_DIR = new File(mc.mcDataDir, "dew");
 
     public static String clientName = "Dew";
-    public static String versionUpdateDate = "November 8th";
+    public static String versionUpdateDate = "November 9th";
     public static String supportedMcVersions = "Minecraft 1.8.x to 1.21.10";
 
     public static EventManager eventManager;
