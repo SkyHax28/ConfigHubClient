@@ -1,5 +1,5 @@
-# Open Dew
-Discord https://discord.gg/hxGDhxAHYj
+# ConfigHubClient
+This is a fork of Dew client
 
 # How to setup
 Clone the repository into whatever folder you want (Mine is in my coding folder), open the project in Intellij IDEA then make a new run configuration (Application)
