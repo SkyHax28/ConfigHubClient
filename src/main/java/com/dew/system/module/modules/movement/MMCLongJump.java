@@ -34,8 +34,8 @@ public class MMCLongJump extends Module {
     private int oldSlot = -1;
     private long throwTime = 0;
 
-    public LongJump() {
-        super("LongJump", ModuleCategory.MOVEMENT, Keyboard.KEY_NONE, false, true, true);
+    public MMCLongJump() {
+        super("MMCLongJump", ModuleCategory.MOVEMENT, Keyboard.KEY_NONE, false, true, true);
         register(manual, onlyVelocity, boost, allowStrafe, invertYaw, stopMovement, jumpAfter, silentSwing);
     }
 
