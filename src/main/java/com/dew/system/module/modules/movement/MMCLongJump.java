@@ -19,15 +19,16 @@ import org.lwjgl.input.Mouse;
 
 public class MMCLongJump extends Module {
 
-    private final BooleanValue manual = new BooleanValue("Manual", false);
-    private final BooleanValue onlyVelocity = new BooleanValue("Only while velocity", false);
-    private final NumberValue boost = new NumberValue("Horizontal boost", 2.5, 0.0, 10.0, 0.05);
-    private final BooleanValue allowStrafe = new BooleanValue("Allow strafe", false);
-    private final BooleanValue invertYaw = new BooleanValue("Invert yaw", true);
-    private final BooleanValue stopMovement = new BooleanValue("Stop movement", false);
-    private final BooleanValue jumpAfter = new BooleanValue("Jump after throw", false);
-    private final BooleanValue silentSwing = new BooleanValue("Silent swing", false);
+    private final BooleanValue manual           = new BooleanValue("Manual", false);
+    private final BooleanValue onlyVelocity     = new BooleanValue("Only while velocity", false);
+    private final NumberValue boost             = new NumberValue("Horizontal boost", 2.5, 0.0, 10.0, 0.05);
+    private final BooleanValue allowStrafe      = new BooleanValue("Allow strafe", false);
+    private final BooleanValue invertYaw        = new BooleanValue("Invert yaw", true);
+    private final BooleanValue stopMovement     = new BooleanValue("Stop movement", false);
+    private final BooleanValue jumpAfter        = new BooleanValue("Jump after throw", false);
+    private final BooleanValue silentSwing      = new BooleanValue("Silent swing", false);
 
+    // Runtime
     private boolean active = false;
     private int ticks = 0;
     private int rotateTicks = 0;
@@ -35,14 +36,11 @@ public class MMCLongJump extends Module {
     private long throwTime = 0;
 
     public MMCLongJump() {
-        super("MMCLongJump", ModuleCategory.MOVEMENT, Keyboard.KEY_NONE, false, true, true);
-        register(manual, onlyVelocity, boost, allowStrafe, invertYaw, stopMovement, jumpAfter, silentSwing);
+        super("MMC LongJump", ModuleCategory.MOVEMENT, Keyboard.KEY_NONE, false, true, true);
     }
 
     @Override
     public void onEnable() {
-        if (mc.thePlayer == null) return;
-
         active = false;
         ticks = rotateTicks = 0;
         oldSlot = -1;
@@ -64,84 +62,59 @@ public class MMCLongJump extends Module {
     public void onPreUpdate(PreUpdateEvent event) {
         if (mc.thePlayer == null || mc.theWorld == null) return;
 
-        boolean holdingFireball = mc.thePlayer.getHeldItem() != null && mc.thePlayer.getHeldItem().getItem() == Items.fire_charge;
+        boolean holdingFireball = mc.thePlayer.getHeldItem() != null
+                && mc.thePlayer.getHeldItem().getItem() == Items.fire_charge;
 
-        if (!active && Mouse.isButtonDown(1) && holdingFireball) {
-            if (!manual.get() || (onlyVelocity.get() && isVelocityActive())) {
-                startJump();
-                return;
-            }
+        if (!active && !manual.get() && Mouse.isButtonDown(1) && holdingFireball) {
+            startLongJump();
+            return;
+        }
+
+        if (!active && manual.get() && Mouse.isButtonDown(1) && holdingFireball) {
+            startLongJump();
+            return;
         }
 
         if (!active) return;
 
         if (throwTime > 0 && (System.currentTimeMillis() - throwTime > 800 || mc.thePlayer.motionY < -0.0784)) {
-            send("&cFireball timeout!");
-            disable();
+            sendMessage("Fireball timeout!");
+            setEnabled(false);
             return;
         }
 
         if (mc.thePlayer.onGround && ticks > 2) {
-            disable();
+            setEnabled(false);
             return;
         }
 
-        // Boosts you big bypass
         if (ticks >= 0) {
-            if (allowStrafe.get() && ticks < 32) {
-                MovementUtil.strafe((float) MovementUtil.getSpeed());
-            }
-
-            if (boost.get() > 0) {
-                double speed = boost.get() - Math.random() * 0.0001;
-                MovementUtil.strafe((float) speed);
+            double speed = boost.getValue();
+            if (speed > 0) {
+                if (allowStrafe.get()) {
+                    MovementUtil.strafe((float) MovementUtil.getSpeed());
+                }
+                MovementUtil.strafe((float) (speed - Math.random() * 0.0001));
             }
             ticks++;
         }
     }
 
-    private void startJump() {
-        int fireballSlot = getFireballSlot();
-        if (fireballSlot == -1) {
-            send("&cNo fireball found!");
-            return;
-        }
-
-        if (MovementUtil.getDistanceToGround() > 3) {
-            send("&cCan't throw in air!");
-            return;
-        }
-
-        oldSlot = mc.thePlayer.inventory.currentItem;
-
-        // switches slot ig
-        if (oldSlot != fireballSlot) {
-            PacketUtil.sendPacket(new C09PacketHeldItemChange(fireballSlot));
-            mc.thePlayer.inventory.currentItem = fireballSlot;
-        }
-
-        active = true;
-        ticks = -1;
-        rotateTicks = 1;
-        throwTime = 0;
-    }
-
-
-    public void onPreMotion() { 
-        if (!active || rotateTicks == 0) return;
+    public void onPreMotion() {
+        if (!active || rotateTicks <= 0) return;
 
         float yaw = mc.thePlayer.rotationYaw;
         if (invertYaw.get() || stopMovement.get()) {
             yaw -= 180f;
         }
-
         float pitch = stopMovement.get() ? 66.3f : 90f;
 
         mc.thePlayer.rotationYaw = yaw;
         mc.thePlayer.rotationPitch = pitch;
 
         if (++rotateTicks == 3) {
-            PacketUtil.sendPacket(new C08PacketPlayerBlockPlacement(new BlockPos(-1, -1, -1), 255, mc.thePlayer.getHeldItem(), 0, 0, 0));
+            PacketUtil.sendPacket(new C08PacketPlayerBlockPlacement(
+                    new BlockPos(-1, -1, -1), 255, mc.thePlayer.getHeldItem(), 0, 0, 0));
 
             if (silentSwing.get()) {
                 PacketUtil.sendPacket(new C0APacketAnimation());
@@ -151,25 +124,44 @@ public class MMCLongJump extends Module {
 
             throwTime = System.currentTimeMillis();
             ticks = 0;
-
-            resetSlot();
         }
     }
 
-    // Explosion abfangen für Boost
-    public void onPacket(Object packet) {
+    public void onReceivePacket(Object packet) {
         if (!active || !(packet instanceof S27PacketExplosion)) return;
 
         S27PacketExplosion explosion = (S27PacketExplosion) packet;
 
-        if (throwTime == 0 || mc.thePlayer.getDistanceSq(explosion.getX(), explosion.getY(), explosion.getZ()) > 9) {
-            send("&cExplosion too far!");
-            disable();
+        double distSq = mc.thePlayer.getDistanceSq(explosion.getX(), explosion.getY(), explosion.getZ());
+        if (throwTime == 0 || distSq > 9) {
+            sendMessage("Explosion too far!");
+            setEnabled(false);
             return;
         }
 
+        // Boost start :fire:
         ticks = 0;
         throwTime = 0;
+        resetSlot();
+    }
+
+    private void startLongJump() {
+        int fireballSlot = getFireballSlot();
+        if (fireballSlot == -1) {
+            sendMessage("No fireball in hotbar!");
+            return;
+        }
+
+        oldSlot = mc.thePlayer.inventory.currentItem;
+
+        if (oldSlot != fireballSlot) {
+            PacketUtil.sendPacket(new C09PacketHeldItemChange(fireballSlot));
+            mc.thePlayer.inventory.currentItem = fireballSlot;
+        }
+
+        active = true;
+        ticks = -1;
+        rotateTicks = 1;
     }
 
     private void resetSlot() {
@@ -190,10 +182,11 @@ public class MMCLongJump extends Module {
         return -1;
     }
 
-    private boolean isVelocityActive() {
-        return false;
-    }
-
-    private void send(String msg) {
+    private void sendMessage(String msg) {
+        if (mc.thePlayer != null) {
+            mc.thePlayer.addChatMessage(new net.minecraft.util.ChatComponentText("§8[§cMMC§8] §7" + msg));
+        }
     }
 }
+
+// im hoping that it works now :praye:
