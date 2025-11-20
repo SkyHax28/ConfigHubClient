@@ -22,6 +22,7 @@ public class ModuleManager implements EventListener {
 
     public ModuleManager() {
         this.modules.addAll(Arrays.asList(
+                new MMCLongJump
                 new MoveFix(),
                 new ItemAnimations(),
                 new ClickGui(),
