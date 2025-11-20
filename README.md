@@ -14,4 +14,4 @@ Just run the "build" run command in the Philippin　gradle tab
 
 ![config_list](https://github.com/AbyssClient/GradleMCPBase/assets/170053471/9d558995-ec49-4ea3-b066-35cedbd78338)
 
-Credits to Khadow SkyHax and High Inhibition
+# Credits to Khadow SkyHax and High Inhibition
