@@ -17,7 +17,7 @@ import net.minecraft.util.BlockPos;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
-public class LongJump extends Module {
+public class MMCLongJump extends Module {
 
     private final BooleanValue manual = new BooleanValue("Manual", false);
     private final BooleanValue onlyVelocity = new BooleanValue("Only while velocity", false);
