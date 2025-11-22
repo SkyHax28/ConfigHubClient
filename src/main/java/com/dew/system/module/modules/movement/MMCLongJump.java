@@ -35,7 +35,6 @@ import java.util.List;
 
 public class MMCLongJump extends Module {
 
-    // Modes: Float, Boost, Delay
     private final SelectionValue mode = new SelectionValue(
             "Mode",
             "Float",
@@ -58,7 +57,6 @@ public class MMCLongJump extends Module {
     private final BooleanValue silentSwing = new BooleanValue("Silent swing", false);
     private final BooleanValue renderProgress = new BooleanValue("Render bar", true);
 
-    // Runtime
     private boolean function = false;
     private boolean swappedSlot = false;
     private boolean delaying = false;
@@ -73,14 +71,12 @@ public class MMCLongJump extends Module {
     private long fireballTime = 0L;
     private long MAX_EXPLOSION_DIST_SQ = 9;
 
-    // Progress bar fields
     private float barWidth = 60f;
     private float barHeight = 4f;
     private float filledWidth = 0f;
     private float barX;
     private float barY;
 
-    // Packet queue for Delay mode
     private final List<Packet<?>> delayedPackets = new ArrayList<>();
 
 
@@ -101,7 +97,6 @@ public class MMCLongJump extends Module {
         fireballRotateTicks = 0;
         filledWidth = 0;
 
-        // Init progress bar position
         int w = mc.displayWidth / 2;
         int h = mc.displayHeight / 2;
         barX = w - barWidth / 2f;
@@ -124,10 +119,6 @@ public class MMCLongJump extends Module {
         resetSlot();
     }
 
-    //
-    // Core logic
-    //
-
     @Override
     public void onPreUpdate(PreUpdateEvent event) {
         if (mc.thePlayer == null) return;
@@ -135,9 +126,6 @@ public class MMCLongJump extends Module {
         boolean holdingFireball = mc.thePlayer.getHeldItem() != null &&
                 mc.thePlayer.getHeldItem().getItem() == Items.fire_charge;
 
-        //
-        // Trigger logic
-        //
         if (!function) {
             if (manual.get()) {
                 if (Mouse.isButtonDown(1) && holdingFireball && (!onlyVelocity.get() || MovementUtil.hasMotionHorizontal())) {
@@ -153,9 +141,6 @@ public class MMCLongJump extends Module {
             return;
         }
 
-        //
-        // Fireball timeout failsafe
-        //
         long timeout = 750L;
         if (jumpAfterThrow.get() && !mode.get().equals("Delay")) timeout = 350L;
 
@@ -166,28 +151,17 @@ public class MMCLongJump extends Module {
             return;
         }
 
-        //
-        // Ground terminate
-        //
         if (mc.thePlayer.onGround && boostTicks > 2) {
             setState(false);
             return;
         }
 
-        //
-        // Movement logic
-        //
-
-        boolean isFloat = mode.get().equals("Float");
-        boolean isBoost = mode.get().equals("Boost");
-        boolean isDelay = mode.get().equals("Delay");
-
-        if (isFloat) applyFloatModeMovement();
-        if (isBoost) applyBoostModeMovement();
-        if (isDelay) applyDelayModeMovement();
+        if (mode.get().equals("Float")) applyFloatMovement();
+        if (mode.get().equals("Boost")) applyBoostMovement();
+        if (mode.get().equals("Delay")) applyDelayMovement();
     }
 
-    private void applyFloatModeMovement() {
+    private void applyFloatMovement() {
         if (boostTicks <= 0) return;
 
         double decay = motionDecay.get() / 1000.0;
@@ -209,7 +183,7 @@ public class MMCLongJump extends Module {
         }
     }
 
-    private void applyBoostModeMovement() {
+    private void applyBoostMovement() {
         if (boostTicks < 1) return;
 
         if (horizontalBoost.get() > 0) {
@@ -221,7 +195,7 @@ public class MMCLongJump extends Module {
         }
     }
 
-    private void applyDelayModeMovement() {
+    private void applyDelayMovement() {
         if (!delaying) return;
 
         delayTicks++;
@@ -233,15 +207,10 @@ public class MMCLongJump extends Module {
         }
     }
 
-    //
-    // Fireball launch and rotation spoof
-    //
-
     @Override
     public void onPreMotion(PreMotionEvent event) {
         if (!function) return;
 
-        // Rotation sequence
         if (fireballRotateTicks > 0) {
             if (fireballRotateTicks == 1) {
                 float yaw = mc.thePlayer.rotationYaw;
@@ -265,7 +234,6 @@ public class MMCLongJump extends Module {
     private void throwFireball() {
         fireballTime = System.currentTimeMillis();
 
-        // Actual fireball throw
         PacketUtil.sendPacket(new C08PacketPlayerBlockPlacement(
                 new BlockPos(-1, -1, -1),
                 255,
@@ -282,17 +250,12 @@ public class MMCLongJump extends Module {
         boostTicks = -1;
     }
 
-    //
-    // Packet logic (explosion + delay mode)
-    //
-
     @Override
     public void onReceivedPacket(ReceivedPacketEvent event) {
         if (!function) return;
 
-        Packet<?> p = event.getPacket();
+        Packet<?> p = event.packet;
 
-        // Explosion detection
         if (p instanceof S27PacketExplosion) {
             S27PacketExplosion ex = (S27PacketExplosion) p;
 
@@ -311,12 +274,12 @@ public class MMCLongJump extends Module {
             }
 
             resetSlot();
+            return;
         }
 
-        // Delay mode packet queue
         if (delaying) {
             delayedPackets.add(p);
-            event.setCancelled(true);
+            // No cancellation supported by your event system
         }
     }
 
@@ -328,10 +291,6 @@ public class MMCLongJump extends Module {
         delaying = false;
     }
 
-    //
-    // Rendering (progress bar)
-    //
-
     @Override
     public void onRender2D(Render2DEvent event) {
         if (!renderProgress.get()) return;
@@ -339,22 +298,20 @@ public class MMCLongJump extends Module {
 
         int color = new Color(0, 180, 255).getRGB();
 
-        // Background
         drawRect(barX, barY, barX + barWidth, barY + barHeight, new Color(30, 30, 30, 180).getRGB());
-
-        // Fill
         drawRect(barX, barY, barX + filledWidth, barY + barHeight, color);
     }
 
     private void drawRect(float x1, float y1, float x2, float y2, int color) {
-        int a = (color >> 24) & 0xFF;
-        int r = (color >> 16) & 0xFF;
-        int g = (color >> 8) & 0xFF;
-        int b = (color) & 0xFF;
+        int a = (color >> 24) & 255;
+        int r = (color >> 16) & 255;
+        int g = (color >> 8) & 255;
+        int b = color & 255;
 
         net.minecraft.client.renderer.GlStateManager.enableBlend();
         net.minecraft.client.renderer.GlStateManager.disableTexture2D();
         net.minecraft.client.renderer.GlStateManager.color(r / 255f, g / 255f, b / 255f, a / 255f);
+
         net.minecraft.client.renderer.Tessellator tess = net.minecraft.client.renderer.Tessellator.getInstance();
         net.minecraft.client.renderer.WorldRenderer wr = tess.getWorldRenderer();
         wr.begin(7, net.minecraft.client.renderer.vertex.DefaultVertexFormats.POSITION);
@@ -363,13 +320,10 @@ public class MMCLongJump extends Module {
         wr.pos(x2, y1, 0).endVertex();
         wr.pos(x1, y1, 0).endVertex();
         tess.draw();
+
         net.minecraft.client.renderer.GlStateManager.enableTexture2D();
         net.minecraft.client.renderer.GlStateManager.disableBlend();
     }
-
-    //
-    // Utility
-    //
 
     private void startLongJump() {
         int fireballSlot = findFireballSlot();
