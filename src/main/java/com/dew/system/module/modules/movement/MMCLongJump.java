@@ -28,7 +28,6 @@ public class MMCLongJump extends Module {
     private final BooleanValue jumpAfter        = new BooleanValue("Jump after throw", false);
     private final BooleanValue silentSwing      = new BooleanValue("Silent swing", false);
 
-    // Runtime
     private boolean active = false;
     private int ticks = 0;
     private int rotateTicks = 0;
@@ -79,17 +78,17 @@ public class MMCLongJump extends Module {
 
         if (throwTime > 0 && (System.currentTimeMillis() - throwTime > 800 || mc.thePlayer.motionY < -0.0784)) {
             sendMessage("Fireball timeout!");
-            setEnabled(false);
+            setState(false);
             return;
         }
 
         if (mc.thePlayer.onGround && ticks > 2) {
-            setEnabled(false);
+            setState(false);
             return;
         }
 
         if (ticks >= 0) {
-            double speed = boost.getValue();
+            double speed = boost.get();
             if (speed > 0) {
                 if (allowStrafe.get()) {
                     MovementUtil.strafe((float) MovementUtil.getSpeed());
@@ -135,11 +134,10 @@ public class MMCLongJump extends Module {
         double distSq = mc.thePlayer.getDistanceSq(explosion.getX(), explosion.getY(), explosion.getZ());
         if (throwTime == 0 || distSq > 9) {
             sendMessage("Explosion too far!");
-            setEnabled(false);
+            setState(false);
             return;
         }
 
-        // Boost start :fire:
         ticks = 0;
         throwTime = 0;
         resetSlot();
@@ -188,5 +186,3 @@ public class MMCLongJump extends Module {
         }
     }
 }
-
-// im hoping that it works now :praye:
